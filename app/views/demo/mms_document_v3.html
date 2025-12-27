@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MES & Maintenance Checklist System Documentation</title>
+<style>
+:root {
+    --primary: #0056b3;
+    --secondary: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --gray: #6c757d;
+    --border: #dee2e6;
+    --code-bg: #f1f1f1;
+    --success: #d4edda;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height:1.6; color:#333; background-color:#fafafa;
+}
+
+header {
+    background: linear-gradient(135deg, var(--primary), #003d7a);
+    color:white; padding:2rem 1rem; text-align:center;
+    box-shadow:0 4px 6px rgba(0,0,0,0.1);
+}
+
+header h1 { font-size:2.5rem; margin-bottom:0.5rem; }
+header p { font-size:1.2rem; opacity:0.9; max-width:800px; margin:0 auto; }
+
+.container { max-width:1200px; margin:0 auto; padding:2rem 1rem; }
+
+.card {
+    background:white; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom:2rem; overflow:hidden;
+}
+
+.card-header {
+    background-color: var(--primary); color:white; padding:1.25rem 1.5rem;
+    font-size:1.5rem; font-weight:600;
+}
+
+.card-body { padding:1.5rem; }
+
+.section { margin-bottom:2.5rem; }
+
+h2 { color: var(--primary); margin:1.5rem 0 1rem; padding-bottom:0.5rem; border-bottom:2px solid var(--primary); }
+h3 { color: var(--dark); margin:1.25rem 0 0.75rem; font-size:1.25rem; }
+p { margin-bottom:1rem; }
+
+.grid {
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+    gap:1.5rem; margin-top:1rem;
+}
+
+.feature-card {
+    border:1px solid var(--border); border-radius:6px; padding:1.25rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover { transform:translateY(-3px); box-shadow:0 4px 8px rgba(0,0,0,0.1); }
+.feature-card h4 { color: var(--primary); margin-bottom:0.75rem; font-size:1.1rem; }
+
+.code-block {
+    background-color: var(--code-bg); border-left:4px solid var(--primary);
+    padding:1rem; margin:1rem 0; border-radius:4px;
+    overflow-x:auto; font-family:'Consolas','Courier New',monospace; font-size:0.95rem;
+}
+
+.code-title { font-weight:600; margin-bottom:0.5rem; color: var(--dark); }
+
+.param-table { width:100%; border-collapse:collapse; margin:1rem 0; }
+.param-table th {
+    background-color: var(--primary); color:white; text-align:left; padding:0.75rem;
+}
+.param-table td { padding:0.75rem; border-bottom:1px solid var(--border); }
+.param-table tr:nth-child(even) { background-color: rgba(0,86,179,0.03); }
+
+.badge { display:inline-block; padding:0.25rem 0.5rem; border-radius:4px; font-size:0.85rem; font-weight:600; margin-right:0.5rem; }
+.badge-required { background-color: var(--danger); color:white; }
+.badge-optional { background-color: var(--warning); color:var(--dark); }
+
+.usage-example { background-color: var(--success); border-left:4px solid var(--secondary); padding:1rem; margin:1.5rem 0; border-radius:4px; }
+
+.flow-diagram { display:flex; flex-direction:column; align-items:center; margin:2rem 0; }
+.flow-step { display:flex; align-items:center; margin:1rem 0; width:100%; max-width:600px; }
+.flow-number { background-color: var(--primary); color:white; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:1rem; flex-shrink:0; }
+
+footer { text-align:center; padding:2rem 1rem; color: var(--gray); border-top:1px solid var(--border); margin-top:2rem; }
+
+@media (max-width:768px) {
+    .grid { grid-template-columns:1fr; }
+    header h1 { font-size:2rem; }
+    .container { padding:1rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>MES & Maintenance Checklist System</h1>
+<p>Combined Technical Documentation — Model, Controller, DB & Workflows</p>
+</header>
+
+<div class="container">
+
+<!-- Overview Card -->
+<div class="card">
+<div class="card-header">System Overview</div>
+<div class="card-body">
+<p>This documentation details the MES/MMS system structure, database schemas, controllers, models, and the Maintenance Checklist System. It is tenant-aware, transaction-safe, and includes workflow illustrations and usage examples.</p>
+
+<div class="grid">
+<div class="feature-card"><h4>🔐 Tenant Security</h4><p>All operations scoped by <code>tenant_id</code> to prevent cross-tenant data access.</p></div>
+<div class="feature-card"><h4>🔄 Atomic Transactions</h4><p>Checklist updates (header + tasks) use single transactions for data consistency.</p></div>
+<div class="feature-card"><h4>✅ Type Safety</h4><p>Strict validation of GUIDs and integers to prevent SQL errors and injection.</p></div>
+</div>
+</div>
+</div>
+
+<!-- File / Folder Structure -->
+<div class="card">
+<div class="card-header">Project File / Folder Structure (MES)</div>
+<div class="card-body">
+<pre class="code-block">f:\xamp_server\htdocs\mes\
+│
+├── index.php
+├── .htaccess
+├── .env
+└── app\
+    ├── routes.php
+    ├── config\
+    │   ├── EnvLoader.php
+    │   └── Database.php
+    ├── controllers\
+    │   ├── PagesController.php
+    │   ├── ContactController.php
+    │   ├── RegisterController.php
+    │   ├── SigninController.php
+    │   ├── AssetController.php
+    │   ├── AssetMaintenanceController.php
+    │   ├── ChecklistTemplateController.php
+    │   ├── ChecklistController.php
+    │   ├── RoutineMaintenanceController.php
+    │   └── MaintenanceDashboardController.php
+    ├── models\
+    │   ├── Contact.php
+    │   ├── RegisterModel.php
+    │   ├── SigninModel.php
+    │   ├── AssetModel.php
+    │   ├── AssetMaintenanceModel.php
+    │   ├── ChecklistTemplateModel.php
+    │   ├── ChecklistModel.php
+    │   ├── RoutineMaintenanceModel.php
+    │   └── RoutineWorkOrderModel.php
+    └── views\
+        ├── layouts\
+        ├── forms_mms\
+        │   ├── addAssets.php
+        │   ├── checklist_template.php
+        │   ├── checklist_lists.php
+        │   ├── checklist_edit.php
+        │   ├── routine_maintenance.php
+        │   └── routine_maintenance_preview.php
+        └── signin.php
+</pre>
+</div>
+</div>
+
+<!-- Routing Map -->
+<div class="card">
+<div class="card-header">Routing Map (Important Routes)</div>
+<div class="card-body">
+<table class="param-table">
+<thead>
+<tr><th>Method & URI</th><th>Controller::action</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td>GET /form_mms/addAsset</td><td>AssetController::create</td><td>Show add asset form</td></tr>
+<tr><td>POST /form_mms/addAsset</td><td>AssetController::store</td><td>Store new asset</td></tr>
+<tr><td>GET /form_mms/checklist_template</td><td>ChecklistTemplateController::create</td><td>Create checklist template form</td></tr>
+<tr><td>POST /form_mms/checklist_template</td><td>ChecklistTemplateController::store</td><td>Save checklist template</td></tr>
+<tr><td>GET /form_mms/checklists</td><td>ChecklistController::index</td><td>List all checklists</td></tr>
+<tr><td>GET /form_mms/checklist_edit?checklist_id={id}</td><td>ChecklistController::edit</td><td>Edit checklist & tasks</td></tr>
+<tr><td>POST /form_mms/checklist_update</td><td>ChecklistController::update</td><td>Update checklist header & tasks</td></tr>
+<tr><td>GET /form_mms/routine_maintenance</td><td>RoutineMaintenanceController::generateForm</td><td>Show routine maintenance generator</td></tr>
+<tr><td>POST /form_mms/routine_maintenance</td><td>RoutineMaintenanceController::generate</td><td>Generate routine work orders</td></tr>
+<tr><td>GET /mes/api/get_maintenance_type_by_work_order?work_order=...</td><td>RoutineMaintenanceController::getMaintenanceTypeByWorkOrder</td><td>Return maintenance_type (JSON)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Key DB Schemas -->
+<div class="card">
+<div class="card-header">Database Schemas (MS SQL)</div>
+<div class="card-body">
+<h3>1. assets</h3>
+<pre class="code-block">CREATE TABLE assets (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    asset_id NVARCHAR(50) NOT NULL UNIQUE,
+    asset_name NVARCHAR(255) NOT NULL,
+    location_id_1 NVARCHAR(100),
+    location_id_2 NVARCHAR(100),
+    location_id_3 NVARCHAR(100),
+    vendor_id NVARCHAR(100),
+    mfg_code NVARCHAR(100),
+    status NVARCHAR(20) DEFAULT 'active',
+    equipment_description NVARCHAR(MAX),
+    created_at DATETIME2 DEFAULT SYSDATETIME()
+);
+</pre>
+
+<h3>2. checklist_template</h3>
+<pre class="code-block">CREATE TABLE checklist_template (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    checklist_id NVARCHAR(255) NOT NULL,
+    maintenance_type NVARCHAR(255),
+    work_order NVARCHAR(255),
+    technician NVARCHAR(255),
+    interval_days INT DEFAULT 30,
+    description NVARCHAR(MAX),
+    created_by UNIQUEIDENTIFIER,
+    updated_by UNIQUEIDENTIFIER,
+    created_at DATETIME2 DEFAULT SYSDATETIME(),
+    updated_at DATETIME2 DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_checklist_template_org FOREIGN KEY (tenant_id) REFERENCES organizations(org_id),
+    CONSTRAINT UQ_checklist_template_tenant_checklist UNIQUE (tenant_id, checklist_id)
+);
+</pre>
+
+<h3>3. checklist_tasks</h3>
+<pre class="code-block">CREATE TABLE checklist_tasks (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    checklist_id NVARCHAR(255) NOT NULL,
+    task_order INT NOT NULL,
+    task_text NVARCHAR(MAX) NOT NULL,
+    CONSTRAINT FK_checklist_tasks_template
+        FOREIGN KEY (tenant_id, checklist_id)
+        REFERENCES checklist_template (tenant_id, checklist_id)
+        ON DELETE CASCADE,
+    CONSTRAINT UQ_checklist_task_order UNIQUE (tenant_id, checklist_id, task_order)
+);
+</pre>
+
+<h3>4. routine_Work_Orders</h3>
+<pre class="code-block">CREATE TABLE routine_Work_Orders (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    asset_id NVARCHAR(50) NOT NULL,
+    asset_name NVARCHAR(255) NOT NULL,
+    location_id_1 NVARCHAR(100),
+    location_id_2 NVARCHAR(100),
+    location_id_3 NVARCHAR(100),
+    checklist_id NVARCHAR(255) NOT NULL,
+    maintenance_type NVARCHAR(50) NOT NULL,
+    maint_start_date DATE NOT NULL,
+    maint_end_date DATE NOT NULL,
+    technician_name NVARCHAR(255),
+    work_order_ref NVARCHAR(255),
+    description NVARCHAR(MAX),
+    next_maintenance_date DATE,
+    status NVARCHAR(50),
+    CONSTRAINT FK_routineWO_asset FOREIGN KEY (asset_id) REFERENCES assets(asset_id)
+);
+</pre>
+</div>
+</div>
+
+<!-- Controllers & Models Documentation -->
+<div class="card">
+<div class="card-header">Controller & Model Methods</div>
+<div class="card-body">
+<p>See detailed MES/MMS controllers, models, and Maintenance Checklist System classes below. Includes method parameters, usage examples, and flow diagrams.</p>
+
+<!-- Example Model Method -->
+<div class="section">
+<h2>Model: MaintenanceChecklistUpdateModel</h2>
+
+<h3>updateChecklistWithTasks()</h3>
+<p>Atomically updates checklist header + tasks with tenant scoping.</p>
+<div class="code-block">[
+    'maintenance_checklist_id' => 123,
+    'tenant_id' => '9C4F...',
+    'header' => [ /* header fields */ ],
+    'tasks' => [ /* array of task updates */ ]
+]</div>
+<div class="usage-example"><strong>Returns:</strong>
+<div class="code-block">['updated_tasks'=>5,'header_updated'=>true]</div></div>
+</div>
+
+<div class="section">
+<h2>Controller: MaintenanceChecklistUpdateController - update()</h2>
+<div class="flow-diagram">
+<div class="flow-step"><div class="flow-number">1</div><div>Validate session tenant_id</div></div>
+<div class="flow-step"><div class="flow-number">2</div><div>Validate maintenance_checklist_id</div></div>
+<div class="flow-step"><div class="flow-number">3</div><div>Verify tenant ownership via checklistBelongsToTenant()</div></div>
+<div class="flow-step"><div class="flow-number">4</div><div>Build payload for updateChecklistWithTasks()</div></div>
+<div class="flow-step"><div class="flow-number">5</div><div>Execute atomic update</div></div>
+<div class="flow-step"><div class="flow-number">6</div><div>Redirect with success/error message</div></div>
+</div>
+</div>
+</div>
+
+<!-- PlantUML Diagrams -->
+<div class="card">
+<div class="card-header">PlantUML Diagrams</div>
+<div class="card-body">
+<h3>Class Diagram (simplified)</h3>
+<pre class="code-block">
+@startuml
+class PagesController
+class SigninController
+class AssetController
+class ChecklistTemplateController
+class ChecklistController
+class RoutineMaintenanceController
+
+class Database
+class AssetModel
+class ChecklistTemplateModel
+class ChecklistModel
+class RoutineMaintenanceModel
+class RoutineWorkOrderModel
+
+SigninController --> SigninModel
+AssetController --> AssetModel
+ChecklistTemplateController --> ChecklistTemplateModel
+ChecklistController --> ChecklistModel
+RoutineMaintenanceController --> RoutineMaintenanceModel
+RoutineMaintenanceModel --> RoutineWorkOrderModel
+@enduml
+</pre>
+
+<h3>Sequence: Generate Routine Work Orders</h3>
+<pre class="code-block">
+@startuml
+User -> RoutineMaintenanceController: POST /form_mms/routine_maintenance (csrf, work_order, asset_ids)
+RoutineMaintenanceController -> RoutineMaintenanceModel: generateRoutineWorkOrders(tenantId, workOrder, assetIds)
+RoutineMaintenanceModel -> checklist_template: SELECT template WHERE tenant_id AND work_order
+RoutineMaintenanceModel -> assets: SELECT each asset WHERE asset_id AND tenant_id
+RoutineMaintenanceModel -> routine_Work_Orders: SELECT COUNT existing scheduled
+RoutineMaintenanceModel -> routine_Work_Orders: INSERT new records
+RoutineMaintenanceModel --> RoutineMaintenanceController: return insertedCount
+RoutineMaintenanceController -> User: redirect + session success message
+@enduml
+</pre>
+</div>
+</div>
+
+<!-- Footer -->
+<footer>
+<p>MES & Maintenance Checklist System Documentation | Generated on November 26, 2025</p>
+<p>For technical support, contact the development team</p>
+</footer>
+
+</div>
+</body>
+</html>

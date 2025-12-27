@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset View</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main Container -->
+    <div class="bg-white shadow-xl rounded-2xl w-full max-w-2xl p-6 md:p-8">
+        <header class="text-center mb-6 md:mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Asset Details</h1>
+            <p class="text-lg text-gray-500">View and manage your asset information.</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button id="details-tab" class="py-2 px-4 -mb-px text-lg font-medium text-gray-600 focus:outline-none transition-colors duration-200 active-tab">Details</button>
+            <button id="maintenance-tab" class="py-2 px-4 -mb-px text-lg font-medium text-gray-600 focus:outline-none transition-colors duration-200">Maintenance Log</button>
+            <button id="checklist-tab" class="py-2 px-4 -mb-px text-lg font-medium text-gray-600 focus:outline-none transition-colors duration-200">Checklist</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content">
+
+            <!-- Details Tab -->
+            <div id="details-content" class="tab-pane">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Asset Information</h2>
+                        <ul class="space-y-2 text-gray-600">
+                            <li><strong class="font-medium text-gray-700">Asset ID:</strong> <span id="asset-id">A1B2C3D4</span></li>
+                            <li><strong class="font-medium text-gray-700">Name:</strong> <span id="asset-name">CNC Milling Machine</span></li>
+                            <li><strong class="font-medium text-gray-700">Serial Number:</strong> <span id="asset-sn">SN-002-14567</span></li>
+                            <li><strong class="font-medium text-gray-700">Location:</strong> <span id="asset-location">Building C, Floor 2</span></li>
+                            <li><strong class="font-medium text-gray-700">Status:</strong> <span id="asset-status" class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Operational</span></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Specifications</h2>
+                        <ul class="space-y-2 text-gray-600">
+                            <li><strong class="font-medium text-gray-700">Manufacturer:</strong> <span id="spec-manufacturer">TechCorp</span></li>
+                            <li><strong class="font-medium text-gray-700">Model:</strong> <span id="spec-model">ProMill 5000</span></li>
+                            <li><strong class="font-medium text-gray-700">Purchase Date:</strong> <span id="spec-purchase">2022-05-15</span></li>
+                            <li><strong class="font-medium text-gray-700">Estimated Lifespan:</strong> <span id="spec-lifespan">10 years</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Log Tab -->
+            <div id="maintenance-content" class="tab-pane hidden">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Maintenance Log</h2>
+                <div class="space-y-4">
+                    <!-- Example Log Entry -->
+                    <div class="bg-gray-50 rounded-lg p-4 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-500">2024-03-10</span>
+                            <span class="text-xs font-medium text-indigo-700 bg-indigo-100 px-2 py-1 rounded-full">Routine Service</span>
+                        </div>
+                        <p class="text-gray-700">Completed a routine check of all moving parts. Greased bearings and recalibrated the spindle. Performed by: John Doe.</p>
+                    </div>
+                    <!-- Example Log Entry -->
+                    <div class="bg-gray-50 rounded-lg p-4 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-500">2024-02-25</span>
+                            <span class="text-xs font-medium text-red-700 bg-red-100 px-2 py-1 rounded-full">Repair</span>
+                        </div>
+                        <p class="text-gray-700">Replaced a faulty motor sensor after a system error was detected. Performed by: Jane Smith.</p>
+                    </div>
+                    <!-- Example Log Entry -->
+                    <div class="bg-gray-50 rounded-lg p-4 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-500">2024-01-15</span>
+                            <span class="text-xs font-medium text-green-700 bg-green-100 px-2 py-1 rounded-full">Preventative Maintenance</span>
+                        </div>
+                        <p class="text-gray-700">Full inspection of electrical wiring and coolant lines. No issues found. Performed by: Mike Chen.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checklist Tab -->
+            <div id="checklist-content" class="tab-pane hidden">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Daily Operations Checklist</h2>
+                <ul class="space-y-3 text-gray-700">
+                    <!-- Example Checklist Items -->
+                    <li class="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg shadow-sm">
+                        <input type="checkbox" id="check-1" class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5">
+                        <label for="check-1" class="flex-grow">
+                            <span class="font-medium">Check coolant levels</span>
+                        </label>
+                    </li>
+                    <li class="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg shadow-sm">
+                        <input type="checkbox" id="check-2" class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5">
+                        <label for="check-2" class="flex-grow">
+                            <span class="font-medium">Inspect for debris and clean the work area</span>
+                        </label>
+                    </li>
+                    <li class="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg shadow-sm">
+                        <input type="checkbox" id="check-3" class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5">
+                        <label for="check-3" class="flex-grow">
+                            <span class="font-medium">Verify emergency stop button functionality</span>
+                        </label>
+                    </li>
+                    <li class="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg shadow-sm">
+                        <input type="checkbox" id="check-4" class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5">
+                        <label for="check-4" class="flex-grow">
+                            <span class="font-medium">Perform a test run and log results</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('[id$="-tab"]');
+        const contents = document.querySelectorAll('.tab-pane');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active styles from all tabs
+                tabs.forEach(t => t.classList.remove('active-tab', 'text-blue-600', 'border-b-2', 'border-blue-600'));
+
+                // Add active styles to the clicked tab
+                tab.classList.add('active-tab', 'text-blue-600', 'border-b-2', 'border-blue-600');
+
+                // Hide all tab content
+                contents.forEach(c => c.classList.add('hidden'));
+
+                // Show the corresponding tab content
+                const contentId = tab.id.replace('-tab', '-content');
+                document.getElementById(contentId).classList.remove('hidden');
+            });
+        });
+
+        // Set initial active tab
+        document.getElementById('details-tab').click();
+    </script>
+</body>
+</html>

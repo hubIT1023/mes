@@ -1,0 +1,211 @@
+/* /Assets/css/custom-colors.css */
+
+/* --- Base Badge Styles --- */
+.badge {
+	display: inline-block;
+	padding: 4px 8px;
+	font-size: 0.85em;
+	font-weight: 600;
+	line-height: 1;
+	text-align: center;
+	white-space: nowrap;
+	border-radius: 4px;
+	vertical-align: middle;
+	transition: all 0.2s ease;
+}
+
+/* --- Semantic Colors (Bootstrap overrides/customs) --- */
+.bg-primary {
+	background-color: #0d6efd !important;
+	color: #fff;
+}
+
+.bg-secondary {
+	background-color: #6c757d !important;
+	color: #fff;
+}
+
+.bg-success {
+	background-color: #1adb4e !important; /* Custom green */
+	color: #fff;
+}
+
+.bg-warning {
+	background-color: #ffc107 !important;
+	color: #000; /* Dark text for yellow */
+}
+
+.bg-danger {
+	background-color: #dc3545 !important;
+	color: #fff;
+}
+
+.bg-info {
+	background-color: #0dcaf0 !important;
+	color: #000;
+}
+
+.bg-dark {
+	background-color: #212529 !important;
+	color: #fff;
+}
+
+.bg-light {
+	background-color: #f8f9fa !important;
+	color: #000;
+}
+
+/* --- Lighter Tints (Optional) --- */
+.bg-primary-light {
+	background-color: #cfe2ff !important;
+	color: #084298 !important;
+}
+
+.bg-success-light {
+	background-color: #d1f0d6 !important;
+	color: #0f6e25 !important;
+}
+
+.bg-warning-light {
+	background-color: #fff3cd !important;
+	color: #856404 !important;
+}
+
+.bg-danger-light {
+	background-color: #f8d7da !important;
+	color: #721c24 !important;
+}
+
+/* --- Custom States (from state_config) --- */
+
+/* Production – Yellow background needs dark text */
+.badge.bg-custom-prod {
+	background-color: #ffc107 !important;
+	color: #000 !important;
+}
+
+/* Idle – Light blue background needs dark text */
+.bg-custom-idle {
+	background-color: #6bb0ed !important;
+	color: #000 !important;
+}
+
+/* Fault – Red background needs white text */
+.badge.bg-custom-fault {
+	background-color: #dc3545 !important;
+	color: #fff !important;
+}
+
+/* Maintenance – Yellow background, use dark text */
+.badgbg-custom-maint {
+	background-color: #6bb0ed !important;
+	color: #000 !important;
+}
+
+/* Running – Green background needs white text */
+.state-custom-running {
+	background-color: #28a745 !important;
+	color: #fff !important;
+}
+
+/* Stopped – Orange background needs white text */
+.badge.bg-custom-stopped {
+	background-color: #fd7e14 !important;
+	color: #fff !important;
+}
+
+/* --- Utility: Text Colors --- */
+.text-primary {
+	color: #0d6efd !important;
+}
+
+.text-success {
+	color: #1adb4e !important;
+}
+
+.text-warning {
+	color: #ffc107 !important;
+}
+
+.text-danger {
+	color: #dc3545 !important;
+}
+
+.text-info {
+	color: #0dcaf0 !important;
+}
+
+.text-dark {
+	color: #212529 !important;
+}
+
+.text-light {
+	color: #f8f9fa !important;
+}
+
+/* --- Border Colors --- */
+.border-primary {
+	border: 1px solid #0d6efd !important;
+}
+
+.border-success {
+	border: 1px solid #1adb4e !important;
+}
+
+.border-warning {
+	border: 1px solid #ffc107 !important;
+}
+
+.border-danger {
+	border: 1px solid #dc3545 !important;
+}
+
+/* --- Hover Effects --- */
+.badge:hover {
+	opacity: 0.9;
+	transform: scale(1.02);
+}
+
+/* --- CSS Variables --- */
+:root {
+	: root
+
+{
+	--blue: #4e73df;
+	--indigo: #6610f2;
+	--purple: #6f42c1;
+	--pink: #e83e8c;
+	--red: #e74a3b;
+	--orange: #fd7e14;
+	--yellow: #f6c23e;
+	--green: #1cc88a;
+	--teal: #20c9a6;
+	--cyan: #36b9cc;
+	--white: #fff;
+	--gray: #858796;
+	--gray-dark: #5a5c69;
+	--primary: #4e73df;
+	--secondary: #858796;
+	--success: #3cf22c;
+	--info: #36b9cc;
+	--warning: #f6c23e;
+	--danger: #e74a3b;
+	--light: #f8f9fc;
+	--dark: #5a5c69;
+	--breakpoint-xs: 0;
+	--breakpoint-sm: 576px;
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 992px;
+	--breakpoint-xl: 1200px;
+	--font-family-sans-serif: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+}
+
+/* --- Default Badge Fallback ---
+   Only apply green if no bg-* class is present */
+.badge:not([class*="bg-"]) {
+	background-color: var(--color-success);
+	color: #fff;
+}

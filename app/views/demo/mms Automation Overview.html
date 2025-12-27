@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routine Maintenance Automation - MES MVC</title>
+    <style>
+       /* General Styles */
+body { 
+    font-family: 'Arial', sans-serif; 
+    line-height: 1.6; 
+    padding: 20px; 
+    background-color: #f8f8f8; 
+    color: #333; 
+}
+.container { 
+    max-width: 1000px; 
+    margin: 0 auto; 
+    background: #fff; 
+    padding: 25px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+}
+h1, h2, h3 { 
+    color: #1a73e8; 
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 8px; 
+    margin-top: 25px; 
+}
+
+/* File Structure Styling */
+.file-structure pre { 
+    background: #eef; 
+    padding: 15px; 
+    border-radius: 4px; 
+    overflow-x: auto; 
+    font-size: 0.9em; 
+    border: 1px solid #ddd;
+}
+.highlight-file { 
+    font-weight: bold; 
+    color: #00796b; 
+}
+.highlight-method { 
+    font-style: italic; 
+    color: #d84315; 
+}
+
+/* Data Flow Visualization */
+.flow-diagram { 
+    margin-top: 15px; 
+}
+.step { 
+    padding: 15px; 
+    margin-bottom: 12px; 
+    border-radius: 6px; 
+    border-left: 5px solid; /* Use border-left for color coding */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.step h4 { 
+    color: #333; 
+    margin-top: 0; 
+    font-size: 1.1em;
+}
+.arrow { 
+    text-align: center; 
+    font-size: 20px; 
+    color: #999; 
+    padding: 2px 0; 
+}
+
+/* Color Coding for Steps */
+.step-controller { border-left-color: #ff9800; background: #fffde7; } /* Yellowish for Controller */
+.step-model { border-left-color: #2196f3; background: #e3f2fd; } /* Bluish for Model */
+.step-success { border-left-color: #4caf50; background: #e8f5e9; } /* Greenish for Success/Response */
+.ajax-flow .step { border-left-color: #9c27b0; background: #fce4ec; } /* Pink/Purple for AJAX */
+.ajax-flow .step-controller { background: #ffe0b2; } /* Light orange for AJAX controller */
+
+.json-response { 
+    background: #455a64; 
+    color: #eceff1; 
+    padding: 8px; 
+    border-radius: 3px; 
+    font-family: monospace; 
+    font-size: 0.85em; 
+    display: inline-block;
+}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>⚙️ Routine Maintenance Automation System</h1>
+    <p>Presentation of the MVC-like structure and the two primary data flows for automated work order generation.</p>
+
+    <div class="grid">
+        <div class="file-structure">
+            <h2>📁 1. System File Structure</h2>
+            <p>Focus on the components involved in Routine Maintenance:</p>
+            <pre>
+f:\xamp_server\htdocs\mes\
+│
+├── <span class="highlight-file">index.php</span>  <-- Front Controller (routes all requests)
+├── .env
+└── <span class="highlight-file">app\</span>
+    ├── <span class="highlight-file">routes.php</span>  <-- Maps URLs to controllers/actions
+    ├── config\
+    │   └── <span class="highlight-file">Database.php</span>  <-- PDO singleton (DB Connection)
+    ├── controllers\
+    │   └── <span class="highlight-file">RoutineMaintenanceController.php</span>
+    │           ├─ <span class="highlight-method">generateForm()</span>
+    │           ├─ <span class="highlight-method">generate()</span>            <-- Main submission handler
+    │           └─ <span class="highlight-method">getMaintenanceTypeByWorkOrder()</span> <-- AJAX handler
+    ├── models\
+    │   └── <span class="highlight-file">RoutineMaintenanceModel.php</span>
+    │           ├─ <span class="highlight-method">getFilterOptions()</span>
+    │           ├─ <span class="highlight-method">getMaintenanceTypeByWorkOrder()</span> <-- DB fetch for AJAX
+    │           └─ <span class="highlight-method">generateRoutineWorkOrders()</span>     <-- DB INSERT logic
+    └── views\
+        └── forms_mms\
+            ├─ <span class="highlight-file">routine_maintenance.php</span>          <-- Input Form / Final Message Display
+            └─ <span class="highlight-file">routine_maintenance_preview.php</span>  <-- Preview (If implemented)
+            </pre>
+        </div>
+        
+        <div>
+            <h2>📊 2. Routine Work Order Generation Flow (POST)</h2>
+            <p>The primary flow for creating new routine maintenance work orders in the database.</p>
+            <div class="flow-diagram">
+
+                <div class="step">
+                    <h4>Step 1: User Action (View)</h4>
+                    <p>User selects asset(s) and a work order in the <span class="highlight-file">routine_maintenance.php</span> form and submits (POST).</p>
+                </div>
+                <div class="arrow">↓</div>
+
+                <div class="step step-controller">
+                    <h4>Step 2: Controller Execution (Handler)</h4>
+                    <p><span class="highlight-file">RoutineMaintenanceController.php</span>::<span class="highlight-method">generate()</span> receives the POST request via <span class="highlight-file">index.php</span> and <span class="highlight-file">routes.php</span>.</p>
+                </div>
+                <div class="arrow">↓</div>
+
+                <div class="step step-model">
+                    <h4>Step 3: Model Logic (Data Insertion)</h4>
+                    <p><span class="highlight-file">RoutineMaintenanceModel.php</span>::<span class="highlight-method">generateRoutineWorkOrders()</span> is called:</p>
+                    <ul>
+                        <li>**Validation:** Checks asset/work order data.</li>
+                        <li>**Query:** Fetches associated checklist/maintenance type.</li>
+                        <li>**Loop & Insert:** Iterates selected assets, prevents duplicates, and performs **INSERT** into the <span class="highlight-file">routine_Work_Orders</span> table.</li>
+                    </ul>
+                </div>
+                <div class="arrow">↓</div>
+
+                <div class="step step-success">
+                    <h4>Step 4: Response & Feedback</h4>
+                    <p>Model returns Success/Error.</p>
+                    <p>Controller sets `$_SESSION['success']` or `$_SESSION['error']`.</p>
+                    <p>Redirects back to <span class="highlight-file">routine_maintenance.php</span>, which displays the session message to the user.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <hr>
+
+    <div class="ajax-flow">
+        <h2>⚡ 3. AJAX Auto-fill Flow (Work Order Type)</h2>
+        <p>The secondary, asynchronous flow for instantly updating the Maintenance Type field.</p>
+        
+        <div class="flow-diagram">
+            <div class="step">
+                <h4>Step 1: User Action (Client-side)</h4>
+                <p>User selects a value from the Work Order dropdown in <span class="highlight-file">routine_maintenance.php</span>.</p>
+            </div>
+            <div class="arrow">↓</div>
+
+            <div class="step">
+                <h4>Step 2: AJAX Request</h4>
+                <p>Client-side JavaScript sends a <span class="highlight-method">fetch()</span> or AJAX request:</p>
+                <p class="json-response">/mes/api/get_maintenance_type_by_work_order?work_order=...</p>
+            </div>
+            <div class="arrow">↓</div>
+
+            <div class="step step-controller">
+                <h4>Step 3: API Controller Handler</h4>
+                <p><span class="highlight-file">RoutineMaintenanceController.php</span>::<span class="highlight-method">getMaintenanceTypeByWorkOrder()</span> is executed (lightweight controller).</p>
+            </div>
+            <div class="arrow">↓</div>
+
+            <div class="step step-model">
+                <h4>Step 4: Data Fetch (Model)</h4>
+                <p><span class="highlight-file">RoutineMaintenanceModel.php</span>::<span class="highlight-method">getMaintenanceTypeByWorkOrder()</span> queries the DB for the corresponding `maintenance_type`.</p>
+            </div>
+            <div class="arrow">↓</div>
+
+            <div class="step step-success">
+                <h4>Step 5: JSON Response</h4>
+                <p>Controller outputs a JSON response:</p>
+                <p class="json-response">{ "maintenance_type": "GENERAL" }</p>
+            </div>
+            <div class="arrow">↓</div>
+
+            <div class="step">
+                <h4>Step 6: UI Update (Client-side)</h4>
+                <p>Client-side JavaScript receives the JSON and automatically populates the Maintenance Type input field.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

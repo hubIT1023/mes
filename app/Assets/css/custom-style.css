@@ -1,0 +1,10 @@
+.entity-card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem; /* optional spacing between cards */
+}
+
+    .entity-card-container .entity_toolState_card {
+        flex: 1 0 calc(100% / 9 - 1rem); /* 9 per row, minus gap */
+        max-width: calc(100% / 9 - 1rem);
+    }

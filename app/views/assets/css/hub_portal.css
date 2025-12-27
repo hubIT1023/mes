@@ -1,0 +1,16 @@
+ @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .system-card {
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .system-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+      border-color: theme('colors.blue.600');
+    }
+    .dark .system-card {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Maintenance Execution System (MES) — Documentation</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { padding: 2rem; background: #f8fafc; color: #0f172a; }
+    .page { background: #fff; border-radius: 8px; box-shadow: 0 6px 18px rgba(15,23,42,0.06); padding: 2rem; }
+    pre { background:#0b1220; color:#e6eef8; padding:1rem; border-radius:6px; overflow:auto; }
+    code { background:#eef2ff; padding: .1rem .3rem; border-radius:4px; }
+    .badge-feature { background:#eef2ff; color:#075985; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
+    .section-title { border-left:4px solid #0ea5a4; padding-left: .75rem; }
+    nav .nav-link { color: #0f172a; }
+    .flow { font-family: ui-monospace, monospace; white-space: pre; background:#f1f5f9; padding:1rem; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <div class="container page">
+    <header class="d-flex align-items-start justify-content-between mb-4">
+      <div>
+        <h1 class="h3">Maintenance Execution System (MES)</h1>
+        <p class="text-muted mb-0">Documentation — folder layout, architecture, controllers, models, views, and process flows.</p>
+      </div>
+      <div class="text-end">
+        <small class="text-muted">Generated: <?= date('Y-m-d') ?></small>
+      </div>
+    </header>
+
+    <nav class="mb-4">
+      <div class="row g-2">
+        <div class="col-auto"><a href="#abstract" class="btn btn-outline-primary btn-sm">Abstract</a></div>
+        <div class="col-auto"><a href="#features" class="btn btn-outline-primary btn-sm">Key Features</a></div>
+        <div class="col-auto"><a href="#folders" class="btn btn-outline-primary btn-sm">Folder Structure</a></div>
+        <div class="col-auto"><a href="#architecture" class="btn btn-outline-primary btn-sm">Architecture</a></div>
+        <div class="col-auto"><a href="#process" class="btn btn-outline-primary btn-sm">Process Flows</a></div>
+        <div class="col-auto"><a href="#readme" class="btn btn-outline-primary btn-sm">README</a></div>
+      </div>
+    </nav>
+
+    <section id="abstract" class="mb-4">
+      <h2 class="section-title">Abstract / Introduction</h2>
+      <p>
+        The <strong>Maintenance Execution System (MES)</strong> is a multi-tenant web application to manage assets,
+        preventive maintenance, checklist templates, and routine work orders. It provides dashboards, reporting,
+        and secure multi-tenant isolation for organizations.
+      </p>
+      <p class="text-muted small mb-0">
+        Built with PHP (MVC), MSSQL backend, and Bootstrap frontend. MES is aimed at industrial and facilities operations teams
+        for structured maintenance workflows.
+      </p>
+    </section>
+
+    <section id="features" class="mb-4">
+      <h2 class="section-title">Key Features</h2>
+      <ul>
+        <li><strong>Asset Management:</strong> register and manage assets with metadata and multi-level locations.</li>
+        <li><strong>Checklist Templates:</strong> create, edit, and version maintenance checklists.</li>
+        <li><strong>Routine Work Orders:</strong> auto-generate tasks from templates.</li>
+        <li><strong>Maintenance Dashboard:</strong> track upcoming and overdue maintenance per tenant.</li>
+        <li><strong>Multi-tenant security:</strong> tenant isolation via <code>tenant_id</code> / <code>org_id</code>.</li>
+        <li><strong>Forms & Modals:</strong> registration, asset addition, checklist creation, routine maintenance previews.</li>
+        <li><strong>Error Logging:</strong> centralized PHP/system error logs in <code>storage/error_logs</code>.</li>
+      </ul>
+    </section>
+
+    <section id="folders" class="mb-4">
+      <h2 class="section-title">File & Folder Structure (project root)</h2>
+      <pre class="mono">
+f:\xamp_server\htdocs\mes\
+│
+├── storage\
+│    └── error_logs\                  -- Stores system and PHP error logs
+│
+├── index.php                          -- Front Controller (all requests routed through here)
+├── .htaccess                          -- Apache rewrite rules
+├── .env                               -- Environment variables
+│
+└── app\
+     ├── routes.php                   -- Maps URLs to controllers/methods
+     │
+     ├── config\
+     │    ├── EnvLoader.php           -- Loads .env variables
+     │    └── Database.php            -- PDO Database connection (Singleton)
+     │
+     ├── controllers\
+     │    ├── PagesController.php
+     │    ├── ContactController.php
+     │    ├── RegisterController.php
+     │    ├── SigninController.php
+     │    ├── AssetController.php
+     │    ├── AssetMaintenanceController.php
+     │    ├── ChecklistTemplateController.php
+     │    ├── ChecklistController.php
+     │    ├── RoutineMaintenanceController.php
+     │    ├── AssociateChecklistController.php
+     │    ├── MaintenanceChecklistController.php
+     │    ├── MaintenanceChecklistViewController.php
+     │    ├── MaintenanceChecklistUpdateController.php
+     │    └── MaintenanceDashboardController.php
+     │
+     ├── models\
+     │    ├── Contact.php
+     │    ├── RegisterModel.php
+     │    ├── SigninModel.php
+     │    ├── Asset.php
+     │    ├── AssetMaintenance.php
+     │    ├── ChecklistTemplateModel.php
+     │    ├── ChecklistModel.php
+     │    ├── MaintenanceChecklistViewModel.php
+     │    ├── MaintenanceChecklistUpdateModel.php
+     │    ├── AssociateChecklistModel.php
+     │    └── RoutineMaintenanceModel.php
+     │
+     └── views\
+          ├── custom_cards\
+          │    └── form_css
+          │
+          ├── layouts\
+          │    ├── form_css
+          │    └── js
+          │
+          ├── forms_bid\
+          │    └── addAssets.php
+          │
+          ├── forms_mms\
+          │    ├── register_asset_modal.php
+          │    ├── addAssets.php
+          │    ├── checklist_template.php
+          │    ├── create_checklist.php
+          │    ├── checklist_lists.php
+          │    ├── checklist_edit.php
+          │    ├── routine_maintenance.php
+          │    ├── routine_maintenance_preview.php
+          │    ├── maintenance_checklist.php
+          │    └── addMaintenance.php
+          │
+          ├── welcome_page.php
+          ├── about.php
+          ├── contact.php
+          ├── register.php
+          ├── signin.php
+          └── hub_portal.php
+      </pre>
+    </section>
+
+    <section id="architecture" class="mb-4">
+      <h2 class="section-title">Architecture Overview</h2>
+      <p>MVC layout with controllers handling requests, models handling DB operations, and views for rendering HTML using Bootstrap.</p>
+
+      <h6 class="mt-3">High-level flow</h6>
+      <div class="flow mb-3">
+Browser → index.php (router) → Controller → Model (PDO MSSQL) → View (HTML/Bootstrap)
+      </div>
+
+      <h6>Database Highlights</h6>
+      <ul>
+        <li><strong>assets</strong> — tenant-scoped asset master</li>
+        <li><strong>checklist_template</strong> — templates with work_order, maintenance_type, interval_days</li>
+        <li><strong>checklist_tasks</strong> — per-template task rows, FK to template + tenant</li>
+        <li><strong>routine_Work_Orders</strong> — generated work orders with work_order_ref, checklist_id, status</li>
+        <li><strong>maintenance_logs</strong> — track completed maintenance tasks and parts used</li>
+      </ul>
+    </section>
+
+    <section id="process" class="mb-4">
+      <h2 class="section-title">Process Flows</h2>
+
+      <h6 class="mt-2">A. Routine Work Order Generation</h6>
+      <div class="flow mb-3">
+1) User selects template + assets
+2) Controller validates inputs & CSRF token
+3) Model loads checklist_template
+4) For each asset:
+   • verify tenant ownership
+   • check for duplicates (status='scheduled')
+   • insert routine_Work_Orders row
+5) Return count → Controller flashes success message
+      </div>
+
+      <h6 class="mt-2">B. Checklist Edit / Update</h6>
+      <div class="flow mb-3">
+1) Load checklist header + tasks via LEFT JOIN
+2) Render form with task_id[], task_order[], task_text[]
+3) On submit:
+   • update header row
+   • update existing tasks by ID
+   • insert new tasks (no ID)
+   • delete tasks not included (cleanup)
+      </div>
+
+      <h6 class="mt-2">C. Asset Maintenance Entry</h6>
+      <div class="flow">
+1) User selects asset + maintenance activity
+2) Controller validates input
+3) Model inserts or updates asset maintenance record
+4) Update dashboard & maintenance logs
+      </div>
+    </section>
+
+    <section id="readme" class="mb-4">
+      <h2 class="section-title">README / Quick Start</h2>
+      <ol>
+        <li>Place project in webroot (e.g., <code>f:\xamp_server\htdocs\mes\</code>).</li>
+        <li>Set DB credentials in <code>.env</code>.</li>
+        <li>Import DB schema (assets, checklist_template, checklist_tasks, routine_Work_Orders, etc.).</li>
+        <li>Start Apache + PHP (XAMPP). Access <code>/mes/signin</code>.</li>
+      </ol>
+
+      <h6 class="mt-3">Best Practices</h6>
+      <ul>
+        <li>Protect form actions with CSRF tokens.</li>
+        <li>Always filter queries by <code>tenant_id</code>.</li>
+        <li>Use transactions for multiple row updates.</li>
+        <li>Store logs in <code>storage/error_logs</code>.</li>
+        <li>Keep documentation accessible in <code>/docs</code> for team members.</li>
+      </ul>
+    </section>
+
+    <footer class="text-muted small mt-4">
+      <div>— MES Documentation</div>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

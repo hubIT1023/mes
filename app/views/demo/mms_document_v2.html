@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MES — System Documentation (Hybrid)</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<style>
+  body { padding: 2rem; background:#f7fafc; color:#212529;}
+  .card { margin-bottom: 1rem; }
+  pre { background:#0f1724; color:#d1fae5; padding: 1rem; border-radius:6px; overflow:auto;}
+  code { background:#eef2ff; padding:2px 5px; border-radius:4px; }
+  h1, h2, h3 { margin-top: 1.25rem; }
+  .muted { color:#6c757d; }
+  .table td, .table th { vertical-align: middle; }
+  .kbd { background:#eee; padding:2px 6px; border-radius:4px; font-family:monospace; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="mb-4">
+    <h1>Maintenance Execution System (MES) — Developer Documentation</h1>
+    <p class="muted">Hybrid style: professional & clear. <strong>Location:</strong> <code>f:\xamp_server\htdocs\mes\</code></p>
+  </header>
+
+  <!-- Overview -->
+  <section class="card p-3">
+    <h2>Abstract / Introduction</h2>
+    <p>
+      The Maintenance Execution System (MES) is a multi-tenant web application that manages assets, maintenance checklists,
+      and routine work orders. Key features:
+    </p>
+    <ul>
+      <li>Multi-tenant aware assets and templates (tenant-specific data using <code>tenant_id</code>).</li>
+      <li>Checklist templates with multiple tasks per template.</li>
+      <li>Routine work order generator: links assets and templates to insert scheduled work orders.</li>
+      <li>Maintenance scheduling, next-maintenance computation, and dashboard for upcoming tasks.</li>
+      <li>Spare parts management included in workflow modules.</li>
+    </ul>
+  </section>
+
+  <!-- File structure -->
+  <section class="card p-3">
+    <h2>Project File / Folder Structure (MES)</h2>
+    <pre>
+f:\xamp_server\htdocs\mes\
+│
+├── index.php                    -- Front Controller (single entry)
+├── .htaccess                    -- Rewrite / clean URLs
+├── .env                         -- Environment / DB variables
+├── storage\
+│    └── error_logs\             -- System / PHP error logs
+└── app\
+    ├── routes.php               -- URI → Controller mapping
+    ├── config\
+    │    ├── EnvLoader.php       -- Load .env values
+    │    └── Database.php        -- PDO singleton (MSSQL)
+    ├── controllers\             -- MVC controllers
+    │    ├── PagesController.php
+    │    ├── ContactController.php
+    │    ├── RegisterController.php
+    │    ├── SigninController.php
+    │    ├── AssetController.php
+    │    ├── AssetMaintenanceController.php
+    │    ├── ChecklistTemplateController.php
+    │    ├── ChecklistController.php
+    │    ├── RoutineMaintenanceController.php
+    │    ├── AssociateChecklistController.php
+    │    ├── MaintenanceChecklistController.php
+    │    ├── MaintenanceChecklistViewController.php
+    │    ├── MaintenanceChecklistUpdateController.php
+    │    └── MaintenanceDashboardController.php
+    ├── models\                  -- DB access / business logic
+    │    ├── Contact.php
+    │    ├── RegisterModel.php
+    │    ├── SigninModel.php
+    │    ├── AssetModel.php
+    │    ├── AssetMaintenanceModel.php
+    │    ├── ChecklistTemplateModel.php
+    │    ├── ChecklistModel.php
+    │    ├── MaintenanceChecklistViewModel.php
+    │    ├── MaintenanceChecklistUpdateModel.php
+    │    ├── AssociateChecklistModel.php
+    │    └── RoutineMaintenanceModel.php
+    └── views\                   -- HTML templates / forms / partials
+        ├── layouts\
+        │    ├── form_css
+        │    └── js
+        ├── custom_cards\
+        │    └── form_css
+        ├── forms_bid\
+        │    └── addAssets.php
+        ├── forms_mms\
+        │    ├── register_asset_modal.php
+        │    ├── addAssets.php
+        │    ├── checklist_template.php
+        │    ├── create_checklist.php
+        │    ├── checklist_lists.php
+        │    ├── checklist_edit.php
+        │    ├── routine_maintenance.php
+        │    ├── routine_maintenance_preview.php
+        │    ├── maintenance_checklist.php
+        │    └── addMaintenance.php
+        ├── welcome_page.php
+        ├── about.php
+        ├── contact.php
+        ├── register.php
+        ├── signin.php
+        └── hub_portal.php
+    </pre>
+    <p class="muted">Controllers handle request/session/CSRF. Models handle DB logic and transactions.</p>
+  </section>
+
+  <!-- Routing -->
+  <section class="card p-3">
+    <h2>Routing Map (important routes)</h2>
+    <table class="table table-sm table-bordered">
+      <thead class="table-light"><tr><th>Method & URI</th><th>Controller::action</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>GET /form_mms/addAsset</td><td>AssetController::create</td><td>Show asset add form</td></tr>
+        <tr><td>POST /form_mms/addAsset</td><td>AssetController::store</td><td>Store asset</td></tr>
+        <tr><td>GET /form_mms/checklist_template</td><td>ChecklistTemplateController::create</td><td>Show checklist template form</td></tr>
+        <tr><td>POST /form_mms/checklist_template</td><td>ChecklistTemplateController::store</td><td>Create checklist + tasks</td></tr>
+        <tr><td>GET /form_mms/checklists</td><td>ChecklistController::index</td><td>List checklists</td></tr>
+        <tr><td>GET /form_mms/checklist_edit?checklist_id={id}</td><td>ChecklistController::edit</td><td>Edit header & tasks</td></tr>
+        <tr><td>POST /form_mms/checklist_update</td><td>ChecklistController::update</td><td>Update header, tasks, delete removed tasks</td></tr>
+        <tr><td>GET /form_mms/routine_maintenance</td><td>RoutineMaintenanceController::generateForm</td><td>Show routine work order generator</td></tr>
+        <tr><td>POST /form_mms/routine_maintenance</td><td>RoutineMaintenanceController::generate</td><td>Generate routine work orders</td></tr>
+        <tr><td>GET /mes/api/get_maintenance_type_by_work_order?work_order=...</td><td>RoutineMaintenanceController::getMaintenanceTypeByWorkOrder</td><td>Return maintenance type (JSON)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Database Schema -->
+  <section class="card p-3">
+    <h2>Database Schemas (MS SQL)</h2>
+    <h3>1) assets</h3>
+    <pre>
+CREATE TABLE assets (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    asset_id NVARCHAR(50) NOT NULL UNIQUE,
+    asset_name NVARCHAR(255) NOT NULL,
+    location_id_1 NVARCHAR(100),
+    location_id_2 NVARCHAR(100),
+    location_id_3 NVARCHAR(100),
+    vendor_id NVARCHAR(100),
+    mfg_code NVARCHAR(100),
+    status NVARCHAR(20) DEFAULT 'active',
+    equipment_description NVARCHAR(MAX),
+    created_at DATETIME2 DEFAULT SYSDATETIME()
+);
+    </pre>
+    <h3>2) checklist_template</h3>
+    <pre>
+CREATE TABLE checklist_template (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    checklist_id NVARCHAR(255) NOT NULL,
+    maintenance_type NVARCHAR(255),
+    work_order NVARCHAR(255),
+    technician NVARCHAR(255),
+    interval_days INT DEFAULT 30,
+    description NVARCHAR(MAX),
+    created_at DATETIME2 DEFAULT SYSDATETIME(),
+    updated_at DATETIME2 DEFAULT SYSDATETIME(),
+    CONSTRAINT UQ_checklist_template_tenant_checklist UNIQUE (tenant_id, checklist_id)
+);
+    </pre>
+    <h3>3) checklist_tasks</h3>
+    <pre>
+CREATE TABLE checklist_tasks (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    checklist_id NVARCHAR(255) NOT NULL,
+    task_order INT NOT NULL,
+    task_text NVARCHAR(MAX) NOT NULL,
+    CONSTRAINT UQ_checklist_task_order UNIQUE (tenant_id, checklist_id, task_order)
+);
+    </pre>
+    <h3>4) routine_Work_Orders</h3>
+    <pre>
+CREATE TABLE routine_Work_Orders (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    asset_id NVARCHAR(50) NOT NULL,
+    asset_name NVARCHAR(255),
+    location_id_1 NVARCHAR(100),
+    location_id_2 NVARCHAR(100),
+    location_id_3 NVARCHAR(100),
+    checklist_id NVARCHAR(255) NOT NULL,
+    maintenance_type NVARCHAR(50),
+    maint_start_date DATE,
+    maint_end_date DATE,
+    technician_name NVARCHAR(255),
+    work_order_ref NVARCHAR(255),
+    next_maintenance_date DATE,
+    status NVARCHAR(50)
+);
+    </pre>
+  </section>
+  <!-- Diagrams -->
+  <section class="card p-3">
+    <h2>Diagrams (PlantUML sources)</h2>
+
+    <h3>Class Diagram — Controllers & Models</h3>
+    <pre>
+@startuml
+' Controllers
+class PagesController
+class SigninController
+class AssetController
+class AssetMaintenanceController
+class ChecklistTemplateController
+class ChecklistController
+class RoutineMaintenanceController
+class AssociateChecklistController
+class MaintenanceChecklistController
+class MaintenanceChecklistViewController
+class MaintenanceChecklistUpdateController
+class MaintenanceDashboardController
+
+' Models
+class SigninModel
+class AssetModel
+class AssetMaintenanceModel
+class ChecklistTemplateModel
+class ChecklistModel
+class MaintenanceChecklistViewModel
+class MaintenanceChecklistUpdateModel
+class AssociateChecklistModel
+class RoutineMaintenanceModel
+class RoutineWorkOrderModel
+
+' Relationships
+SigninController --> SigninModel
+AssetController --> AssetModel
+AssetMaintenanceController --> AssetMaintenanceModel
+ChecklistTemplateController --> ChecklistTemplateModel
+ChecklistController --> ChecklistModel
+AssociateChecklistController --> AssociateChecklistModel
+MaintenanceChecklistController --> MaintenanceChecklistUpdateModel
+MaintenanceChecklistViewController --> MaintenanceChecklistViewModel
+RoutineMaintenanceController --> RoutineMaintenanceModel
+RoutineMaintenanceModel --> RoutineWorkOrderModel
+@enduml
+    </pre>
+
+    <h3>Database ERD (simplified)</h3>
+    <pre>
+@startuml
+entity organizations {
+  *org_id : UNIQUEIDENTIFIER
+  ---
+  org_name
+  email
+  password_hash
+}
+
+entity assets {
+  *id : INT
+  tenant_id : UNIQUEIDENTIFIER
+  asset_id : NVARCHAR(50)
+  asset_name : NVARCHAR(255)
+}
+
+entity checklist_template {
+  *id : INT
+  tenant_id : UNIQUEIDENTIFIER
+  checklist_id : NVARCHAR(255)
+  work_order : NVARCHAR(255)
+  maintenance_type : NVARCHAR(255)
+}
+
+entity checklist_tasks {
+  *id : INT
+  tenant_id : UNIQUEIDENTIFIER
+  checklist_id : NVARCHAR(255)
+  task_order : INT
+  task_text : NVARCHAR(MAX)
+}
+
+entity routine_Work_Orders {
+  *id : INT
+  tenant_id : UNIQUEIDENTIFIER
+  asset_id : NVARCHAR(50)
+  checklist_id : NVARCHAR(255)
+  work_order_ref : NVARCHAR(255)
+  next_maintenance_date : DATE
+  status : NVARCHAR(50)
+}
+
+organizations ||--o{ assets : owns
+organizations ||--o{ checklist_template : owns
+checklist_template ||--o{ checklist_tasks : has
+assets ||--o{ routine_Work_Orders : assigned_to
+checklist_template ||--o{ routine_Work_Orders : template_for
+@enduml
+    </pre>
+
+    <h3>Sequence Diagram — Generate Routine Work Orders</h3>
+    <pre>
+@startuml
+User -> RoutineMaintenanceController: POST /form_mms/routine_maintenance
+RoutineMaintenanceController -> RoutineMaintenanceModel: generateRoutineWorkOrders(tenantId, workOrder, assetIds)
+RoutineMaintenanceModel -> checklist_template: SELECT template WHERE tenant_id AND work_order
+RoutineMaintenanceModel -> assets: SELECT each asset WHERE asset_id AND tenant_id
+RoutineMaintenanceModel -> routine_Work_Orders: check existing scheduled
+RoutineMaintenanceModel -> routine_Work_Orders: INSERT new records
+RoutineMaintenanceModel --> RoutineMaintenanceController: return insertedCount
+RoutineMaintenanceController -> User: redirect + session success message
+@enduml
+    </pre>
+
+    <p class="muted">Tip: Copy each block into a `.puml` file or an online PlantUML renderer to generate diagrams (PNG/SVG).</p>
+  </section>
+
+  <!-- Controllers -->
+  <section class="card p-3">
+    <h2>Controllers & Functions (summary)</h2>
+    <ul>
+      <li>Controllers handle request/session/CSRF; call models; include views.</li>
+      <li>Keep database logic in models; use transactions for multi-step operations.</li>
+    </ul>
+  </section>
+
+  <!-- Models -->
+  <section class="card p-3">
+    <h2>Models & Functions</h2>
+    <ul>
+      <li>SigninModel: verifyCredentials(), storeRememberToken(), clearRememberToken()</li>
+      <li>AssetModel: addAsset(), getAssetById(), listAssets()</li>
+      <li>ChecklistTemplateModel: createTemplate(), getTemplate(), getTasks(), updateTemplate()</li>
+      <li>ChecklistModel: getAllChecklists(), getChecklistById(), updateChecklist()</li>
+      <li>RoutineMaintenanceModel: getFilterOptions(), getMaintenanceTypeByWorkOrder(), generateRoutineWorkOrders()</li>
+    </ul>
+  </section>
+
+  <!-- Workflows -->
+  <section class="card p-3">
+    <h2>Workflows — Quick Reference</h2>
+    <h4>Checklist Update</h4>
+    <ol>
+      <li>User edits header & tasks → clicks <kbd>Update</kbd></li>
+      <li>Controller reads POST arrays task_id[], task_text[], task_order[]</li>
+      <li>Controller calls ChecklistModel::updateChecklist():
+        <ol>
+          <li>Start transaction</li>
+          <li>Update header</li>
+          <li>Insert new tasks, update existing</li>
+          <li>Delete removed tasks</li>
+          <li>Commit</li>
+        </ol>
+      </li>
+    </ol>
+    <h4>Generate Routine Work Orders</h4>
+    <ol>
+      <li>User selects assets + Work Order template</li>
+      <li>Controller validates CSRF & calls generateRoutineWorkOrders()</li>
+      <li>Model loops selected asset_ids, checks duplicates, inserts work orders with work_order_ref from template</li>
+    </ol>
+  </section>
+
+  <!-- Deployment -->
+  <section class="card p-3">
+    <h2>Deployment Notes</h2>
+    <ul>
+      <li>Use HTTPS in production; secure cookies</li>
+      <li>PDO error mode: <code>ERRMODE_EXCEPTION</code></li>
+      <li>Ensure SQL Server ODBC driver installed on Windows + PHP</li>
+      <li>Back up DB before migrations</li>
+    </ul>
+  </section>
+
+  <footer class="mt-4 mb-5 muted">
+    <small>Generated: <?= date('Y-m-d H:i') ?> — For developer reference. Keep in <code>/docs/</code></small>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MMS — System Documentation (Hybrid)</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<style>
+  body { padding: 2rem; background:#f7fafc; color:#212529;}
+  .card { margin-bottom: 1rem; }
+  pre { background:#0f1724; color:#d1fae5; padding: 1rem; border-radius:6px; overflow:auto;}
+  code { background:#eef2ff; padding:2px 5px; border-radius:4px; }
+  h1, h2, h3 { margin-top: 1.25rem; }
+  .muted { color:#6c757d; }
+  .table td, .table th { vertical-align: middle; }
+  .kbd { background:#eee; padding:2px 6px; border-radius:4px; font-family:monospace; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="mb-4">
+    <h1>Maintenance Management System (MMS) — Developer Documentation</h1>
+    <p class="muted">Hybrid style: clear & professional. <strong>Location:</strong> <code>f:\xamp_server\htdocs\mes\</code></p>
+  </header>
+
+  <!-- Overview -->
+  <section class="card p-3">
+    <h2>Abstract / Introduction</h2>
+    <p>
+      The Maintenance Management System (MMS) is a multi-tenant web application that manages assets, checklist templates,
+      and routine maintenance (work orders). Key features:
+    </p>
+    <ul>
+      <li>Multi-tenant aware assets and templates (each record tied to <code>tenant_id</code>).</li>
+      <li>Checklist templates with multiple tasks per template.</li>
+      <li>Routine work order generator: joins assets and checklist templates and inserts scheduled work orders.</li>
+      <li>Maintenance scheduling, next-maintenance calculation, and dashboard for upcoming maintenance.</li>
+      <li><strong>Spare parts management</strong> is included in the planned feature set (documented as a key feature).</li>
+    </ul>
+  </section>
+
+  <!-- File structure -->
+  <section class="card p-3">
+    <h2>Project File / Folder Structure (summary)</h2>
+    <pre>
+f:\xamp_server\htdocs\mes\
+│
+├── index.php                    -- Front Controller (single entry point)
+├── .htaccess                    -- Rewrite rules
+├── .env                         -- Environment variables
+└── app\
+    ├── routes.php               -- Routing map (URI → Controller::action)
+    ├── config\
+    │   ├── EnvLoader.php        -- Loads .env
+    │   └── Database.php         -- PDO singleton for DB connection
+    ├── controllers\             -- MVC controllers (web endpoints)
+    │   ├── PagesController.php
+    │   ├── ContactController.php
+    │   ├── RegisterController.php
+    │   ├── SigninController.php
+    │   ├── AssetController.php
+    │   ├── AssetMaintenanceController.php
+    │   ├── ChecklistTemplateController.php
+    │   ├── ChecklistController.php
+    │   ├── RoutineMaintenanceController.php
+    │   └── MaintenanceDashboardController.php
+    ├── models\                  -- Database access / logic
+    │   ├── Contact.php
+    │   ├── RegisterModel.php
+    │   ├── SigninModel.php
+    │   ├── AssetModel.php
+    │   ├── AssetMaintenanceModel.php
+    │   ├── ChecklistTemplateModel.php
+    │   ├── ChecklistModel.php
+    │   ├── RoutineMaintenanceModel.php
+    │   └── RoutineWorkOrderModel.php
+    └── views\                   -- HTML templates / forms / partials
+        ├── layouts\
+        ├── forms_mms\
+        │    ├── addAssets.php
+        │    ├── checklist_template.php
+        │    ├── checklist_lists.php
+        │    ├── checklist_edit.php
+        │    ├── routine_maintenance.php
+        │    └── routine_maintenance_preview.php
+        └── signin.php
+    </pre>
+    <p class="muted">Keep controllers thin (request, validation, session, include view). Keep models responsible for DB queries and transactions.</p>
+  </section>
+
+  <!-- Routing -->
+  <section class="card p-3">
+    <h2>Routing Map (important routes)</h2>
+    <table class="table table-sm table-bordered">
+      <thead class="table-light"><tr><th>Method & URI</th><th>Controller::action</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>GET /form_mms/addAsset</td><td>AssetController::create</td><td>Show add asset form</td></tr>
+        <tr><td>POST /form_mms/addAsset</td><td>AssetController::store</td><td>Store new asset</td></tr>
+        <tr><td>GET /form_mms/checklist_template</td><td>ChecklistTemplateController::create</td><td>Show create template form</td></tr>
+        <tr><td>POST /form_mms/checklist_template</td><td>ChecklistTemplateController::store</td><td>Create checklist template + tasks</td></tr>
+        <tr><td>GET /form_mms/checklists</td><td>ChecklistController::index</td><td>List checklists (with filters)</td></tr>
+        <tr><td>GET /form_mms/checklist_edit?checklist_id={id}</td><td>ChecklistController::edit</td><td>Edit template header & tasks</td></tr>
+        <tr><td>POST /form_mms/checklist_update</td><td>ChecklistController::update</td><td>Update header, insert new tasks, update existing, delete removed</td></tr>
+        <tr><td>GET /form_mms/routine_maintenance</td><td>RoutineMaintenanceController::generateForm</td><td>Show routine maintenance generator</td></tr>
+        <tr><td>POST /form_mms/routine_maintenance</td><td>RoutineMaintenanceController::generate</td><td>Generate routine work orders (insert)</td></tr>
+        <tr><td>GET /mes/api/get_maintenance_type_by_work_order?work_order=...</td><td>RoutineMaintenanceController::getMaintenanceTypeByWorkOrder (AJAX)</td><td>Return maintenance_type (JSON)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- DB Schema -->
+  <section class="card p-3">
+    <h2>Key Database Schemas (MS SQL compatible)</h2>
+
+    <h3>1) <code>assets</code></h3>
+    <pre>
+CREATE TABLE assets (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    asset_id NVARCHAR(50) NOT NULL UNIQUE,
+    asset_name NVARCHAR(255) NOT NULL,
+    location_id_1 NVARCHAR(100) NULL,
+    location_id_2 NVARCHAR(100) NULL,
+    location_id_3 NVARCHAR(100) NULL,
+    vendor_id NVARCHAR(100) NULL,
+    mfg_code NVARCHAR(100) NULL,
+    status NVARCHAR(20) DEFAULT 'active',
+    equipment_description NVARCHAR(MAX) NULL,
+    created_at DATETIME2 DEFAULT SYSDATETIME()
+);
+
+ALTER TABLE assets
+ADD CONSTRAINT FK_assets_organizations
+FOREIGN KEY (tenant_id) REFERENCES organizations(org_id);
+    </pre>
+
+    <h3>2) <code>checklist_template</code> (parent)</h3>
+    <pre>
+CREATE TABLE checklist_template (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    checklist_id NVARCHAR(255) NOT NULL,
+    maintenance_type NVARCHAR(255),
+    work_order NVARCHAR(255),
+    technician NVARCHAR(255),
+    interval_days INT DEFAULT 30,
+    description NVARCHAR(MAX),
+    created_by UNIQUEIDENTIFIER NULL,
+    updated_by UNIQUEIDENTIFIER NULL,
+    created_at DATETIME2 DEFAULT SYSDATETIME(),
+    updated_at DATETIME2 DEFAULT SYSDATETIME(),
+
+    CONSTRAINT FK_checklist_template_org FOREIGN KEY (tenant_id) REFERENCES organizations(org_id),
+    CONSTRAINT UQ_checklist_template_tenant_checklist UNIQUE (tenant_id, checklist_id)
+);
+    </pre>
+
+    <h3>3) <code>checklist_tasks</code> (child)</h3>
+    <pre>
+CREATE TABLE checklist_tasks (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    checklist_id NVARCHAR(255) NOT NULL,
+    task_order INT NOT NULL,
+    task_text NVARCHAR(MAX) NOT NULL,
+
+    CONSTRAINT FK_checklist_tasks_template
+        FOREIGN KEY (tenant_id, checklist_id)
+        REFERENCES checklist_template (tenant_id, checklist_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT UQ_checklist_task_order UNIQUE (tenant_id, checklist_id, task_order)
+);
+    </pre>
+
+    <h3>4) <code>routine_Work_Orders</code></h3>
+    <pre>
+CREATE TABLE routine_Work_Orders (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tenant_id UNIQUEIDENTIFIER NOT NULL,
+    asset_id NVARCHAR(50) NOT NULL,
+    asset_name NVARCHAR(255) NOT NULL,
+    location_id_1 NVARCHAR(100) NULL,
+    location_id_2 NVARCHAR(100) NULL,
+    location_id_3 NVARCHAR(100) NULL,
+    checklist_id NVARCHAR(255) NOT NULL,
+    maintenance_type NVARCHAR(50) NOT NULL,
+    maint_start_date DATE NOT NULL,
+    maint_end_date DATE NOT NULL,
+    technician_name NVARCHAR(255),
+    work_order_ref NVARCHAR(255),
+    description NVARCHAR(MAX),
+    next_maintenance_date DATE,
+    status NVARCHAR(50),
+
+    CONSTRAINT FK_routineWO_asset FOREIGN KEY (asset_id) REFERENCES assets(asset_id)
+);
+    </pre>
+    <p class="muted">Note: <strong>work_order</strong> in <code>checklist_template</code> is copied into <code>work_order_ref</code> in <code>routine_Work_Orders</code>.</p>
+  </section>
+
+  <!-- Controllers doc -->
+  <section class="card p-3">
+    <h2>Controllers — classes & functions (detailed)</h2>
+
+    <h3>General controller guidance</h3>
+    <ul>
+      <li>Controllers should handle request/session/CSRF validation, call model methods, set session messages and include views.</li>
+      <li>Keep DB logic inside models. Use transactions for multi-step updates (e.g. update checklist and tasks).</li>
+    </ul>
+
+    <h4>PagesController</h4>
+    <pre>
+Purpose: Serve static pages (welcome, about, dashboard).
+Functions:
+- welcome(): show welcome_page.php
+- about(): show about.php
+- mms_Admin(): show MMS admin page
+- demo_dashboard(), demo_mes(): demo pages
+Notes: No DB interactions; use AuthMiddleware for protected pages.
+    </pre>
+
+    <h4>SigninController</h4>
+    <pre>
+Purpose: Authentication flows (display signin, authenticate, hub_portal, signout).
+
+Functions:
+- signin(): GET /signin
+    - Show signin form
+    - If session exists (tenant), redirect to hub
+    - Check remember_token cookie and auto-authenticate when present
+- authenticate(): POST /signin
+    - Input: 'email', 'password', 'remember' checkbox
+    - Uses SigninModel::verifyCredentials()
+    - On success: set $_SESSION['tenant'] = ['org_id', 'org_name', 'email']
+    - If 'remember' checked: generate token, store via SigninModel::storeRememberToken(), set cookie
+- hubPortal(): GET /hub_portal
+    - Auth middleware + include dashboard view
+- signout(): GET /signout
+    - Clear session, clear remember_token via SigninModel::clearRememberToken()
+Notes: Always regenerate CSRF token for forms shown after signin.
+    </pre>
+
+    <h4>AssetController</h4>
+    <pre>
+Purpose: Add/list assets.
+
+Functions:
+- create(): GET /form_mms/addAsset
+    - Validate session tenant
+    - Ensure CSRF token exists
+    - include addAssets.php
+- store(): POST /form_mms/addAsset
+    - Validate session and CSRF
+    - Sanitize POST fields
+    - Call AssetModel::addAsset($data)
+    - On success: set $_SESSION['success'], redirect back to add page (or list)
+Notes:
+- Pass tenant_id from session into model
+- Return user-friendly errors; log raw DB exceptions
+    </pre>
+
+    <h4>AssetMaintenanceController</h4>
+    <pre>
+Purpose: CRUD for individual maintenance records linked to assets (if implemented).
+Functions typically include:
+- create(), store(), edit(), update(), delete()
+Notes: Implementation may vary. Use asset_id & tenant_id to scope.
+    </pre>
+
+    <h4>ChecklistTemplateController</h4>
+    <pre>
+Purpose: Manage checklist templates (header + tasks).
+
+Functions:
+- create(): show create template form (CSRF)
+- store(): validate CSRF & POST data; call ChecklistTemplateModel::createTemplate($tenantId, $data)
+- edit($id): show edit form populated (use model to fetch header & tasks)
+- update(): validate & call model->updateTemplate(...)
+Notes: Template create must insert header record into checklist_template and multiple rows into checklist_tasks within a transaction.
+    </pre>
+
+    <h4>ChecklistController</h4>
+    <pre>
+Purpose: Listing, editing and inline update of checklist templates.
+
+Functions:
+- index(): GET /form_mms/checklists
+    - Read filters from $_GET, call ChecklistModel::getAllChecklists($tenantId,$filters)
+    - Group flat rows by checklist_id into header/tasks
+    - include checklist_lists.php
+- edit(): GET /form_mms/checklist_edit?checklist_id=...
+    - Call ChecklistModel::getChecklistById($tenantId, $checklistId)
+    - include checklist_edit.php
+- update(): POST /form_mms/checklist_update
+    - Validate tenant and POST
+    - Accept arrays: task_id[], task_text[], task_order[]
+    - Call ChecklistModel::updateChecklist($tenantId,$checklistId,$data)
+    - Set session success/error and redirect
+Notes:
+- updateChecklist should: begin transaction, update header, insert new tasks, update existing tasks, delete tasks not present (by comparing keepIds), commit.
+    </pre>
+
+    <h4>RoutineMaintenanceController</h4>
+    <pre>
+Purpose: Work order generator and AJAX helpers.
+
+Functions:
+- generateForm(): GET /form_mms/routine_maintenance
+    - Fetch filter options via RoutineMaintenanceModel::getFilterOptions($tenantId)
+    - Create CSRF token
+    - include routine_maintenance.php
+- generate(): POST /form_mms/routine_maintenance
+    - Validate CSRF and presence of selected asset_ids and work_order
+    - Call RoutineMaintenanceModel::generateRoutineWorkOrders($tenantId,$workOrder,$assetIds,$techOverride)
+    - Set success/error and redirect back to form
+- getMaintenanceTypeByWorkOrder(): GET /mes/api/get_maintenance_type_by_work_order
+    - Read work_order from query string
+    - Return JSON { maintenance_type: '...' } by calling model->getMaintenanceTypeByWorkOrder()
+Notes:
+- generate() should ensure insertion only for selected assets (filter by asset_ids) and prevent duplicates by checking existing scheduled entries.
+    </pre>
+
+    <h4>MaintenanceDashboardController</h4>
+    <pre>
+Purpose: Build dashboard for upcoming maintenance.
+
+Functions:
+- upcoming(): GET /dashboard_upcoming_maint
+    - Read optional filters (asset_id, asset_name, work_order_ref, maintenance_type, technician_name)
+    - Use RoutineWorkOrderModel::getUpcomingMaintenance($tenantId,$filters)
+    - include dashboard_upcoming_maint.php
+Notes: Use pagination and indexes on next_maintenance_date for performance.
+    </pre>
+  </section>
+
+  <!-- Models doc -->
+  <section class="card p-3">
+    <h2>Models — classes & functions (detailed)</h2>
+
+    <h3>General model guidance</h3>
+    <ul>
+      <li>Models encapsulate DB access. Use prepared statements and parameter binding.</li>
+      <li>Use transactions for multi-step operations that must be atomic.</li>
+      <li>All queries must filter by <code>tenant_id</code> to enforce tenant isolation.</li>
+    </ul>
+
+    <h4>Database (config/Database.php)</h4>
+    <pre>
+Purpose: Singleton that returns a PDO connection.
+
+Functions:
+- getInstance(): return the Database singleton
+- getConnection(): return the PDO object
+
+Notes: set PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+Use appropriate DSN for SQL Server: "sqlsrv:Server=localhost;Database=Tool_Monitoring_System"
+    </pre>
+
+    <h4>SigninModel</h4>
+    <pre>
+Primary functions:
+- verifyCredentials($email,$password): SELECT * FROM organizations WHERE email = :email; verify password_hash
+- storeRememberToken($org_id, $token): store hashed token in organizations.remember_token
+- verifyRememberToken($token): find tenant by hashed token
+- clearRememberToken($org_id)
+Notes: Always hash remember token (sha256).
+    </pre>
+
+    <h4>AssetModel</h4>
+    <pre>
+Primary functions:
+- addAsset(array $data): insert into assets (tenant_id,asset_id,asset_name, serial_no, cost_center, department, location_x, vendor_id, mfg_code, status, equipment_description)
+- getAssetById($tenantId,$assetId): select single asset
+- listAssets($tenantId): list assets for tenant (with optional filters)
+Notes: Validate asset_id uniqueness per tenant. Catch SQL exceptions and surface user-friendly messages; log server errors.
+    </pre>
+
+    <h4>ChecklistTemplateModel</h4>
+    <pre>
+Primary functions:
+- createTemplate($tenantId,$data): INSERT header then INSERT multiple tasks in transaction; ensure unique (tenant_id,checklist_id)
+- getTemplate($tenantId,$checklistId): fetch header
+- getTasks($tenantId,$checklistId): fetch tasks ordered by task_order
+- updateTemplate(...): update header and tasks similarly to ChecklistModel update logic
+Notes: Always enforce constraint UQ_checklist_template_tenant_checklist.
+    </pre>
+
+    <h4>ChecklistModel</h4>
+    <pre>
+Primary functions:
+- getAllChecklists($tenantId,$filters = []):
+    - Returns flat rows of header + task columns (LEFT JOIN), optionally filtered
+- getChecklistById($tenantId,$checklistId):
+    - Returns array [ 'header' => headerRow, 'tasks' => [taskRows...] ]
+- updateChecklist($tenantId,$checklistId,$data):
+    - BEGIN TRANSACTION
+    - UPDATE checklist_template header
+    - For tasks:
+        - For supplied task entries:
+            - If task_id present -> UPDATE
+            - Else -> INSERT, then capture lastInsertId and add to keepIds
+    - Delete tasks NOT IN keepIds (i.e. removed by user)
+    - COMMIT
+Notes:
+- Important to capture inserted task IDs (via lastInsertId or using OUTPUT clause in SQL Server) then include them in keepIds before deletion step.
+- Provide detailed error handling and rollback on exception.
+    </pre>
+
+    <h4>RoutineMaintenanceModel / RoutineWorkOrderModel</h4>
+    <pre>
+Primary functions:
+- getFilterOptions($tenantId):
+    - Returns arrays: 'assets' => [[asset_id,asset_name],...], 'work_order' => [...], 'types' => [...], 'technicians' => [...]
+- getMaintenanceTypeByWorkOrder($tenantId,$workOrder):
+    - SELECT TOP 1 maintenance_type FROM checklist_template WHERE tenant_id=:tenant_id AND work_order=:work_order
+- generateRoutineWorkOrders($tenantId,$workOrder,$assetIds,$technicianOverride=''):
+    - Fetch template row for work_order
+    - For each selected assetId:
+        - Ensure asset exists and belongs to tenant
+        - Compute next maintenance date based on interval_days
+        - Check for duplicate scheduled WO for (tenant,asset,checklist_id)
+        - Insert into routine_Work_Orders with work_order_ref = template.work_order (copy), maintenance_type = template.maintenance_type
+    - Return count inserted
+- getUpcomingMaintenance($tenantId,$filters):
+    - Return records from routine_Work_Orders filtered by next_maintenance_date within window and other filters
+Notes:
+- Use prepared statements and parameterized IN lists when many assetIds are passed.
+- Prevent multiple inserts by:
+    - Checking duplicates before insert (as above), and/or
+    - Using a unique constraint at DB level if business rule allows (e.g. UNIQUE(tenant_id,asset_id,checklist_id,status) limited to scheduled).
+    </pre>
+  </section>
+
+  <!-- PlantUML -->
+  <section class="card p-3">
+    <h2>Diagrams (PlantUML sources)</h2>
+    <h3>Class Diagram (simplified)</h3>
+    <pre>
+@startuml
+class PagesController
+class SigninController
+class AssetController
+class ChecklistTemplateController
+class ChecklistController
+class RoutineMaintenanceController
+
+class Database
+class AssetModel
+class ChecklistTemplateModel
+class ChecklistModel
+class RoutineMaintenanceModel
+class RoutineWorkOrderModel
+
+SigninController --> SigninModel
+AssetController --> AssetModel
+ChecklistTemplateController --> ChecklistTemplateModel
+ChecklistController --> ChecklistModel
+RoutineMaintenanceController --> RoutineMaintenanceModel
+RoutineMaintenanceModel --> RoutineWorkOrderModel
+@enduml
+    </pre>
+    <p class="muted">Use any PlantUML renderer to visualize. Save the block above into a .puml file.</p>
+
+    <h3>Sequence — Generate Routine Work Orders</h3>
+    <pre>
+@startuml
+User -> RoutineMaintenanceController: POST /form_mms/routine_maintenance (csrf, work_order, asset_ids)
+RoutineMaintenanceController -> RoutineMaintenanceModel: generateRoutineWorkOrders(tenantId, workOrder, assetIds)
+RoutineMaintenanceModel -> checklist_template: SELECT template WHERE tenant_id AND work_order
+RoutineMaintenanceModel -> assets: SELECT each asset WHERE asset_id AND tenant_id
+RoutineMaintenanceModel -> routine_Work_Orders: SELECT COUNT existing scheduled
+RoutineMaintenanceModel -> routine_Work_Orders: INSERT new records
+RoutineMaintenanceModel --> RoutineMaintenanceController: return insertedCount
+RoutineMaintenanceController -> User: redirect + session success message
+@enduml
+    </pre>
+  </section>
+
+  <!-- PHPDoc examples -->
+  <section class="card p-3">
+    <h2>PHPDoc Examples (paste into your models / controllers)</h2>
+    <pre>
+/**
+ * Class ChecklistModel
+ *
+ * Provides checklist template retrieval and update functions.
+ */
+class ChecklistModel {
+    /**
+     * Fetch all checklist rows (header + task rows) for a tenant
+     *
+     * @param string $tenantId UUID tenant id
+     * @param array $filters Optional filters: 'maintenance_type','technician','checklist_id'
+     * @return array List of associative rows (flat; header repeated per task)
+     * @throws PDOException on DB errors
+     */
+    public function getAllChecklists(string $tenantId, array $filters = []): array { ... }
+
+    /**
+     * Update checklist header & tasks (atomic)
+     *
+     * @param string $tenantId
+     * @param string $checklistId
+     * @param array $data ['maintenance_type','technician','interval_days','tasks' => ['task_id'=>[], 'task_text'=>[], 'task_order'=>[]]]
+     * @return bool true on success
+     * @throws Exception on failure (transaction roll back)
+     */
+    public function updateChecklist(string $tenantId, string $checklistId, array $data): bool { ... }
+}
+    </pre>
+  </section>
+
+  <!-- Troubleshooting -->
+  <section class="card p-3">
+    <h2>Troubleshooting & Common Pitfalls</h2>
+    <ul>
+      <li><strong>SQL errors about missing columns</strong>: confirm the column name in DB (e.g. <code>work_order</code> exists in <code>checklist_template</code>). If you renamed to <code>work_order_ref</code>, update model accordingly.</li>
+      <li><strong>Foreign key creation errors</strong>: ensure referenced columns are primary/candidate keys and data types match. Example: FK referencing (tenant_id, checklist_id) requires UNIQUE constraint on parent.</li>
+      <li><strong>Duplicate inserts</strong>: add duplicate checks before insert and consider unique constraints if business rules allow.</li>
+      <li><strong>AJAX 404</strong>: ensure route matches; for example route key <code>/mes/api/get_maintenance_type_by_work_order</code> must be in <code>routes.php</code>.</li>
+      <li><strong>CSRF</strong>: use one-time token pattern (generate on GET, validate on POST, unset afterwards).</li>
+      <li><strong>Array binding</strong>: building IN(...) must use positional parameters for PDO with SQL Server. Example: build placeholders and merge params in correct order.</li>
+      <li><strong>Capturing last insert id in SQL Server</strong>: use <code>SELECT SCOPE_IDENTITY()</code> or PDO::lastInsertId() with proper driver support.</li>
+    </ul>
+  </section>
+
+  <!-- How-to / Workflows -->
+  <section class="card p-3">
+    <h2>Workflows — Quick Reference</h2>
+
+    <h4>Checklist Edit / Update (server-side flow)</h4>
+    <ol>
+      <li>User edits header & tasks on checklist_edit.php and clicks <kbd>Update</kbd>.</li>
+      <li>Controller ChecklistController::update reads POST arrays task_id[], task_text[], task_order[].</li>
+      <li>Controller calls ChecklistModel::updateChecklist(...) which:
+        <ol>
+          <li>Starts transaction</li>
+          <li>Updates checklist_template header</li>
+          <li>For each posted task: if task_id present -> update; else -> insert and capture inserted ID</li>
+          <li>Delete tasks for checklist not in keepIds (those were removed by user)</li>
+          <li>Commit</li>
+        </ol>
+      </li>
+    </ol>
+
+    <h4>Generate Routine Work Orders</h4>
+    <ol>
+      <li>User selects one or more assets and a Work Order (which references a checklist template).</li>
+      <li>Controller validates CSRF, selected asset_ids and work_order, and calls RoutineMaintenanceModel::generateRoutineWorkOrders.</li>
+      <li>Model loads checklist template for selected work_order, then loops only selected asset_ids (important!).</li>
+      <li>For each asset: check duplicates (tenant+asset+checklist scheduled), compute next maintenance date, insert into routine_Work_Orders with work_order_ref copied from template.</li>
+    </ol>
+  </section>
+
+  <!-- Deployment & Notes -->
+  <section class="card p-3">
+    <h2>Deployment Notes</h2>
+    <ul>
+      <li>Use HTTPS in production and set cookies secure flag.</li>
+      <li>Set <code>PDO::ATTR_ERRMODE</code> to <code>PDO::ERRMODE_EXCEPTION</code> for clear exceptions (already used in Database singleton).</li>
+      <li>Ensure SQL Server ODBC driver installed (ODBC Driver 17 or newer) when running on Windows + PHP.</li>
+      <li>Back up database before running migration scripts. Use migrations if possible.</li>
+    </ul>
+  </section>
+
+  <footer class="mt-4 mb-5 muted">
+    <small>Generated: <?= date('Y-m-d H:i') ?> — For developer reference. Keep this file in <code>/docs/</code> inside the project for quick access.</small>
+  </footer>
+</div>
+</body>
+</html>
