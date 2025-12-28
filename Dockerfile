@@ -22,13 +22,13 @@ RUN a2enmod rewrite proxy proxy_http ssl headers
 # Allow .htaccess overrides
 RUN echo "    <Directory /var/www/html>\n        AllowOverride All\n    </Directory>" >> /etc/apache2/sites-available/000-default.conf
 
-# Copy ENTIRE PROJECT (so index.php, .htaccess, app/ are all included)
-COPY . /var/www/html/
-
-# Copy Apache vhost config
+#  COPY CONFIG FIRST
 COPY apache/sites-available/hubit.conf /etc/apache2/sites-available/hubit.conf
 
-# Enable the site
+#  THEN ENABLE IT
 RUN a2ensite hubit.conf
+
+#  COPY APP LAST (so .htaccess, index.php, app/ are present)
+COPY . /var/www/html/
 
 EXPOSE 80 443
