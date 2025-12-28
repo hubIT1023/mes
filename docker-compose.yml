@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   traefik:
     image: traefik:v3.1
@@ -6,6 +8,7 @@ services:
       - --entrypoints.https.address=:443
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
@@ -13,8 +16,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock   # Removed :ro for full access
+      - ./traefik/letsencrypt:/letsencrypt
     restart: unless-stopped
     env_file:
       - .env
@@ -36,7 +39,6 @@ services:
       - "traefik.http.routers.web.entrypoints=https"
       - "traefik.http.routers.web.tls.certresolver=letsencrypt"
       - "traefik.http.services.web.loadbalancer.server.port=80"
-
       # Redirect www → non-www
       - "traefik.http.routers.web-www.rule=Host(`www.hubit.online`)"
       - "traefik.http.routers.web-www.entrypoints=https"
@@ -44,18 +46,18 @@ services:
       - "traefik.http.middlewares.redirect-to-non-www.redirectregex.regex=^https://www\\.hubit\\.online/(.*)$$"
       - "traefik.http.middlewares.redirect-to-non-www.redirectregex.replacement=https://hubit.online/$$1"
     depends_on:
-      - mssql
+      - postgres
 
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+  postgres:
+    image: postgres:16
     environment:
-      ACCEPT_EULA: "Y"
-      SA_PASSWORD: ${DB_PASSWORD}
-      MSSQL_PID: Express
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - mssql_data:/var/opt/mssql
+      - postgres_data:/var/lib/postgresql/data   # Fixed volume mapping
     restart: unless-stopped
 
 volumes:
-  mssql_data:
+  postgres_data:
   letsencrypt:
