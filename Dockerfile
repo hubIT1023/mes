@@ -19,8 +19,11 @@ RUN docker-php-ext-install pdo_pgsql pgsql
 # Enable Apache modules
 RUN a2enmod rewrite proxy proxy_http ssl headers
 
-# Copy app code
-COPY app/ /var/www/html/
+# Allow .htaccess overrides
+RUN echo "    <Directory /var/www/html>\n        AllowOverride All\n    </Directory>" >> /etc/apache2/sites-available/000-default.conf
+
+# Copy ENTIRE PROJECT (so index.php, .htaccess, app/ are all included)
+COPY . /var/www/html/
 
 # Copy Apache vhost config
 COPY apache/sites-available/hubit.conf /etc/apache2/sites-available/hubit.conf

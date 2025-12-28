@@ -1,3 +1,14 @@
+
+/var/www/html/
+├── index.php           ← your entry point
+├── .htaccess           ← rewrite rules
+├── app/                ← controllers, models, etc.
+├── parts_img/
+├── storage/
+└── ...
+
+
+
 f:\xamp_server\htdocs\mes\
 │
 ├── storage\
