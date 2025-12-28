@@ -1,8 +1,6 @@
-version: "3.9"
-
 services:
   traefik:
-    image: traefik:v3.1
+    image: traefik:v3.2
     command:
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
@@ -22,8 +20,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      - DOCKER_API_VERSION=1.52
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`traefik.hubit.online`)"
@@ -74,7 +70,6 @@ services:
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.hubit.online`)"
       - "traefik.http.routers.pgadmin.entrypoints=https"
       - "traefik.http.routers.pgadmin.tls.certresolver=letsencrypt"
-      # Optional: add basic auth for extra security
 
 volumes:
   postgres_data:
