@@ -1,6 +1,8 @@
 <?php
 // Front Controller
 
+phpinfo();
+/*
 // Load logger helper
 require_once __DIR__ . '/app/helpers/logger.php';
 
@@ -83,6 +85,8 @@ foreach ($routes as $routePattern => $routeHandler) {
 
 
 echo "<p>The requested URL '$uri' was not found on this server.</p>";
+
+*/
 /*
 echo "<p>Available routes:</p><ul>";
 foreach (array_keys($routes) as $route) {
