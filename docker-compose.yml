@@ -60,13 +60,10 @@ services:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: ${DB_PASSWORD}
       MSSQL_PID: Express
-    # 🔒 Only expose 1433 if needed externally. For internal-only, remove 'ports'
-    # ports:
-    #   - "1433:1433"
     volumes:
-      - mssql_/var/opt/mssql
+      - mssql_data:/var/opt/mssql
     restart: unless-stopped
 
 volumes:
-  mssql_
+  mssql_data:
   letsencrypt:
