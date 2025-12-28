@@ -1,16 +1,18 @@
 services:
   traefik:
-    image: traefik:v3.2
+    image: traefik/traefik:v3.2
     command:
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.network=mes_default  # 👈 ADD THIS
       - --providers.docker.watch=true
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --api.dashboard=true  # 👈 Optional but useful
     ports:
       - "80:80"
       - "443:443"
@@ -73,4 +75,4 @@ services:
 
 volumes:
   postgres_data:
-  letsencrypt:
+  # Removed unused 'letsencrypt' named volume
