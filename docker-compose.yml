@@ -16,7 +16,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock   # Removed :ro for full access
+      - /var/run/docker.sock:/var/run/docker.sock   # removed :ro
       - ./traefik/letsencrypt:/letsencrypt
     restart: unless-stopped
     env_file:
@@ -55,8 +55,25 @@ services:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data   # Fixed volume mapping
+      - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.hubit.online`)"
+      - "traefik.http.routers.pgadmin.entrypoints=https"
+      - "traefik.http.routers.pgadmin.tls.certresolver=letsencrypt"
+      # Optional: add Traefik basic auth middleware for extra security
+    networks:
+      - default
 
 volumes:
   postgres_data:
