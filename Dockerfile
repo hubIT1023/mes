@@ -14,11 +14,12 @@ RUN apt-get update && \
 # Install PHP PostgreSQL extensions
 RUN docker-php-ext-install pdo_pgsql pgsql
 
-# Enable Apache modules
+# Apache modules
 RUN a2enmod rewrite
 RUN a2dismod mpm_event && a2enmod mpm_prefork
 
-# Copy application code
+# Copy app
 COPY app/ /var/www/html/
 
 EXPOSE 80
+
