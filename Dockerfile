@@ -2,7 +2,7 @@ FROM php:8.3-apache
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
+# Install system deps + certbot
 RUN apt-get update && \
     apt-get install -y \
         libpq-dev \
@@ -11,16 +11,15 @@ RUN apt-get update && \
         unzip \
         certbot \
         python3-certbot-apache \
-        openssl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_pgsql pgsql
 
 # Enable Apache modules
-RUN a2enmod rewrite proxy proxy_http ssl
+RUN a2enmod rewrite proxy proxy_http ssl headers
 
-# Copy app
+# Copy app code
 COPY app/ /var/www/html/
 
 # Copy Apache vhost config
@@ -30,4 +29,3 @@ COPY apache/sites-available/hubit.conf /etc/apache2/sites-available/hubit.conf
 RUN a2ensite hubit.conf
 
 EXPOSE 80 443
-

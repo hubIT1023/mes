@@ -7,9 +7,9 @@ services:
     env_file:
       - .env
     volumes:
-      - ./apache/sites-available:/etc/apache2/sites-available:ro
-      - ./apache/ssl:/etc/letsencrypt  # Certbot stores certs here
-      - ./apache/ssl:/var/www/certbot   # Needed for ACME challenge
+      - ./apache/sites-available:/etc/apache2/sites-available:ro  # ✅ Mount config
+      - ./letsencrypt:/etc/letsencrypt                           # For certs
+      - ./letsencrypt:/var/www/certbot                           # For ACME challenge
     restart: unless-stopped
     depends_on:
       - postgres
@@ -22,7 +22,7 @@ services:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - postgres_/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   pgadmin:
@@ -33,4 +33,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_
+  postgres_data:
