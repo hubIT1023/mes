@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   traefik:
     image: traefik:v3.1
@@ -26,14 +24,9 @@ services:
       - "traefik.http.routers.traefik.entrypoints=https"
       - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
       - "traefik.http.routers.traefik.service=api@internal"
-      # 🔒 Uncomment after generating htpasswd (see below)
-      # - "traefik.http.routers.traefik.middlewares=auth"
-      # - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$your_hashed_password..."
 
   web:
     build: .
-    volumes:
-      - ./app:/var/www/html:ro
     restart: unless-stopped
     env_file:
       - .env
@@ -50,7 +43,6 @@ services:
       - "traefik.http.routers.web-www.middlewares=redirect-to-non-www"
       - "traefik.http.middlewares.redirect-to-non-www.redirectregex.regex=^https://www\\.hubit\\.online/(.*)$$"
       - "traefik.http.middlewares.redirect-to-non-www.redirectregex.replacement=https://hubit.online/$$1"
-
     depends_on:
       - mssql
 
