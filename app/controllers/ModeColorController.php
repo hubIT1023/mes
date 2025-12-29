@@ -3,34 +3,52 @@
 
 require_once __DIR__ . '/../models/ModeColorModel.php';
 
-class ModeColorController {
+class ModeColorController
+{
     private $model;
 
-    public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
+    public function __construct()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if (!isset($_SESSION['tenant_id'])) {
-            header("Location: /mes/signin");
+            header("Location: /mes/signin?error=" . urlencode("Please log in first"));
             exit;
         }
+
         $this->model = new ModeColorModel();
     }
 
     // List all mode colors
-    public function index() {
+    public function index()
+    {
         $orgId = $_SESSION['tenant_id'];
         $items = $this->model->getAll($orgId);
         require_once __DIR__ . '/../views/forms_bid/configModeColor.php';
     }
 
     // Show create form
-    public function create() {
-        // You should have a separate create view!
+    public function create()
+    {
         require_once __DIR__ . '/../views/forms_bid/createModeColor.php';
     }
 
     // Store new mode
-    public function store() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') exit;
+    public function store()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            exit('Method not allowed');
+        }
+
+        // CSRF protection
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Security check failed.";
+            header("Location: /mes/mode-color/create");
+            exit;
+        }
 
         $orgId = $_SESSION['tenant_id'];
         $mode_key = trim($_POST['mode_key'] ?? '');
@@ -44,7 +62,7 @@ class ModeColorController {
         } elseif ($this->model->create($orgId, $mode_key, $label, $tailwind_class)) {
             $_SESSION['success'] = "Mode color created!";
         } else {
-            $_SESSION['error'] = "Failed to create.";
+            $_SESSION['error'] = "Failed to create mode color.";
         }
 
         header("Location: /mes/mode-color");
@@ -52,7 +70,8 @@ class ModeColorController {
     }
 
     // Show edit form
-    public function edit() { // ← REMOVED $id
+    public function edit()
+    {
         $id = (int)($_GET['id'] ?? 0);
         if (!$id) {
             $_SESSION['error'] = "Invalid ID.";
@@ -67,14 +86,24 @@ class ModeColorController {
             header("Location: /mes/mode-color");
             exit;
         }
-        
-        // Pass $item to edit view (you need a separate edit view!)
+
         require_once __DIR__ . '/../views/forms_bid/editModeColor.php';
     }
 
     // Update record
-    public function update() { // ← REMOVED $id
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') exit;
+    public function update()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            exit('Method not allowed');
+        }
+
+        // CSRF protection
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Security check failed.";
+            header("Location: /mes/mode-color");
+            exit;
+        }
 
         $id = (int)($_POST['id'] ?? 0);
         if (!$id) {
@@ -103,9 +132,17 @@ class ModeColorController {
     }
 
     // Delete record
-    public function destroy() { // ← REMOVED $id
+    public function destroy()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
+            exit('Method not allowed');
+        }
+
+        // CSRF protection
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Security check failed.";
+            header("Location: /mes/mode-color");
             exit;
         }
 
@@ -117,19 +154,13 @@ class ModeColorController {
         }
 
         $orgId = $_SESSION['tenant_id'];
-        
-        // Optional: verify CSRF
-        if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
-            $_SESSION['error'] = "Security check failed.";
-            header("Location: /mes/mode-color");
-            exit;
-        }
 
         if ($this->model->delete($id, $orgId)) {
             $_SESSION['success'] = "Mode color deleted.";
         } else {
             $_SESSION['error'] = "Delete failed.";
         }
+
         header("Location: /mes/mode-color");
         exit;
     }
