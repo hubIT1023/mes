@@ -88,38 +88,40 @@ class MachinePartModel
         return (bool) $stmt->fetchColumn();
     }
 
-    public function uploadImage($file): ?string
-    {
-        if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
-            error_log("Upload error: " . $file['error']);
-            return null;
-        }
+    public function uploadImage($file): ?string {
+		if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+			error_log("Upload error: " . $file['error']);
+			return null;
+		}
 
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!in_array($file['type'], $allowedTypes)) {
-            error_log("Invalid file type: " . $file['type']);
-            return null;
-        }
+		$allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+		if (!in_array($file['type'], $allowedTypes)) {
+			error_log("Invalid file type: " . $file['type']);
+			return null;
+		}
 
-        $uploadDir = __DIR__ . '/../parts_img/';
-        if (!is_dir($uploadDir)) {
-            if (!mkdir($uploadDir, 0755, true)) {
-                error_log("Failed to create upload directory: $uploadDir");
-                return null;
-            }
-        }
+		// ✅ Use project root — now always /home/root/mes
+		$uploadDir = PROJECT_ROOT . '/app/parts_img/';
 
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = 'part_' . uniqid() . '.' . $ext;
-        $targetPath = $uploadDir . $filename;
+		if (!is_dir($uploadDir)) {
+			if (!mkdir($uploadDir, 0755, true)) {
+				error_log("Failed to create upload directory: $uploadDir");
+				return null;
+			}
+		}
 
-        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-            return '/app/parts_img/' . $filename;
-        }
+		$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+		$filename = 'part_' . uniqid() . '.' . $ext;
+		$targetPath = $uploadDir . $filename;
 
-        error_log("Failed to move uploaded file");
-        return null;
-    }
+		if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+			// Return web-accessible path (assuming /mes is web root)
+			return '/mes/app/parts_img/' . $filename;
+		}
+
+		error_log("Failed to move uploaded file");
+		return null;
+	}
 
     public function getFilteredParts(string $orgId, array $filters): array
     {
