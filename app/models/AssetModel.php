@@ -20,6 +20,7 @@ class AssetModel
         $stmt = $this->conn->prepare("
             SELECT 1 FROM assets 
             WHERE asset_id = ? AND tenant_id = ?
+            LIMIT 1
         ");
         $stmt->execute([$assetId, $tenantId]);
         return (bool) $stmt->fetch();
@@ -47,7 +48,7 @@ class AssetModel
                 equipment_description,
                 created_at
             ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATETIME()
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
             )
         ";
 

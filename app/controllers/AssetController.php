@@ -19,12 +19,13 @@ class AssetController
     {
         if (session_status() === PHP_SESSION_NONE) session_start();
 
-        if (!isset($_SESSION['tenant'])) {
+        // ✅ Use consistent session key: 'tenant_id'
+        if (!isset($_SESSION['tenant_id'])) {
             header("Location: /mes/signin?error=Please+log+in+first");
             exit;
         }
 
-        $tenant = $_SESSION['tenant'];
+        $tenant_id = $_SESSION['tenant_id'];
 
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -37,105 +38,77 @@ class AssetController
     }
 
     /**
-     * HANDLE form submission with JSON debugging
+     * HANDLE form submission
      */
     public function store()
     {
-        // ✅ START SESSION FIRST
         if (session_status() === PHP_SESSION_NONE) session_start();
 
-        // Always return JSON for debugging
-        header('Content-Type: application/json');
-        header('Cache-Control: no-cache');
+        // Always redirect (not JSON) — remove debug JSON mode
+        if (!isset($_SESSION['tenant_id'])) {
+            $_SESSION['error'] = "Please log in first.";
+            header("Location: /mes/signin");
+            exit;
+        }
 
-        $response = [
-            'success' => false,
-            'message' => '',
-            'post_data' => $_POST,
-            'session' => [
-                'tenant' => $_SESSION['tenant'] ?? null,
-                'csrf_token' => $_SESSION['csrf_token'] ?? 'not set'
-            ],
-            'errors' => []
+        // Validate CSRF
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+            $_SESSION['error'] = "Security check failed.";
+            header("Location: /mes/form_mms/addAsset");
+            exit;
+        }
+
+        // Validate required fields
+        $requiredFields = [
+            'asset_id', 'asset_name',
+            'location_id_1', 'location_id_2', 'location_id_3',
+            'vendor_id', 'mfg_code', 'serial_no',
+            'cost_center', 'department', 'equipment_description'
         ];
 
-        // 1. Check authentication
-        if (!isset($_SESSION['tenant'])) {
-            $response['errors'][] = 'Not logged in';
-            $response['message'] = 'Authentication required';
-            //echo json_encode($response, JSON_PRETTY_PRINT);
-			header("Location: /mes/dashboard_admin");
-            exit;
-        }
-
-        // 2. Validate CSRF
-        if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
-            $response['errors'][] = 'CSRF token mismatch';
-            $response['message'] = 'Security check failed';
-           // echo json_encode($response, JSON_PRETTY_PRINT);
-		   header("Location: /mes/dashboard_admin");
-            exit;
-        }
-
-        // 3. Validate required fields
-        $tenant = $_SESSION['tenant'];
-        $requiredFields = ['asset_id', 'asset_name',
-							'location_id_1', 'location_id_2','location_id_3',
-							'vendor_id','mfg_code','serial_no', 
-							'cost_center', 'department', 'equipment_description'];
         $data = [];
+        $errors = [];
 
         foreach ($requiredFields as $field) {
             $data[$field] = trim($_POST[$field] ?? '');
             if (empty($data[$field])) {
-                $response['errors'][] = "$field is required";
+                $errors[] = "$field is required";
             }
         }
 
-        // Add tenant_id
-        $data['tenant_id'] = $tenant['org_id'] ?? null;
+        $data['tenant_id'] = $_SESSION['tenant_id'];
         if (empty($data['tenant_id'])) {
-            $response['errors'][] = 'tenant_id missing';
+            $errors[] = 'Tenant ID missing';
         }
 
-        $response['validated_data'] = $data;
-
-        if (!empty($response['errors'])) {
-            $response['message'] = 'Validation failed';
-            //echo json_encode($response, JSON_PRETTY_PRINT);
+        if (!empty($errors)) {
+            $_SESSION['error'] = implode(' ', $errors);
+            header("Location: /mes/form_mms/addAsset");
             exit;
         }
 
-        // 4. Check for duplicate asset_id WITHIN TENANT
+        // Check duplicate asset_id within tenant
         if ($this->model->assetIdExistsForTenant($data['asset_id'], $data['tenant_id'])) {
-            $response['errors'][] = "Asset ID '{$data['asset_id']}' already exists for your tenant";
-            $response['message'] = 'Duplicate asset_id in tenant';
-           // echo json_encode($response, JSON_PRETTY_PRINT);
-		   header("Location: /mes/dashboard_admin");
+            $_SESSION['error'] = "Asset ID '{$data['asset_id']}' already exists for your tenant.";
+            header("Location: /mes/form_mms/addAsset");
             exit;
         }
 
-        // 5. Try to insert
+        // Insert asset
         try {
-            $result = $this->model->addAsset($data);
-            
-            if ($result) {
-                $response['success'] = true;
-                $response['message'] = 'Asset created successfully';
-				$_SESSION['flash_success'] = "Asset $assetId created successfully!";
-				header("Location: /mes/form_mms/addAsset");
-				exit;
+            if ($this->model->addAsset($data)) {
+                $_SESSION['success'] = "Asset {$data['asset_id']} created successfully!";
+                header("Location: /mes/form_mms/addAsset");
             } else {
-                $response['errors'][] = 'Model addAsset() returned false';
-                $response['message'] = 'Database insertion failed';
+                $_SESSION['error'] = "Failed to save asset.";
+                header("Location: /mes/form_mms/addAsset");
             }
         } catch (Exception $e) {
-            $response['errors'][] = 'Exception: ' . $e->getMessage();
-            $response['message'] = 'Unexpected error';
+            error_log("Asset insert error: " . $e->getMessage());
+            $_SESSION['error'] = "An unexpected error occurred.";
+            header("Location: /mes/form_mms/addAsset");
         }
 
-        //echo json_encode($response, JSON_PRETTY_PRINT);
-		header("Location: /mes/dashboard_admin");
         exit;
     }
 }
