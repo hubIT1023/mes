@@ -11,7 +11,7 @@ class AddEntityToDashboardModel {
     }
 
     /**
-     * ✅ NEW METHOD: Get page_id from group_code
+     * ✅ Get page_id from group_code
      */
     public function getPageIdByGroupCode(int $group_code, string $orgId): int {
         try {
@@ -21,15 +21,15 @@ class AddEntityToDashboardModel {
             ");
             $stmt->execute([$group_code, $orgId]);
             $result = $stmt->fetchColumn();
-            return $result !== false ? (int) $result : 1; // Default to page 1 if not found
+            return $result !== false ? (int) $result : 1;
         } catch (PDOException $e) {
             error_log("getPageIdByGroupCode failed: " . $e->getMessage());
-            return 1; // Safe fallback
+            return 1;
         }
     }
 
     /**
-     * Fetch official asset_name from [assets] table
+     * Fetch official asset_name from assets table
      */
     public function getAssetName(string $orgId, string $assetId): ?string {
         try {
@@ -77,13 +77,14 @@ class AddEntityToDashboardModel {
                 $data['location_code']
             );
 
+            // ✅ PostgreSQL: Use CURRENT_TIMESTAMP instead of GETDATE()
             $stmt = $this->conn->prepare("
                 INSERT INTO registered_tools (
                     org_id, asset_id, entity, group_code, location_code,
                     row_pos, col_pos, created_at
                 ) VALUES (
                     :org_id, :asset_id, :entity, :group_code, :location_code,
-                    :row_pos, :col_pos, GETDATE()
+                    :row_pos, :col_pos, CURRENT_TIMESTAMP
                 )
             ");
 
@@ -106,7 +107,6 @@ class AddEntityToDashboardModel {
      * Auto-generate next grid position (max 9 columns per row)
      */
     private function getNextGridPosition(string $orgId, int $groupCode, int $locationCode): array {
-        // Fetch all existing entities for this group/location
         $stmt = $this->conn->prepare("
             SELECT row_pos, col_pos
             FROM registered_tools
@@ -117,20 +117,16 @@ class AddEntityToDashboardModel {
         $existing = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($existing)) {
-            return [1, 1]; // First entity → (1,1)
+            return [1, 1];
         }
 
-        // Find the last used position
         $last = end($existing);
         $last_row = (int)$last['row_pos'];
         $last_col = (int)$last['col_pos'];
 
-        // If last column is 9, start new row at (last_row + 1, 1)
         if ($last_col >= 9) {
             return [$last_row + 1, 1];
-        } else {
-            // Else, same row, next column
-            return [$last_row, $last_col + 1];
         }
+        return [$last_row, $last_col + 1];
     }
 }
