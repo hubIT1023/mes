@@ -1,15 +1,22 @@
 services:
   web:
     build: .
+    container_name: hubit-web
     ports:
       - "80:80"
       - "443:443"
     env_file:
       - .env
     volumes:
-      - ./apache/sites-available:/etc/apache2/sites-available:ro  # ✅ Mount config
-      - ./letsencrypt:/etc/letsencrypt                           # For certs
-      - ./letsencrypt:/var/www/certbot                           # For ACME challenge
+      # Apache vhost configs (read-only)
+      - ./apache/sites-available:/etc/apache2/sites-available:ro
+
+      # Let's Encrypt certificates (persistent)
+      - ./letsencrypt:/etc/letsencrypt
+
+      # Application code / webroot
+      - .:/var/www/html
+
     restart: unless-stopped
     depends_on:
       - postgres
