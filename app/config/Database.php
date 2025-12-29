@@ -1,5 +1,5 @@
 <?php
-// config/Database
+// config/Database.php
 
 require_once __DIR__ . '/EnvLoader.php';
 
@@ -8,28 +8,25 @@ class Database {
     private $conn;
 
     private function __construct() {
-		
         // Load .env
         EnvLoader::load(__DIR__ . '/../../.env');
 
-        $serverName = getenv('DB_SERVER');
-        $database   = getenv('DB_DATABASE');
-        $username   = getenv('DB_USERNAME');
-        $password   = getenv('DB_PASSWORD');
-        $useWindowsAuth = filter_var(getenv('DB_USE_WINDOWS_AUTH'), FILTER_VALIDATE_BOOLEAN);
+        $host     = getenv('DB_HOST') ?: 'postgres';      // Default to Docker service name
+        $port     = getenv('DB_PORT') ?: '5432';
+        $database = getenv('DB_DATABASE');
+        $username = getenv('DB_USERNAME');
+        $password = getenv('DB_PASSWORD');
 
         try {
-            $dsn = "sqlsrv:Server=$serverName;Database=$database;TrustServerCertificate=true";
+            // Use pgsql driver for PostgreSQL
+            $dsn = "pgsql:host=$host;port=$port;dbname=$database;";
 
-            if ($useWindowsAuth) {
-                $this->conn = new PDO($dsn);
-            } else {
-                $this->conn = new PDO($dsn, $username, $password);
-            }
-
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn = new PDO($dsn, $username, $password, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]);
         } catch (PDOException $e) {
-            die(" Database connection failed: " . $e->getMessage());
+            die("Database connection failed: " . $e->getMessage());
         }
     }
 
