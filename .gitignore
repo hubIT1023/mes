@@ -1,0 +1,25 @@
+# Ignore environment variables
+.env
+
+# Optional: Also ignore .env.local, .env.production, etc.
+.env.*
+!.env.example  # Keep example file if you have one
+
+# Ignore IDE/editor config
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore logs and temp files
+logs/
+tmp/
+*.log
+
+# Ignore Docker volumes (if not needed in repo)
+letsencrypt/
+apache/sites-available/hubit.conf  # Only if you want to exclude this too
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
