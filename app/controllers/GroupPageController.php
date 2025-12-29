@@ -33,10 +33,8 @@ class GroupPageController {
             exit;
         }
 
-        // ✅ Generate page_id
         $pageId = $this->getNextPageId($orgId);
 
-        // ✅ Always create new placeholder record for new pages
         $data = [
             'org_id' => $orgId,
             'page_id' => $pageId,
@@ -61,8 +59,10 @@ class GroupPageController {
 
     private function getNextPageId(string $orgId): int {
         $conn = Database::getInstance()->getConnection();
+        
+        // ✅ PostgreSQL-compatible: cast page_id to integer, use COALESCE
         $stmt = $conn->prepare("
-            SELECT ISNULL(MAX(page_id), 0) + 1 
+            SELECT COALESCE(MAX(page_id::INTEGER), 0) + 1 
             FROM group_location_map 
             WHERE org_id = ?
         ");

@@ -31,7 +31,7 @@ class GroupPageModel {
                 group_name = ?,
                 location_name = ?,
                 page_name = ?,
-                updated_at = GETDATE()
+                updated_at = CURRENT_TIMESTAMP  -- ✅ PostgreSQL
             WHERE org_id = ? AND page_id = ? AND group_name = '---'
         ";
 
@@ -48,7 +48,7 @@ class GroupPageModel {
         ]);
     }
 
-    // ✅ Keep your existing createPage method
+    // ✅ Create new page record
     public function createPage(array $data): bool {
         $sql = "
             INSERT INTO group_location_map (
@@ -61,7 +61,7 @@ class GroupPageModel {
                 page_name,
                 created_at
             ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, GETDATE()
+                ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP  -- ✅ PostgreSQL
             )
         ";
 
