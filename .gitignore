@@ -1,25 +1,53 @@
-# Ignore environment variables
+# =====================
+# Environment variables
+# =====================
 .env
-
-# Optional: Also ignore .env.local, .env.production, etc.
 .env.*
-!.env.example  # Keep example file if you have one
+!.env.example
 
-# Ignore IDE/editor config
+# =====================
+# Docker
+# =====================
+docker-compose.override.yml
+*.env.docker
+
+# Docker volumes / persistent data (do NOT commit)
+data/
+db_data/
+postgres_data/
+mysql_data/
+mongo_data/
+redis_data/
+
+# Docker build artifacts
+*.tar
+*.img
+
+# =====================
+# Logs & temp files
+# =====================
+logs/
+tmp/
+*.log
+
+# =====================
+# IDE / Editor
+# =====================
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Ignore logs and temp files
-logs/
-tmp/
-*.log
-
-# Ignore Docker volumes (if not needed in repo)
-letsencrypt/
-apache/sites-available/hubit.conf  # Only if you want to exclude this too
-
-# Ignore OS-specific files
+# =====================
+# OS-specific
+# =====================
 .DS_Store
 Thumbs.db
+
+# =====================
+# Server / SSL (if generated locally)
+# =====================
+letsencrypt/
+apache/sites-available/hubit.conf
+nginx/conf.d/*.conf
+
