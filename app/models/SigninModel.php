@@ -8,7 +8,6 @@ class SigninModel {
         $this->db = Database::getInstance()->getConnection();
     }
 
-    // 🔹 Verify email + password
     public function verifyCredentials($email, $password) {
         $stmt = $this->db->prepare("SELECT * FROM organizations WHERE email = :email");
         $stmt->execute(['email' => $email]);
@@ -20,10 +19,8 @@ class SigninModel {
         return false;
     }
 
-    // 🔹 Store remember token (hashed)
     public function storeRememberToken($org_id, $token) {
         $hashedToken = hash('sha256', $token);
-
         $stmt = $this->db->prepare("
             UPDATE organizations 
             SET remember_token = :token 
@@ -32,10 +29,8 @@ class SigninModel {
         $stmt->execute(['token' => $hashedToken, 'org_id' => $org_id]);
     }
 
-    // 🔹 Verify remember token
     public function verifyRememberToken($token) {
         $hashedToken = hash('sha256', $token);
-
         $stmt = $this->db->prepare("
             SELECT * FROM organizations 
             WHERE remember_token = :token
@@ -44,7 +39,6 @@ class SigninModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // 🔹 Clear remember token
     public function clearRememberToken($org_id) {
         $stmt = $this->db->prepare("
             UPDATE organizations 
