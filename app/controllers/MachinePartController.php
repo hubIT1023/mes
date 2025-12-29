@@ -3,30 +3,28 @@
 
 require_once __DIR__ . '/../models/MachinePartModel.php';
 
-class MachinePartController {
+class MachinePartController
+{
     private $model;
-	
 
-    public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
+    public function __construct()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         if (!isset($_SESSION['tenant_id'])) {
-            header("Location: /mes/signin");
+            header("Location: /mes/signin?error=" . urlencode("Please log in first"));
             exit;
         }
         $this->model = new MachinePartModel();
     }
 
     // Store new part
-    public function store() {
+    public function store()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
-            exit;
-        }
-
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        if (!isset($_SESSION['tenant_id'])) {
-            header("Location: /mes/signin");
-            exit;
+            exit('Method not allowed');
         }
 
         $orgId = $_SESSION['tenant_id'];
@@ -35,21 +33,18 @@ class MachinePartController {
         $partId = trim($_POST['part_id'] ?? '');
         $partName = trim($_POST['part_name'] ?? '');
 
-        // Validate required fields
         if (empty($assetId) || empty($entity) || empty($partId) || empty($partName)) {
             $_SESSION['error'] = "Asset ID, Entity, Part ID, and Name are required.";
             header("Location: /mes/dashboard_admin");
             exit;
         }
 
-        // Validate CSRF
         if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
             $_SESSION['error'] = "Security check failed.";
             header("Location: /mes/dashboard_admin");
             exit;
         }
 
-        // Handle image upload
         $imagePath = null;
         if (!empty($_FILES['part_image']['name'])) {
             $imagePath = $this->model->uploadImage($_FILES['part_image']);
@@ -60,14 +55,12 @@ class MachinePartController {
             }
         }
 
-        // Check for duplicate part on same entity
         if ($this->model->partExistsForEntity($orgId, $assetId, $entity, $partId)) {
             $_SESSION['error'] = "This part ID already exists for the selected entity.";
             header("Location: /mes/dashboard_admin");
             exit;
         }
 
-        // Prepare data
         $data = [
             'org_id' => $orgId,
             'asset_id' => $assetId,
@@ -84,7 +77,6 @@ class MachinePartController {
             'image_path' => $imagePath
         ];
 
-        // Save to database
         if ($this->model->create($data)) {
             $_SESSION['success'] = "Part added successfully!";
         } else {
@@ -96,16 +88,16 @@ class MachinePartController {
     }
 
     // Delete part
-    public function destroy() {
+    public function destroy()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
-            exit;
+            exit('Method not allowed');
         }
 
-        if (session_status() === PHP_SESSION_NONE) session_start();
         $orgId = $_SESSION['tenant_id'] ?? null;
         if (!$orgId) {
-            header("Location: /mes/signin");
+            header("Location: /mes/signin?error=" . urlencode("Please log in first"));
             exit;
         }
 
@@ -125,12 +117,15 @@ class MachinePartController {
         header("Location: /mes/dashboard_admin");
         exit;
     }
-	
-	// In MachinePartController.php
-	public function list() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
+
+    // List parts with filters
+    public function list()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         if (!isset($_SESSION['tenant_id'])) {
-            header("Location: /mes/signin");
+            header("Location: /mes/signin?error=" . urlencode("Please log in first"));
             exit;
         }
 
@@ -143,54 +138,10 @@ class MachinePartController {
             'part_id' => trim($_GET['part_id'] ?? '')
         ];
 
-        // ✅ Use model methods instead of raw queries in controller
+        // ✅ Use model methods (correct)
         $parts = $this->model->getFilteredParts($orgId, $filters);
         $entities = $this->model->getUniqueEntities($orgId);
 
-        // ✅ Correct view path
         require_once __DIR__ . '/../views/forms_mms/list_parts.php';
     }
-
-	private function getFilteredParts(string $orgId, array $filters): array {
-		$sql = "SELECT * FROM machine_parts_list WHERE org_id = ?";
-		$params = [$orgId];
-		$conditions = [];
-
-		if ($filters['entity']) {
-			$conditions[] = "entity LIKE ?";
-			$params[] = '%' . $filters['entity'] . '%';
-		}
-		if ($filters['part_name']) {
-			$conditions[] = "part_name LIKE ?";
-			$params[] = '%' . $filters['part_name'] . '%';
-		}
-		if ($filters['vendor_id']) {
-			$conditions[] = "vendor_id LIKE ?";
-			$params[] = '%' . $filters['vendor_id'] . '%';
-		}
-		if ($filters['part_id']) {
-			$conditions[] = "part_id LIKE ?";
-			$params[] = '%' . $filters['part_id'] . '%';
-		}
-
-		if ($conditions) {
-			$sql .= " AND " . implode(" AND ", $conditions);
-		}
-
-		$sql .= " ORDER BY entity, part_name";
-
-		$stmt = $this->conn->prepare($sql);
-		$stmt->execute($params);
-		return $stmt->fetchAll(PDO::FETCH_ASSOC);
-	}
-
-	private function getUniqueEntities(string $orgId): array {
-		$stmt = $this->conn->prepare("
-			SELECT DISTINCT entity FROM machine_parts_list 
-			WHERE org_id = ? 
-			ORDER BY entity
-		");
-		$stmt->execute([$orgId]);
-		return $stmt->fetchAll(PDO::FETCH_COLUMN);
-	}
 }

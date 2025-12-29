@@ -3,15 +3,17 @@
 
 require_once __DIR__ . '/../config/Database.php';
 
-class MachinePartModel {
+class MachinePartModel
+{
     private $conn;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    // Get all parts for a specific entity
-    public function getByEntity(string $orgId, string $assetId, string $entity): array {
+    public function getByEntity(string $orgId, string $assetId, string $entity): array
+    {
         $stmt = $this->conn->prepare("
             SELECT * FROM machine_parts_list 
             WHERE org_id = ? AND asset_id = ? AND entity = ?
@@ -21,8 +23,8 @@ class MachinePartModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Create new part
-    public function create(array $data): bool {
+    public function create(array $data): bool
+    {
         $stmt = $this->conn->prepare("
             INSERT INTO machine_parts_list (
                 org_id, asset_id, entity, part_id, part_name, serial_no,
@@ -34,11 +36,11 @@ class MachinePartModel {
                 :parts_available_on_hand, :description, :image_path
             )
         ");
-        return $stmt->execute($data);
+        return (bool) $stmt->execute($data);
     }
 
-    // Update part
-    public function update(int $id, string $orgId, array $data): bool {
+    public function update(int $id, string $orgId, array $data): bool
+    {
         $stmt = $this->conn->prepare("
             UPDATE machine_parts_list SET
                 part_id = :part_id,
@@ -55,86 +57,94 @@ class MachinePartModel {
         ");
         $data['id'] = $id;
         $data['org_id'] = $orgId;
-        return $stmt->execute($data);
+        return (bool) $stmt->execute($data);
     }
 
-    // Delete part
-    public function delete(int $id, string $orgId): bool {
+    public function delete(int $id, string $orgId): bool
+    {
         $stmt = $this->conn->prepare("DELETE FROM machine_parts_list WHERE id = ? AND org_id = ?");
-        return $stmt->execute([$id, $orgId]);
+        return (bool) $stmt->execute([$id, $orgId]);
     }
 
-    // Check if part_id exists for this entity
-    public function partExistsForEntity(string $orgId, string $assetId, string $entity, string $partId, ?int $excludeId = null): bool {
+    public function partExistsForEntity(
+        string $orgId,
+        string $assetId,
+        string $entity,
+        string $partId,
+        ?int $excludeId = null
+    ): bool {
         $sql = "SELECT 1 FROM machine_parts_list WHERE org_id = ? AND asset_id = ? AND entity = ? AND part_id = ?";
         $params = [$orgId, $assetId, $entity, $partId];
-        if ($excludeId) {
+
+        if ($excludeId !== null) {
             $sql .= " AND id != ?";
             $params[] = $excludeId;
         }
+
+        $sql .= " LIMIT 1"; // 🔒 Add for efficiency
+
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return (bool) $stmt->fetchColumn();
     }
 
-    // Handle image upload
-    public function uploadImage($file): ?string {
-		if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
-			error_log("Upload error: " . $file['error']);
-			return null;
-		}
+    public function uploadImage($file): ?string
+    {
+        if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+            error_log("Upload error: " . $file['error']);
+            return null;
+        }
 
-		$allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-		if (!in_array($file['type'], $allowedTypes)) {
-			error_log("Invalid file type: " . $file['type']);
-			return null;
-		}
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!in_array($file['type'], $allowedTypes)) {
+            error_log("Invalid file type: " . $file['type']);
+            return null;
+        }
 
-		// Save to /app/parts_img/
-		$uploadDir = __DIR__ . '/../parts_img/';
-		if (!is_dir($uploadDir)) {
-			mkdir($uploadDir, 0777, true);
-			error_log("Created directory: " . $uploadDir);
-		}
+        $uploadDir = __DIR__ . '/../parts_img/';
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create upload directory: $uploadDir");
+                return null;
+            }
+        }
 
-		$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-		$filename = 'part_' . uniqid() . '.' . $ext;
-		$targetPath = $uploadDir . $filename;
+        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = 'part_' . uniqid() . '.' . $ext;
+        $targetPath = $uploadDir . $filename;
 
-		if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-			error_log("File saved: " . $targetPath);
-			return '/app/parts_img/' . $filename; // ← URL path for browser
-		}
+        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+            return '/app/parts_img/' . $filename;
+        }
 
-		error_log("Failed to move file");
-		return null;
-	}
-	
-	
-	// ✅ NEW: Get filtered parts
-    public function getFilteredParts(string $orgId, array $filters): array {
+        error_log("Failed to move uploaded file");
+        return null;
+    }
+
+    public function getFilteredParts(string $orgId, array $filters): array
+    {
         $sql = "SELECT * FROM machine_parts_list WHERE org_id = ?";
         $params = [$orgId];
         $conditions = [];
 
-        if ($filters['entity']) {
+        if (!empty($filters['entity'])) {
             $conditions[] = "entity LIKE ?";
             $params[] = '%' . $filters['entity'] . '%';
         }
-        if ($filters['part_name']) {
+        if (!empty($filters['part_name'])) {
             $conditions[] = "part_name LIKE ?";
             $params[] = '%' . $filters['part_name'] . '%';
         }
-        if ($filters['vendor_id']) {
+        if (!empty($filters['vendor_id'])) {
             $conditions[] = "vendor_id LIKE ?";
             $params[] = '%' . $filters['vendor_id'] . '%';
         }
-        if ($filters['part_id']) {
+        if (!empty($filters['part_id'])) {
             $conditions[] = "part_id LIKE ?";
             $params[] = '%' . $filters['part_id'] . '%';
         }
 
-        if ($conditions) {
+        if (!empty($conditions)) {
             $sql .= " AND " . implode(" AND ", $conditions);
         }
         $sql .= " ORDER BY entity, part_name";
@@ -144,8 +154,8 @@ class MachinePartModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // ✅ NEW: Get unique entities
-    public function getUniqueEntities(string $orgId): array {
+    public function getUniqueEntities(string $orgId): array
+    {
         $stmt = $this->conn->prepare("
             SELECT DISTINCT entity FROM machine_parts_list 
             WHERE org_id = ? 
