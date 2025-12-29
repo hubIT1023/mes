@@ -2,7 +2,7 @@ FROM php:8.3-apache
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system deps + certbot
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y \
         libpq-dev \
@@ -13,22 +13,23 @@ RUN apt-get update && \
         python3-certbot-apache \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_pgsql pgsql
+# Install and ENABLE PostgreSQL PDO extension
+RUN docker-php-ext-install pdo_pgsql pgsql && \
+    docker-php-ext-enable pdo_pgsql pgsql
 
 # Enable Apache modules
 RUN a2enmod rewrite proxy proxy_http ssl headers
 
-# Allow .htaccess overrides and set index.php as default
+# Configure Apache to allow .htaccess and use index.php
 RUN echo "    <Directory /var/www/html>\n        AllowOverride All\n        DirectoryIndex index.php\n    </Directory>" >> /etc/apache2/sites-available/000-default.conf
 
-# COPY CONFIG FIRST
+# Copy Apache virtual host config
 COPY apache/sites-available/hubit.conf /etc/apache2/sites-available/hubit.conf
 
-# THEN ENABLE IT
+# Enable the site
 RUN a2ensite hubit.conf
 
-# COPY APP LAST
+# Copy application code LAST (to avoid overwriting config)
 COPY . /var/www/html/
 
 EXPOSE 80 443
