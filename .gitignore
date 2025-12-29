@@ -1,3 +1,6 @@
+
+
+
 # =====================
 # Environment variables
 # =====================
@@ -51,3 +54,5 @@ letsencrypt/
 apache/sites-available/hubit.conf
 nginx/conf.d/*.conf
 
+
+File-folder structure and config for web.txt
