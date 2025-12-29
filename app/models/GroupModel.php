@@ -1,25 +1,39 @@
 <?php
-// app/models/GroupModel.php
+// app/models/GroupModel0.php → corrected to GroupModel.php
 
 require_once __DIR__ . '/../config/Database.php';
 
-class GroupModel {
+class GroupModel
+{
     private $conn;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    public function groupExists(int $groupId, string $orgId, int $pageId): bool {
+    /**
+     * Check if a group exists for the given tenant, page, and ID
+     */
+    public function groupExists(int $groupId, string $orgId, int $pageId): bool
+    {
         $stmt = $this->conn->prepare("
-            SELECT 1 FROM group_location_map 
-            WHERE id = ? AND org_id = ? AND page_id = ?
+            SELECT 1
+            FROM group_location_map
+            WHERE id = ?
+              AND org_id = ?
+              AND page_id = ?
+            LIMIT 1
         ");
         $stmt->execute([$groupId, $orgId, $pageId]);
         return (bool) $stmt->fetch();
     }
 
-    public function updateGroup(array $data): bool {
+    /**
+     * Update group name, location, and sequence
+     */
+    public function updateGroup(array $data): bool
+    {
         $sql = "
             UPDATE group_location_map 
             SET 
@@ -29,33 +43,52 @@ class GroupModel {
             WHERE id = ?
         ";
         $stmt = $this->conn->prepare($sql);
-        return $stmt->execute([
+        return (bool) $stmt->execute([
             $data['group_name'],
             $data['location_name'],
             $data['seq_id'],
             $data['id']
         ]);
-    } 
+    }
 
-    public function deleteGroup(int $groupId, string $orgId): bool {
+    /**
+     * Delete group and all associated tools (registered_tools)
+     */
+    public function deleteGroup(int $groupId, string $orgId): bool
+    {
         try {
-            // First delete associated entities
+            // 🔍 Step 1: Safely fetch group_code for this group (defensive)
+            $stmt = $this->conn->prepare("
+                SELECT group_code 
+                FROM group_location_map 
+                WHERE id = ? AND org_id = ?
+                LIMIT 1
+            ");
+            $stmt->execute([$groupId, $orgId]);
+            $groupCode = $stmt->fetchColumn();
+
+            if ($groupCode === false) {
+                // Group doesn't exist — treat as successful (idempotent)
+                return true;
+            }
+
+            // 🗑️ Step 2: Delete associated tools
             $stmt = $this->conn->prepare("
                 DELETE FROM registered_tools 
-                WHERE org_id = ? AND group_code = (
-                    SELECT group_code FROM group_location_map WHERE id = ?
-                )
+                WHERE org_id = ? AND group_code = ?
             ");
-            $stmt->execute([$orgId, $groupId]);
+            $stmt->execute([$orgId, $groupCode]);
 
-            // Then delete the group
+            // 🗑️ Step 3: Delete the group itself
             $stmt = $this->conn->prepare("
                 DELETE FROM group_location_map 
                 WHERE id = ? AND org_id = ?
             ");
-            return $stmt->execute([$groupId, $orgId]);
+            $stmt->execute([$groupId, $orgId]);
+
+            return true;
         } catch (PDOException $e) {
-            error_log("Delete group error: " . $e->getMessage());
+            error_log("GroupModel::deleteGroup() failed: " . $e->getMessage());
             return false;
         }
     }

@@ -31,7 +31,6 @@ class DeleteGroupController
         // CSRF protection
         if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
             $_SESSION['error'] = "Security check failed.";
-            // Safely redirect even if page_id missing
             $pageId = (int)($_POST['page_id'] ?? 0);
             $redirect = $pageId ? "/mes/dashboard_admin?page_id=$pageId" : "/mes/dashboard_admin";
             header("Location: $redirect");
