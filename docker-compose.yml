@@ -8,19 +8,23 @@ services:
     env_file:
       - .env
     volumes:
-      # Apache vhost configs (read-only)
-      - ./apache/sites-available:/etc/apache2/sites-available:ro
+      # Apache vhost config (read-only)
+      - ./apache/sites-available/hubit.conf:/etc/apache2/sites-available/hubit.conf:ro
 
-      # Let's Encrypt certificates (persistent)
+      # Let's Encrypt certificates
       - ./letsencrypt:/etc/letsencrypt
 
-      # Application code / webroot
-      - .:/var/www/html
+      # Application code (web root)
+      - ./app:/var/www/html/app
+      - ./index.php:/var/www/html/index.php
+      - ./.htaccess:/var/www/html/.htaccess
+      # Add other top-level files as needed (e.g., .env is NOT web-accessible)
 
     restart: unless-stopped
     depends_on:
       - postgres
-      - pgadmin
+    networks:
+      - hubit_net
 
   postgres:
     image: postgres:16
@@ -30,7 +34,10 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro  # Optional: auto-init schema
     restart: unless-stopped
+    networks:
+      - hubit_net
 
   pgadmin:
     image: dpage/pgadmin4
@@ -38,6 +45,14 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - hubit_net
 
 volumes:
   postgres_data:
+
+networks:
+  hubit_net:
+    driver: bridge
