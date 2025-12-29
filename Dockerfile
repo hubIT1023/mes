@@ -19,16 +19,16 @@ RUN docker-php-ext-install pdo_pgsql pgsql
 # Enable Apache modules
 RUN a2enmod rewrite proxy proxy_http ssl headers
 
-# Allow .htaccess overrides
-RUN echo "    <Directory /var/www/html>\n        AllowOverride All\n    </Directory>" >> /etc/apache2/sites-available/000-default.conf
+# Allow .htaccess overrides and set index.php as default
+RUN echo "    <Directory /var/www/html>\n        AllowOverride All\n        DirectoryIndex index.php\n    </Directory>" >> /etc/apache2/sites-available/000-default.conf
 
-#  COPY CONFIG FIRST
+# COPY CONFIG FIRST
 COPY apache/sites-available/hubit.conf /etc/apache2/sites-available/hubit.conf
 
-#  THEN ENABLE IT
+# THEN ENABLE IT
 RUN a2ensite hubit.conf
 
-#  COPY APP LAST (so .htaccess, index.php, app/ are present)
+# COPY APP LAST
 COPY . /var/www/html/
 
 EXPOSE 80 443
