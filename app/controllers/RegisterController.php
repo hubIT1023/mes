@@ -1,4 +1,6 @@
 <?php
+// controllers/RegisterController.php
+
 require_once __DIR__ . '/../models/RegisterModel.php';
 
 class RegisterController {
@@ -27,9 +29,10 @@ class RegisterController {
 
         try {
             $orgId = $this->model->registerOrganization($org_name, $org_alias, $email, $password);
-            header("Location: /mes/register?success=Organization registered! Org ID=$orgId");
+            header("Location: /mes/register?success=Organization registered! Org ID=" . urlencode($orgId));
         } catch (Exception $e) {
             header("Location: /mes/register?error=" . urlencode($e->getMessage()));
         }
+        exit;
     }
 }
