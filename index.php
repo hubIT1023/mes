@@ -1,9 +1,6 @@
 <?php
-// index.php --->Front Controller
-echo '<pre>';
-var_dump($_SERVER['REQUEST_URI']);
-var_dump($uri);
-exit;
+// Front Controller
+
 // Load logger helper
 require_once __DIR__ . '/app/helpers/logger.php';
 
@@ -37,8 +34,6 @@ $uri = rtrim($uri, '/') ?: '/';
 
 // Load routes
 $routes = require $baseDir . '/app/routes.php';
-
-//.....existing codes..
 
 // Enhanced route matching - handles both formats
 foreach ($routes as $routePattern => $routeHandler) {
