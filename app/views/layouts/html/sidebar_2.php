@@ -8,11 +8,11 @@ function is_active($path, $current_page) {
 
 <ul class="navbar-nav sidebar accordion bg-white border-end shadow-sm" id="accordionSidebar">
 
-    <div class="sidebar-brand-container d-flex align-items-center justify-content-center py-4">
+    <!--div class="sidebar-brand-container d-flex align-items-center justify-content-center py-4">
         <a class="sidebar-brand text-decoration-none" href="/mes/dashboard_admin">
-            <img src="/../assets/img/hubIT_logo-v2.png" alt="hubIT Logo" class="img-fluid px-3" style="max-height: 50px;" />
+            <img src="/../../assets/img/hubIT_logo-v2.png" alt="hubIT Logo" class="img-fluid px-3" style="max-height: 50px;" />
         </a>
-    </div>
+    </div-->
 
     <hr class="sidebar-divider my-0">
 
