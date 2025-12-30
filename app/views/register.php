@@ -17,7 +17,7 @@
     }
 
     .illustration {
-      background-image: url('https://unblast.com/wp-content/uploads/2020/08/Artificial-Intelligence-Illustration-1.jpg'); /* Tech-themed image */
+      background-image: url('https://unblast.com/wp-content/uploads/2020/08/Artificial-Intelligence-Illustration-1.jpg');
       background-size: contain;
       background-position: center;
       background-repeat: no-repeat;
@@ -50,8 +50,6 @@
 </head>
 <body class="bg-gray-50 flex flex-col items-center justify-center min-h-screen px-6 py-12">
 
-
-
   <!-- Form Container -->
   <div class="w-full max-w-md bg-white p-8 form-container transition-all duration-300">
     <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Create Your Account</h2>
@@ -69,7 +67,7 @@
     }
     ?>
 
-    <form action="/mes/register" method="POST" autocomplete="off">
+    <form action="<?= base_url('/register') ?>" method="POST" autocomplete="off">
       <!-- Organization Name -->
       <div class="mb-5">
         <label for="org_name" class="block mb-2 text-sm font-medium text-gray-700">Organization Name</label>
@@ -113,7 +111,7 @@
   <!-- Sign In Link -->
   <p class="mt-6 text-center text-gray-600">
     Already have an account?
-    <a href="signin" class="text-indigo-600 hover:text-indigo-800 font-semibold">Sign In</a>
+    <a href="<?= base_url('/signin') ?>" class="text-indigo-600 hover:text-indigo-800 font-semibold">Sign In</a>
   </p>
 
 </body>
