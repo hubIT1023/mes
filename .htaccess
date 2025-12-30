@@ -1,8 +1,13 @@
-# Enable URL rewriting
-RewriteEngine On
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /mes/
 
-# If the request is not a real file or directory, route it to index.php
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
+  # If the requested file or directory exists, serve it
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+
+  # Otherwise, route all requests to index.php
+  RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
 
