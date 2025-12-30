@@ -1,7 +1,7 @@
 <?php
 // index.php --- Front Controller
 
-// Optional: clear OPcache in development to reflect changes immediately
+// Optional: clear OPcache in development
 if (function_exists('opcache_reset')) {
     opcache_reset();
 }
@@ -9,45 +9,34 @@ if (function_exists('opcache_reset')) {
 // Load logger helper
 require_once __DIR__ . '/app/helpers/logger.php';
 
-// Start session if not already started
+// Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Base directory
 $baseDir = __DIR__;
 
 // ----------------------
 // Dynamic Base URL
 // ----------------------
-// Computes the base URL automatically depending on deployment
-// Example:
-// Local: http://localhost/mes/       -> /mes
-// Droplet: https://example.com/     -> ''
 $baseUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+
+// ----------------------
+// Global helper function
+// ----------------------
+function base_url($path = '') {
+    global $baseUrl;
+    return $baseUrl . $path;
+}
 
 // ----------------------
 // Parse Request
 // ----------------------
 $method = $_SERVER['REQUEST_METHOD'];
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-// Normalize URI for routing
 $uri = str_replace($baseUrl, '', $requestUri);
 $uri = rtrim($uri, '/') ?: '/';
-
-// ----------------------
-// Temporary Debug (remove in production)
-// ----------------------
-
-echo '<pre>';
-var_dump([
-    'REQUEST_URI' => $_SERVER['REQUEST_URI'],
-    'SCRIPT_NAME' => $_SERVER['SCRIPT_NAME'],
-    'baseUrl'     => $baseUrl,
-    'uri'         => $uri
-]);
-exit;
-
 
 // ----------------------
 // Autoload controllers, models, config files
@@ -75,15 +64,12 @@ $routes = require $baseDir . '/app/routes.php';
 // Route Matching
 // ----------------------
 foreach ($routes as $routePattern => $routeHandler) {
-    // Split route into HTTP method and path
     $routeParts = explode(' ', $routePattern, 2);
     $routeMethod = $routeParts[0] ?? '';
     $routePath   = $routeParts[1] ?? '';
 
-    // Skip if HTTP method doesn't match
     if ($routeMethod !== $method) continue;
 
-    // Convert route pattern to regex for parameter matching
     $regexPattern = preg_quote($routePath, '/');
     $regexPattern = preg_replace('/\\\(:num)/', '(\d+)', $regexPattern);
     $regexPattern = '/^' . $regexPattern . '$/i';
@@ -95,7 +81,6 @@ foreach ($routes as $routePattern => $routeHandler) {
             $controllerName = $routeHandler[0] ?? null;
             $action = null;
 
-            // Support both formats: ['Controller','method'] or ['Controller','action'=>'method']
             if (isset($routeHandler[1]) && is_string($routeHandler[1])) {
                 $action = $routeHandler[1];
             } elseif (isset($routeHandler['action'])) {
