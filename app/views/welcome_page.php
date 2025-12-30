@@ -1,7 +1,5 @@
 
-<?php
 
- global $baseUrl; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
