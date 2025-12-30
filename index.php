@@ -38,7 +38,7 @@ $uri = rtrim($uri, '/') ?: '/';
 // ----------------------
 // Temporary Debug (remove in production)
 // ----------------------
-/*
+
 echo '<pre>';
 var_dump([
     'REQUEST_URI' => $_SERVER['REQUEST_URI'],
@@ -47,7 +47,7 @@ var_dump([
     'uri'         => $uri
 ]);
 exit;
-*/
+
 
 // ----------------------
 // Autoload controllers, models, config files
