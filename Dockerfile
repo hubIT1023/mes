@@ -2,34 +2,32 @@ FROM php:8.3-apache
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies
+# Install only necessary system dependencies
 RUN apt-get update && \
     apt-get install -y \
         libpq-dev \
+        libpng-dev \
+        libjpeg-dev \
         git \
         zip \
         unzip \
-        certbot \
-        python3-certbot-apache \
     && rm -rf /var/lib/apt/lists/*
 
-# Install and ENABLE PostgreSQL PDO extension
-RUN docker-php-ext-install pdo_pgsql pgsql && \
-    docker-php-ext-enable pdo_pgsql pgsql
+# Install PHP extensions (PostgreSQL + GD for image compression)
+RUN docker-php-ext-configure gd --with-jpeg --with-webp && \
+    docker-php-ext-install pdo_pgsql pgsql gd
 
-# Enable Apache modules
-RUN a2enmod rewrite proxy proxy_http ssl headers
+# Enable required Apache modules
+RUN a2enmod rewrite headers ssl
 
-# Configure Apache to allow .htaccess and use index.php
-RUN echo "    <Directory /var/www/html>\n        AllowOverride All\n        DirectoryIndex index.php\n    </Directory>" >> /etc/apache2/sites-available/000-default.conf
+# Disable default site to avoid conflicts
+RUN a2dissite 000-default
 
-# Copy Apache virtual host config
-COPY apache/sites-available/hubit.conf /etc/apache2/sites-available/hubit.conf
-
-# Enable the site
+# Enable your custom site (config is mounted via volume)
 RUN a2ensite hubit.conf
 
-# Copy application code LAST (to avoid overwriting config)
-COPY . /var/www/html/
+# Ensure web root exists (no COPY needed — volumes provide content)
+RUN mkdir -p /var/www/html
 
+# Expose both HTTP and HTTPS (you use Let's Encrypt)
 EXPOSE 80 443

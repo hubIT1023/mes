@@ -1,58 +1,15 @@
+# Version control
+.git
+.gitignore
 
-
-
-# =====================
-# Environment variables
-# =====================
+# Environment & secrets
 .env
-.env.*
-!.env.example
 
-# =====================
-# Docker
-# =====================
-docker-compose.override.yml
-*.env.docker
+# Documentation
+README.md
+mes_documentation.php
+mes_documentation.txt
+file_structure.txt
 
-# Docker volumes / persistent data (do NOT commit)
-data/
-db_data/
-postgres_data/
-mysql_data/
-mongo_data/
-redis_data/
-
-# Docker build artifacts
-*.tar
-*.img
-
-# =====================
-# Logs & temp files
-# =====================
-logs/
-tmp/
-*.log
-
-# =====================
-# IDE / Editor
-# =====================
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# =====================
-# OS-specific
-# =====================
-.DS_Store
-Thumbs.db
-
-# =====================
-# Server / SSL (if generated locally)
-# =====================
-letsencrypt/
-apache/sites-available/hubit.conf
-nginx/conf.d/*.conf
-
-
-File-folder structure and config for web.txt
+# Local logs/cache (optional)
+storage/

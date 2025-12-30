@@ -8,17 +8,11 @@ services:
     env_file:
       - .env
     volumes:
-      # Apache vhost config (read-only)
-      - ./apache/sites-available/hubit.conf:/etc/apache2/sites-available/hubit.conf:ro
+      # Full project sync (replaces individual file mounts)
+      - .:/var/www/html
 
-      # Let's Encrypt certificates
-      - ./letsencrypt:/etc/letsencrypt
-
-      # Application code (web root)
-      - ./app:/var/www/html/app
-      - ./index.php:/var/www/html/index.php
-      - ./.htaccess:/var/www/html/.htaccess
-      # Add other top-level files as needed (e.g., .env is NOT web-accessible)
+      # Let's Encrypt certificates (read-only)
+      - ./letsencrypt:/etc/letsencrypt:ro
 
     restart: unless-stopped
     depends_on:
@@ -34,7 +28,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro  # Optional: auto-init schema
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     restart: unless-stopped
     networks:
       - hubit_net
