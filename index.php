@@ -1,186 +1,91 @@
 <?php
-// index.php — Self-contained Front Controller
-// Handles routing, helpers, and homepage view in one file
+// Front Controller
 
-declare(strict_types=1);
+// Load logger helper
+require_once __DIR__ . '/app/helpers/logger.php';
 
-// ----------------------------
-// 1. Helper: base_url()
-// ----------------------------
-if (!function_exists('base_url')) {
-    function base_url(string $path = ''): string {
-        static $baseUrl = null;
-        if ($baseUrl === null) {
-            $scriptName = $_SERVER['SCRIPT_NAME'] ?? '/';
-            $baseUrl = rtrim(dirname($scriptName), '/');
-        }
-        $path = ltrim($path, '/');
-        return $baseUrl . ($path ? '/' . $path : '');
-    }
-}
-
-// ----------------------------
-// 2. Optional: Clear OPcache (dev only)
-// ----------------------------
-if (function_exists('opcache_reset')) {
-    opcache_reset();
-}
-
-// ----------------------------
-// 3. Start Session
-// ----------------------------
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// ----------------------------
-// 4. Parse Request
-// ----------------------------
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-$requestUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-$uri = rtrim(str_replace(base_url(), '', $requestUri), '/') ?: '/';
+$baseDir = __DIR__;
+$baseUrl = '/mes';
 
-// ----------------------------
-// 5. Simple Route Matching
-// ----------------------------
-$routes = [
-    'GET /' => 'home',
-    // Add more routes later, e.g.:
-    // 'GET /register' => 'register',
-    // 'GET /signin' => 'signin',
-];
+// Autoload controllers, models, config files
+spl_autoload_register(function($class) use ($baseDir) {
+    $paths = [
+        "$baseDir/app/controllers/$class.php",
+        "$baseDir/app/models/$class.php",
+        "$baseDir/app/config/$class.php",
+    ];
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            require_once $path;
+            return;
+        }
+    }
+});
 
-$routeKey = "$method $uri";
+// Parse URL and method
+$method = $_SERVER['REQUEST_METHOD'];
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri = str_replace($baseUrl, '', $uri);
+$uri = rtrim($uri, '/') ?: '/';
 
-if (array_key_exists($routeKey, $routes)) {
-    $action = $routes[$routeKey];
+// Load routes
+$routes = require $baseDir . '/app/routes.php';
+
+// Enhanced route matching - handles both formats
+foreach ($routes as $routePattern => $routeHandler) {
+    // Parse route pattern 
+    $routeParts = explode(' ', $routePattern, 2);
+    $routeMethod = $routeParts[0] ?? '';
+    $routePath = $routeParts[1] ?? '';
     
-    if ($action === 'home') {
-        // ----------------------------
-        // Render Homepage View Inline
-        // ----------------------------
-        ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>hubIT.online | Smarter Tech. Simpler Solutions.</title>
-  <meta name="description" content="HubIT.online - Insights, Maintain, Sense. Smarter enterprise IoT and IT solutions for industries of tomorrow.">
-  <meta name="author" content="hubIT.online">
-  <link rel="icon" href="<?= htmlspecialchars(base_url('app/Assets/img/favicon.ico')) ?>" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-  body { margin: 0; font-family: 'Poppins', sans-serif; color: #222; position: relative; overflow-x: hidden; }
-  body::before {
-    content: "";
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: url('<?= htmlspecialchars(base_url('app/Assets/img/hub.png')) ?>') no-repeat center center;
-    background-size: cover; pointer-events: none; z-index: 0;
-  }
-  header {
-    display: flex; justify-content: center; align-items: center; height: 100px;
-    background: rgba(255,255,255,0.9); backdrop-filter: blur(8px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    position: sticky; top: 0; z-index: 10;
-  }
-  .logo img { height: 80px; display: block; }
-  main { padding: 3rem 1rem; position: relative; z-index: 1; }
-  .hero { text-align: center; margin: 2rem auto 3rem; max-width: 850px; color: #f8fafc; }
-  .hero h1 {
-    font-size: 2.8rem; margin-bottom:0.8rem; font-weight:700;
-    background: linear-gradient(90deg,#38bdf8,#3b82f6,#6366f1);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  }
-  .hero p { font-size: 1.2rem; color: #cbd5e1; margin-bottom: 2rem; }
-  .cards {
-    display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 2rem;
-    max-width:1000px; margin:0 auto;
-  }
-  .card {
-    background: rgba(186,234,246,0.25); border:1px solid #e2e8f0; border-radius:16px;
-    padding:2rem; box-shadow:0 8px 20px rgba(0,0,0,0.12); text-align:center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  .card:hover {
-    transform: translateY(-6px); box-shadow:0 16px 32px rgba(0,0,0,0.2);
-  }
-  .card h2 { margin-top:0; font-size:1.6rem; color:#E2EAF4; }
-  .card p { color:#cbd5e1; font-size:1rem; margin-bottom:1.5rem; min-height:60px; }
-  .button {
-    display:inline-block; padding:0.8rem 1.4rem; border-radius:10px;
-    text-decoration:none; font-weight:600; font-size:1rem; color:#fff;
-    background:linear-gradient(90deg,#2563eb,#3b82f6);
-    transition: transform 0.2s ease, background 0.3s ease;
-  }
-  .button:hover {
-    background:linear-gradient(90deg,#1e40af,#2563eb); transform: scale(1.05);
-  }
-  footer {
-    text-align:center; padding:2rem; font-size:0.9rem; color:#94a3b8;
-    margin-top:4rem; border-top:1px solid rgba(255,255,255,0.1);
-    background:rgba(15,23,42,0.9); backdrop-filter:blur(6px);
-  }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="logo">
-      <img src="<?= htmlspecialchars(base_url('app/Assets/img/hubIT_logo-v5.png')) ?>" alt="hubIT.online Logo" />
-    </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <h1>Smarter Tech. Simpler Solutions.</h1>
-      <p>HubIT.online unifies real-time insights, asset maintenance, and IoT monitoring — empowering enterprises with clarity and control.</p>
-    </section>
-
-    <section class="choices">
-      <div class="cards">
-        <article class="card">
-          <h2>Register</h2>
-          <p>Create your HubIT.online account to unlock secure, enterprise-grade tools.</p>
-          <a class="button" href="<?= htmlspecialchars(base_url('register')) ?>">Create Account</a>
-        </article>
-
-        <article class="card">
-          <h2>Sign-in</h2>
-          <p>Already have access? Sign in to continue managing your enterprise systems.</p>
-          <a class="button" href="<?= htmlspecialchars(base_url('signin')) ?>">Sign In</a>
-        </article>
-
-        <article class="card">
-          <h2>Demo</h2>
-          <p>Explore HubIT.online with interactive dashboards and IoT demos — no setup needed.</p>
-          <a class="button" href="<?= htmlspecialchars(base_url('demo/demo_dashboard')) ?>">Try Demo</a>
-        </article>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    &copy; 2025 hubIT.online. All rights reserved.
-  </footer>
-</body>
-</html>
-        <?php
-        exit;
+    // Skip if HTTP method doesn't match
+    if ($routeMethod !== $method) {
+        continue;
     }
-
-    // Handle other actions here later, e.g.:
-    /*
-    if ($action === 'register') {
-        // show register form
-        exit;
+    
+    // Convert route pattern to regex for parameter matching
+    $regexPattern = preg_quote($routePath, '/');
+    $regexPattern = preg_replace('/\\\(:num)/', '(\d+)', $regexPattern);
+    $regexPattern = '/^' . $regexPattern . '$/i';
+    
+    if (preg_match($regexPattern, $uri, $matches)) {
+        array_shift($matches);
+        
+        if (is_array($routeHandler)) {
+            $controllerName = $routeHandler[0] ?? null;
+            $action = null;
+            
+            // Handle both formats: ['Controller', 'method'] and ['Controller', 'action' => 'method']
+            if (isset($routeHandler[1]) && is_string($routeHandler[1])) {
+                $action = $routeHandler[1];
+            } elseif (isset($routeHandler['action'])) {
+                $action = $routeHandler['action'];
+            }
+            
+            if ($controllerName && $action && class_exists($controllerName) && method_exists($controllerName, $action)) {
+                $controller = new $controllerName();
+                
+                if (!empty($matches)) {
+                    $matches = array_map('intval', $matches);
+                    call_user_func_array([$controller, $action], $matches);
+                } else {
+                    $controller->$action();
+                }
+                exit;
+            }
+        }
     }
-    */
 }
 
-// ----------------------------
-// 6. 404 Not Found
-// ----------------------------
-http_response_code(404);
-echo "<h1>404 Not Found</h1>";
-echo "<p>The page '{$uri}' could not be found.</p>";
-exit;
+
+echo "<p>The requested URL '$uri' was not found on this server.</p>";
+/*
+echo "<p>Available routes:</p><ul>";
+foreach (array_keys($routes) as $route) {
+    echo "<li>$route</li>";
+}
+*/
