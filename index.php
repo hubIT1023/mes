@@ -1,4 +1,7 @@
 <?php
+
+phpinfo();
+/*
 // Front Controller
 
 // -----------------------------
@@ -107,3 +110,4 @@ foreach (array_keys($routes) as $route) {
     echo "<li>$route</li>";
 }
 */
+?>
