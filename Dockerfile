@@ -21,7 +21,7 @@ RUN docker-php-ext-install pdo_pgsql pgsql && \
 RUN a2enmod rewrite proxy proxy_http ssl headers
 
 # Configure Apache to allow .htaccess and use index.php
-RUN echo "    <Directory /var/www/html>\n        AllowOverride All\n        DirectoryIndex index.php\n    </Dire>
+RUN echo "    <Directory /var/www/html>\n        AllowOverride All\n        DirectoryIndex index.php\n    </Directory>" >> /etc/apache2/sites-available/000-default.conf
 
 # Copy Apache virtual host config
 COPY apache/sites-available/hubit.conf /etc/apache2/sites-available/hubit.conf
