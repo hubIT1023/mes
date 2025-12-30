@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (!isset($_SESSION['tenant_id'])) {
-    header("Location: /mes/signin?error=Please log in first");
+    header("Location: " . base_url('/signin') . "?error=Please+log+in+first");
     exit;
 }
 
@@ -51,7 +51,7 @@ $selectedPageName = ($selectedPageId !== null && isset($pages[$selectedPageId]))
     : 'Dashboard';
 
 // 9. Initialize Mode Model
-require_once __DIR__ . '/../models/ToolStateModel.php'; // Ensure model is included
+require_once __DIR__ . '/../models/ToolStateModel.php';
 $modeModel = new ToolStateModel();
 $modeChoices = $modeModel->getModeColorChoices($tenant_id);
 
@@ -109,11 +109,6 @@ function determineSelectedPage(array $pages): ?int {
     }
     return !empty($pages) ? (int)array_key_first($pages) : null;
 }
-// --- HELPER FUNCTIONS ---
-function base_url($path = '') {
-    $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-    return $base . $path;
-}
 ?>
 
 <!DOCTYPE html>
@@ -143,7 +138,7 @@ function base_url($path = '') {
             <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
             <div class="flex space-x-4">
                 <span class="text-slate-500">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
-                <a href="/mes/signin" class="text-slate-600">Log out</a>
+                <a href="<?= base_url('/signin') ?>" class="text-slate-600">Log out</a>
             </div>
         </nav>
     </header>
@@ -160,7 +155,7 @@ function base_url($path = '') {
                     
                     <?php if (!empty($pages)): ?>
                         <div class="d-flex gap-2">
-                            <select class="form-select w-auto" onchange="location.href='?page_id='+this.value">
+                            <select class="form-select w-auto" onchange="location.href='<?= base_url('/dashboard_admin') ?>?page_id='+this.value">
                                 <?php foreach ($pages as $p): ?>
                                     <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($p['page_name']) ?>
@@ -209,11 +204,9 @@ function base_url($path = '') {
                                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
                                         <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
                                         <div class="d-flex gap-2">
-                                            <!-- Add Entity -->
                                             <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
                                                 <i class="fas fa-plus me-1"></i>
                                             </button>
-                                            <!-- Update Group -->
                                             <button class="btn btn-sm btn-warning" onclick="openUpdateGroupModal(
                                                 <?= (int)$g['id'] ?>,
                                                 <?= (int)$g['page_id'] ?>,
@@ -223,7 +216,6 @@ function base_url($path = '') {
                                             )">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <!-- Delete Group -->
                                             <button class="btn btn-sm btn-danger" onclick="openDeleteGroupModal(
                                                 <?= (int)$g['id'] ?>,
                                                 <?= (int)$g['page_id'] ?>,
@@ -256,7 +248,7 @@ function base_url($path = '') {
     <div class="modal fade" id="createGroupModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="/mes/create-group" method="POST">
+                <form action="<?= base_url('/create-group') ?>" method="POST">
                     <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     <input type="hidden" id="modal_page_id" name="page_id" value="">
@@ -288,7 +280,7 @@ function base_url($path = '') {
     <div class="modal fade" id="createGroupPageModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="/mes/create-page" method="POST">
+                <form action="<?= base_url('/create-page') ?>" method="POST">
                     <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     <div class="modal-header">
@@ -314,7 +306,7 @@ function base_url($path = '') {
     <div class="modal fade" id="updateGroupModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="/mes/update-group" method="POST">
+                <form action="<?= base_url('/update-group') ?>" method="POST">
                     <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     <input type="hidden" id="update_group_id" name="group_id" value="">
@@ -352,7 +344,7 @@ function base_url($path = '') {
     <div class="modal fade" id="deleteGroupModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="/mes/delete-group" method="POST">
+                <form action="<?= base_url('/delete-group') ?>" method="POST">
                     <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     <input type="hidden" id="delete_group_id" name="group_id" value="">
@@ -378,7 +370,7 @@ function base_url($path = '') {
     <?php foreach ($groups as $g): ?>
         <div class="modal fade" id="addEntityModal_<?= (int)$g['group_code'] ?>" tabindex="-1">
             <div class="modal-dialog">
-                <form action="/mes/add-entity" method="POST">
+                <form action="<?= base_url('/add-entity') ?>" method="POST">
                     <input type="hidden" name="group_code" value="<?= (int)$g['group_code'] ?>">
                     <input type="hidden" name="location_code" value="<?= (int)$g['location_code'] ?>">
                     <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
