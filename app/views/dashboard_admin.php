@@ -109,7 +109,11 @@ function determineSelectedPage(array $pages): ?int {
     }
     return !empty($pages) ? (int)array_key_first($pages) : null;
 }
-
+// --- HELPER FUNCTIONS ---
+function base_url($path = '') {
+    $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    return $base . $path;
+}
 ?>
 
 <!DOCTYPE html>
