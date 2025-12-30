@@ -1,5 +1,8 @@
+<?php
+// app/views/welcome.php
+// This view uses base_url() from helpers/functions.php
+?>
 
-<?php global $baseUrl; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +11,7 @@
   <title>hubIT.online | Smarter Tech. Simpler Solutions.</title>
   <meta name="description" content="HubIT.online - Insights, Maintain, Sense. Smarter enterprise IoT and IT solutions for industries of tomorrow.">
   <meta name="author" content="hubIT.online">
-  <link rel="icon" href="<?= base_url('/app/Assets/img/favicon.ico') ?>" type="image/x-icon">
+  <link rel="icon" href="<?= htmlspecialchars(base_url('app/Assets/img/favicon.ico')) ?>" type="image/x-icon">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
@@ -18,7 +21,7 @@
   body::before {
     content: "";
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: url('<?= base_url('/app/Assets/img/hub.png') ?>') no-repeat center center;
+    background: url('<?= htmlspecialchars(base_url('app/Assets/img/hub.png')) ?>') no-repeat center center;
     background-size: cover; pointer-events: none; z-index: 0;
   }
 
@@ -50,7 +53,7 @@
 <body>
   <header>
     <div class="logo">
-      <img src="<?= base_url('/app/Assets/img/hubIT_logo-v5.png') ?>" alt="hubIT.online Logo" />
+      <img src="<?= htmlspecialchars(base_url('app/Assets/img/hubIT_logo-v5.png')) ?>" alt="hubIT.online Logo" />
     </div>
   </header>
 
@@ -65,19 +68,19 @@
         <article class="card">
           <h2>Register</h2>
           <p>Create your HubIT.online account to unlock secure, enterprise-grade tools.</p>
-          <a class="button" href="<?= base_url('/register') ?>">Create Account</a>
+          <a class="button" href="<?= htmlspecialchars(base_url('register')) ?>">Create Account</a>
         </article>
 
         <article class="card">
           <h2>Sign-in</h2>
           <p>Already have access? Sign in to continue managing your enterprise systems.</p>
-          <a class="button" href="<?= base_url('/signin') ?>">Sign In</a>
+          <a class="button" href="<?= htmlspecialchars(base_url('signin')) ?>">Sign In</a>
         </article>
 
         <article class="card">
           <h2>Demo</h2>
           <p>Explore HubIT.online with interactive dashboards and IoT demos — no setup needed.</p>
-          <a class="button" href="<?= base_url('/demo/demo_dashboard') ?>">Try Demo</a>
+          <a class="button" href="<?= htmlspecialchars(base_url('demo/demo_dashboard')) ?>">Try Demo</a>
         </article>
       </div>
     </section>
