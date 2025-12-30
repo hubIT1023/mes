@@ -1,6 +1,9 @@
 <?php
-// Front Controller
-
+// index.php --->Front Controller
+echo '<pre>';
+var_dump($_SERVER['REQUEST_URI']);
+var_dump($uri);
+exit;
 // Load logger helper
 require_once __DIR__ . '/app/helpers/logger.php';
 
