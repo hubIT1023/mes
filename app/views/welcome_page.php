@@ -30,7 +30,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('/mes/app/Assets/img/hub.png') no-repeat center center;
+   background: url('<?= $baseUrl ?>/app/Assets/img/hub.png') no-repeat center center;
     background-size: cover;
     /* opacity: 0.05; */
     pointer-events: none;
