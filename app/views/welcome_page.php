@@ -53,7 +53,7 @@
     </div>
   </header>
 
-  <main>
+  <main >
     <section class="hero">
       <h1>Smarter Tech. Simpler Solutions.</h1>
       <p>HubIT.online unifies real-time insights, asset maintenance, and IoT monitoring — empowering enterprises with clarity and control.</p>
@@ -61,22 +61,25 @@
 
     <section class="choices">
       <div class="cards">
+        <!-- Register Card -->
         <article class="card">
           <h2>Register</h2>
           <p>Create your HubIT.online account to unlock secure, enterprise-grade tools.</p>
-          <a class="button" href="<?= base_url('/register') ?>">Create Account</a>
+          <a class="button" href="/mes/register">Create Account</a>
         </article>
 
+        <!-- Sign-in Card -->
         <article class="card">
           <h2>Sign-in</h2>
           <p>Already have access? Sign in to continue managing your enterprise systems.</p>
-          <a class="button" href="<?= base_url('/signin') ?>">Sign In</a>
+          <a class="button" href="/mes/signin">Sign In</a>
         </article>
 
+        <!-- Demo Card -->
         <article class="card">
           <h2>Demo</h2>
           <p>Explore HubIT.online with interactive dashboards and IoT demos — no setup needed.</p>
-          <a class="button" href="<?= base_url('/demo/demo_dashboard') ?>">Try Demo</a>
+          <a class="button" href="demo/demo_dashboard">Try Demo</a>
         </article>
       </div>
     </section>
