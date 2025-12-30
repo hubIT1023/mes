@@ -26,18 +26,7 @@ services:
     networks:
       - hubit_net
 
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro  # Optional: auto-init schema
-    restart: unless-stopped
-    networks:
-      - hubit_net
+  
 
   pgadmin:
     image: dpage/pgadmin4
