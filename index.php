@@ -7,7 +7,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Load logger helper
+require_once __DIR__ . '/app/helpers/logger.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $baseDir = __DIR__;
+$baseUrl = '/mes';
 
 // Autoload
 spl_autoload_register(function($class) use ($baseDir) {
