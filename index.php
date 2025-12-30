@@ -1,6 +1,7 @@
 <?php
 // Front Controller
 
+// Load logger helper
 require_once __DIR__ . '/app/helpers/logger.php';
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -8,14 +9,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $baseDir = __DIR__;
+$baseUrl = '/mes';
 
-// === DYNAMICALLY COMPUTE BASE URL ===
-// Works whether the app is in root or a subfolder (e.g., /mes)
-$scriptName = $_SERVER['SCRIPT_NAME']; // e.g., /mes/index.php
-$scriptDir  = dirname($scriptName);    // e.g., /mes
-$baseUrl    = ($scriptDir === '/' || $scriptDir === '\\') ? '' : rtrim($scriptDir, '/');
-
-// === AUTOLOAD CLASSES ===
+// Autoload controllers, models, config files
 spl_autoload_register(function($class) use ($baseDir) {
     $paths = [
         "$baseDir/app/controllers/$class.php",
@@ -30,67 +26,66 @@ spl_autoload_register(function($class) use ($baseDir) {
     }
 });
 
-// === PARSE REQUEST URI ===
-$fullUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-// Remove base URL from the request URI
-if ($baseUrl !== '' && strpos($fullUri, $baseUrl) === 0) {
-    $uri = substr($fullUri, strlen($baseUrl));
-} else {
-    $uri = $fullUri;
-}
-
-// Normalize URI
-$uri = '/' . ltrim($uri, '/');
+// Parse URL and method
+$method = $_SERVER['REQUEST_METHOD'];
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri = str_replace($baseUrl, '', $uri);
 $uri = rtrim($uri, '/') ?: '/';
 
-$method = $_SERVER['REQUEST_METHOD'];
-
-// === LOAD ROUTES ===
+// Load routes
 $routes = require $baseDir . '/app/routes.php';
 
-// === ROUTE MATCHING ===
-$matched = false;
+// Enhanced route matching - handles both formats
 foreach ($routes as $routePattern => $routeHandler) {
-
-    $parts = explode(' ', $routePattern, 2);
-    $routeMethod = $parts[0] ?? '';
-    $routePath   = $parts[1] ?? '';
-
-    if ($routeMethod !== $method) continue;
-
-    // Convert :num to (\d+)
-    $regex = preg_quote($routePath, '/');
-    $regex = preg_replace('/\\\(:num)/', '(\d+)', $regex);
-    // Allow optional trailing slash
-    $regex = '/^' . $regex . '\/?$/i';
-
-    if (preg_match($regex, $uri, $matches)) {
-        array_shift($matches); // Remove full match
-
+    // Parse route pattern 
+    $routeParts = explode(' ', $routePattern, 2);
+    $routeMethod = $routeParts[0] ?? '';
+    $routePath = $routeParts[1] ?? '';
+    
+    // Skip if HTTP method doesn't match
+    if ($routeMethod !== $method) {
+        continue;
+    }
+    
+    // Convert route pattern to regex for parameter matching
+    $regexPattern = preg_quote($routePath, '/');
+    $regexPattern = preg_replace('/\\\(:num)/', '(\d+)', $regexPattern);
+    $regexPattern = '/^' . $regexPattern . '$/i';
+    
+    if (preg_match($regexPattern, $uri, $matches)) {
+        array_shift($matches);
+        
         if (is_array($routeHandler)) {
             $controllerName = $routeHandler[0] ?? null;
-            $action = $routeHandler[1] ?? $routeHandler['action'] ?? null;
-
+            $action = null;
+            
+            // Handle both formats: ['Controller', 'method'] and ['Controller', 'action' => 'method']
+            if (isset($routeHandler[1]) && is_string($routeHandler[1])) {
+                $action = $routeHandler[1];
+            } elseif (isset($routeHandler['action'])) {
+                $action = $routeHandler['action'];
+            }
+            
             if ($controllerName && $action && class_exists($controllerName) && method_exists($controllerName, $action)) {
                 $controller = new $controllerName();
-                // Convert numeric parameters to int
+                
                 if (!empty($matches)) {
                     $matches = array_map('intval', $matches);
                     call_user_func_array([$controller, $action], $matches);
                 } else {
                     $controller->$action();
                 }
-                $matched = true;
-                break;
+                exit;
             }
         }
     }
 }
 
-// === NO ROUTE MATCHED ===
-if (!$matched) {
-    http_response_code(404);
-    echo "<p>The requested URL '$fullUri' was not found on this server.</p>";
-    exit;
+
+echo "<p>The requested URL '$uri' was not found on this server.</p>";
+/*
+echo "<p>Available routes:</p><ul>";
+foreach (array_keys($routes) as $route) {
+    echo "<li>$route</li>";
 }
+*/
