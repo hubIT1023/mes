@@ -49,6 +49,7 @@
 </head>
 <body class="bg-gray-50 flex flex-col items-center justify-center min-h-screen px-6 py-12">
 
+
   <!-- Sign-In Form -->
   <div class="w-full max-w-md bg-white p-8 form-container transition-all duration-300">
     <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Welcome Back</h2>
@@ -62,7 +63,7 @@
     }
     ?>
 
-    <form action="<?= base_url('/signin') ?>" method="POST" autocomplete="off">
+    <form action="/mes/signin" method="POST" autocomplete="off">
       <!-- Email -->
       <div class="mb-5">
         <label for="email" class="block mb-2 text-sm font-medium text-gray-700">Email Address</label>
@@ -85,7 +86,7 @@
           <input type="checkbox" name="remember" class="mr-2 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
           Remember me
         </label>
-        <a href="<?= base_url('/forgot_password') ?>" class="text-indigo-600 hover:text-indigo-800">Forgot password?</a>
+        <a href="forgot_password.php" class="text-indigo-600 hover:text-indigo-800">Forgot password?</a>
       </div>
 
       <!-- Submit Button -->
@@ -98,7 +99,7 @@
   <!-- Register Link -->
   <p class="mt-6 text-center text-gray-600">
     Don’t have an account?
-    <a href="<?= base_url('/register') ?>" class="text-indigo-600 hover:text-indigo-800 font-semibold">Register here</a>
+    <a href="register.php" class="text-indigo-600 hover:text-indigo-800 font-semibold">Register here</a>
   </p>
 
 </body>
