@@ -8,25 +8,29 @@ services:
     env_file:
       - .env
     volumes:
-      # Apache vhost config (read-only)
-      - ./apache/sites-available/hubit.conf:/etc/apache2/sites-available/hubit.conf:ro
+      # Apache vhost configs (read-only)
+      - ./apache/sites-available:/etc/apache2/sites-available:ro
 
-      # Let's Encrypt certificates
+      # Let's Encrypt certificates (persistent)
       - ./letsencrypt:/etc/letsencrypt
 
-      # Application code (web root)
-      - ./app:/var/www/html/app
-      - ./index.php:/var/www/html/index.php
-      - ./.htaccess:/var/www/html/.htaccess
-      # Add other top-level files as needed (e.g., .env is NOT web-accessible)
+      # Application code / webroot
+      - .:/var/www/html
 
     restart: unless-stopped
     depends_on:
       - postgres
-    networks:
-      - hubit_net
+      - pgadmin
 
-  
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   pgadmin:
     image: dpage/pgadmin4
@@ -34,14 +38,6 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     restart: unless-stopped
-    depends_on:
-      - postgres
-    networks:
-      - hubit_net
 
 volumes:
   postgres_data:
-
-networks:
-  hubit_net:
-    driver: bridge
