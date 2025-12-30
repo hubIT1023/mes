@@ -153,7 +153,7 @@
 <body>
   <header>
     <div class="logo">
-       <img src="<?= $baseUrl ?>/app/Assets/img/hubIT_logo-v5.png" alt="hubIT.online Logo" />
+       <img src="/app/Assets/img/hubIT_logo-v5.png" alt="hubIT.online Logo" />
     </div>
   </header>
 
