@@ -88,40 +88,68 @@ class MachinePartModel
         return (bool) $stmt->fetchColumn();
     }
 
-    public function uploadImage($file): ?string {
-		if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
-			error_log("Upload error: " . $file['error']);
-			return null;
-		}
+    // In app/models/MachinePartModel.php
 
-		$allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-		if (!in_array($file['type'], $allowedTypes)) {
-			error_log("Invalid file type: " . $file['type']);
-			return null;
-		}
+public function uploadImage($file): ?string {
+    if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+        error_log("Upload error: " . $file['error']);
+        return null;
+    }
 
-		// ✅ Use project root — now always /home/root/mes
-		$uploadDir = PROJECT_ROOT . '/app/parts_img/';
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!in_array($file['type'], $allowedTypes)) {
+        error_log("Invalid file type: " . $file['type']);
+        return null;
+    }
 
-		if (!is_dir($uploadDir)) {
-			if (!mkdir($uploadDir, 0755, true)) {
-				error_log("Failed to create upload directory: $uploadDir");
-				return null;
-			}
-		}
+    $uploadDir = __DIR__ . '/../parts_img/';
+    if (!is_dir($uploadDir)) {
+        if (!mkdir($uploadDir, 0755, true)) {
+            error_log("Failed to create upload directory: $uploadDir");
+            return null;
+        }
+    }
 
-		$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-		$filename = 'part_' . uniqid() . '.' . $ext;
-		$targetPath = $uploadDir . $filename;
+    $filename = 'part_' . uniqid() . '.jpg';
+    $targetPath = $uploadDir . $filename;
 
-		if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-			// Return web-accessible path (assuming /mes is web root)
-			return '/mes/app/parts_img/' . $filename;
-		}
+    // Compress and resize
+    if (!$this->resizeAndCompressImage($file['tmp_name'], $targetPath, 800, 75)) {
+        error_log("Failed to process image");
+        return null;
+    }
 
-		error_log("Failed to move uploaded file");
-		return null;
-	}
+    // Return web-accessible path
+    return '/app/parts_img/' . $filename;
+}
+
+private function resizeAndCompressImage(string $source, string $dest, int $maxSize = 800, int $quality = 75): bool {
+    $info = getimagesize($source);
+    if (!$info) return false;
+
+    switch ($info[2]) {
+        case IMAGETYPE_JPEG: $image = imagecreatefromjpeg($source); break;
+        case IMAGETYPE_PNG:  $image = imagecreatefrompng($source); break;
+        case IMAGETYPE_GIF:  $image = imagecreatefromgif($source); break;
+        default: return false;
+    }
+
+    if (!$image) return false;
+
+    $origW = imagesx($image);
+    $origH = imagesy($image);
+    $scale = min($maxSize / $origW, $maxSize / $origH, 1);
+    $newW = (int)($origW * $scale);
+    $newH = (int)($origH * $scale);
+
+    $resized = imagecreatetruecolor($newW, $newH);
+    imagecopyresampled($resized, $image, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+    $result = imagejpeg($resized, $dest, $quality);
+
+    imagedestroy($image);
+    imagedestroy($resized);
+    return $result;
+}
 
     public function getFilteredParts(string $orgId, array $filters): array
     {
