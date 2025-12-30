@@ -19,7 +19,7 @@ $baseUrl = '/mes'; // change once, everywhere updates
 $_SERVER['BASE_URL'] = $baseUrl;
 
 // load helpers
-//require_once __DIR__ . '/app/helpers/url_helper.php';
+require_once __DIR__ . '/app/helpers/url_helper.php';
 
 
 // Autoloader
