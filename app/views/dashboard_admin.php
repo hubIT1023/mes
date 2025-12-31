@@ -119,15 +119,87 @@ function base_url($path = '') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HubIT Dashboard</title>
-    <link rel="icon" type="image/png" href="/app/Assets/img/favicon.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HubIT Dashboard</title>
+<link rel="icon" type="image/png" href="/app/Assets/img/favicon.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-    <!-- ✅ Fixed CDN URLs (removed trailing spaces) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-…    </div>
+<style>
+.top-product-bar {
+    background:#f8f9fa;
+    border-bottom:1px solid #dee2e6;
+    padding:.4rem 0;
+    position:sticky;
+    top:0;
+    z-index:1050;
+}
+.product-list {
+    display:flex;
+    gap:1rem;
+    overflow-x:auto;
+}
+.product-item {
+    min-width:64px;
+    font-size:.7rem;
+    text-decoration:none;
+    color:#495057;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+.product-icon {
+    width:38px;height:38px;
+    border:1px solid #adb5bd;
+    border-radius:.5rem;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.product-item:hover,
+.product-item:hover .product-icon {
+    color:#0d6efd;
+    border-color:#0d6efd;
+}
+@media(max-width:576px){ .product-item span{display:none;} }
+</style>
+</head>
+
+<body class="bg-white text-slate-900">
+
+<!-- ================= EXISTING HEADER (UNCHANGED) ================= -->
+<header class="sticky top-[3px] z-12 bg-white border-b border-slate-200 shadow-sm">
+
+    <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-10">
+        <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
+		  <div class="d-flex gap-3 align-items-center">
+            <span class="small text-muted">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
+            <a href="/mes/logout" class="small text-muted text-decoration-none">Log out</a>
+        </div>
+    </nav>
+</header>
+
+<!-- ================= TOP PRODUCT BAR ================= -->
+<div class="top-product-bar">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <div class="product-list">
+			
+	
+       
+    
+            <a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a>
+            <a class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div><span>Loggers</span></a>
+            <a class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div><span>Sensors</span></a>
+            <a class="product-item"><div class="product-icon"><i class="fas fa-router"></i></div><span>Routers</span></a>
+            <a class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div><span>Analytics</span></a>
+        </div>
+       
+    </div>
 </div>
+
 
 
     <div class="container-fluid">
