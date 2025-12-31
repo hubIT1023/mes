@@ -182,36 +182,29 @@ function base_url($path = '') {
     </nav>
 </header>
 
-
 <!-- ================= TOP PRODUCT BAR ================= -->
 <div class="top-product-bar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
-        
-        <div class="product-list d-flex gap-3">
-            <a href="/mes/mode-color"
-               class="product-item <?= is_active('/mes/mode-color', $current_page) ?>">
+        <div class="product-list">
+			<a href="/mes/mode-color" class="product-item nav-link <?= is_active('/mes/mode-color', $current_page) ?>">
                 <div class="product-icon">
-                    <i class="fas fa-palette"></i>
+                    <i class="fas fa-fw fa-palette"></i>
                 </div>
                 <span>Mode Colors</span>
             </a>
-
-            <!-- Future items -->
-            <!--
-            <a href="#" class="product-item">
-                <div class="product-icon"><i class="fas fa-server"></i></div>
-                <span>Gateways</span>
-            </a>
-            -->
+	
+       
+    
+            <!--a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a>
+            <a class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div><span>Loggers</span></a>
+            <a class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div><span>Sensors</span></a>
+            <a class="product-item"><div class="product-icon"><i class="fas fa-router"></i></div><span>Routers</span></a>
+            <a class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div><span>Analytics</span></a-->
         </div>
-
+       
     </div>
 </div>
 
-
-            <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
-                <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
-            </div-->
 
            <main class="col-12 col-fluid p-4"> 
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -308,7 +301,7 @@ function base_url($path = '') {
                     </div>
                 <?php endif; ?>
             </main>
-     
+>
 
     <!-- CREATE GROUP MODAL -->
     <div class="modal fade" id="createGroupModal" tabindex="-1">
