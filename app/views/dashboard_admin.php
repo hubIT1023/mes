@@ -186,11 +186,13 @@ function base_url($path = '') {
 <div class="top-product-bar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
         <div class="product-list">
-            <a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a>
+			<a href="/mes/assets-list" class="product-item"><div class="product-icon"><i class="as fa-fw fa-boxes"></i></div><span>Asset List</span></a>
+		
+            <!--a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a>
             <a class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div><span>Loggers</span></a>
             <a class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div><span>Sensors</span></a>
             <a class="product-item"><div class="product-icon"><i class="fas fa-router"></i></div><span>Routers</span></a>
-            <a class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div><span>Analytics</span></a>
+            <a class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div><span>Analytics</span></a-->
         </div>
        
     </div>
