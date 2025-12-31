@@ -140,21 +140,91 @@ function base_url($path = '') {
 <body class="bg-white text-slate-900">
     <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
 	<!------------------------------------------------------------------------------->
-        <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-            <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
-            <div class="flex space-x-4">
-                <span class="text-slate-500">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
-                <a href="/mes/signin" class="text-slate-600">Log out</a>
-            </div>
-        </nav>
+<!-- Topbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/mes/dashboard_admin">
+            <img src="/Assets/img/hubIT_logo-v2.png" alt="Logo" style="max-height: 40px;">
+        </a>
+
+        <button class="navbar-toggler" type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#topbarNav"
+                aria-controls="topbarNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="topbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link <?= is_active('/mes/dashboard_admin', $current_page) ?>" href="/mes/dashboard_admin">
+                        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="assetsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-boxes me-1"></i> Assets
+                    </a>
+                    <ul class="dropdown-menu shadow border-0" aria-labelledby="assetsDropdown">
+                        <li><a class="dropdown-item" href="/mes/assets-list">Asset List</a></li>
+                        <li><a class="dropdown-item" href="/mes/add-assets">Add Assets</a></li>
+                        <li><a class="dropdown-item" href="/mes/manage-checklist-templates">Checklist Templates</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="maintDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-tools me-1"></i> Maintenance
+                    </a>
+                    <ul class="dropdown-menu shadow border-0" aria-labelledby="maintDropdown">
+                        <?php
+                        $maintenance_items = [
+                            ['/mes/registered_assets', 'fa-calendar-check', 'Schedule'],
+                            ['/mes/incoming-maintenance', 'fa-tools', 'Incoming'],
+                            ['/mes/completed-work-orders', 'fa-check-circle', 'Completed Orders']
+                        ];
+                        foreach ($maintenance_items as $item): ?>
+                            <li><a class="dropdown-item" href="<?= $item[0] ?>"><?= $item[2] ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="configDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog me-1"></i> Config
+                    </a>
+                    <ul class="dropdown-menu shadow border-0" aria-labelledby="configDropdown">
+                        <li class="dropdown-header">Database</li>
+                        <li><a class="dropdown-item" href="/mes/meta-database">Configure DB</a></li>
+                        <li><a class="dropdown-item" href="/mes/tool-state-log">Tool Status Log</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/mes/mode-color">Mode Colors</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="btn btn-primary btn-sm rounded-pill px-3" href="#" data-bs-toggle="modal" data-bs-target="#createGroupPageModal">
+                        <i class="fas fa-plus-circle me-1"></i> Create Page
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- End of Topbar -->
 		
     </header>
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
+            <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
                 <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
-            </div>
+            </div-->
 
             <main class="col-md-9 col-lg-10 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
