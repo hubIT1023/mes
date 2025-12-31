@@ -139,22 +139,68 @@ function base_url($path = '') {
 
 <body class="bg-white text-slate-900">
     <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
-	<!------------------------------------------------------------------------------->
-        <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-            <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
-            <div class="flex space-x-4">
-                <span class="text-slate-500">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
-                <a href="/mes/signin" class="text-slate-600">Log out</a>
+    <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="#" class="flex items-center">
+            <img src="/Assets/img/hub.png" alt="HubIT Logo" class="h-8 w-auto" />
+        </a>
+
+        <!-- Navigation Links -->
+        <div class="hidden md:flex items-center space-x-6">
+            <div class="relative group">
+                <button class="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600">
+                    Industries <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="absolute z-10 hidden group-hover:block w-48 bg-white border border-slate-100 shadow-lg rounded-md mt-2">
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Industry 1</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Industry 2</a>
+                </div>
             </div>
-			
-			
-        </nav>
-	<!------------------------------------------------------------------------------->	
-    </header>
+
+            <div class="relative group">
+                <button class="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600">
+                    Products <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="absolute z-10 hidden group-hover:block w-48 bg-white border border-slate-100 shadow-lg rounded-md mt-2">
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Gateways</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Data Loggers</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Sensors</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Routers</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Displays</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Computing</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Data Visualisation</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Accessories</a>
+                </div>
+            </div>
+
+            <div class="relative group">
+                <button class="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600">
+                    SmartSolutions <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="absolute z-10 hidden group-hover:block w-48 bg-white border border-slate-100 shadow-lg rounded-md mt-2">
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Solution 1</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Solution 2</a>
+                </div>
+            </div>
+
+            <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600">News</a>
+            <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600">Case Studies</a>
+            <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600">About us</a>
+            <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600">Contact Us</a>
+        </div>
+
+        <!-- CTA Button -->
+        <div class="hidden md:flex">
+            <button class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
+                Book a meeting
+            </button>
+        </div>
+    </nav>
+</header>
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
+            <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
                 <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
             </div>
 
