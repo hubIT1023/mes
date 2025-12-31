@@ -217,7 +217,7 @@ foreach ($entities as $entity) {
 
             <?php else: ?>
                 <!-- Empty Placeholder -->
-                <div class="card" style="width: 162px; border: 2px dashed #ccc; background-color: #f9f9f9;">
+                <div class="card" style="width: 150px; border: 2px dashed #ccc; background-color: #f9f9f9;">
                     <div class="card-body d-flex align-items-center justify-content-center text-muted" style="height: 100px;">
                         <!--button class="btn btn-sm btn-outline-primary"
                                 data-bs-toggle="modal"
