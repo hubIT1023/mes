@@ -8,7 +8,9 @@ class GroupPageController {
     private $model;
 
     public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         if (!isset($_SESSION['tenant_id'])) {
             header("Location: /mes/signin");
             exit;
@@ -57,16 +59,21 @@ class GroupPageController {
         exit;
     }
 
+    /**
+     * Get next available page_id for the tenant.
+     * Does NOT use $this->conn — uses Database singleton directly.
+     */
     private function getNextPageId(string $orgId): int {
+        // ✅ Always get a fresh connection from the singleton
         $conn = Database::getInstance()->getConnection();
         
-        // ✅ PostgreSQL-compatible: cast page_id to integer, use COALESCE
-        $stmt = $this->conn->prepare("
+        $stmt = $conn->prepare("
             SELECT COALESCE(MAX(page_id::INTEGER), 0) + 1 
             FROM group_location_map 
             WHERE org_id = ?
         ");
         $stmt->execute([$orgId]);
-        return (int) $stmt->fetchColumn();
+        $result = $stmt->fetchColumn();
+        return $result ? (int) $result : 1;
     }
 }
