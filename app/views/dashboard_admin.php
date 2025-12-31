@@ -114,6 +114,13 @@ function base_url($path = '') {
     $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
     return $base . $path;
 }
+
+// Helper to detect active page
+$current_page = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+function is_active($path, $current_page) {
+    return $path === $current_page ? 'active' : '';
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -166,27 +173,14 @@ function base_url($path = '') {
 }
 @media(max-width:576px){ .product-item span{display:none;} }
 </style>
-<style>
-    .navbar-nav .nav-link.active {
-        color: #2563eb !important;
-        font-weight: 600;
-    }
-    .navbar-nav .dropdown-menu .dropdown-item.active {
-        color: #2563eb;
-        font-weight: 600;
-    }
-    .navbar-nav .dropdown-toggle::after {
-        margin-left: 0.25rem;
-    }
-</style>
 </head>
 
 <body class="bg-white text-slate-900">
 
 <!-- ================= EXISTING HEADER (UNCHANGED) ================= -->
+<header class="sticky top-[3px] z-12 bg-white border-b border-slate-200 shadow-sm">
 
-
-    <!--nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-10">
+    <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-10">
         <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
 		  <div class="d-flex gap-3 align-items-center">
             <span class="small text-muted">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
@@ -195,7 +189,7 @@ function base_url($path = '') {
     </nav>
 	
 	<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
-    <div class="container-fluid"-->
+    <div class="container-fluid">
 
         <!-- Brand -->
         <a class="navbar-brand fw-bold text-primary" href="/mes/dashboard_admin">
@@ -311,7 +305,7 @@ function base_url($path = '') {
         </div>
     </div>
 </nav>
-
+</header>
 
 <!-- ================= TOP PRODUCT BAR ================= -->
 <div class="top-product-bar">
