@@ -145,12 +145,18 @@ function base_url($path = '') {
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
             padding: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .product-item {
             text-align: center;
             text-decoration: none;
             color: #495057;
             font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .product-icon {
             width: 40px;
@@ -173,6 +179,9 @@ function base_url($path = '') {
             background-color: white;
             border-bottom: 1px solid #dee2e6;
             padding: 1rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .main-header h2 {
             font-size: 1.5rem;
@@ -235,10 +244,6 @@ function base_url($path = '') {
             background-color: #3b82f6;
             color: white;
         }
-        .status-maint_cor {
-            background-color: #ff6b6b;
-            color: white;
-        }
 
         /* Grid Container */
         .group-grid {
@@ -258,26 +263,24 @@ function base_url($path = '') {
 
     <!-- Top Product & Info Bar -->
     <div class="top-product-bar">
-        <div class="container-fluid d-flex justify-content-between align-items-center px-3">
+        <div class="container-fluid d-flex align-items-center gap-3">
             <!-- Product Icons -->
-            <div class="d-flex gap-3">
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div> Gateways</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div> Data Loggers</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div> Sensors</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-router"></i></div> Routers</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-comment"></i></div> Displays</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-microchip"></i></div> Computing</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div> Data Visualisation</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-lightbulb"></i></div> Accessories</a>
-            </div>
+            <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div> Gateways</a>
+            <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div> Data Loggers</a>
+            <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div> Sensors</a>
+            <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-router"></i></div> Routers</a>
+            <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-comment"></i></div> Displays</a>
+            <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-microchip"></i></div> Computing</a>
+            <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div> Data Visualisation</a>
+            <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-lightbulb"></i></div> Accessories</a>
+        </div>
 
-            <!-- Right Info -->
-            <div class="d-flex align-items-center gap-3">
-                <a href="#" class="text-decoration-none text-slate-600 small">About us</a>
-                <a href="#" class="text-decoration-none text-slate-600 small">Contact Us</a>
-                <span class="text-muted small">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
-                <a href="/mes/signin" class="text-decoration-none text-slate-600 small">Log out</a>
-            </div>
+        <!-- Right Info -->
+        <div class="d-flex align-items-center gap-3">
+            <a href="#" class="text-decoration-none text-slate-600 small">About us</a>
+            <a href="#" class="text-decoration-none text-slate-600 small">Contact Us</a>
+            <span class="text-muted small">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
+            <a href="/mes/signin" class="text-decoration-none text-slate-600 small">Log out</a>
         </div>
     </div>
 
@@ -400,7 +403,7 @@ function base_url($path = '') {
                                         <div class="blank-canvas-card p-3"></div>
                                     <?php endfor; ?>
 
-                                    <!-- Example Entity Card (replace with real data from entity_toolState_card.php) -->
+                                    <!-- Example Entity Card (replace with real data) -->
                                     <div class="entity-card">
                                         <div class="entity-name">MSX_5585 <i class="fas fa-edit ms-1 text-secondary"></i></div>
                                         <div class="entity-pos">Pos: (1, 5)</div>
