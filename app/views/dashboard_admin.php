@@ -186,13 +186,15 @@ function base_url($path = '') {
 <div class="top-product-bar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
         <div class="product-list">
-			<!--a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a-->
-		<li class="nav-item <?= is_active('/mes/mode-color', $current_page) ?>">
-        <a class="nav-link" href="/mes/mode-color">
-            <i class="fas fa-fw fa-palette"></i>
-            <span>Mode Colors</span>
-        </a>
-    </li>
+			<a href="/mes/mode-color" class="product-item nav-link <?= is_active('/mes/mode-color', $current_page) ?>">
+                <div class="product-icon">
+                    <i class="fas fa-fw fa-palette"></i>
+                </div>
+                <span>Mode Colors</span>
+            </a>
+	
+       
+    
             <!--a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a>
             <a class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div><span>Loggers</span></a>
             <a class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div><span>Sensors</span></a>
