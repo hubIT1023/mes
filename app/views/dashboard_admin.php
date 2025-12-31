@@ -146,15 +146,13 @@ function base_url($path = '') {
                 <span class="text-slate-500">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
                 <a href="/mes/signin" class="text-slate-600">Log out</a>
             </div>
-			
-			
         </nav>
-	<!------------------------------------------------------------------------------->	
+		
     </header>
 
     <div class="container-fluid">
         <div class="row">
-            <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
+            <div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
                 <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
             </div>
 
