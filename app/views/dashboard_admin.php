@@ -179,6 +179,74 @@ function base_url($path = '') {
             font-weight: 600;
             margin: 0;
         }
+
+        /* Group Header */
+        .group-header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .group-header .group-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .group-header .group-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .group-header .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        /* Entity Card */
+        .entity-card {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            margin: 0.5rem;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .entity-card .entity-name {
+            font-weight: 600;
+            color: #0d6efd;
+            font-size: 0.9rem;
+        }
+        .entity-card .entity-pos {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        .entity-card .entity-status {
+            padding: 0.5rem;
+            border-top: 1px solid #dee2e6;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .status-maint_cor {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        /* Grid Container */
+        .group-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-top: 0;
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
     </style>
 </head>
 
@@ -288,44 +356,58 @@ function base_url($path = '') {
                     <div class="row g-4">
                         <?php foreach ($selectedPageGroups as $g): ?>
                             <div class="col-12">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-                                        <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
-                                        <div class="d-flex gap-2">
-                                            <!-- Add Entity -->
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
-                                                <i class="fas fa-plus me-1"></i>
-                                            </button>
-                                            <!-- Update Group -->
-                                            <button class="btn btn-sm btn-warning" onclick="openUpdateGroupModal(
-                                                <?= (int)$g['id'] ?>,
-                                                <?= (int)$g['page_id'] ?>,
-                                                '<?= addslashes($g['group_name']) ?>',
-                                                '<?= addslashes($g['location_name']) ?>',
-                                                <?= (int)($g['seq_id'] ?? 1) ?>
-                                            )">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <!-- Delete Group -->
-                                            <button class="btn btn-sm btn-danger" onclick="openDeleteGroupModal(
-                                                <?= (int)$g['id'] ?>,
-                                                <?= (int)$g['page_id'] ?>,
-                                                '<?= addslashes($g['group_name']) ?>'
-                                            )">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-success">
-                                                <small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
-                                            </button>
-                                        </div>
+                                <!-- Group Header -->
+                                <div class="group-header">
+                                    <div class="group-title">
+                                        <?= htmlspecialchars($g['group_name']) ?> <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small>
                                     </div>
-                                    <div class="card-body bg-slate-50">
-                                        <?php 
-                                            $group = $g;
-                                            $org_id = $tenant_id;
-                                            include __DIR__ . '/utilities/entity_toolState_card.php'; 
-                                        ?>
+                                    <div class="group-actions">
+                                        <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                        <button class="btn btn-warning" onclick="openUpdateGroupModal(
+                                            <?= (int)$g['id'] ?>,
+                                            <?= (int)$g['page_id'] ?>,
+                                            '<?= addslashes($g['group_name']) ?>',
+                                            '<?= addslashes($g['location_name']) ?>',
+                                            <?= (int)($g['seq_id'] ?? 1) ?>
+                                        )">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger" onclick="openDeleteGroupModal(
+                                            <?= (int)$g['id'] ?>,
+                                            <?= (int)$g['page_id'] ?>,
+                                            '<?= addslashes($g['group_name']) ?>'
+                                        )">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="btn btn-success">
+                                            <small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
+                                        </button>
                                     </div>
+                                </div>
+
+                                <!-- Group Grid -->
+                                <div class="group-grid">
+                                    <!-- Placeholder Boxes -->
+                                    <?php
+                                    // Generate 8 empty placeholder boxes
+                                    for ($i = 0; $i < 8; $i++): ?>
+                                        <div class="blank-canvas-card p-3"></div>
+                                    <?php endfor; ?>
+
+                                    <!-- Example Entity Card (replace with real data) -->
+                                    <div class="entity-card">
+                                        <div class="entity-name">MSX_5585 <i class="fas fa-edit ms-1 text-secondary"></i></div>
+                                        <div class="entity-pos">Pos: (1, 5)</div>
+                                        <div class="entity-status status-maint_cor">MAINT_COR</div>
+                                    </div>
+
+                                    <!-- More Placeholder Boxes -->
+                                    <?php
+                                    for ($i = 0; $i < 4; $i++): ?>
+                                        <div class="blank-canvas-card p-3"></div>
+                                    <?php endfor; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
