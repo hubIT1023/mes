@@ -119,17 +119,16 @@ function base_url($path = '') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HubIT Dashboard</title>
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-    <!-- Custom Styles -->
     <style>
         .blank-canvas-card {
             border: 4px dashed #cbd5e1;
@@ -180,15 +179,6 @@ function base_url($path = '') {
             font-weight: 600;
             margin: 0;
         }
-        .btn-new-group {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-            font-weight: 500;
-        }
-        .btn-new-group:hover {
-            background-color: #0b5ed7;
-            border-color: #0b5ed7;
-        }
     </style>
 </head>
 
@@ -209,12 +199,12 @@ function base_url($path = '') {
                 <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-lightbulb"></i></div> Accessories</a>
             </div>
 
-            <!-- Right Side: Links & Tenant Info -->
+            <!-- Right Info -->
             <div class="d-flex align-items-center gap-3">
-                <a href="#" class="nav-link">About us</a>
-                <a href="#" class="nav-link">Contact Us</a>
+                <a href="#" class="text-decoration-none text-slate-600 small">About us</a>
+                <a href="#" class="text-decoration-none text-slate-600 small">Contact Us</a>
                 <span class="text-muted small">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
-                <a href="/mes/signin" class="nav-link">Log out</a>
+                <a href="/mes/signin" class="text-decoration-none text-slate-600 small">Log out</a>
             </div>
         </div>
     </div>
@@ -232,7 +222,7 @@ function base_url($path = '') {
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <button class="btn btn-new-group" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
+                    <button class="btn btn-primary" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
                         <i class="fas fa-plus"></i> New Group
                     </button>
                 </div>
@@ -506,7 +496,7 @@ function base_url($path = '') {
     <?php endforeach; ?>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom JS -->
     <script>
