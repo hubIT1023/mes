@@ -175,7 +175,10 @@ function base_url($path = '') {
 
     <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-10">
         <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
-		
+		  <div class="d-flex gap-3 align-items-center">
+            <span class="small text-muted">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
+            <a href="/mes/logout" class="small text-muted text-decoration-none">Log out</a>
+        </div>
     </nav>
 </header>
 
@@ -189,10 +192,7 @@ function base_url($path = '') {
             <a class="product-item"><div class="product-icon"><i class="fas fa-router"></i></div><span>Routers</span></a>
             <a class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div><span>Analytics</span></a>
         </div>
-        <div class="d-flex gap-3 align-items-center">
-            <span class="small text-muted">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
-            <a href="/mes/logout" class="small text-muted text-decoration-none">Log out</a>
-        </div>
+       
     </div>
 </div>
 
