@@ -140,109 +140,13 @@ function base_url($path = '') {
 <body class="bg-white text-slate-900">
     <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
 	<!------------------------------------------------------------------------------->
-      
-    <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-        <!-- Logo -->
-        <a href="#" class="flex items-center">
-            <img src="/Assets/img/hub.png" alt="HubIT Logo" class="h-8 w-auto" />
-        </a>
-
-        <!-- Navigation Links -->
-        <div class="hidden md:flex items-center space-x-6">
-            <div class="relative group">
-                <button class="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600">
-                    Industries <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                </button>
-                <div class="absolute z-10 hidden group-hover:block w-48 bg-white border border-slate-100 shadow-lg rounded-md mt-2">
-                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Industry 1</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Industry 2</a>
-                </div>
+        <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+            <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
+            <div class="flex space-x-4">
+                <span class="text-slate-500">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
+                <a href="/mes/signin" class="text-slate-600">Log out</a>
             </div>
-
-            <!-- Products Dropdown -->
-            <div class="relative group">
-                <button class="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600">
-                    Products <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                </button>
-                <div class="absolute z-10 hidden group-hover:block w-full max-w-4xl bg-white border border-slate-100 shadow-lg rounded-md mt-2 p-4">
-                    <!-- Product Categories Grid -->
-                    <div class="grid grid-cols-4 gap-4">
-                        <a href="#" class="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
-                            <div class="w-12 h-12 flex items-center justify-center border border-slate-300 rounded-lg mb-2">
-                                <i class="fas fa-server text-slate-500 text-xl"></i>
-                            </div>
-                            <span class="text-xs text-center text-slate-700">Gateways</span>
-                        </a>
-                        <a href="#" class="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
-                            <div class="w-12 h-12 flex items-center justify-center border border-slate-300 rounded-lg mb-2">
-                                <i class="fas fa-database text-slate-500 text-xl"></i>
-                            </div>
-                            <span class="text-xs text-center text-slate-700">Data Loggers</span>
-                        </a>
-                        <a href="#" class="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
-                            <div class="w-12 h-12 flex items-center justify-center border border-slate-300 rounded-lg mb-2">
-                                <i class="fas fa-wifi text-slate-500 text-xl"></i>
-                            </div>
-                            <span class="text-xs text-center text-slate-700">Sensors</span>
-                        </a>
-                        <a href="#" class="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
-                            <div class="w-12 h-12 flex items-center justify-center border border-slate-300 rounded-lg mb-2">
-                                <i class="fas fa-router text-slate-500 text-xl"></i>
-                            </div>
-                            <span class="text-xs text-center text-slate-700">Routers</span>
-                        </a>
-                        <a href="#" class="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
-                            <div class="w-12 h-12 flex items-center justify-center border border-slate-300 rounded-lg mb-2">
-                                <i class="fas fa-comment text-slate-500 text-xl"></i>
-                            </div>
-                            <span class="text-xs text-center text-slate-700">Displays</span>
-                        </a>
-                        <a href="#" class="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
-                            <div class="w-12 h-12 flex items-center justify-center border border-slate-300 rounded-lg mb-2">
-                                <i class="fas fa-microchip text-slate-500 text-xl"></i>
-                            </div>
-                            <span class="text-xs text-center text-slate-700">Computing</span>
-                        </a>
-                        <a href="#" class="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
-                            <div class="w-12 h-12 flex items-center justify-center border border-slate-300 rounded-lg mb-2">
-                                <i class="fas fa-chart-bar text-slate-500 text-xl"></i>
-                            </div>
-                            <span class="text-xs text-center text-slate-700">Data Visualisation</span>
-                        </a>
-                        <a href="#" class="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
-                            <div class="w-12 h-12 flex items-center justify-center border border-slate-300 rounded-lg mb-2">
-                                <i class="fas fa-lightbulb text-slate-500 text-xl"></i>
-                            </div>
-                            <span class="text-xs text-center text-slate-700">Accessories</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="relative group">
-                <button class="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600">
-                    SmartSolutions <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                </button>
-                <div class="absolute z-10 hidden group-hover:block w-48 bg-white border border-slate-100 shadow-lg rounded-md mt-2">
-                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Solution 1</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Solution 2</a>
-                </div>
-            </div>
-
-            <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600">News</a>
-            <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600">Case Studies</a>
-            <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600">About us</a>
-            <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600">Contact Us</a>
-        </div>
-
-        <!-- CTA Button -->
-        <div class="hidden md:flex">
-            <button class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
-                Book a meeting
-            </button>
-        </div>
-    </nav>
-</header>
+			
 			
         </nav>
 	<!------------------------------------------------------------------------------->	
