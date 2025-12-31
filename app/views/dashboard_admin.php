@@ -179,8 +179,8 @@ function base_url($path = '') {
 <header class="sticky top-[40px] z-40 bg-white border-b border-slate-200 shadow-sm">
     <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
         <!--a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a-->
-		<!--div class="top-product-bar"-->
-		<div class="container-fluid d-flex justify-content-between align-items-center">
+		<!--div class="top-product-bar">
+		<div class="container-fluid d-flex justify-content-between align-items-center"-->
 			<div class="product-list">
 				<a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a>
 				<a class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div><span>Loggers</span></a>
@@ -191,9 +191,9 @@ function base_url($path = '') {
 			<div class="d-flex gap-3 align-items-center">
 				<span class="small text-muted">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
 				<a href="/mes/logout" class="small text-muted text-decoration-none">Log out</a>
-			<!--/div-->
+			<!--/div>
+			</div-->
 		</div>
-</div>
 		
     </nav>
 </header>
