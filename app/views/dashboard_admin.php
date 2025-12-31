@@ -1,3 +1,121 @@
+<?php
+// /app/views/dashboard_admin.php
+
+// 1. Session & Auth
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION['tenant_id'])) {
+    header("Location: /mes/signin?error=Please log in first");
+    exit;
+}
+
+// 2. CSRF Token
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// 3. Tenant Context
+$tenant_id = $_SESSION['tenant_id'] ?? null;
+$tenant_name = $_SESSION['tenant_name'] ?? 'Unknown';
+
+// 4. Database Setup
+require_once __DIR__ . '/../config/Database.php';
+$conn = Database::getInstance()->getConnection();
+
+// 5. Fetch Data from DB
+$groups = fetchGroups($conn, $tenant_id);
+$allPages = fetchAllPages($conn, $tenant_id);
+$tenantAssets = fetchTenantAssets($conn, $tenant_id);
+
+// 6. Organize Pages
+$pages = [];
+foreach ($allPages as $pageId => $pageName) {
+    $pages[$pageId] = ['page_id' => (int)$pageId, 'page_name' => $pageName];
+}
+
+// 7. Determine Selected Page
+$selectedPageId = determineSelectedPage($pages);
+if ($selectedPageId !== null) {
+    $_SESSION['last_page_id'] = $selectedPageId;
+}
+
+// 8. Filter Groups & Determine UI State
+$selectedPageGroups = $selectedPageId !== null 
+    ? array_filter($groups, fn($g) => (int)$g['page_id'] === $selectedPageId)
+    : [];
+$currentPageHasRealGroups = !empty($selectedPageGroups);
+$showBlankCanvas = empty($pages) || !$currentPageHasRealGroups;
+$selectedPageName = ($selectedPageId !== null && isset($pages[$selectedPageId]))
+    ? $pages[$selectedPageId]['page_name']
+    : 'Dashboard';
+
+// 9. Initialize Mode Model
+require_once __DIR__ . '/../models/ToolStateModel.php'; // Ensure model is included
+$modeModel = new ToolStateModel();
+$modeChoices = $modeModel->getModeColorChoices($tenant_id);
+
+// --- HELPER FUNCTIONS ---
+function fetchGroups($conn, $tenant_id): array {
+    try {
+        $stmt = $conn->prepare("
+            SELECT id, group_code, location_code, group_name, location_name,
+                   org_id, created_at, page_id, page_name, seq_id
+            FROM group_location_map 
+            WHERE org_id = ? AND group_name != '---'
+            ORDER BY page_id, COALESCE(seq_id, 9999), created_at
+        ");
+        $stmt->execute([$tenant_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("DB error fetching groups: " . $e->getMessage());
+        return [];
+    }
+}
+
+function fetchAllPages($conn, $tenant_id): array {
+    try {
+        $stmt = $conn->prepare("
+            SELECT DISTINCT page_id, page_name
+            FROM group_location_map 
+            WHERE org_id = ?
+            ORDER BY page_id
+        ");
+        $stmt->execute([$tenant_id]);
+        return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+    } catch (PDOException $e) {
+        error_log("DB error fetching pages: " . $e->getMessage());
+        return [];
+    }
+}
+
+function fetchTenantAssets($conn, $tenant_id): array {
+    try {
+        $stmt = $conn->prepare("SELECT asset_id, asset_name FROM assets WHERE tenant_id = ?");
+        $stmt->execute([$tenant_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("DB error fetching tenant assets: " . $e->getMessage());
+        return [];
+    }
+}
+
+function determineSelectedPage(array $pages): ?int {
+    if (isset($_GET['page_id']) && $_GET['page_id'] !== '') {
+        return (int)$_GET['page_id'];
+    }
+    if (isset($_SESSION['last_page_id'])) {
+        return (int)$_SESSION['last_page_id'];
+    }
+    return !empty($pages) ? (int)array_key_first($pages) : null;
+}
+// --- HELPER FUNCTIONS ---
+function base_url($path = '') {
+    $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    return $base . $path;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,10 +123,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HubIT Dashboard</title>
 
-    <!-- Bootstrap CSS (clean CDN, no trailing spaces) -->
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
 
-    <!-- Font Awesome (updated version, clean URL) -->
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
     <!-- Custom Styles -->
@@ -22,110 +140,165 @@
             border-color: #0d6efd;
             background-color: #f8f9fa;
         }
+
+        /* Style for the top secondary nav bar */
+        .top-nav {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0.5rem 0;
+        }
+
+        .top-nav .nav-link {
+            font-size: 0.85rem;
+            color: #495057;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .top-nav .nav-link:hover,
+        .top-nav .nav-link.active {
+            color: #0d6efd;
+        }
+
+        .product-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #adb5bd;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .product-icon i {
+            font-size: 1.25rem;
+        }
+
+        .product-label {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 0.25rem;
+            color: #495057;
+        }
+
+        /* Style for the main header */
+        .main-header {
+            background-color: white;
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem 0;
+        }
+
+        .main-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .btn-new-group {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            font-weight: 500;
+        }
+
+        .btn-new-group:hover {
+            background-color: #0b5ed7;
+            border-color: #0b5ed7;
+        }
     </style>
 </head>
 
 <body class="bg-white text-dark">
-    <!-- Topbar -->
-    <header class="sticky-top bg-white border-bottom shadow-sm">
-        <nav class="navbar navbar-expand-lg navbar-light container-fluid px-3 py-2">
-            <a class="navbar-brand me-3" href="/mes/dashboard_admin">
-                <img src="/Assets/img/hubIT_logo-v2.png" alt="HubIT Logo" style="max-height: 40px;" />
-            </a>
 
-            <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#topbarNav"
-                aria-controls="topbarNav"
-                aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="topbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link <?= is_active('/mes/dashboard_admin', $current_page) ?>" href="/mes/dashboard_admin">
-                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
-                        </a>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="assetsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-boxes me-1"></i> Assets
-                        </a>
-                        <ul class="dropdown-menu shadow border-0" aria-labelledby="assetsDropdown">
-                            <li><a class="dropdown-item" href="/mes/assets-list">Asset List</a></li>
-                            <li><a class="dropdown-item" href="/mes/add-assets">Add Assets</a></li>
-                            <li><a class="dropdown-item" href="/mes/manage-checklist-templates">Checklist Templates</a></li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="maintDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-tools me-1"></i> Maintenance
-                        </a>
-                        <ul class="dropdown-menu shadow border-0" aria-labelledby="maintDropdown">
-                            <?php
-                            $maintenance_items = [
-                                ['/mes/registered_assets', 'fa-calendar-check', 'Schedule'],
-                                ['/mes/incoming-maintenance', 'fa-tools', 'Incoming'],
-                                ['/mes/completed-work-orders', 'fa-check-circle', 'Completed Orders']
-                            ];
-                            foreach ($maintenance_items as $item): ?>
-                                <li><a class="dropdown-item" href="<?= htmlspecialchars($item[0]) ?>"><?= htmlspecialchars($item[2]) ?></a></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="configDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-cog me-1"></i> Config
-                        </a>
-                        <ul class="dropdown-menu shadow border-0" aria-labelledby="configDropdown">
-                            <li class="dropdown-header text-uppercase small fw-bold">Database</li>
-                            <li><a class="dropdown-item" href="/mes/meta-database">Configure DB</a></li>
-                            <li><a class="dropdown-item" href="/mes/tool-state-log">Tool Status Log</a></li>
-                            <li><hr class="dropdown-divider" /></li>
-                            <li><a class="dropdown-item" href="/mes/mode-color">Mode Colors</a></li>
-                        </ul>
-                    </li>
-                </ul>
-
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="btn btn-primary btn-sm rounded-pill px-3" href="#"
-                            data-bs-toggle="modal" data-bs-target="#createGroupPageModal">
-                            <i class="fas fa-plus-circle me-1"></i> Create Page
-                        </a>
-                    </li>
-                </ul>
+    <!-- Top Secondary Navigation Bar -->
+    <div class="top-nav">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+            <!-- Product Categories Icons -->
+            <div class="d-flex gap-3">
+                <a href="#" class="text-decoration-none">
+                    <div class="product-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="product-label">Gateways</div>
+                </a>
+                <a href="#" class="text-decoration-none">
+                    <div class="product-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="product-label">Data Loggers</div>
+                </a>
+                <a href="#" class="text-decoration-none">
+                    <div class="product-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <div class="product-label">Sensors</div>
+                </a>
+                <a href="#" class="text-decoration-none">
+                    <div class="product-icon">
+                        <i class="fas fa-router"></i>
+                    </div>
+                    <div class="product-label">Routers</div>
+                </a>
+                <a href="#" class="text-decoration-none">
+                    <div class="product-icon">
+                        <i class="fas fa-comment"></i>
+                    </div>
+                    <div class="product-label">Displays</div>
+                </a>
+                <a href="#" class="text-decoration-none">
+                    <div class="product-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div class="product-label">Computing</div>
+                </a>
+                <a href="#" class="text-decoration-none">
+                    <div class="product-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="product-label">Data Visualisation</div>
+                </a>
+                <a href="#" class="text-decoration-none">
+                    <div class="product-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="product-label">Accessories</div>
+                </a>
             </div>
-        </nav>
-    </header>
 
+            <!-- Right Side: Links & Tenant Info -->
+            <div class="d-flex align-items-center gap-3">
+                <a href="#" class="nav-link">About us</a>
+                <a href="#" class="nav-link">Contact Us</a>
+                <span class="text-muted small">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
+                <a href="/mes/signin" class="nav-link">Log out</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Header -->
+    <div class="main-header">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+            <h2>Machine Status Board - <?= htmlspecialchars($selectedPageName) ?></h2>
+            <div class="d-flex gap-2">
+                <select class="form-select w-auto" onchange="location.href='?page_id='+this.value">
+                    <?php foreach ($pages as $p): ?>
+                        <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($p['page_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <button class="btn btn-new-group" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
+                    <i class="fas fa-plus"></i> New Group
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
     <div class="container-fluid py-4">
         <div class="row">
             <main class="col-md-12 p-0 p-md-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="h4 fw-bold">Machine Status Board - <?= htmlspecialchars($selectedPageName) ?></h2>
-
-                    <?php if (!empty($pages)): ?>
-                        <div class="d-flex gap-2">
-                            <select class="form-select w-auto" onchange="location.href='?page_id='+this.value">
-                                <?php foreach ($pages as $p): ?>
-                                    <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($p['page_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <button class="btn btn-primary" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
-                                <i class="fas fa-plus"></i> New Group
-                            </button>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
+                <!-- Success/Error Alerts -->
                 <?php if (isset($_SESSION['success'])): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <?= htmlspecialchars($_SESSION['success']) ?>
@@ -142,8 +315,7 @@
                     <?php unset($_SESSION['error']); ?>
                 <?php endif; ?>
 
-                <hr class="mb-4" />
-
+                <!-- Blank Canvas or Groups Display -->
                 <?php if ($showBlankCanvas): ?>
                     <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh;">
                         <?php if (empty($pages)): ?>
@@ -209,6 +381,8 @@
             </main>
         </div>
     </div>
+
+    <!-- Modals (unchanged from your original code) -->
 
     <!-- CREATE GROUP MODAL -->
     <div class="modal fade" id="createGroupModal" tabindex="-1">
@@ -370,7 +544,7 @@
         </div>
     <?php endforeach; ?>
 
-    <!-- Bootstrap JS (with integrity & crossorigin) -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <!-- Custom JS -->
