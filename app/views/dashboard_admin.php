@@ -122,187 +122,34 @@ function base_url($path = '') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HubIT Dashboard</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
+    <!-- ✅ Fixed CDN URLs (removed trailing spaces) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        .sidebar-sticky { position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
         .blank-canvas-card {
             border: 4px dashed #cbd5e1;
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        .blank-canvas-card:hover {
-            border-color: #3b82f6;
-            background-color: #f8fafc;
-        }
-
-        /* Top Product Bar */
-        .top-product-bar {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-            padding: 0.5rem 0;
-        }
-        .product-item {
-            text-align: center;
-            text-decoration: none;
-            color: #495057;
-            font-size: 0.75rem;
-        }
-        .product-icon {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #adb5bd;
-            border-radius: 0.5rem;
-            margin: 0 auto 0.3rem;
-            color: #495057;
-        }
-        .product-item:hover .product-icon,
-        .product-item:hover {
-            color: #0d6efd;
-        }
-
-        /* Main Header */
-        .main-header {
-            background-color: white;
-            border-bottom: 1px solid #dee2e6;
-            padding: 1rem 0;
-        }
-        .main-header h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        /* Group Header */
-        .group-header {
-            background-color: #0d6efd;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem 0.5rem 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .group-header .group-title {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .group-header .group-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .group-header .btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.8rem;
-        }
-
-        /* Entity Card */
-        .entity-card {
-            background-color: white;
-            border: 1px solid #dee2e6;
-            border-radius: 0.5rem;
-            padding: 0.5rem;
-            margin: 0.5rem;
-            min-height: 100px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .entity-card .entity-name {
-            font-weight: 600;
-            color: #0d6efd;
-            font-size: 0.9rem;
-        }
-        .entity-card .entity-pos {
-            font-size: 0.75rem;
-            color: #6c757d;
-        }
-        .entity-card .entity-status {
-            padding: 0.5rem;
-            border-top: 1px solid #dee2e6;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .status-idle {
-            background-color: #3b82f6;
-            color: white;
-        }
-        .status-maint_cor {
-            background-color: #ff6b6b;
-            color: white;
-        }
-
-        /* Grid Container */
-        .group-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 0.5rem;
-            padding: 0.5rem;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-top: 0;
-            border-radius: 0 0 0.5rem 0.5rem;
-        }
+        .blank-canvas-card:hover { border-color: #3b82f6; background-color: #f8fafc; }
     </style>
 </head>
 
 <body class="bg-white text-slate-900">
-
-    <!-- Top Product & Info Bar -->
-    <div class="top-product-bar">
-        <div class="container-fluid d-flex justify-content-between align-items-center px-3">
-            <!-- Product Icons -->
-            <div class="d-flex gap-3">
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div> Gateways</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div> Data Loggers</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div> Sensors</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-router"></i></div> Routers</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-comment"></i></div> Displays</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-microchip"></i></div> Computing</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div> Data Visualisation</a>
-                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-lightbulb"></i></div> Accessories</a>
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+	<!------------------------------------------------------------------------------->
+        <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+            <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
+            <div class="flex space-x-4">
+                <span class="text-slate-500">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
+                <a href="/mes/signin" class="text-slate-600">Log out</a>
             </div>
+        </nav>
+		
+    </header>
 
-            <!-- Right Info -->
-            <div class="d-flex align-items-center gap-3">
-                <a href="#" class="text-decoration-none text-slate-600 small">About us</a>
-                <a href="#" class="text-decoration-none text-slate-600 small">Contact Us</a>
-                <span class="text-muted small">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
-                <a href="/mes/signin" class="text-decoration-none text-slate-600 small">Log out</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Header -->
-    <div class="main-header">
-        <div class="container-fluid d-flex justify-content-between align-items-center px-3">
-            <h2>Machine Status Board - <?= htmlspecialchars($selectedPageName) ?></h2>
-            <?php if (!empty($pages)): ?>
-                <div class="d-flex gap-2">
-                    <select class="form-select w-auto" onchange="location.href='?page_id='+this.value">
-                        <?php foreach ($pages as $p): ?>
-                            <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($p['page_name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button class="btn btn-primary" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
-                        <i class="fas fa-plus"></i> New Group
-                    </button>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <!-- 👇 YOUR EXISTING CONTENT BLOCK STARTS HERE (UNCHANGED) -->
     <div class="container-fluid">
         <div class="row">
             <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
@@ -360,58 +207,44 @@ function base_url($path = '') {
                     <div class="row g-4">
                         <?php foreach ($selectedPageGroups as $g): ?>
                             <div class="col-12">
-                                <!-- Group Header -->
-                                <div class="group-header">
-                                    <div class="group-title">
-                                        <?= htmlspecialchars($g['group_name']) ?> <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small>
+                                <div class="card shadow-sm border-0">
+                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+                                        <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
+                                        <div class="d-flex gap-2">
+                                            <!-- Add Entity -->
+                                            <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
+                                                <i class="fas fa-plus me-1"></i>
+                                            </button>
+                                            <!-- Update Group -->
+                                            <button class="btn btn-sm btn-warning" onclick="openUpdateGroupModal(
+                                                <?= (int)$g['id'] ?>,
+                                                <?= (int)$g['page_id'] ?>,
+                                                '<?= addslashes($g['group_name']) ?>',
+                                                '<?= addslashes($g['location_name']) ?>',
+                                                <?= (int)($g['seq_id'] ?? 1) ?>
+                                            )">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <!-- Delete Group -->
+                                            <button class="btn btn-sm btn-danger" onclick="openDeleteGroupModal(
+                                                <?= (int)$g['id'] ?>,
+                                                <?= (int)$g['page_id'] ?>,
+                                                '<?= addslashes($g['group_name']) ?>'
+                                            )">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-success">
+                                                <small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="group-actions">
-                                        <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                        <button class="btn btn-warning" onclick="openUpdateGroupModal(
-                                            <?= (int)$g['id'] ?>,
-                                            <?= (int)$g['page_id'] ?>,
-                                            '<?= addslashes($g['group_name']) ?>',
-                                            '<?= addslashes($g['location_name']) ?>',
-                                            <?= (int)($g['seq_id'] ?? 1) ?>
-                                        )">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-danger" onclick="openDeleteGroupModal(
-                                            <?= (int)$g['id'] ?>,
-                                            <?= (int)$g['page_id'] ?>,
-                                            '<?= addslashes($g['group_name']) ?>'
-                                        )">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                        <button class="btn btn-success">
-                                            <small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
-                                        </button>
+                                    <div class="card-body bg-slate-50">
+                                        <?php 
+                                            $group = $g;
+                                            $org_id = $tenant_id;
+                                            include __DIR__ . '/utilities/entity_toolState_card.php'; 
+                                        ?>
                                     </div>
-                                </div>
-
-                                <!-- Group Grid -->
-                                <div class="group-grid">
-                                    <!-- Placeholder Boxes -->
-                                    <?php
-                                    // Generate 8 empty placeholder boxes
-                                    for ($i = 0; $i < 8; $i++): ?>
-                                        <div class="blank-canvas-card p-3"></div>
-                                    <?php endfor; ?>
-
-                                    <!-- Example Entity Card (replace with real data from entity_toolState_card.php) -->
-                                    <div class="entity-card">
-                                        <div class="entity-name">MSX_5585 <i class="fas fa-edit ms-1 text-secondary"></i></div>
-                                        <div class="entity-pos">Pos: (1, 5)</div>
-                                        <div class="entity-status status-idle">IDLE</div>
-                                    </div>
-
-                                    <!-- More Placeholder Boxes -->
-                                    <?php
-                                    for ($i = 0; $i < 4; $i++): ?>
-                                        <div class="blank-canvas-card p-3"></div>
-                                    <?php endfor; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -429,6 +262,7 @@ function base_url($path = '') {
                     <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     <input type="hidden" id="modal_page_id" name="page_id" value="">
+                    
                     <div class="modal-header">
                         <h5 class="modal-title">Create New Group</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -487,6 +321,7 @@ function base_url($path = '') {
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     <input type="hidden" id="update_group_id" name="group_id" value="">
                     <input type="hidden" id="update_page_id" name="page_id" value="">
+                    
                     <div class="modal-header">
                         <h5 class="modal-title">Update Group</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -524,6 +359,7 @@ function base_url($path = '') {
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                     <input type="hidden" id="delete_group_id" name="group_id" value="">
                     <input type="hidden" id="delete_page_id" name="page_id" value="">
+                    
                     <div class="modal-header">
                         <h5 class="modal-title">Delete Group</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -581,10 +417,7 @@ function base_url($path = '') {
         </div>
     <?php endforeach; ?>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Custom JS -->
     <script>
         function openCreateGroupModal(pageId) {
             const pageInput = document.getElementById('modal_page_id');
