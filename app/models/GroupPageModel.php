@@ -10,7 +10,10 @@ class GroupPageModel {
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    // ✅ Method to get placeholder record
+    /**
+     * Get placeholder record (group_name = '---') for a given org and page.
+     * Returns an associative array if found, null otherwise.
+     */
     public function getPlaceholderRecord(string $orgId, int $pageId): ?array {
         $stmt = $this->conn->prepare("
             SELECT id, group_code, location_code, group_name, location_name
@@ -18,10 +21,13 @@ class GroupPageModel {
             WHERE org_id = ? AND page_id = ? AND group_name = '---'
         ");
         $stmt->execute([$orgId, $pageId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ?: null; // Converts false → null to satisfy ?array return type
     }
 
-    // ✅ Method to update placeholder record
+    /**
+     * Update an existing placeholder record.
+     */
     public function updatePlaceholder(array $data): bool {
         $sql = "
             UPDATE group_location_map 
@@ -31,7 +37,7 @@ class GroupPageModel {
                 group_name = ?,
                 location_name = ?,
                 page_name = ?,
-                updated_at = CURRENT_TIMESTAMP  -- ✅ PostgreSQL
+                updated_at = CURRENT_TIMESTAMP
             WHERE org_id = ? AND page_id = ? AND group_name = '---'
         ";
 
@@ -48,7 +54,10 @@ class GroupPageModel {
         ]);
     }
 
-    // ✅ Create new page record
+    /**
+     * Create a new page record (original logic — no duplicate checking).
+     * Note: May throw PDOException if unique constraint is violated.
+     */
     public function createPage(array $data): bool {
         $sql = "
             INSERT INTO group_location_map (
@@ -61,7 +70,7 @@ class GroupPageModel {
                 page_name,
                 created_at
             ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP  -- ✅ PostgreSQL
+                ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP
             )
         ";
 

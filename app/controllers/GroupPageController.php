@@ -61,7 +61,7 @@ class GroupPageController {
         $conn = Database::getInstance()->getConnection();
         
         // ✅ PostgreSQL-compatible: cast page_id to integer, use COALESCE
-        $stmt = $conn->prepare("
+        $stmt = $this->conn->prepare("
             SELECT COALESCE(MAX(page_id::INTEGER), 0) + 1 
             FROM group_location_map 
             WHERE org_id = ?
