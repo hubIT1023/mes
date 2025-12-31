@@ -202,15 +202,14 @@ function is_active($path, $current_page) {
 				<span class="small">Mode Colors</span>
 			</a>
 			
-			<a href="/mes/mode-color" 
-			   class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" href="#" data-bs-toggle="modal" data-bs-target="#createGroupPageModal" ">
+			<a  class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" href="#" data-bs-toggle="modal" data-bs-target="#createGroupPageModal" ">
 				<div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
-					<i class="fas fa-palette fa-lg"></i>
+					<i class="fas fa-fw fa-plus-circle"></i>
 				</div>
 				<span class="small">Create New Page</span>
 			</a>
 			
-		
+			
         
 	
        
