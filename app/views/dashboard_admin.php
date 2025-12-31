@@ -203,7 +203,7 @@ function base_url($path = '') {
                 <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
             </div-->
 
-           <main class="col-12 col-xxl-11 p-4"> 
+           <main class="col-12 col-fluid p-4"> 
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="text-2xl font-bold">Machine Status Board - <?= htmlspecialchars($selectedPageName) ?></h2>
                     
