@@ -166,6 +166,19 @@ function base_url($path = '') {
 }
 @media(max-width:576px){ .product-item span{display:none;} }
 </style>
+<style>
+    .navbar-nav .nav-link.active {
+        color: #2563eb !important;
+        font-weight: 600;
+    }
+    .navbar-nav .dropdown-menu .dropdown-item.active {
+        color: #2563eb;
+        font-weight: 600;
+    }
+    .navbar-nav .dropdown-toggle::after {
+        margin-left: 0.25rem;
+    }
+</style>
 </head>
 
 <body class="bg-white text-slate-900">
