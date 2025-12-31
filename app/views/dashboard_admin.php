@@ -186,7 +186,14 @@ function base_url($path = '') {
 <div class="top-product-bar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
         <div class="product-list">
-			
+			<a href="/mes/mode-color" 
+   class="product-item d-flex flex-column align-items-center text-decoration-none <?= is_active('/mes/mode-color', $current_page) ? 'text-primary' : 'text-secondary' ?>">
+    <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
+        <i class="fas fa-palette fa-lg"></i>
+    </div>
+    <span class="small">Mode Colors</span>
+</a>
+
 	
        
     
