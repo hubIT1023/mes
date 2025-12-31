@@ -171,12 +171,10 @@ function base_url($path = '') {
 <body class="bg-white text-slate-900">
 
 <!-- ================= EXISTING HEADER (UNCHANGED) ================= -->
-<header class="sticky top-[40px] z-40 bg-white border-b border-slate-200 shadow-sm">
+<header class="sticky top-[10px] z-10 bg-white border-b border-slate-200 shadow-sm">
 
     <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
         <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
-		
-		
     </nav>
 </header>
 
