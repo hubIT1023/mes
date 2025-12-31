@@ -177,7 +177,7 @@ function base_url($path = '') {
 
 <!-- ================= EXISTING HEADER (UNCHANGED) ================= -->
 <header class="sticky top-[40px] z-40 bg-white border-b border-slate-200 shadow-sm">
-    <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+    <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-10">
         <!--a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a-->
 		<!--div class="top-product-bar">
 		<div class="container-fluid d-flex justify-content-between align-items-center"-->
