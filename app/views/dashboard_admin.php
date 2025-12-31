@@ -133,45 +133,6 @@ function is_active($path, $current_page) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-<style>
-.top-product-bar {
-    background:#f8f9fa;
-    border-bottom:1px solid #dee2e6;
-    padding:.4rem 0;
-    position:sticky;
-    top:0;
-    z-index:1050;
-}
-.product-list {
-    display:flex;
-    gap:1rem;
-    overflow-x:auto;
-}
-.product-item {
-    min-width:64px;
-    font-size:.7rem;
-    text-decoration:none;
-    color:#495057;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-.product-icon {
-    width:38px;height:38px;
-    border:1px solid #adb5bd;
-    border-radius:.5rem;
-    background:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-.product-item:hover,
-.product-item:hover .product-icon {
-    color:#0d6efd;
-    border-color:#0d6efd;
-}
-@media(max-width:576px){ .product-item span{display:none;} }
-</style>
 
 <style>
     .navbar-nav .nav-link.active {
@@ -192,7 +153,7 @@ function is_active($path, $current_page) {
 <body class="bg-white text-slate-900">
 
 <!-- ================= EXISTING HEADER (UNCHANGED) ================= -->
-<header class="sticky top-[3px] z-12 bg-white border-b border-slate-200 shadow-sm">
+
 
     <!--nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-10">
         <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
@@ -319,7 +280,7 @@ function is_active($path, $current_page) {
         </div>
     </div>
 </nav>
-</header>
+
 
 
 
