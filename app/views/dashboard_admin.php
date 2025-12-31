@@ -195,108 +195,98 @@ function base_url($path = '') {
 </header>
 
     <div class="container-fluid">
-        <div class="row">
-            <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
-                <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
-            </div-->
+    <div class="row justify-content-center"> <main class="col-12 col-xl-11 p-4"> <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <h2 class="text-2xl font-bold m-0">
+                    <i class="fas fa-microchip me-2 text-primary"></i> 
+                    Machine Status Board - <?= htmlspecialchars($selectedPageName) ?>
+                </h2>
+                
+                <?php if (!empty($pages)): ?>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small d-none d-sm-inline">Switch Page:</span>
+                        <select class="form-select w-auto shadow-sm" onchange="location.href='?page_id='+this.value">
+                            <?php foreach ($pages as $p): ?>
+                                <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($p['page_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button class="btn btn-primary shadow-sm" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
+                            <i class="fas fa-plus"></i> <span class="d-none d-md-inline">New Group</span>
+                        </button>
+                    </div>
+                <?php endif; ?>
+            </div>
 
-            <main class="col-md-9 col-lg-10 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="text-2xl font-bold">Machine Status Board - <?= htmlspecialchars($selectedPageName) ?></h2>
-                    
-                    <?php if (!empty($pages)): ?>
-                        <div class="d-flex gap-2">
-                            <select class="form-select w-auto" onchange="location.href='?page_id='+this.value">
-                                <?php foreach ($pages as $p): ?>
-                                    <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($p['page_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <button class="btn btn-primary" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
-                                <i class="fas fa-plus"></i> New Group
-                            </button>
+            <div class="row">
+                <div class="col-12">
+                    <?php if (isset($_SESSION['success'])): ?>
+                        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0">
+                            <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($_SESSION['success']) ?>
+                            <button class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
+                        <?php unset($_SESSION['success']); ?>
                     <?php endif; ?>
                 </div>
+            </div>
 
-                <?php if (isset($_SESSION['success'])): ?>
-                    <div class="alert alert-success alert-dismissible fade show"><?= htmlspecialchars($_SESSION['success']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
-                    <?php unset($_SESSION['success']); ?>
-                <?php endif; ?>
+            <hr class="mb-5 opacity-10">
 
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-danger alert-dismissible fade show"><?= htmlspecialchars($_SESSION['error']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
-                    <?php unset($_SESSION['error']); ?>
-                <?php endif; ?>
-
-                <hr class="mb-4">
-
-                <?php if ($showBlankCanvas): ?>
-                    <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh;">
-                        <?php if (empty($pages)): ?>
-                            <div class="blank-canvas-card p-5 text-center rounded-lg" data-bs-toggle="modal" data-bs-target="#createGroupPageModal" style="width: 300px;">
-                                <i class="fas fa-file-circle-plus text-slate-300 fa-4x mb-3"></i>
-                                <h5 class="text-slate-600">Create First Page</h5>
-                            </div>
-                        <?php else: ?>
-                            <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" style="width: 300px;">
-                                <i class="fas fa-layer-group text-slate-300 fa-4x mb-3"></i>
-                                <h5 class="text-slate-600">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
-                                <p class="small text-slate-400">Click to configure your first group for this page.</p>
-                            </div>
-                        <?php endif; ?>
+            <?php if ($showBlankCanvas): ?>
+                <div class="d-flex flex-column align-items-center justify-content-center py-5" style="min-height: 50vh;">
+                    <div class="blank-canvas-card p-5 text-center rounded-4 shadow-sm bg-white border" 
+                         style="width: 350px; cursor: pointer;"
+                         onclick="<?= empty($pages) ? "document.getElementById('createGroupPageModal').show()" : "openCreateGroupModal($selectedPageId)" ?>">
+                        <div class="mb-4">
+                            <i class="fas <?= empty($pages) ? 'fa-file-circle-plus' : 'fa-layer-group' ?> text-primary opacity-25" style="font-size: 4rem;"></i>
+                        </div>
+                        <h5 class="fw-bold"><?= empty($pages) ? 'Create First Page' : "Add Group to $selectedPageName" ?></h5>
+                        <p class="text-muted small">Click to configure your first group for this board.</p>
                     </div>
-                <?php else: ?>
-                    <div class="row g-4">
-                        <?php foreach ($selectedPageGroups as $g): ?>
-                            <div class="col-12">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-                                        <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
-                                        <div class="d-flex gap-2">
-                                            <!-- Add Entity -->
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
-                                                <i class="fas fa-plus me-1"></i>
-                                            </button>
-                                            <!-- Update Group -->
-                                            <button class="btn btn-sm btn-warning" onclick="openUpdateGroupModal(
-                                                <?= (int)$g['id'] ?>,
-                                                <?= (int)$g['page_id'] ?>,
-                                                '<?= addslashes($g['group_name']) ?>',
-                                                '<?= addslashes($g['location_name']) ?>',
-                                                <?= (int)($g['seq_id'] ?? 1) ?>
-                                            )">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <!-- Delete Group -->
-                                            <button class="btn btn-sm btn-danger" onclick="openDeleteGroupModal(
-                                                <?= (int)$g['id'] ?>,
-                                                <?= (int)$g['page_id'] ?>,
-                                                '<?= addslashes($g['group_name']) ?>'
-                                            )">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-success">
-                                                <small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
-                                            </button>
-                                        </div>
+                </div>
+            <?php else: ?>
+                <div class="row g-4">
+                    <?php foreach ($selectedPageGroups as $g): ?>
+                        <div class="col-12">
+                            <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-primary me-3"><?= (int)($g['seq_id'] ?? 1) ?></span>
+                                        <h5 class="mb-0 fw-bold text-dark">
+                                            <?= htmlspecialchars($g['group_name']) ?> 
+                                            <span class="text-muted fw-normal ms-2" style="font-size: 0.9rem;">
+                                                <i class="fas fa-location-dot me-1"></i><?= htmlspecialchars($g['location_name']) ?>
+                                            </span>
+                                        </h5>
                                     </div>
-                                    <div class="card-body bg-slate-50">
-                                        <?php 
-                                            $group = $g;
-                                            $org_id = $tenant_id;
-                                            include __DIR__ . '/utilities/entity_toolState_card.php'; 
-                                        ?>
+                                    
+                                    <div class="btn-group shadow-sm">
+                                        <button class="btn btn-sm btn-outline-secondary" title="Add Entity" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning" title="Edit Group" onclick="openUpdateGroupModal(...)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="Delete Group" onclick="openDeleteGroupModal(...)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </div>
+                                <div class="card-body bg-light">
+                                    <?php 
+                                        $group = $g;
+                                        $org_id = $tenant_id;
+                                        include __DIR__ . '/utilities/entity_toolState_card.php'; 
+                                    ?>
+                                </div>
                             </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </main>
-        </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </main>
     </div>
+</div>
 
     <!-- CREATE GROUP MODAL -->
     <div class="modal fade" id="createGroupModal" tabindex="-1">
