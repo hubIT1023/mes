@@ -209,10 +209,6 @@ function base_url($path = '') {
 </div>
 
 
-
-
-    <div class="container-fluid">
-        <div class="row">
             <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
                 <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
             </div-->
@@ -312,8 +308,7 @@ function base_url($path = '') {
                     </div>
                 <?php endif; ?>
             </main>
-        </div>
-    </div>
+     
 
     <!-- CREATE GROUP MODAL -->
     <div class="modal fade" id="createGroupModal" tabindex="-1">
