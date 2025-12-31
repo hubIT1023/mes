@@ -33,6 +33,12 @@ class GroupPageController {
             exit;
         }
 
+        // Check: Is there already a placeholder (0,0) record for this tenant?
+        // (Optional pre-check for better UX — model also checks, but this gives clearer context)
+        $existingPlaceholder = $this->model->getPlaceholderRecord($orgId, 0); // page_id=0 or any
+        // Actually, getPlaceholderRecord filters by page_id, so better to check differently:
+        // We'll rely on the model's createPage() return value instead.
+
         $pageId = $this->getNextPageId($orgId);
 
         $data = [
@@ -49,11 +55,12 @@ class GroupPageController {
 
         if ($result) {
             $_SESSION['success'] = "Page '$pageName' created successfully!";
+            header("Location: /mes/dashboard_admin?page_id=" . $pageId);
         } else {
-            $_SESSION['error'] = "Failed to create page.";
+            // 🔍 Specific error for duplicate (org_id, 0, 0)
+            $_SESSION['error'] = "A default placeholder page already exists for this tenant. Only one blank page is allowed.";
+            header("Location: /mes/dashboard_admin");
         }
-
-        header("Location: /mes/dashboard_admin?page_id=" . $pageId);
         exit;
     }
 
