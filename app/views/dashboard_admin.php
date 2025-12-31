@@ -206,6 +206,13 @@ function base_url($path = '') {
 </div>
 
 
+
+    <div class="container-fluid">
+        <div class="row">
+            <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
+                <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
+            </div-->
+
            <main class="col-12 col-fluid p-4"> 
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="text-2xl font-bold">Machine Status Board - <?= htmlspecialchars($selectedPageName) ?></h2>
@@ -301,7 +308,8 @@ function base_url($path = '') {
                     </div>
                 <?php endif; ?>
             </main>
->
+        </div>
+    </div>
 
     <!-- CREATE GROUP MODAL -->
     <div class="modal fade" id="createGroupModal" tabindex="-1">
