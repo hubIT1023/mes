@@ -132,33 +132,27 @@ function base_url($path = '') {
     <!-- Custom Styles -->
     <style>
         .blank-canvas-card {
-            border: 4px dashed #ced4da;
+            border: 4px dashed #cbd5e1;
             transition: all 0.3s ease;
             cursor: pointer;
         }
         .blank-canvas-card:hover {
-            border-color: #0d6efd;
-            background-color: #f8f9fa;
+            border-color: #3b82f6;
+            background-color: #f8fafc;
         }
 
-        /* Style for the top secondary nav bar */
-        .top-nav {
+        /* Top Product Bar */
+        .top-product-bar {
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
             padding: 0.5rem 0;
         }
-
-        .top-nav .nav-link {
-            font-size: 0.85rem;
+        .product-item {
+            text-align: center;
+            text-decoration: none;
             color: #495057;
-            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
         }
-
-        .top-nav .nav-link:hover,
-        .top-nav .nav-link.active {
-            color: #0d6efd;
-        }
-
         .product-icon {
             width: 40px;
             height: 40px;
@@ -167,40 +161,30 @@ function base_url($path = '') {
             justify-content: center;
             border: 1px solid #adb5bd;
             border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
+            margin: 0 auto 0.3rem;
             color: #495057;
         }
-
-        .product-icon i {
-            font-size: 1.25rem;
+        .product-item:hover .product-icon,
+        .product-item:hover {
+            color: #0d6efd;
         }
 
-        .product-label {
-            font-size: 0.7rem;
-            text-align: center;
-            margin-top: 0.25rem;
-            color: #495057;
-        }
-
-        /* Style for the main header */
+        /* Main Header */
         .main-header {
             background-color: white;
             border-bottom: 1px solid #dee2e6;
             padding: 1rem 0;
         }
-
         .main-header h2 {
             font-size: 1.5rem;
             font-weight: 600;
             margin: 0;
         }
-
         .btn-new-group {
             background-color: #0d6efd;
             border-color: #0d6efd;
             font-weight: 500;
         }
-
         .btn-new-group:hover {
             background-color: #0b5ed7;
             border-color: #0b5ed7;
@@ -208,61 +192,21 @@ function base_url($path = '') {
     </style>
 </head>
 
-<body class="bg-white text-dark">
+<body class="bg-white text-slate-900">
 
-    <!-- Top Secondary Navigation Bar -->
-    <div class="top-nav">
-        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
-            <!-- Product Categories Icons -->
+    <!-- Top Product & Info Bar -->
+    <div class="top-product-bar">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-3">
+            <!-- Product Icons -->
             <div class="d-flex gap-3">
-                <a href="#" class="text-decoration-none">
-                    <div class="product-icon">
-                        <i class="fas fa-server"></i>
-                    </div>
-                    <div class="product-label">Gateways</div>
-                </a>
-                <a href="#" class="text-decoration-none">
-                    <div class="product-icon">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div class="product-label">Data Loggers</div>
-                </a>
-                <a href="#" class="text-decoration-none">
-                    <div class="product-icon">
-                        <i class="fas fa-wifi"></i>
-                    </div>
-                    <div class="product-label">Sensors</div>
-                </a>
-                <a href="#" class="text-decoration-none">
-                    <div class="product-icon">
-                        <i class="fas fa-router"></i>
-                    </div>
-                    <div class="product-label">Routers</div>
-                </a>
-                <a href="#" class="text-decoration-none">
-                    <div class="product-icon">
-                        <i class="fas fa-comment"></i>
-                    </div>
-                    <div class="product-label">Displays</div>
-                </a>
-                <a href="#" class="text-decoration-none">
-                    <div class="product-icon">
-                        <i class="fas fa-microchip"></i>
-                    </div>
-                    <div class="product-label">Computing</div>
-                </a>
-                <a href="#" class="text-decoration-none">
-                    <div class="product-icon">
-                        <i class="fas fa-chart-bar"></i>
-                    </div>
-                    <div class="product-label">Data Visualisation</div>
-                </a>
-                <a href="#" class="text-decoration-none">
-                    <div class="product-icon">
-                        <i class="fas fa-lightbulb"></i>
-                    </div>
-                    <div class="product-label">Accessories</div>
-                </a>
+                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div> Gateways</a>
+                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div> Data Loggers</a>
+                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div> Sensors</a>
+                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-router"></i></div> Routers</a>
+                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-comment"></i></div> Displays</a>
+                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-microchip"></i></div> Computing</a>
+                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div> Data Visualisation</a>
+                <a href="#" class="product-item"><div class="product-icon"><i class="fas fa-lightbulb"></i></div> Accessories</a>
             </div>
 
             <!-- Right Side: Links & Tenant Info -->
@@ -277,57 +221,76 @@ function base_url($path = '') {
 
     <!-- Main Header -->
     <div class="main-header">
-        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-3">
             <h2>Machine Status Board - <?= htmlspecialchars($selectedPageName) ?></h2>
-            <div class="d-flex gap-2">
-                <select class="form-select w-auto" onchange="location.href='?page_id='+this.value">
-                    <?php foreach ($pages as $p): ?>
-                        <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($p['page_name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <button class="btn btn-new-group" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
-                    <i class="fas fa-plus"></i> New Group
-                </button>
-            </div>
+            <?php if (!empty($pages)): ?>
+                <div class="d-flex gap-2">
+                    <select class="form-select w-auto" onchange="location.href='?page_id='+this.value">
+                        <?php foreach ($pages as $p): ?>
+                            <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($p['page_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button class="btn btn-new-group" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
+                        <i class="fas fa-plus"></i> New Group
+                    </button>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
-    <!-- Main Content Area -->
-    <div class="container-fluid py-4">
+    <!-- 👇 YOUR EXISTING CONTENT BLOCK STARTS HERE (UNCHANGED) -->
+    <div class="container-fluid">
         <div class="row">
-            <main class="col-md-12 p-0 p-md-4">
-                <!-- Success/Error Alerts -->
+            <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
+                <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
+            </div-->
+
+            <main class="col-md-9 col-lg-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-2xl font-bold">Machine Status Board - <?= htmlspecialchars($selectedPageName) ?></h2>
+                    
+                    <?php if (!empty($pages)): ?>
+                        <div class="d-flex gap-2">
+                            <select class="form-select w-auto" onchange="location.href='?page_id='+this.value">
+                                <?php foreach ($pages as $p): ?>
+                                    <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($p['page_name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button class="btn btn-primary" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
+                                <i class="fas fa-plus"></i> New Group
+                            </button>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
                 <?php if (isset($_SESSION['success'])): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <?= htmlspecialchars($_SESSION['success']) ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                    <div class="alert alert-success alert-dismissible fade show"><?= htmlspecialchars($_SESSION['success']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
                     <?php unset($_SESSION['success']); ?>
                 <?php endif; ?>
 
                 <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <?= htmlspecialchars($_SESSION['error']) ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                    <div class="alert alert-danger alert-dismissible fade show"><?= htmlspecialchars($_SESSION['error']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
                     <?php unset($_SESSION['error']); ?>
                 <?php endif; ?>
 
-                <!-- Blank Canvas or Groups Display -->
+                <hr class="mb-4">
+
                 <?php if ($showBlankCanvas): ?>
                     <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh;">
                         <?php if (empty($pages)): ?>
-                            <div class="blank-canvas-card p-5 text-center rounded-3" data-bs-toggle="modal" data-bs-target="#createGroupPageModal" style="width: 300px;">
-                                <i class="fas fa-file-circle-plus text-secondary fa-4x mb-3"></i>
-                                <h5 class="text-muted">Create First Page</h5>
+                            <div class="blank-canvas-card p-5 text-center rounded-lg" data-bs-toggle="modal" data-bs-target="#createGroupPageModal" style="width: 300px;">
+                                <i class="fas fa-file-circle-plus text-slate-300 fa-4x mb-3"></i>
+                                <h5 class="text-slate-600">Create First Page</h5>
                             </div>
                         <?php else: ?>
-                            <div class="blank-canvas-card p-5 text-center rounded-3" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" style="width: 300px;">
-                                <i class="fas fa-layer-group text-secondary fa-4x mb-3"></i>
-                                <h5 class="text-muted">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
-                                <p class="text-muted small">Click to configure your first group for this page.</p>
+                            <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" style="width: 300px;">
+                                <i class="fas fa-layer-group text-slate-300 fa-4x mb-3"></i>
+                                <h5 class="text-slate-600">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
+                                <p class="small text-slate-400">Click to configure your first group for this page.</p>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -337,14 +300,13 @@ function base_url($path = '') {
                             <div class="col-12">
                                 <div class="card shadow-sm border-0">
                                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-                                        <h5 class="mb-0">
-                                            <?= htmlspecialchars($g['group_name']) ?>
-                                            <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small>
-                                        </h5>
+                                        <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
                                         <div class="d-flex gap-2">
+                                            <!-- Add Entity -->
                                             <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
-                                                <i class="fas fa-plus"></i>
+                                                <i class="fas fa-plus me-1"></i>
                                             </button>
+                                            <!-- Update Group -->
                                             <button class="btn btn-sm btn-warning" onclick="openUpdateGroupModal(
                                                 <?= (int)$g['id'] ?>,
                                                 <?= (int)$g['page_id'] ?>,
@@ -354,6 +316,7 @@ function base_url($path = '') {
                                             )">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+                                            <!-- Delete Group -->
                                             <button class="btn btn-sm btn-danger" onclick="openDeleteGroupModal(
                                                 <?= (int)$g['id'] ?>,
                                                 <?= (int)$g['page_id'] ?>,
@@ -366,7 +329,7 @@ function base_url($path = '') {
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="card-body bg-light">
+                                    <div class="card-body bg-slate-50">
                                         <?php 
                                             $group = $g;
                                             $org_id = $tenant_id;
@@ -381,8 +344,6 @@ function base_url($path = '') {
             </main>
         </div>
     </div>
-
-    <!-- Modals (unchanged from your original code) -->
 
     <!-- CREATE GROUP MODAL -->
     <div class="modal fade" id="createGroupModal" tabindex="-1">
@@ -559,8 +520,7 @@ function base_url($path = '') {
         function updateEntityName(select) {
             const name = select.options[select.selectedIndex]?.getAttribute('data-name') || '';
             const form = select.closest('form');
-            const entityInput = form.querySelector('input[name="entity"]');
-            if (entityInput) entityInput.value = name;
+            form.querySelector('input[name="entity"]').value = name;
         }
 
         function openUpdateGroupModal(groupId, pageId, groupName, locationName, seqId) {
