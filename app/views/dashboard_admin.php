@@ -31,7 +31,7 @@ $tenantAssets = fetchTenantAssets($conn, $tenant_id);
 // 6. Organize Pages
 $pages = [];
 foreach ($allPages as $pageId => $pageName) {
-    $pages[$pageId] = ['page_id' => (int)$pageId, 'page_name' => $pageName];
+    $pages[(int)$pageId] = ['page_id' => (int)$pageId, 'page_name' => $pageName];
 }
 
 // 7. Determine Selected Page
@@ -51,11 +51,12 @@ $selectedPageName = ($selectedPageId !== null && isset($pages[$selectedPageId]))
     : 'Dashboard';
 
 // 9. Initialize Mode Model
-require_once __DIR__ . '/../models/ToolStateModel.php'; // Ensure model is included
+require_once __DIR__ . '/../models/ToolStateModel.php';
 $modeModel = new ToolStateModel();
 $modeChoices = $modeModel->getModeColorChoices($tenant_id);
 
 // --- HELPER FUNCTIONS ---
+
 function fetchGroups($conn, $tenant_id): array {
     try {
         $stmt = $conn->prepare("
@@ -102,17 +103,18 @@ function fetchTenantAssets($conn, $tenant_id): array {
 
 function determineSelectedPage(array $pages): ?int {
     if (isset($_GET['page_id']) && $_GET['page_id'] !== '') {
-        return (int)$_GET['page_id'];
+        $id = (int)$_GET['page_id'];
+        return $id > 0 ? $id : null; // Ensure positive ID
     }
     if (isset($_SESSION['last_page_id'])) {
         return (int)$_SESSION['last_page_id'];
     }
     return !empty($pages) ? (int)array_key_first($pages) : null;
 }
-// --- HELPER FUNCTIONS ---
+
 function base_url($path = '') {
     $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-    return $base . $path;
+    return $base . '/' . ltrim($path, '/');
 }
 
 // Helper to detect active page
@@ -120,7 +122,6 @@ $current_page = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 function is_active($path, $current_page) {
     return $path === $current_page ? 'active' : '';
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -195,7 +196,8 @@ function is_active($path, $current_page) {
     <div class="container-fluid d-flex justify-content-between align-items-center">
         <div class="product-list">
 			<a href="/mes/mode-color" 
-			   class="product-item d-flex flex-column align-items-center text-decoration-none <?= is_active('/mes/mode-color', $current_page) ? 'text-primary' : 'text-secondary' ?>">
+			   class="product-item d-flex flex-column align-items-center text-decoration-none 
+				<?= is_active('/mes/mode-color', $current_page) ? 'text-primary' : 'text-secondary' ?>">
 				<div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
 					<i class="fas fa-palette fa-lg"></i>
 				</div>
@@ -209,11 +211,6 @@ function is_active($path, $current_page) {
 				</div>
 				<span class="small">Create New Page</span>
 			</a>
-			
-			
-        
-	
-       
     
             <!--a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a>
             <a class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div><span>Loggers</span></a>
