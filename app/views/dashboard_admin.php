@@ -140,72 +140,15 @@ function base_url($path = '') {
 <body class="bg-white text-slate-900">
     <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
 	<!------------------------------------------------------------------------------->
-        <nav class="bg-white border-b border-slate-200">
-			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div class="flex justify-between h-16">
-					<div class="flex">
-						<div class="flex-shrink-0 flex items-center">
-							<a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
-						</div>
-						
-						<div class="hidden sm:ml-8 sm:flex sm:space-x-4 items-center">
-							<a href="/mes/dashboard_admin" class="px-3 py-2 rounded-md text-sm font-medium <?= is_active('/mes/dashboard_admin', $current_page) ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600' ?>">
-								<i class="fas fa-tachometer-alt mr-1"></i> Dashboard
-							</a>
-
-							<div class="relative group">
-								<button class="flex items-center px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600">
-									<i class="fas fa-boxes mr-1"></i> Assets
-									<i class="fas fa-chevron-down ml-1 text-xs transition-transform group-hover:rotate-180"></i>
-								</button>
-								<div class="absolute z-10 hidden group-hover:block w-48 bg-white border border-slate-100 shadow-lg rounded-md mt-0">
-									<a href="/mes/assets-list" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Asset List</a>
-									<a href="/mes/add-assets" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Add Assets</a>
-									<a href="/mes/manage-checklist-templates" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">Checklist Templates</a>
-								</div>
-							</div>
-
-							<div class="relative group">
-								<button class="flex items-center px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600">
-									<i class="fas fa-tools mr-1"></i> Maintenance
-									<i class="fas fa-chevron-down ml-1 text-xs group-hover:rotate-180"></i>
-								</button>
-								<div class="absolute z-10 hidden group-hover:block w-56 bg-white border border-slate-100 shadow-lg rounded-md mt-0">
-									<?php
-									$maintenance_items = [
-										['/mes/registered_assets', 'fa-calendar-check', 'Schedule'],
-										['/mes/incoming-maintenance', 'fa-tools', 'Incoming'],
-										['/mes/completed-work-orders', 'fa-check-circle', 'Completed Orders']
-									];
-									foreach ($maintenance_items as $item): ?>
-										<a href="<?= $item[0] ?>" class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50">
-											<i class="fas <?= $item[1] ?> mr-2 opacity-50"></i><?= $item[2] ?>
-										</a>
-									<?php endforeach; ?>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="flex items-center space-x-4">
-						<span class="hidden md:inline text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-500 rounded uppercase tracking-wider">
-							ID: <?= htmlspecialchars($tenant_id) ?>
-						</span>
-						
-						<button data-bs-toggle="modal" data-bs-target="#createGroupPageModal" class="hidden md:flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
-							<i class="fas fa-plus-circle mr-2"></i> Create Page
-						</button>
-
-						<div class="h-8 w-px bg-slate-200 mx-2"></div>
-						
-						<a href="/mes/signin" class="text-sm font-medium text-slate-500 hover:text-red-600 transition-colors">
-							Log out <i class="fas fa-sign-out-alt ml-1"></i>
-						</a>
-					</div>
-				</div>
-			</div>
-		</nav>
-
+        <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+            <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
+            <div class="flex space-x-4">
+                <span class="text-slate-500">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
+                <a href="/mes/signin" class="text-slate-600">Log out</a>
+            </div>
+			
+			
+        </nav>
 	<!------------------------------------------------------------------------------->	
     </header>
 
