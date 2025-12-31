@@ -8,7 +8,7 @@
   <title>hubIT.online | Smarter Tech. Simpler Solutions.</title>
   <meta name="description" content="HubIT.online - Insights, Maintain, Sense. Smarter enterprise IoT and IT solutions for industries of tomorrow.">
   <meta name="author" content="hubIT.online">
-  <link rel="icon" href="/mes/app/Assets/img/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/app/Assets/img/favicon.png" type="image/x-icon">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
