@@ -184,7 +184,7 @@ function is_active($path, $current_page) {
         <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
 		  <div class="d-flex gap-3 align-items-center">
             <span class="small text-muted">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
-            <a href="/mes/logout" class="small text-muted text-decoration-none text-primary">Log out</a>
+            <a href="/mes/logout" class="small text-decoration-none text-primary">Log out</a>
         </div>
     </nav>
 	
@@ -203,7 +203,7 @@ function is_active($path, $current_page) {
 			</a>
 			
 			<a  href="#" class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" 
-				data-bs-toggle="modal" data-bs-target="#createGroupPageModal" ">
+				data-bs-toggle="modal" data-bs-target="#createGroupPageModal" >
 				<div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
 					<i class="fas fa-fw fa-plus-circle"></i>
 				</div>
