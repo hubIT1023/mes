@@ -114,6 +114,12 @@ function base_url($path = '') {
     $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
     return $base . $path;
 }
+
+// Helper to detect active page
+$current_page = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+function is_active($path, $current_page) {
+    return $path === $current_page ? 'active' : '';
+}
 ?>
 
 <!DOCTYPE html>
@@ -166,6 +172,21 @@ function base_url($path = '') {
 }
 @media(max-width:576px){ .product-item span{display:none;} }
 </style>
+
+<style>
+    .navbar-nav .nav-link.active {
+        color: #2563eb !important;
+        font-weight: 600;
+    }
+    .navbar-nav .dropdown-menu .dropdown-item.active {
+        color: #2563eb;
+        font-weight: 600;
+    }
+    .navbar-nav .dropdown-toggle::after {
+        margin-left: 0.25rem;
+    }
+</style>
+
 </head>
 
 <body class="bg-white text-slate-900">
@@ -173,37 +194,134 @@ function base_url($path = '') {
 <!-- ================= EXISTING HEADER (UNCHANGED) ================= -->
 <header class="sticky top-[3px] z-12 bg-white border-b border-slate-200 shadow-sm">
 
-    <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-10">
+    <!--nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-10">
         <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
 		  <div class="d-flex gap-3 align-items-center">
             <span class="small text-muted">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
             <a href="/mes/logout" class="small text-muted text-decoration-none">Log out</a>
         </div>
-    </nav>
+    </nav-->
+	
+	<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
+    <div class="container-fluid">
+
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold text-primary" href="/mes/dashboard_admin">
+            HubIT.online
+        </a>
+
+        <!-- Toggler for mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topbarNav" 
+                aria-controls="topbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar content -->
+        <div class="collapse navbar-collapse" id="topbarNav">
+
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <!-- Dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link <?= is_active('/mes/dashboard_admin', $current_page) ?>" href="/mes/dashboard_admin">
+                        <i class="fas fa-tachometer-alt me-1"></i> Admin Dashboard
+                    </a>
+                </li>
+
+                <!-- Asset Management -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= in_array($current_page, ['/mes/assets-list','/mes/add-assets','/mes/manage-checklist-templates']) ? 'active' : '' ?>" 
+                       href="#" id="assetDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-boxes me-1"></i> Asset Management
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="assetDropdown">
+                        <li>
+                            <a class="dropdown-item <?= is_active('/mes/assets-list', $current_page) ?>" href="/mes/assets-list">
+                                <i class="fas fa-boxes me-1"></i> Asset List
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item <?= is_active('/mes/add-assets', $current_page) ?>" href="/mes/add-assets">
+                                <i class="fas fa-plus-square me-1"></i> Add Assets
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item <?= is_active('/mes/manage-checklist-templates', $current_page) ?>" href="/mes/manage-checklist-templates">
+                                <i class="fas fa-tasks me-1"></i> Checklist Templates
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Maintenance -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= in_array($current_page, ['/mes/registered_assets','/mes/incoming-maintenance','/mes/completed-work-orders']) ? 'active' : '' ?>" 
+                       href="#" id="maintenanceDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-tools me-1"></i> Maintenance
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="maintenanceDropdown">
+                        <?php
+                        $maintenance_items = [
+                            ['/mes/registered_assets', 'fa-calendar-check', 'Schedule'],
+                            ['/mes/incoming-maintenance', 'fa-tools', 'Incoming'],
+                            ['/mes/completed-work-orders', 'fa-check-circle', 'Completed Orders']
+                        ];
+                        foreach ($maintenance_items as $item): ?>
+                            <li>
+                                <a class="dropdown-item <?= is_active($item[0], $current_page) ?>" href="<?= $item[0] ?>">
+                                    <i class="fas <?= $item[1] ?> me-1"></i> <?= $item[2] ?>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </li>
+
+                <!-- System Config -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= in_array($current_page, ['/mes/meta-database','/mes/tool-state-log','/mes/mode-color']) ? 'active' : '' ?>" 
+                       href="#" id="systemDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cogs me-1"></i> System Config
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="systemDropdown">
+                        <li>
+                            <a class="dropdown-item" href="/mes/meta-database">
+                                <i class="fas fa-database me-1"></i> Configure DB
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/mes/tool-state-log">
+                                <i class="fas fa-file-alt me-1"></i> Tool Status Log
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item <?= is_active('/mes/mode-color', $current_page) ?>" href="/mes/mode-color">
+                                <i class="fas fa-palette me-1"></i> Mode Colors
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Quick Actions -->
+                <li class="nav-item">
+                    <a class="nav-link text-primary" href="#" data-bs-toggle="modal" data-bs-target="#createGroupPageModal">
+                        <i class="fas fa-plus-circle me-1"></i> Create New Page
+                    </a>
+                </li>
+
+            </ul>
+
+            <!-- Right side: tenant info / logout -->
+            <div class="d-flex align-items-center">
+                <span class="text-muted me-3">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
+                <a href="/mes/signin" class="btn btn-outline-secondary btn-sm">Log out</a>
+            </div>
+
+        </div>
+    </div>
+</nav>
 </header>
 
-<!-- ================= TOP PRODUCT BAR ================= -->
-<div class="top-product-bar">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-        <div class="product-list">
-			<a href="/mes/mode-color" class="product-item nav-link <?= is_active('/mes/mode-color', $current_page) ?>">
-                <div class="product-icon">
-                    <i class="fas fa-fw fa-palette"></i>
-                </div>
-                <span>Mode Colors</span>
-            </a>
-	
-       
-    
-            <!--a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a>
-            <a class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div><span>Loggers</span></a>
-            <a class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div><span>Sensors</span></a>
-            <a class="product-item"><div class="product-icon"><i class="fas fa-router"></i></div><span>Routers</span></a>
-            <a class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div><span>Analytics</span></a-->
-        </div>
-       
-    </div>
-</div>
+
 
 
 
