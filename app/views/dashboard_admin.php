@@ -154,7 +154,7 @@ function base_url($path = '') {
         <div class="row">
             <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
                 <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
-            </div-->
+            </div>
 
             <main class="col-md-9 col-lg-10 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
