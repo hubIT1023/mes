@@ -142,7 +142,7 @@ foreach ($entities as $entity) {
                 $stopCause = $states[$entityName] ?? 'IDLE';
                 $badge = getStateBadge($stopCause, $conn, $org_id);
                 ?>
-                <div class="card" style="width: 162px;">
+                <div class="card" style="width: 160px;">
                     <!-- Entity Card Header + Edit Button -->
 				<div class="d-flex align-items-start justify-content-between w-100" style="min-height: 60px;">
 					<!-- Entity Name (as button) -->
