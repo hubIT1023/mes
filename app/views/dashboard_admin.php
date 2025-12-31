@@ -122,7 +122,7 @@ function base_url($path = '') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HubIT Dashboard</title>
-
+<link rel="icon" type="image/png" href="/Assets/img/favicon.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -170,6 +170,13 @@ function base_url($path = '') {
 
 <body class="bg-white text-slate-900">
 
+<!-- ================= EXISTING HEADER (UNCHANGED) ================= -->
+<header class="sticky top-[40px] z-40 bg-white border-b border-slate-200 shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+        <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
+    </nav>
+</header>
+
 <!-- ================= TOP PRODUCT BAR ================= -->
 <div class="top-product-bar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
@@ -187,16 +194,8 @@ function base_url($path = '') {
     </div>
 </div>
 
-<!-- ================= EXISTING HEADER (UNCHANGED) ================= -->
-<header class="sticky top-[40px] z-40 bg-white border-b border-slate-200 shadow-sm">
-    <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-        <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
-    </nav>
-</header>
-<!--div class="container-fluid">
-    <div class="row justify-content-center"> 
-		<main class="col-12 col-xl-11 p-4"> 
-			<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"-->
+
+
     <div class="container-fluid">
         <div class="row">
             <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
