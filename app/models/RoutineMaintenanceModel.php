@@ -56,7 +56,7 @@ class RoutineMaintenanceModel {
             FROM checklist_template 
             WHERE tenant_id = :tenant_id 
               AND technician_name IS NOT NULL 
-              AND technician_name <> ''
+              AND technician <> ''
             ORDER BY technician
         ");
         $techs->execute(['tenant_id' => $tenantId]);
@@ -66,7 +66,7 @@ class RoutineMaintenanceModel {
             'assets'       => $assetsList,
             'work_order'   => $workOrderList,
             'types'        => $typeList,
-            'technicians'  => $techList
+            'technician'  => $techList
         ];
     }
 
