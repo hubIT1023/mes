@@ -18,7 +18,7 @@ class ChecklistModel {
                 t.checklist_id,
                 t.maintenance_type,
                 t.work_order,
-                t.technician_name,
+                t.technician,
                 t.interval_days,
                 t.description,
                 t.created_at,
