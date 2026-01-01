@@ -13,14 +13,11 @@ class MaintenanceChecklistModel
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    /**
-     * Check if a checklist instance exists
-     */
     public function isChecklistInstanceExists(string $asset_id, string $checklist_id, string $work_order_ref): bool
     {
         $sql = "
             SELECT 1 
-            FROM maintenance_checklist  -- ✅ Removed 'dbo.'
+            FROM maintenance_checklist
             WHERE asset_id = ? AND checklist_id = ? AND work_order_ref = ?
         ";
         $stmt = $this->conn->prepare($sql);
@@ -28,9 +25,6 @@ class MaintenanceChecklistModel
         return (bool)$stmt->fetchColumn();
     }
 
-    /**
-     * Load routine work order + template + tasks
-     */
     public function getChecklistData(string $tenant_id, string $asset_id, string $checklist_id, string $work_order_ref): array
     {
         $sql = "
@@ -41,7 +35,7 @@ class MaintenanceChecklistModel
                 ct.work_order AS template_work_order,
                 ctask.task_order,
                 ctask.task_text
-            FROM routine_work_orders AS rwo  -- ✅
+            FROM routine_work_orders AS rwo
             LEFT JOIN checklist_template AS ct
                 ON rwo.tenant_id = ct.tenant_id
                AND rwo.checklist_id = ct.checklist_id
@@ -64,10 +58,6 @@ class MaintenanceChecklistModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Associate a checklist instance: insert master + tasks (transaction)
-     * Returns ['maintenance_checklist_id' => int, 'inserted_tasks' => int]
-     */
     public function associateChecklist(string $tenant_id, string $asset_id, string $checklist_id, string $work_order_ref): array
     {
         if ($this->isChecklistInstanceExists($asset_id, $checklist_id, $work_order_ref)) {
@@ -83,7 +73,7 @@ class MaintenanceChecklistModel
         try {
             $first = $data[0];
 
-            // ✅ Use NOW(), RETURNING id, and lowercase table name
+            // ✅ Use maintenance_checklist_id as PK
             $sqlMaster = "
                 INSERT INTO maintenance_checklist (
                     tenant_id, asset_id, asset_name,
@@ -93,7 +83,7 @@ class MaintenanceChecklistModel
                     status, date_started, created_at
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-                RETURNING id
+                RETURNING maintenance_checklist_id  -- ✅ CORRECT COLUMN NAME
             ";
             $stmtM = $this->conn->prepare($sqlMaster);
             $stmtM->execute([
@@ -110,12 +100,11 @@ class MaintenanceChecklistModel
             ]);
 
             $result = $stmtM->fetch(PDO::FETCH_ASSOC);
-            $newMasterId = $result ? (int)$result['id'] : 0;
+            $newMasterId = $result ? (int)$result['maintenance_checklist_id'] : 0;
             if ($newMasterId <= 0) {
                 throw new Exception("Failed to obtain new maintenance_checklist_id");
             }
 
-            // ✅ Insert tasks with NOW()
             $sqlTask = "
                 INSERT INTO maintenance_checklist_tasks (
                     maintenance_checklist_id,
@@ -151,15 +140,13 @@ class MaintenanceChecklistModel
         }
     }
 
-    /**
-     * Fetch checklist instance + tasks by master ID
-     */
     public function getChecklistById(int $id): array
     {
+        // ✅ Use maintenance_checklist_id for lookup
         $stmt = $this->conn->prepare("
             SELECT *
-            FROM maintenance_checklist  -- ✅
-            WHERE id = ?  -- ✅ Assuming PK is 'id', not 'maintenance_checklist_id'
+            FROM maintenance_checklist
+            WHERE maintenance_checklist_id = ?
         ");
         $stmt->execute([$id]);
         $header = $stmt->fetch(PDO::FETCH_ASSOC);
