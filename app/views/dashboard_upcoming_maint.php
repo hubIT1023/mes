@@ -1,6 +1,5 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+
 /**
  * dashboard_upcoming_maint.php
  * 
@@ -126,7 +125,7 @@ $filterFields = [
     'asset_name' => 'Asset Name',
     'work_order_ref' => 'Work Order',
     'maintenance_type' => 'Maintenance Type',
-    'technician' => 'Technician'
+    'technician' => 'technician'
 ];
 foreach ($filterFields as $field => $label):
 ?>
