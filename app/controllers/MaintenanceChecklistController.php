@@ -15,6 +15,7 @@ class MaintenanceChecklistController
 
     /**
      * POST /maintenance_checklist/associate
+     * Returns JSON only — no redirects
      */
     public function associate()
     {
@@ -23,17 +24,13 @@ class MaintenanceChecklistController
         if (session_status() === PHP_SESSION_NONE) session_start();
         if (!isset($_SESSION['tenant'])) {
             http_response_code(401);
-			
             echo json_encode(['error' => 'Unauthorized']);
-			
             exit;
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
-			
             echo json_encode(['error' => 'Method Not Allowed']);
-			
             exit;
         }
 
@@ -44,51 +41,50 @@ class MaintenanceChecklistController
 
         if (!$tenant_id || !$asset_id || !$checklist_id || !$work_order_ref) {
             http_response_code(400);
-			
             echo json_encode(['error' => 'Missing required fields']);
-			
             exit;
         }
 
         try {
-            $res = $this->model->associateChecklist($tenant_id, $asset_id, $checklist_id, $work_order_ref);
+            // ✅ Model returns MAINTENANCE ID (integer)
+            $maintenanceId = $this->model->associateChecklist(
+                $tenant_id,
+                $asset_id,
+                $checklist_id,
+                $work_order_ref
+            );
 
+            // ✅ Success: return ID, let frontend redirect
             http_response_code(201);
-			
             echo json_encode([
                 'success' => true,
-                'message' => 'Checklist associated',
-                // ✅ CORRECT KEY: matches model return
-                'maintenance_checklist_id' => $res['maintenance_checklist_id'],
-                'inserted_tasks' => $res['inserted_tasks']
+                'message' => 'Checklist associated successfully',
+                'maintenance_checklist_id' => $maintenanceId
             ]);
-			header("Location: /mes/dashboard_upcoming_maint");
             exit;
 
         } catch (Exception $e) {
             log_error($e->getMessage(), 'maintenance_associate_controller');
 
-            if ($e->getMessage() === 'Work order already exists') {
+            // Check for duplicate (customize error message as needed)
+            if (strpos($e->getMessage(), 'already exists') !== false || 
+                strpos($e->getMessage(), 'duplicate') !== false) {
                 http_response_code(409);
-				
                 echo json_encode([
                     'error' => 'Duplicate',
-                    'message' => "Record already exists, can't associate"
+                    'message' => "Checklist already associated for this work order"
                 ]);
-				
                 exit;
             }
 
+            // Generic server error
             http_response_code(500);
-			
             echo json_encode([
                 'error'   => 'Association failed',
                 'message' => $e->getMessage(),
                 'file'    => $e->getFile(),
                 'line'    => $e->getLine()
-                // Removed trace for security in production
             ]);
-			
             exit;
         }
     }
