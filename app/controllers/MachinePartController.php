@@ -144,4 +144,68 @@ class MachinePartController
 
         require_once __DIR__ . '/../views/forms_mms/list_parts.php';
     }
+	
+	public function edit()
+{
+    if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+        http_response_code(400);
+        exit('Invalid part ID');
+    }
+
+    $id = (int)$_GET['id'];
+    $orgId = $_SESSION['tenant_id'];
+
+    $part = $this->model->getById($id, $orgId);
+    if (!$part) {
+        $_SESSION['error'] = "Part not found.";
+        header("Location: /mes/parts-list");
+        exit;
+    }
+
+    require_once __DIR__ . '/../views/forms_mms/edit_part.php';
+}
+
+// In app/controllers/MachinePartController.php
+
+public function updateDescription()
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        exit('Method not allowed');
+    }
+
+    // Read JSON input
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input) {
+        http_response_code(400);
+        echo json_encode(['message' => 'Invalid JSON']);
+        exit;
+    }
+
+    $id = (int)($input['id'] ?? 0);
+    $description = trim($input['description'] ?? '');
+    $csrfToken = $input['csrf_token'] ?? '';
+
+    // Validate
+    if (!$id || empty($_SESSION['tenant_id'])) {
+        http_response_code(400);
+        echo json_encode(['message' => 'Missing required data']);
+        exit;
+    }
+
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
+        http_response_code(403);
+        echo json_encode(['message' => 'Security check failed']);
+        exit;
+    }
+
+    // Update
+    if ($this->model->updateDescription($id, $_SESSION['tenant_id'], $description)) {
+        echo json_encode(['success' => true]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['message' => 'Failed to update description']);
+    }
+    exit;
+}
 }

@@ -194,4 +194,26 @@ private function resizeAndCompressImage(string $source, string $dest, int $maxSi
         $stmt->execute([$orgId]);
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
+	
+	public function getById(int $id, string $orgId): ?array
+{
+    $stmt = $this->conn->prepare("
+        SELECT * FROM machine_parts_list 
+        WHERE id = ? AND org_id = ?
+    ");
+    $stmt->execute([$id, $orgId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+// In app/models/MachinePartModel.php
+
+public function updateDescription(int $id, string $orgId, string $description): bool
+{
+    $stmt = $this->conn->prepare("
+        UPDATE machine_parts_list 
+        SET description = ? 
+        WHERE id = ? AND org_id = ?
+    ");
+    return (bool) $stmt->execute([$description, $id, $orgId]);
+}
 }
