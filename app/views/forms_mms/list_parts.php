@@ -215,12 +215,13 @@
 
                         <!-- Column 3: Description (Inline Edit) -->
                         <div class="rs-description" data-part-id="<?= (int)$part['id'] ?>">
-                            <div class="rs-description-text">
+                            <div class="rs-description-text">Details
                                 <?= nl2br(htmlspecialchars($part['description'] ?? 'Click to add description.')) ?>
                             </div>
                             <textarea class="rs-description-input d-none form-control" rows="4"
                                 data-original="<?= htmlspecialchars($part['description'] ?? '') ?>"
                             ><?= htmlspecialchars($part['description'] ?? '') ?></textarea>
+							
                             <div class="rs-edit-controls d-none">
                                 <button type="button" class="btn btn-sm btn-primary btn-save-desc btn-action">Save</button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-desc btn-action">Cancel</button>
