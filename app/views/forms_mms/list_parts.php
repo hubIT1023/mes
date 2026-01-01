@@ -1,4 +1,4 @@
-<<?php include __DIR__ . '/../layouts/html/header.php'; ?>
+<?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
 <style>
 .rs-card {
@@ -72,16 +72,38 @@
     font-size: 0.875rem;
     color: #212529;
     min-height: 60px;
+    cursor: pointer;
+    position: relative;
+}
+
+.rs-description:hover::after {
+    content: "✏️";
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 0.9em;
+    opacity: 0.6;
+}
+
+.rs-description.editing {
+    cursor: default;
+}
+.rs-description.editing::after {
+    display: none;
+}
+
+.rs-description-text {
     white-space: pre-line;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.rs-description-input {
+    width: 100%;
+    box-sizing: border-box;
+}
 
-.rs-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: auto;
+.rs-edit-controls {
+    margin-top: 8px;
 }
 
 .rs-badge {
@@ -91,17 +113,14 @@
     border-radius: 4px;
     text-transform: uppercase;
 }
-
 .badge-high { background: #dc3545; color: white; }
 .badge-medium { background: #ffc107; color: #212529; }
 .badge-low { background: #28a745; color: white; }
 
-.btn-action {
-    font-size: 0.75rem;
-    padding: 4px 8px;
-    border-radius: 4px;
-    min-width: 60px;
-    text-align: center;
+.rs-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
 }
 </style>
 
@@ -185,21 +204,16 @@
             <?php foreach ($parts as $part): ?>
                 <div class="col-12">
                     <div class="rs-card">
-
                         <!-- Image -->
                         <?php
                         $imagePath = $part['image_path'] ?? '';
                         if ($imagePath && file_exists($_SERVER['DOCUMENT_ROOT'] . $imagePath)): ?>
-                            <img src="<?= htmlspecialchars($imagePath) ?>" 
-                                 alt="Part Image"
-                                 class="rs-image">
+                            <img src="<?= htmlspecialchars($imagePath) ?>" alt="Part Image" class="rs-image">
                         <?php else: ?>
-                            <div class="rs-image">
-                                <i class="fas fa-cube"></i>
-                            </div>
+                            <div class="rs-image"><i class="fas fa-cube"></i></div>
                         <?php endif; ?>
 
-                        <!-- Info & Actions -->
+                        <!-- Info -->
                         <div class="rs-info">
                             <div class="rs-header">
                                 <div>
@@ -220,24 +234,26 @@
                                 <span><strong>Vendor:</strong> <?= htmlspecialchars($part['vendor_id'] ?? '—') ?></span>
                             </div>
 
-                            <!-- Description Box -->
-                            <div class="rs-description">
-                                <?= nl2br(htmlspecialchars($part['description'] ?? 'No description provided.')) ?>
+                            <!-- Inline-editable Description -->
+                            <div class="rs-description" data-part-id="<?= (int)$part['id'] ?>">
+                                <div class="rs-description-text">
+                                    <?= nl2br(htmlspecialchars($part['description'] ?? 'Click to add description.')) ?>
+                                </div>
+                                <textarea class="rs-description-input d-none form-control" rows="3"
+                                    data-original="<?= htmlspecialchars($part['description'] ?? '') ?>"
+                                ><?= htmlspecialchars($part['description'] ?? '') ?></textarea>
+                                <div class="rs-edit-controls d-none">
+                                    <button type="button" class="btn btn-sm btn-primary btn-save-desc">Save</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-desc">Cancel</button>
+                                </div>
                             </div>
 
-                            <!-- Actions (Update & Delete) -->
+                            <!-- Delete only -->
                             <div class="rs-actions">
-                                <a href="/mes/machine-parts/edit/<?= (int)$part['id'] ?>"
-                                   class="btn btn-sm btn-outline-primary btn-action">
-                                    Update
-                                </a>
-                                <form method="POST" action="/mes/machine-parts/delete" style="display:inline;" 
-                                      onsubmit="return confirm('Delete this part?')">
+                                <form method="POST" action="/mes/machine-parts/delete" onsubmit="return confirm('Delete this part?')">
                                     <input type="hidden" name="id" value="<?= (int)$part['id'] ?>">
                                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-action">
-                                        Delete
-                                    </button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                                 </form>
                             </div>
                         </div>
@@ -247,5 +263,81 @@
         </div>
     <?php endif; ?>
 </div>
+
+<!-- Inline Edit JS -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Click to edit
+    document.querySelectorAll('.rs-description').forEach(desc => {
+        desc.addEventListener('click', function(e) {
+            if (e.target.tagName === 'TEXTAREA' || e.target.classList.contains('btn')) return;
+            this.classList.add('editing');
+            this.querySelector('.rs-description-text').classList.add('d-none');
+            const input = this.querySelector('.rs-description-input');
+            input.classList.remove('d-none');
+            this.querySelector('.rs-edit-controls').classList.remove('d-none');
+            input.focus();
+        });
+    });
+
+    // Save
+    document.querySelectorAll('.btn-save-desc').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const desc = this.closest('.rs-description');
+            const id = desc.dataset.partId;
+            const textarea = desc.querySelector('.rs-description-input');
+            const newText = textarea.value.trim();
+            const original = textarea.dataset.original;
+
+            if (newText === original) {
+                cancelEdit(desc);
+                return;
+            }
+
+            try {
+                const res = await fetch('/mes/machine-parts/update-desc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: id,
+                        description: newText,
+                        csrf_token: '<?= $_SESSION['csrf_token'] ?? "" ?>'
+                    })
+                });
+
+                if (res.ok) {
+                    desc.querySelector('.rs-description-text').innerHTML = 
+                        newText ? newText.replace(/\n/g, '<br>') : 'Click to add description.';
+                    textarea.dataset.original = newText;
+                    cancelEdit(desc);
+                } else {
+                    const err = await res.json();
+                    alert('Error: ' + (err.message || 'Failed to save'));
+                    cancelEdit(desc);
+                }
+            } catch (e) {
+                alert('Network error');
+                cancelEdit(desc);
+            }
+        });
+    });
+
+    // Cancel
+    document.querySelectorAll('.btn-cancel-desc').forEach(btn => {
+        btn.addEventListener('click', function() {
+            cancelEdit(this.closest('.rs-description'));
+        });
+    });
+
+    function cancelEdit(desc) {
+        desc.classList.remove('editing');
+        desc.querySelector('.rs-description-text').classList.remove('d-none');
+        desc.querySelector('.rs-description-input').classList.add('d-none');
+        desc.querySelector('.rs-edit-controls').classList.add('d-none');
+        const textarea = desc.querySelector('.rs-description-input');
+        textarea.value = textarea.dataset.original;
+    }
+});
+</script>
 
 <?php include __DIR__ . '/../layouts/html/footer.php'; ?>
