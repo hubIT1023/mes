@@ -1,5 +1,5 @@
 <?php
-//ChecklistModel.php
+// ChecklistModel.php
 
 class ChecklistModel {
     private $db;
@@ -8,56 +8,54 @@ class ChecklistModel {
         $this->db = Database::getInstance()->getConnection();
     }
 
-	 /**
-	 * Fetch full list + tasks (flat)
-	 */
-	public function getAllChecklists($tenantId, $filters = []) {
-		$sql = "
-			SELECT 
-				t.id AS template_id,
-				t.checklist_id,
-				t.maintenance_type,
-				t.work_order,
-				t.technician_name,
-				t.interval_days,
-				t.description,
-				t.created_at,
+    /**
+     * Fetch full list + tasks (flat)
+     */
+    public function getAllChecklists($tenantId, $filters = []) {
+        $sql = "
+            SELECT 
+                t.id AS template_id,
+                t.checklist_id,
+                t.maintenance_type,
+                t.work_order,
+                t.technician_name,
+                t.interval_days,
+                t.description,
+                t.created_at,
+                c.id AS task_id,
+                c.task_order,
+                c.task_text
+            FROM checklist_template t
+            LEFT JOIN checklist_tasks c
+                ON t.tenant_id = c.tenant_id
+                AND t.checklist_id = c.checklist_id
+            WHERE t.tenant_id = ?
+        ";
 
-				c.id AS task_id,
-				c.task_order,
-				c.task_text
-			FROM checklist_template t
-			LEFT JOIN checklist_tasks c
-				ON t.tenant_id = c.tenant_id
-				AND t.checklist_id = c.checklist_id
-			WHERE t.tenant_id = ?
-		";
+        $params = [$tenantId];
 
-		$params = [$tenantId];
+        if (!empty($filters['maintenance_type'])) {
+            $sql .= " AND t.maintenance_type = ?";
+            $params[] = $filters['maintenance_type'];
+        }
 
-		if (!empty($filters['maintenance_type'])) {
-			$sql .= " AND t.maintenance_type = ?";
-			$params[] = $filters['maintenance_type'];
-		}
+        if (!empty($filters['technician'])) {
+            $sql .= " AND t.technician_name = ?"; // ✅ Fixed: was 'technician'
+            $params[] = $filters['technician'];
+        }
 
-		if (!empty($filters['technician'])) {
-			$sql .= " AND t.technician = ?";
-			$params[] = $filters['technician'];
-		}
+        if (!empty($filters['checklist_id'])) {
+            $sql .= " AND t.checklist_id LIKE ?";
+            $params[] = "%" . $filters['checklist_id'] . "%";
+        }
 
-		if (!empty($filters['checklist_id'])) {
-			$sql .= " AND t.checklist_id LIKE ?";
-			$params[] = "%".$filters['checklist_id']."%";
-		}
+        $sql .= " ORDER BY t.checklist_id, c.task_order";
 
-		// ⚠️ FIX: Use .= to append, not = to overwrite
-		$sql .= " ORDER BY t.checklist_id, c.task_order";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
 
-		$stmt = $this->db->prepare($sql);
-		$stmt->execute($params);
-
-		return $stmt->fetchAll(PDO::FETCH_ASSOC);
-	}
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     /**
      * UPDATE checklist header + tasks
@@ -73,7 +71,7 @@ class ChecklistModel {
                     maintenance_type = :maintenance_type,
                     technician_name = :technician_name,
                     interval_days = :interval_days,
-                    updated_at = GETDATE()
+                    updated_at = NOW()  -- ✅ PostgreSQL: use NOW()
                 WHERE tenant_id = :tenant_id
                   AND checklist_id = :checklist_id
             ";
@@ -81,7 +79,7 @@ class ChecklistModel {
             $stmt = $this->db->prepare($sqlTemplate);
             $stmt->execute([
                 'maintenance_type' => $data['maintenance_type'],
-                'technician_name'       => $data['technician_name'],
+                'technician_name'  => $data['technician'], // ✅ Fixed key: was 'technician_name'
                 'interval_days'    => $data['interval_days'],
                 'tenant_id'        => $tenantId,
                 'checklist_id'     => $checklistId
@@ -102,9 +100,13 @@ class ChecklistModel {
                   AND tenant_id = :tenant_id
             ");
 
+            // 🔹 For PostgreSQL, we need the sequence name for lastInsertId()
+            // Assuming your table is: checklist_tasks, and PK column is `id`
+            // Then sequence is typically: checklist_tasks_id_seq
             $stmtInsert = $this->db->prepare("
                 INSERT INTO checklist_tasks (tenant_id, checklist_id, task_order, task_text)
                 VALUES (:tenant_id, :checklist_id, :task_order, :task_text)
+                RETURNING id
             ");
 
             for ($i = 0; $i < count($taskTexts); $i++) {
@@ -126,7 +128,7 @@ class ChecklistModel {
                     ]);
                     $keepIds[] = $id;
                 } else {
-                    // INSERT new task
+                    // INSERT new task — use RETURNING id instead of lastInsertId()
                     $stmtInsert->execute([
                         'tenant_id'    => $tenantId,
                         'checklist_id' => $checklistId,
@@ -134,17 +136,16 @@ class ChecklistModel {
                         'task_text'    => $text
                     ]);
 
-                    // Get the new task ID and add to keepIds
-                    $newTaskId = $this->db->lastInsertId();
-                    if ($newTaskId) {
-                        $keepIds[] = (int)$newTaskId;
+                    $newTask = $stmtInsert->fetch(PDO::FETCH_ASSOC);
+                    if ($newTask && isset($newTask['id'])) {
+                        $keepIds[] = (int)$newTask['id'];
                     }
                 }
             }
 
             // 🔹 3) DELETE removed tasks
             if (!empty($keepIds)) {
-                $placeholders = implode(",", array_fill(0, count($keepIds), "?"));
+                $placeholders = str_repeat('?,', count($keepIds) - 1) . '?';
                 $sqlDelete = "
                     DELETE FROM checklist_tasks
                     WHERE tenant_id = ? 
@@ -169,7 +170,7 @@ class ChecklistModel {
         } catch (Exception $e) {
             $this->db->rollBack();
             error_log("ChecklistModel::updateChecklist Error: " . $e->getMessage());
-            throw $e;
+            return false; // ✅ Don't re-throw unless needed; controller expects bool
         }
     }
 
@@ -177,7 +178,6 @@ class ChecklistModel {
      * Get header + tasks by checklist_id
      */
     public function getChecklistById($tenantId, $checklistId) {
-
         $sql = "
             SELECT 
                 t.id AS template_id,
@@ -215,10 +215,14 @@ class ChecklistModel {
         $tasks = [];
         foreach ($rows as $row) {
             if (!$header) {
-                $header = $row; // Get header info from first row
+                $header = $row;
             }
             if (!empty($row['task_text'])) {
-                $tasks[] = $row;
+                $tasks[] = [
+                    'task_id'    => $row['task_id'],
+                    'task_order' => $row['task_order'],
+                    'task_text'  => $row['task_text']
+                ];
             }
         }
 

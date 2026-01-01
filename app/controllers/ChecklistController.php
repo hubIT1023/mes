@@ -1,4 +1,5 @@
 <?php
+//checklistController.php
 require_once __DIR__ . '/../models/ChecklistModel.php';
 
 class ChecklistController {
@@ -78,15 +79,15 @@ class ChecklistController {
 			exit;
 		}
 
+		// In update():
 		$updated = $this->model->updateChecklist($tenantId, $checklistId, [
 			'maintenance_type' => $maintenanceType,
-			'technician'       => $technician,
+			'technician'       => $technician,      // ✅ This key must match what model expects
 			'interval_days'    => $intervalDays,
 			'tasks'            => [
 				'task_id'   => $taskIds,
 				'task_text' => $taskTexts,
 				'task_order' => $taskOrder
-				
 			]
 		]);
 
