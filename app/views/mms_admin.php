@@ -74,18 +74,22 @@ $tenant = $_SESSION['tenant'];
   <div class="flex-grow flex flex-col">
     
     <!-- Header -->
-   <header class="w-full bg-white dark:bg-gray-800 shadow-md py-4 px-6 flex items-center justify-between">
-	  <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
-		Maintenance Management System
-	  </h1>
-	  
-	  <div class="flex items-center gap-4">
-		<!-- Hub Portal Link -->
+    <header class="w-full bg-white dark:bg-gray-800 shadow-md py-4 px-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
+        Maintenance Management System
+      </h1>
+      <div class="flex items-center gap-4">
 		<a href="/mes/hub_portal" class="text-gray-700 dark:text-gray-300 hover:text-blue-500 font-medium">
 		  Hub Portal
 		</a>
-	…  </div>
-	</header>
+        <button class="text-gray-600 dark:text-gray-300 hover:text-blue-500" aria-label="Notifications">
+          <i class="fas fa-bell text-xl"></i>
+        </button>
+        <button class="text-gray-600 dark:text-gray-300 hover:text-blue-500" aria-label="Profile">
+          <i class="fas fa-user-circle text-2xl"></i>
+        </button>
+      </div>
+    </header>
 
     <!-- ✅ Dashboard Content -->
     <main class="flex-grow p-6 overflow-y-auto">
