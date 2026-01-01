@@ -114,7 +114,18 @@
 </style>
 
 <div class="container mt-4">
-    <h2 class="mb-4">Machine Parts Inventory</h2>
+	<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <!-- Left: Page Title -->
+    <h2 class="mb-0">Machine Parts Inventory</h2>
+
+    <!-- Right: Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/mes/mms_admin">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Machine Parts</li>
+        </ol>
+    </nav>
+	</div>
 
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
