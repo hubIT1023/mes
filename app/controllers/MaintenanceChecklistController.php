@@ -46,29 +46,30 @@ class MaintenanceChecklistController
         }
 
         try {
-            // ✅ Model returns MAINTENANCE ID (integer)
-            $maintenanceId = $this->model->associateChecklist(
+            // ✅ Model returns ARRAY with maintenance_checklist_id
+            $result = $this->model->associateChecklist(
                 $tenant_id,
                 $asset_id,
                 $checklist_id,
                 $work_order_ref
             );
 
-            // ✅ Success: return ID, let frontend redirect
+            // ✅ Extract the ID from the array
+            $maintenanceId = $result['maintenance_checklist_id'];
+
             http_response_code(201);
             echo json_encode([
                 'success' => true,
                 'message' => 'Checklist associated successfully',
-                'maintenance_checklist_id' => $maintenanceId
+                'maintenance_checklist_id' => $maintenanceId,
+                'inserted_tasks' => $result['inserted_tasks'] // Optional: include task count
             ]);
             exit;
 
         } catch (Exception $e) {
             log_error($e->getMessage(), 'maintenance_associate_controller');
 
-            // Check for duplicate (customize error message as needed)
-            if (strpos($e->getMessage(), 'already exists') !== false || 
-                strpos($e->getMessage(), 'duplicate') !== false) {
+            if (strpos($e->getMessage(), 'already exists') !== false) {
                 http_response_code(409);
                 echo json_encode([
                     'error' => 'Duplicate',
@@ -77,7 +78,6 @@ class MaintenanceChecklistController
                 exit;
             }
 
-            // Generic server error
             http_response_code(500);
             echo json_encode([
                 'error'   => 'Association failed',
