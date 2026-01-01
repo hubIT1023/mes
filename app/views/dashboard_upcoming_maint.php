@@ -259,7 +259,7 @@ foreach ($filterFields as $field => $label):
 </table>
 </div>
 <div class="modal-footer">
- <form method="POST" action="">
+ <form method="POST" action="/mes/maintenance_checklist/associate">
 <input type="hidden" name="associate_checklist" value="1">
 <input type="hidden" name="tenant_id" value="<?= htmlspecialchars($a['tenant_id']) ?>">
 <input type="hidden" name="asset_id" value="<?= htmlspecialchars($a['asset_id']) ?>">
