@@ -11,17 +11,18 @@ class RoutineWorkOrderModel {
     }
 
     public function getUpcomingMaintenance($tenantId, $filters = []) {
+        // ✅ PostgreSQL: use CURRENT_DATE + INTERVAL
         $sql = "
             SELECT 
                 id, tenant_id, asset_id, asset_name,
                 location_id_1, location_id_2, location_id_3,
-                maintenance_type,checklist_id, maint_start_date, maint_end_date,
+                maintenance_type, checklist_id, maint_start_date, maint_end_date,
                 technician_name, work_order_ref, description,
                 next_maintenance_date, status
-            FROM routine_Work_Orders
+            FROM routine_work_orders  -- ✅ lowercase table name
             WHERE tenant_id = :tenant_id
               AND next_maintenance_date IS NOT NULL
-              AND next_maintenance_date <= DATEADD(DAY, 30, CAST(GETDATE() AS DATE))
+              AND next_maintenance_date <= (CURRENT_DATE + INTERVAL '30 days')
         ";
 
         $params = ['tenant_id' => $tenantId];
@@ -57,13 +58,16 @@ class RoutineWorkOrderModel {
 
     public function getFilterOptions($tenantId) {
         $options = [];
+        // ✅ Use lowercase table name in query
         $columns = ['asset_id', 'asset_name', 'work_order_ref', 'maintenance_type', 'technician_name'];
 
         foreach ($columns as $col) {
             $stmt = $this->db->prepare("
                 SELECT DISTINCT $col 
-                FROM routine_Work_Orders
-                WHERE tenant_id = :tenant_id AND $col IS NOT NULL
+                FROM routine_work_orders
+                WHERE tenant_id = :tenant_id 
+                  AND $col IS NOT NULL
+                  AND $col != ''
                 ORDER BY $col ASC
             ");
             $stmt->execute(['tenant_id' => $tenantId]);
@@ -71,6 +75,4 @@ class RoutineWorkOrderModel {
         }
         return $options;
     }
-	
-	
 }
