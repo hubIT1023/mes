@@ -25,7 +25,7 @@ class MaintenanceChecklistViewModel
                 mc.location_id_3,
                 mc.work_order_ref,
                 mc.checklist_id,
-                mc.technician_name,
+                mc.technician,  -- ✅ Use 'technician', not 'technician_name'
                 mc.status,
                 mc.date_started,
                 mc.date_completed,
@@ -35,8 +35,8 @@ class MaintenanceChecklistViewModel
                 mct.result_value,
                 mct.result_notes,
                 mct.completed_at
-            FROM dbo.maintenance_checklist mc
-            LEFT JOIN dbo.maintenance_checklist_tasks mct 
+            FROM maintenance_checklist mc  -- ✅ Removed 'dbo.'
+            LEFT JOIN maintenance_checklist_tasks mct 
                 ON mc.maintenance_checklist_id = mct.maintenance_checklist_id
             WHERE mc.maintenance_checklist_id = ?
             ORDER BY mct.task_order
