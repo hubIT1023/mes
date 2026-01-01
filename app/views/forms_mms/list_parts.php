@@ -214,8 +214,9 @@
                         </div>
 
                         <!-- Column 3: Description (Inline Edit) -->
+						<label class="form-label fw-bold">Details</label>
                         <div class="rs-description" data-part-id="<?= (int)$part['id'] ?>">
-                            <div class="rs-description-text">Details
+                            <div class="rs-description-text">
                                 <?= nl2br(htmlspecialchars($part['description'] ?? 'Click to add description.')) ?>
                             </div>
                             <textarea class="rs-description-input d-none form-control" rows="4"
