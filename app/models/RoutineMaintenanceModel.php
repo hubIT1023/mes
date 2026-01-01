@@ -92,121 +92,124 @@ class RoutineMaintenanceModel {
     /**
      * Generate Routine Work Orders
      */
-    public function generateRoutineWorkOrders($tenantId, $filters = []) {
-        // Base SQL: join assets + checklist_template
-        $sql = "
-            SELECT 
-                a.asset_id,
-                a.asset_name,
-                a.location_id_1,
-                a.location_id_2,
-                a.location_id_3,
-                c.checklist_id,
-                c.maintenance_type,
-                c.work_order,
-                c.technician,          -- ✅ Correct column name
-                c.description,
-                c.interval_days
-            FROM assets a
-            INNER JOIN checklist_template c 
-                ON a.tenant_id = c.tenant_id
-            WHERE a.tenant_id = ?
-        ";
+public function generateRoutineWorkOrders($tenantId, $filters = []) {
+    $sql = "
+        SELECT 
+            a.asset_id,
+            a.asset_name,
+            a.location_id_1,
+            a.location_id_2,
+            a.location_id_3,
+            c.checklist_id,
+            c.maintenance_type,
+            c.work_order,
+            c.technician,
+            c.description,
+            c.interval_days
+        FROM assets a
+        INNER JOIN checklist_template c 
+            ON a.tenant_id = c.tenant_id
+        WHERE a.tenant_id = ?
+    ";
 
-        $params = [$tenantId];
+    $params = [$tenantId];
 
-        if (!empty($filters['asset_ids'])) {
-            $placeholders = implode(',', array_fill(0, count($filters['asset_ids']), '?'));
-            $sql .= " AND a.asset_id IN ($placeholders)";
-            $params = array_merge($params, $filters['asset_ids']);
-        }
-
-        if (!empty($filters['work_order'])) {
-            $sql .= " AND c.work_order = ?";
-            $params[] = $filters['work_order'];
-        }
-
-        if (!empty($filters['maintenance_type'])) {
-            $sql .= " AND c.maintenance_type = ?";
-            $params[] = $filters['maintenance_type'];
-        }
-
-        if (!empty($filters['technician'])) {
-            $sql .= " AND c.technician = ?"; -- ✅
-            $params[] = $filters['technician'];
-        }
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        if (empty($rows)) return 0;
-
-        $today = new DateTime();
-        $count = 0;
-
-        $insertQuery = "
-            INSERT INTO routine_work_orders (
-                tenant_id, asset_id, asset_name,
-                location_id_1, location_id_2, location_id_3,
-                checklist_id, maintenance_type, work_order_ref,
-                technician_name, description,
-                maint_start_date, maint_end_date,
-                next_maintenance_date, status
-            ) VALUES (
-                :tenant_id, :asset_id, :asset_name,
-                :loc1, :loc2, :loc3,
-                :checklist_id, :type, :work_order,
-                :tech, :desc,
-                :start_date, :end_date,
-                :next_date, :status
-            )
-        ";
-
-        $insertStmt = $this->db->prepare($insertQuery);
-
-        foreach ($rows as $row) {
-            $interval = (int)($row['interval_days'] ?? 30);
-            $nextDate = (clone $today)->modify("+$interval days")->format('Y-m-d');
-
-            // Prevent duplicates
-            $dupCheck = $this->db->prepare("
-                SELECT COUNT(*) 
-                FROM routine_work_orders
-                WHERE tenant_id = ?
-                  AND asset_id = ?
-                  AND checklist_id = ?
-                  AND status = 'scheduled'
-            ");
-            $dupCheck->execute([
-                $tenantId,
-                $row['asset_id'],
-                $row['checklist_id']
-            ]);
-
-            if ($dupCheck->fetchColumn() > 0) continue;
-
-            $insertStmt->execute([
-                'tenant_id'     => $tenantId,
-                'asset_id'      => $row['asset_id'],
-                'asset_name'    => $row['asset_name'],
-                'loc1'          => $row['location_id_1'],
-                'loc2'          => $row['location_id_2'],
-                'loc3'          => $row['location_id_3'],
-                'checklist_id'  => $row['checklist_id'],
-                'type'          => $row['maintenance_type'],
-                'work_order'    => $row['work_order'],
-                'tech'          => $row['technician'], // ✅ from 'technician' column
-                'desc'          => $row['description'],
-                'start_date'    => $today->format('Y-m-d'),
-                'end_date'      => $nextDate,
-                'next_date'     => $nextDate,
-                'status'        => 'scheduled'
-            ]);
-
-            $count++;
-        }
-
-        return $count;
+    // Filter by selected assets
+    if (!empty($filters['asset_ids'])) {
+        $placeholders = str_repeat('?,', count($filters['asset_ids']) - 1) . '?';
+        $sql .= " AND a.asset_id IN ($placeholders)";
+        $params = array_merge($params, $filters['asset_ids']);
     }
+
+    // Filter by work order
+    if (!empty($filters['work_order'])) {
+        $sql .= " AND c.work_order = ?";
+        $params[] = $filters['work_order'];
+    }
+
+    // Filter by maintenance type
+    if (!empty($filters['maintenance_type'])) {
+        $sql .= " AND c.maintenance_type = ?";
+        $params[] = $filters['maintenance_type'];
+    }
+
+    // Filter by technician
+    if (!empty($filters['technician'])) {
+        $sql .= " AND c.technician = ?";
+        $params[] = $filters['technician'];
+    }
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute($params);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (empty($rows)) {
+        return 0;
+    }
+
+    $today = new DateTime();
+    $count = 0;
+
+    $insertQuery = "
+        INSERT INTO routine_work_orders (
+            tenant_id, asset_id, asset_name,
+            location_id_1, location_id_2, location_id_3,
+            checklist_id, maintenance_type, work_order_ref,
+            technician_name, description,
+            maint_start_date, maint_end_date,
+            next_maintenance_date, status
+        ) VALUES (
+            :tenant_id, :asset_id, :asset_name,
+            :loc1, :loc2, :loc3,
+            :checklist_id, :type, :work_order,
+            :tech, :desc,
+            :start_date, :end_date,
+            :next_date, :status
+        )
+    ";
+
+    $insertStmt = $this->db->prepare($insertQuery);
+
+    foreach ($rows as $row) {
+        $interval = (int)($row['interval_days'] ?? 30);
+        $nextDate = (clone $today)->modify("+$interval days")->format('Y-m-d');
+
+        $dupCheck = $this->db->prepare("
+            SELECT 1
+            FROM routine_work_orders
+            WHERE tenant_id = ?
+              AND asset_id = ?
+              AND checklist_id = ?
+              AND status = 'scheduled'
+            LIMIT 1
+        ");
+        $dupCheck->execute([$tenantId, $row['asset_id'], $row['checklist_id']]);
+
+        if ($dupCheck->fetch()) {
+            continue;
+        }
+
+        $insertStmt->execute([
+            'tenant_id'     => $tenantId,
+            'asset_id'      => $row['asset_id'],
+            'asset_name'    => $row['asset_name'],
+            'loc1'          => $row['location_id_1'],
+            'loc2'          => $row['location_id_2'],
+            'loc3'          => $row['location_id_3'],
+            'checklist_id'  => $row['checklist_id'],
+            'type'          => $row['maintenance_type'],
+            'work_order'    => $row['work_order'],
+            'tech'          => $row['technician'],
+            'desc'          => $row['description'],
+            'start_date'    => $today->format('Y-m-d'),
+            'end_date'      => $nextDate,
+            'next_date'     => $nextDate,
+            'status'        => 'scheduled'
+        ]);
+
+        $count++;
+    }
+
+    return $count;
+}
 }
