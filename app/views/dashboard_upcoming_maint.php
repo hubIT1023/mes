@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['associate_checklist']
     $asset_id        = $_POST['asset_id'] ?? null;
     $checklist_id    = $_POST['checklist_id'] ?? null;
     $work_order_ref  = $_POST['work_order_ref'] ?? null;
-    $technician_name = $_POST['technician_name'] ?? null;
+    $technician_name = $_POST['technician'] ?? null;
 
     if ($tenant_id && $asset_id && $checklist_id && $work_order_ref) {
         try {
@@ -70,7 +70,7 @@ $filters = [
     'asset_name' => $_GET['asset_name'] ?? '',
     'work_order_ref' => $_GET['work_order_ref'] ?? '',
     'maintenance_type' => $_GET['maintenance_type'] ?? '',
-    'technician_name' => $_GET['technician_name'] ?? ''
+    'technician' => $_GET['technician'] ?? ''
 ];
 
 $assets = $routineModel->getUpcomingMaintenance($tenantId, $filters);
@@ -126,7 +126,7 @@ $filterFields = [
     'asset_name' => 'Asset Name',
     'work_order_ref' => 'Work Order',
     'maintenance_type' => 'Maintenance Type',
-    'technician_name' => 'Technician'
+    'technician' => 'Technician'
 ];
 foreach ($filterFields as $field => $label):
 ?>
@@ -205,7 +205,7 @@ foreach ($filterFields as $field => $label):
     </span></td>
     <td><?= htmlspecialchars($a['work_order_ref']) ?></td>
     <td><?= htmlspecialchars($a['checklist_id']) ?></td>
-    <td><?= htmlspecialchars($a['technician_name'] ?? '') ?></td>
+    <td><?= htmlspecialchars($a['technician'] ?? '') ?></td>
     <td>
         <?php if (!$isAssociated): ?>
             <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#<?= $modalId ?>">
@@ -245,7 +245,7 @@ foreach ($filterFields as $field => $label):
 <tr><th>Due Date</th><td><?= htmlspecialchars($a['next_maintenance_date']) ?></td></tr>
 <tr><th>Maintenance Type</th><td><?= htmlspecialchars($a['maintenance_type']) ?></td></tr>
 <tr><th>Status</th><td><?= htmlspecialchars($a['status']) ?></td></tr>
-<tr><th>Technician</th><td><?= htmlspecialchars($a['technician_name']) ?></td></tr>
+<tr><th>Technician</th><td><?= htmlspecialchars($a['technician']) ?></td></tr>
 <tr><th>Work Order</th><td><?= htmlspecialchars($a['work_order_ref']) ?></td></tr>
 <tr><th>Checklist</th><td><?= htmlspecialchars($a['checklist_id']) ?></td></tr>
 </table>
@@ -268,7 +268,7 @@ foreach ($filterFields as $field => $label):
 <input type="hidden" name="asset_id" value="<?= htmlspecialchars($a['asset_id']) ?>">
 <input type="hidden" name="checklist_id" value="<?= htmlspecialchars($a['checklist_id']) ?>">
 <input type="hidden" name="work_order_ref" value="<?= htmlspecialchars($a['work_order_ref']) ?>">
-<input type="hidden" name="technician_name" value="<?= htmlspecialchars($a['technician_name']) ?>">
+<input type="hidden" name="technician_name" value="<?= htmlspecialchars($a['technician']) ?>">
 <button type="submit" class="btn btn-primary">ASSOCIATE</button>
 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 </form>
