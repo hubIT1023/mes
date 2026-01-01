@@ -94,7 +94,8 @@ $maintenanceChecklistRoutes = [
 $machinePartsRoutes = [
     'POST /machine-parts'                => ['MachinePartController', 'store'],
     'POST /machine-parts/delete'         => ['MachinePartController', 'destroy'],
-    'POST /machine-parts/update-desc'    => ['MachinePartController', 'updateDescription'], // 👈 NEW
+    'POST /machine-parts/update'         => ['MachinePartController', 'update'], // 👈 NEW
+    'POST /machine-parts/update-desc'    => ['MachinePartController', 'updateDescription'],
     'GET /parts-list'                    => ['MachinePartController', 'list'],
 ];
 

@@ -235,10 +235,26 @@
                             ?>">
                                 <?= htmlspecialchars($part['category'] ?? 'LOW') ?>
                             </span>
-                            <a href="/mes/machine-parts/edit/<?= (int)$part['id'] ?>" 
-                               class="btn btn-sm btn-outline-primary btn-action">
-                                Edit
-                            </a>
+                            <!-- Replace the Edit button in .rs-actions -->
+							<button type="button" 
+									class="btn btn-sm btn-outline-primary btn-action"
+									data-bs-toggle="modal" 
+									data-bs-target="#editPartModal"
+									data-part-id="<?= (int)$part['id'] ?>"
+									data-asset-id="<?= htmlspecialchars($part['asset_id']) ?>"
+									data-entity="<?= htmlspecialchars($part['entity']) ?>"
+									data-part-id-field="<?= htmlspecialchars($part['part_id']) ?>"
+									data-part-name="<?= htmlspecialchars($part['part_name']) ?>"
+									data-serial-no="<?= htmlspecialchars($part['serial_no'] ?? '') ?>"
+									data-vendor-id="<?= htmlspecialchars($part['vendor_id'] ?? '') ?>"
+									data-mfg-code="<?= htmlspecialchars($part['mfg_code'] ?? '') ?>"
+									data-sap-code="<?= htmlspecialchars($part['sap_code'] ?? '') ?>"
+									data-category="<?= htmlspecialchars($part['category'] ?? 'LOW') ?>"
+									data-parts-available="<?= (int)($part['parts_available_on_hand'] ?? 0) ?>"
+									data-description="<?= htmlspecialchars($part['description'] ?? '') ?>"
+							>
+								Edit
+							</button>
                             <form method="POST" action="/mes/machine-parts/delete" 
                                   onsubmit="return confirm('Delete this part?')">
                                 <input type="hidden" name="id" value="<?= (int)$part['id'] ?>">
@@ -254,6 +270,82 @@
         </div>
     <?php endif; ?>
 </div>
+
+
+<!-- Edit Part Modal -->
+<div class="modal fade" id="editPartModal" tabindex="-1" aria-labelledby="editPartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPartModalLabel">Edit Machine Part</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editPartForm">
+          <input type="hidden" id="edit-id" name="id">
+          <input type="hidden" id="edit-csrf" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Asset ID</label>
+              <input type="text" class="form-control" id="edit-asset-id" name="asset_id" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Entity</label>
+              <input type="text" class="form-control" id="edit-entity" name="entity" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Part ID</label>
+              <input type="text" class="form-control" id="edit-part-id" name="part_id" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Part Name</label>
+              <input type="text" class="form-control" id="edit-part-name" name="part_name" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Serial No</label>
+              <input type="text" class="form-control" id="edit-serial-no" name="serial_no">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Vendor ID</label>
+              <input type="text" class="form-control" id="edit-vendor-id" name="vendor_id">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">MFG Code</label>
+              <input type="text" class="form-control" id="edit-mfg-code" name="mfg_code">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">SAP Code</label>
+              <input type="text" class="form-control" id="edit-sap-code" name="sap_code">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="edit-category" name="category">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Parts Available</label>
+              <input type="number" class="form-control" id="edit-parts-available" name="parts_available_on_hand" min="0">
+            </div>
+            <div class="col-12 mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" id="edit-description" name="description" rows="3"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="savePartBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <!-- Inline Edit JS -->
 <script>
@@ -324,6 +416,55 @@ document.addEventListener('DOMContentLoaded', function () {
         desc.querySelector('.rs-edit-controls').classList.add('d-none');
         const textarea = desc.querySelector('.rs-description-input');
         textarea.value = textarea.dataset.original;
+    }
+});
+
+// Populate modal when "Edit" is clicked
+const editModal = document.getElementById('editPartModal');
+editModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    document.getElementById('edit-id').value = button.getAttribute('data-part-id');
+    document.getElementById('edit-asset-id').value = button.getAttribute('data-asset-id');
+    document.getElementById('edit-entity').value = button.getAttribute('data-entity');
+    document.getElementById('edit-part-id').value = button.getAttribute('data-part-id-field');
+    document.getElementById('edit-part-name').value = button.getAttribute('data-part-name');
+    document.getElementById('edit-serial-no').value = button.getAttribute('data-serial-no');
+    document.getElementById('edit-vendor-id').value = button.getAttribute('data-vendor-id');
+    document.getElementById('edit-mfg-code').value = button.getAttribute('data-mfg-code');
+    document.getElementById('edit-sap-code').value = button.getAttribute('data-sap-code');
+    document.getElementById('edit-category').value = button.getAttribute('data-category');
+    document.getElementById('edit-parts-available').value = button.getAttribute('data-parts-available');
+    document.getElementById('edit-description').value = button.getAttribute('data-description');
+});
+
+// Save updated part
+document.getElementById('savePartBtn').addEventListener('click', async function() {
+    const formData = new FormData(document.getElementById('editPartForm'));
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+
+    try {
+        const res = await fetch('/mes/machine-parts/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+            // Close modal
+            bootstrap.Modal.getInstance(editModal).hide();
+            // Show success
+            alert('Part updated successfully!');
+            // Optional: reload page or update card
+            location.reload();
+        } else {
+            const err = await res.json();
+            alert('Error: ' + (err.message || 'Failed to update'));
+        }
+    } catch (e) {
+        alert('Network error');
     }
 });
 </script>

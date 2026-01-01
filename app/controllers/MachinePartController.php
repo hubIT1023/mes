@@ -208,4 +208,70 @@ public function updateDescription()
     }
     exit;
 }
+
+	// In MachinePartController.php
+	public function update()
+	{
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+			http_response_code(405);
+			exit('Method not allowed');
+		}
+
+		// Read JSON input
+		$input = json_decode(file_get_contents('php://input'), true);
+		if (!$input || !isset($input['id'])) {
+			http_response_code(400);
+			echo json_encode(['message' => 'Invalid data']);
+			exit;
+		}
+
+		$id = (int)$input['id'];
+		$orgId = $_SESSION['tenant_id'] ?? null;
+
+		if (!$orgId) {
+			http_response_code(403);
+			echo json_encode(['message' => 'Not logged in']);
+			exit;
+		}
+
+		if (!hash_equals($_SESSION['csrf_token'] ?? '', $input['csrf_token'] ?? '')) {
+			http_response_code(403);
+			echo json_encode(['message' => 'Security check failed']);
+			exit;
+		}
+
+		// Validate required fields
+		$required = ['asset_id', 'entity', 'part_id', 'part_name'];
+		foreach ($required as $field) {
+			if (empty(trim($input[$field] ?? ''))) {
+				http_response_code(400);
+				echo json_encode(['message' => ucfirst($field) . ' is required']);
+				exit;
+			}
+		}
+
+		$data = [
+			'asset_id' => trim($input['asset_id']),
+			'entity' => trim($input['entity']),
+			'part_id' => trim($input['part_id']),
+			'part_name' => trim($input['part_name']),
+			'serial_no' => trim($input['serial_no'] ?? ''),
+			'vendor_id' => trim($input['vendor_id'] ?? ''),
+			'mfg_code' => trim($input['mfg_code'] ?? ''),
+			'sap_code' => trim($input['sap_code'] ?? ''),
+			'category' => trim($input['category'] ?? 'LOW'),
+			'parts_available_on_hand' => (int)($input['parts_available_on_hand'] ?? 0),
+			'description' => trim($input['description'] ?? ''),
+			'image_path' => $input['image_path'] ?? null, // Note: image update not handled here
+		];
+
+		if ($this->model->update($id, $orgId, $data)) {
+			echo json_encode(['success' => true]);
+		} else {
+			http_response_code(500);
+			echo json_encode(['message' => 'Failed to update part']);
+		}
+		exit;
+	}
+
 }
