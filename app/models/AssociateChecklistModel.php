@@ -17,46 +17,48 @@ class AssociateChecklistModel
      */
     public function getChecklistAssociation($tenant_id, $asset_id, $checklist_id, $work_order_ref)
     {
+        // ✅ Removed 'dbo.', use lowercase table names
         $sql = "
-        SELECT 
-            rwo.id AS rwo_id,
-            rwo.tenant_id,
-            rwo.asset_id,
-            rwo.asset_name,
-            rwo.location_id_1,
-            rwo.location_id_2,
-            rwo.location_id_3,
-            rwo.checklist_id,
-            rwo.maintenance_type,
-            rwo.maint_start_date,
-            rwo.maint_end_date,
-            rwo.technician_name,
-            rwo.work_order_ref,
-            rwo.description,
-            rwo.next_maintenance_date,
-            rwo.status,
+            SELECT 
+                rwo.id AS rwo_id,
+                rwo.tenant_id,
+                rwo.asset_id,
+                rwo.asset_name,
+                rwo.location_id_1,
+                rwo.location_id_2,
+                rwo.location_id_3,
+                rwo.checklist_id,
+                rwo.maintenance_type,
+                rwo.maint_start_date,
+                rwo.maint_end_date,
+                rwo.technician_name,
+                rwo.work_order_ref,
+                rwo.description,
+                rwo.next_maintenance_date,
+                rwo.status,
 
-            ct.id AS template_id,
-            ct.maintenance_type AS template_maintenance_type,
-            ct.work_order AS template_work_order,
-            ct.technician_name AS template_technician,
+                ct.id AS template_id,
+                ct.maintenance_type AS template_maintenance_type,
+                ct.work_order AS template_work_order,
+                ct.technician AS template_technician,  -- ✅ Use 'technician' (assume schema matches)
 
-            ctask.task_order,
-            ctask.task_text
+                ctask.task_order,
+                ctask.task_text
 
-        FROM dbo.routine_work_orders AS rwo
-        LEFT JOIN dbo.checklist_template AS ct
-            ON rwo.tenant_id = ct.tenant_id
-           AND rwo.checklist_id = ct.checklist_id
-        LEFT JOIN dbo.checklist_tasks AS ctask
-            ON ct.tenant_id = ctask.tenant_id
-           AND ct.checklist_id = ctask.checklist_id
-        WHERE 
-            rwo.tenant_id = :tenant_id
-            AND rwo.asset_id = :asset_id
-            AND rwo.checklist_id = :checklist_id
-            AND rwo.work_order_ref = :work_order_ref
-        ORDER BY ctask.task_order ASC";
+            FROM routine_work_orders AS rwo
+            LEFT JOIN checklist_template AS ct
+                ON rwo.tenant_id = ct.tenant_id
+               AND rwo.checklist_id = ct.checklist_id
+            LEFT JOIN checklist_tasks AS ctask
+                ON ct.tenant_id = ctask.tenant_id
+               AND ct.checklist_id = ctask.checklist_id
+            WHERE 
+                rwo.tenant_id = :tenant_id
+                AND rwo.asset_id = :asset_id
+                AND rwo.checklist_id = :checklist_id
+                AND rwo.work_order_ref = :work_order_ref
+            ORDER BY ctask.task_order ASC
+        ";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':tenant_id', $tenant_id);
@@ -67,41 +69,42 @@ class AssociateChecklistModel
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-	
-	/**
-	 * Check if maintenance checklist instance exists for this asset/work order
-	 */
-	public function getMaintenanceChecklistInstance($tenant_id, $asset_id, $checklist_id, $work_order_ref)
-	{
-		$sql = "
-			SELECT TOP 1 id, status
-			FROM dbo.maintenance_checklist
-			WHERE tenant_id = :tenant_id
-			  AND asset_id = :asset_id
-			  AND checklist_id = :checklist_id
-			  AND work_order_ref = :work_order_ref
-			
-		";
-		$stmt = $this->conn->prepare($sql);
-		$stmt->execute([
-			':tenant_id'    => $tenant_id,
-			':asset_id'     => $asset_id,
-			':checklist_id' => $checklist_id,
-			':work_order_ref' => $work_order_ref
-		]);
-		return $stmt->fetch(PDO::FETCH_ASSOC);
-	}
-	
-	/**
+
+    /**
+     * Check if maintenance checklist instance exists
+     */
+    public function getMaintenanceChecklistInstance($tenant_id, $asset_id, $checklist_id, $work_order_ref)
+    {
+        // ✅ Use LIMIT 1 instead of TOP 1
+        $sql = "
+            SELECT id, status
+            FROM maintenance_checklist
+            WHERE tenant_id = :tenant_id
+              AND asset_id = :asset_id
+              AND checklist_id = :checklist_id
+              AND work_order_ref = :work_order_ref
+            LIMIT 1
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            ':tenant_id'    => $tenant_id,
+            ':asset_id'     => $asset_id,
+            ':checklist_id' => $checklist_id,
+            ':work_order_ref' => $work_order_ref
+        ]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Associate a checklist with an asset/work order
      */
     public function associateChecklist($tenant_id, $asset_id, $checklist_id, $work_order_ref, $technician_name = null)
     {
         if (!$technician_name) {
-            // Get technician_name from routine_work_orders (not template)
+            // Get technician from routine_work_orders
             $sqlTech = "
                 SELECT technician_name
-                FROM dbo.routine_work_orders
+                FROM routine_work_orders
                 WHERE tenant_id = ? AND asset_id = ?
                   AND checklist_id = ? AND work_order_ref = ?
             ";
@@ -110,11 +113,13 @@ class AssociateChecklistModel
             $technician_name = $stmtTech->fetchColumn() ?: null;
         }
 
+        // ✅ Use NOW(), RETURNING id
         $sqlInsert = "
-            INSERT INTO dbo.maintenance_checklist
+            INSERT INTO maintenance_checklist
                 (tenant_id, asset_id, checklist_id, work_order_ref, technician_name, status, created_at)
             VALUES
-                (?, ?, ?, ?, ?, 'On-Going', SYSUTCDATETIME())
+                (?, ?, ?, ?, ?, 'On-Going', NOW())
+            RETURNING id
         ";
 
         $stmtInsert = $this->conn->prepare($sqlInsert);
@@ -126,16 +131,17 @@ class AssociateChecklistModel
             $technician_name
         ]);
 
-        return (int)$this->conn->lastInsertId();
+        $result = $stmtInsert->fetch(PDO::FETCH_ASSOC);
+        return $result ? (int)$result['id'] : 0;
     }
-	
-	/**
-     * Update routine_work_orders status to 'On-Going' when checklist is associated
+
+    /**
+     * Update routine_work_orders status to 'On-Going'
      */
     public function updateRoutineWorkOrderStatus(string $tenant_id, string $asset_id, string $checklist_id, string $work_order_ref): void
     {
         $sql = "
-            UPDATE dbo.routine_work_orders 
+            UPDATE routine_work_orders 
             SET status = 'On-Going'
             WHERE tenant_id = ? 
               AND asset_id = ? 
@@ -146,16 +152,14 @@ class AssociateChecklistModel
         $stmt->execute([$tenant_id, $asset_id, $checklist_id, $work_order_ref]);
     }
 
-	/**
-     * Check if a checklist instance is already associated for this asset + checklist + work order
-	  -the asset maintenance_checklist_id should be tables maintenance_checklist + maintenance_checklist_tasks
-	   otherwise not associated yet
+    /**
+     * Check if checklist is already associated
      */
     public function isChecklistAssociated($tenant_id, $asset_id, $checklist_id, $work_order_ref)
     {
         $sql = "
             SELECT 1
-            FROM dbo.maintenance_checklist
+            FROM maintenance_checklist
             WHERE tenant_id = ?
               AND asset_id = ?
               AND checklist_id = ?
