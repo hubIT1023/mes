@@ -103,7 +103,7 @@ $assets = $assetModel->getAssetsByTenant($tenant);
         <!-- Technician -->
         <div class="mb-3">
             <label class="form-label">Technician Name</label>
-            <input type="text" name="technician_name" class="form-control" placeholder="Technician or Team">
+            <input type="text" name="technician" class="form-control" placeholder="Technician or Team">
         </div>
 
         <!-- Work Order -->

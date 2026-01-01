@@ -97,7 +97,7 @@ $error = $error ?? null;
         <!-- Technician -->
         <div class="mb-3">
             <label class="form-label">Technician Name</label>
-            <input type="text" name="technician_name" class="form-control">
+            <input type="text" name="technician" class="form-control">
         </div>
 
         <!-- Work Order -->
