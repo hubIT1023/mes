@@ -181,13 +181,30 @@ function is_active($path, $current_page) {
 <!-- ================= EXISTING HEADER (UNCHANGED) ================= -->
 <header class="sticky top-[3px] z-12 bg-white border-b border-slate-200 shadow-sm">
 
-    <nav class="max-w-7xl mx-auto px-4 flex items-center justify-between h-10">
-        <a href="#" class="text-2xl font-bold text-blue-600">HubIT.online</a>
-		  <div class="d-flex gap-3 align-items-center">
-            <span class="small text-muted">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
-            <a href="/mes/logout" class="small text-decoration-none text-primary">Log out</a>
-        </div>
-    </nav>
+    <nav class="navbar navbar-expand navbar-light bg-white border-bottom py-2">
+		<div class="container-fluid">
+			<!-- Brand -->
+			<a class="navbar-brand fw-bold fs-4 text-primary" href="#">
+				HubIT.online
+			</a>
+
+			<!-- Right Section -->
+			<div class="d-flex align-items-center gap-3">
+				<!-- Tenant Info -->
+				<span class="text-muted small">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
+
+				<!-- Breadcrumb -->
+				<ol class="breadcrumb mb-0 small">
+					<li class="breadcrumb-item">
+						<a href="/mes/mms_admin" class="text-decoration-none">Hub Portal</a>
+					</li>
+				</ol>
+
+				<!-- Logout -->
+				<a href="/mes/logout" class="text-decoration-none text-primary small">Log out</a>
+			</div>
+		</div>
+	</nav>
 	
 </header>
 
