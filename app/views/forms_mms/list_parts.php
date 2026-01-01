@@ -75,71 +75,71 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <?php foreach ($parts as $part): ?>
            <!-- Inside foreach loop -->
-<div class="col">
-    <div class="card h-100 shadow-sm">
+		<div class="col">
+			<div class="card h-100 shadow-sm">
 
-        <!-- Image -->
-        <?php
-$imagePath = $part['image_path'] ?? '';
+			 <!-- Image -->
+				<?php
+				$imagePath = $part['image_path'] ?? '';
 
-if ($imagePath) {
+				if ($imagePath) {
 
-    // URL path (what the browser uses)
-    $imageUrl = '/mes/' . ltrim($imagePath, '/');
+					// URL for browser
+					$imageUrl = '/mes' . $imagePath;
 
-    // Server filesystem path (what PHP checks)
-    $fullServerPath = $_SERVER['DOCUMENT_ROOT'] . $imageUrl;
+					// Full server path
+					$fullServerPath = $_SERVER['DOCUMENT_ROOT'] . $imagePath;
 
-    if (file_exists($fullServerPath)) {
-        echo '<img src="' . htmlspecialchars($imageUrl) . '" 
-              class="card-img-top bg-light" 
-              alt="Part Image"
-              style="object-fit: contain; height: 160px;">';
-    } else {
-        echo '<div class="card-header bg-light text-center text-muted py-5">
-                Image Missing
-              </div>';
-    }
+					if (file_exists($fullServerPath)) {
+						echo '<img src="' . htmlspecialchars($imageUrl) . '" 
+							  class="card-img-top bg-light" 
+							  alt="Part Image"
+							  style="object-fit: contain; height: 160px;">';
+					} else {
+						echo '<div class="card-header bg-light text-center text-muted py-5">
+								Image Missing
+							  </div>';
+					}
 
-} else {
-    echo '<div class="card-header bg-light text-center text-muted py-5">
-            No Image Available
-          </div>';
-}
-?>
+				} else {
+					echo '<div class="card-header bg-light text-center text-muted py-5">
+							No Image Available
+						  </div>';
+				}
+				?>
 
 
-        <!-- Body -->
-        <div class="card-body">
-            <h6 class="card-title"><?= htmlspecialchars($part['part_id']) ?></h6>
-            <p class="card-text small">
-                <strong><?= htmlspecialchars($part['part_name']) ?></strong><br>
-                <small class="text-muted">
-                    Entity: <span class="badge bg-secondary"><?= htmlspecialchars($part['entity']) ?></span><br>
-                    Serial: <?= htmlspecialchars($part['serial_no'] ?? '<em>N/A</em>') ?><br>
-                    Vendor: <?= htmlspecialchars($part['vendor_id'] ?? '<em>N/A</em>') ?>
-                </small>
-            </p>
-        </div>
+				<!-- Body -->
+				<div class="card-body">
+					<h6 class="card-title"><?= htmlspecialchars($part['part_id']) ?></h6>
+					<p class="card-text small">
+						<strong><?= htmlspecialchars($part['part_name']) ?></strong><br>
+						<small class="text-muted">
+							Entity: <span class="badge bg-secondary"><?= htmlspecialchars($part['entity']) ?></span><br>
+							Serial: <?= htmlspecialchars($part['serial_no'] ?? '<em>N/A</em>') ?><br>
+							Vendor: <?= htmlspecialchars($part['vendor_id'] ?? '<em>N/A</em>') ?>
+						</small>
+					</p>
+				</div>
 
-        <!-- Footer -->
-        <div class="card-footer d-flex justify-content-between align-items-center">
-            <span class="badge <?= 
-                $part['category'] === 'HIGH' ? 'bg-danger' : 
-                ($part['category'] === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success') 
-            ?>"><?= htmlspecialchars($part['category'] ?? 'LOW') ?></span>
-            
-            <form method="POST" action="/mes/machine-parts/delete" style="display:inline;" 
-                  onsubmit="return confirm('Delete this part?')">
-                <input type="hidden" name="id" value="<?= (int)$part['id'] ?>">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                <button type="submit" class="btn btn-sm btn-outline-danger">
-                    <i class="fas fa-trash-alt"></i> Delete
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
+				<!-- Footer -->
+				<div class="card-footer d-flex justify-content-between align-items-center">
+					<span class="badge <?= 
+						$part['category'] === 'HIGH' ? 'bg-danger' : 
+						($part['category'] === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success') 
+					?>"><?= htmlspecialchars($part['category'] ?? 'LOW') ?></span>
+					
+					<form method="POST" action="/mes/machine-parts/delete" style="display:inline;" 
+						  onsubmit="return confirm('Delete this part?')">
+						<input type="hidden" name="id" value="<?= (int)$part['id'] ?>">
+						<input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+						<button type="submit" class="btn btn-sm btn-outline-danger">
+							<i class="fas fa-trash-alt"></i> Delete
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
