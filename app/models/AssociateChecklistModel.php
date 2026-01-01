@@ -31,7 +31,7 @@ class AssociateChecklistModel
                 rwo.maintenance_type,
                 rwo.maint_start_date,
                 rwo.maint_end_date,
-                rwo.technician_name,
+                rwo.technician,
                 rwo.work_order_ref,
                 rwo.description,
                 rwo.next_maintenance_date,
@@ -103,7 +103,7 @@ class AssociateChecklistModel
         if (!$technician_name) {
             // Get technician from routine_work_orders
             $sqlTech = "
-                SELECT technician_name
+                SELECT technician
                 FROM routine_work_orders
                 WHERE tenant_id = ? AND asset_id = ?
                   AND checklist_id = ? AND work_order_ref = ?
@@ -116,7 +116,7 @@ class AssociateChecklistModel
         // ✅ Use NOW(), RETURNING id
         $sqlInsert = "
             INSERT INTO maintenance_checklist
-                (tenant_id, asset_id, checklist_id, work_order_ref, technician_name, status, created_at)
+                (tenant_id, asset_id, checklist_id, work_order_ref, technician, status, created_at)
             VALUES
                 (?, ?, ?, ?, ?, 'On-Going', NOW())
             RETURNING id
