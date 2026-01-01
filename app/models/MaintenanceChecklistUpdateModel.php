@@ -15,7 +15,6 @@ class MaintenanceChecklistUpdateModel
 
     public function checklistBelongsToTenant(int $maintenanceChecklistId, string $tenantId): bool
     {
-        // ✅ Removed 'dbo.'
         $sql = "SELECT 1 FROM maintenance_checklist WHERE maintenance_checklist_id = ? AND tenant_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$maintenanceChecklistId, $tenantId]);
@@ -46,7 +45,6 @@ class MaintenanceChecklistUpdateModel
             $sets[] = "status = ?";
             $params[] = $status;
 
-            // ✅ Use CASE with NOW()
             $sets[] = "date_completed = CASE 
                 WHEN ? = 'Completed' AND date_completed IS NULL THEN NOW()
                 WHEN ? <> 'Completed' THEN NULL 
@@ -83,7 +81,6 @@ class MaintenanceChecklistUpdateModel
     {
         if (empty($tasks)) return 0;
 
-        // ✅ Remove 'dbo.'
         $sql = "UPDATE maintenance_checklist_tasks SET result_value = ?, result_notes = ?, completed_at = ? WHERE task_id = ?";
         $stmt = $this->conn->prepare($sql);
 
@@ -122,7 +119,6 @@ class MaintenanceChecklistUpdateModel
 
     public function markChecklistComplete(int $maintenanceChecklistId, string $tenantId): bool
     {
-        // ✅ Remove 'dbo.', replace GETDATE() → NOW()
         $sql = "UPDATE maintenance_checklist SET status = 'Completed', date_completed = NOW() WHERE maintenance_checklist_id = ? AND tenant_id = ?";
         $stmt = $this->conn->prepare($sql);
         try {
@@ -172,7 +168,6 @@ class MaintenanceChecklistUpdateModel
 
     public function fetchChecklistWithTasks(int $maintenanceChecklistId, string $tenantId): ?array
     {
-        // ✅ Remove 'dbo.'
         $sql = "SELECT * FROM maintenance_checklist WHERE maintenance_checklist_id = ? AND tenant_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$maintenanceChecklistId, $tenantId]);
@@ -215,26 +210,26 @@ class MaintenanceChecklistUpdateModel
                 throw new Exception("Checklist already archived");
             }
 
-            // 2. Insert into completed_work_order
-            // ✅ Use 'technician', not 'technician_name' (align with schema)
+            // 2. Insert into completed_work_order — ✅ INCLUDE maintenance_checklist_id
             $archiveMasterSql = "
                 INSERT INTO completed_work_order (
+                    maintenance_checklist_id,  -- ✅ Critical: include original ID
                     tenant_id, asset_id, asset_name,
                     location_id_1, location_id_2, location_id_3,
                     work_order_ref, checklist_id, maintenance_type, technician,
                     status, date_started, date_completed,
                     created_at, updated_at, created_by, updated_by
                 ) VALUES (
-                    ?, ?, ?,
+                    ?, ?, ?, ?,
                     ?, ?, ?,
                     ?, ?, ?, ?,
                     ?, ?, ?,
                     ?, ?, ?, ?
-                ) RETURNING id
-            ";
-            
+                )";
+
             $archiveMasterStmt = $this->conn->prepare($archiveMasterSql);
             $archiveMasterStmt->execute([
+                $checklist['maintenance_checklist_id'], // ✅
                 $checklist['tenant_id'],
                 $checklist['asset_id'],
                 $checklist['asset_name'],
@@ -244,7 +239,7 @@ class MaintenanceChecklistUpdateModel
                 $checklist['work_order_ref'],
                 $checklist['checklist_id'],
                 $checklist['maintenance_type'],
-                $checklist['technician'], // ✅
+                $checklist['technician'],
                 $checklist['status'],
                 $checklist['date_started'],
                 $checklist['date_completed'],
@@ -254,10 +249,7 @@ class MaintenanceChecklistUpdateModel
                 $checklist['updated_by']
             ]);
 
-            $archivedMaster = $archiveMasterStmt->fetch(PDO::FETCH_ASSOC);
-            $archivedMasterId = $archivedMaster ? (int)$archivedMaster['id'] : $maintenanceChecklistId;
-
-            // 3. Insert tasks
+            // 3. Insert tasks — link to original maintenance_checklist_id
             $tasksSql = "
                 SELECT 
                     task_order, task_text, task_status,
@@ -273,7 +265,7 @@ class MaintenanceChecklistUpdateModel
             if (!empty($tasks)) {
                 $archiveTaskSql = "
                     INSERT INTO completed_work_order_tasks (
-                        maintenance_checklist_id,
+                        maintenance_checklist_id,  -- ✅ Same ID as master
                         tenant_id,
                         task_order, task_text, task_status,
                         result_value, result_notes, completed_at,
@@ -286,7 +278,7 @@ class MaintenanceChecklistUpdateModel
                 
                 foreach ($tasks as $task) {
                     $archiveTaskStmt->execute([
-                        $archivedMasterId,
+                        $maintenanceChecklistId, // ✅ Preserve original ID
                         $checklist['tenant_id'],
                         $task['task_order'],
                         $task['task_text'],
@@ -301,7 +293,7 @@ class MaintenanceChecklistUpdateModel
                 }
             }
 
-            // 4. Delete from active tables
+            // 4. DELETE from active tables
             $this->conn->prepare("DELETE FROM maintenance_checklist_tasks WHERE maintenance_checklist_id = ?")
                 ->execute([$maintenanceChecklistId]);
 
@@ -320,6 +312,7 @@ class MaintenanceChecklistUpdateModel
 
     public function isChecklistArchived(int $maintenanceChecklistId): bool
     {
+        // ✅ Now works because we store maintenance_checklist_id in completed_work_order
         $sql = "SELECT 1 FROM completed_work_order WHERE maintenance_checklist_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$maintenanceChecklistId]);

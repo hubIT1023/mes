@@ -6,10 +6,8 @@ require_once __DIR__ . '/../config/Database.php';
 class ChecklistTemplateModel {
     private $conn;
 
-  public function __construct()
-    {
-        //$this->conn = Database::getConnection();
-		$this->conn = Database::getInstance()->getConnection();
+    public function __construct() {
+        $this->conn = Database::getInstance()->getConnection();
     }
 
     /**
@@ -19,16 +17,16 @@ class ChecklistTemplateModel {
         try {
             $this->conn->beginTransaction();
 
-            // Insert template
+            // ✅ Use NOW() instead of SYSDATETIME()
             $stmt = $this->conn->prepare("
                 INSERT INTO checklist_template 
                 (tenant_id, checklist_id, work_order, maintenance_type, interval_days, description, created_at, updated_at)
-                VALUES (:tenant_id, :checklist_id, :work_order, :maintenance_type, :interval_days, :description, SYSDATETIME(), SYSDATETIME())
+                VALUES (:tenant_id, :checklist_id, :work_order, :maintenance_type, :interval_days, :description, NOW(), NOW())
             ");
             $stmt->execute([
                 ':tenant_id' => $tenantId,
                 ':checklist_id' => $data['checklist_id'],
-				':work_order' => $data['work_order'],
+                ':work_order' => $data['work_order'],
                 ':maintenance_type' => $data['maintenance_type'] ?? null,
                 ':interval_days' => $data['interval_days'] ?? 30,
                 ':description' => $data['description'] ?? null
@@ -55,7 +53,7 @@ class ChecklistTemplateModel {
             return true;
         } catch (Exception $e) {
             $this->conn->rollBack();
-            error_log("Error creating checklist: " . $e->getMessage());
+            error_log("Error creating checklist template: " . $e->getMessage());
             return false;
         }
     }
@@ -67,13 +65,14 @@ class ChecklistTemplateModel {
         try {
             $this->conn->beginTransaction();
 
+            // ✅ Use NOW()
             $stmt = $this->conn->prepare("
                 UPDATE checklist_template
                 SET work_order = :work_order,
                     maintenance_type = :maintenance_type, 
                     interval_days = :interval_days,
                     description = :description, 
-                    updated_at = SYSDATETIME()
+                    updated_at = NOW()
                 WHERE tenant_id = :tenant_id AND checklist_id = :checklist_id
             ");
             $stmt->execute([
@@ -115,7 +114,7 @@ class ChecklistTemplateModel {
             return true;
         } catch (Exception $e) {
             $this->conn->rollBack();
-            error_log("Error updating checklist: " . $e->getMessage());
+            error_log("Error updating checklist template: " . $e->getMessage());
             return false;
         }
     }
