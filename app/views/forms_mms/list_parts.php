@@ -4,17 +4,18 @@
 .rs-card {
     border: 1px solid #dee2e6;
     border-radius: 8px;
-    padding: 12px;
-    background-color: #fff;
-    display: flex;
+    background: #fff;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 70px 1fr 2fr 100px;
     gap: 16px;
-    align-items: flex-start;
-    transition: box-shadow 0.2s ease;
+    align-items: start;
 }
 .rs-card:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
+/* Column 1: Image */
 .rs-image {
     width: 60px;
     height: 60px;
@@ -29,53 +30,36 @@
     color: #6c757d;
 }
 
-.rs-info {
-    flex-grow: 1;
-}
-
-.rs-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
-}
-
-.rs-title {
-    margin: 0;
+/* Column 2: Info */
+.rs-info-title {
+    margin: 0 0 4px 0;
     font-size: 1rem;
     font-weight: bold;
-    line-height: 1.3;
 }
-
-.rs-subtitle {
-    margin: 0;
+.rs-info-subtitle {
+    margin: 0 0 8px 0;
     font-size: 0.875rem;
     color: #6c757d;
-    margin-top: 4px;
 }
-
 .rs-meta {
     font-size: 0.75rem;
     color: #495057;
-    margin: 8px 0;
     display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 4px;
 }
 
+/* Column 3: Description */
 .rs-description {
-    width: 100%;
-    padding: 12px;
     background: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 4px;
+    padding: 12px;
+    min-height: 80px;
     font-size: 0.875rem;
-    color: #212529;
-    min-height: 60px;
     cursor: pointer;
     position: relative;
 }
-
 .rs-description:hover::after {
     content: "✏️";
     position: absolute;
@@ -84,43 +68,48 @@
     font-size: 0.9em;
     opacity: 0.6;
 }
-
 .rs-description.editing {
     cursor: default;
 }
 .rs-description.editing::after {
     display: none;
 }
-
 .rs-description-text {
     white-space: pre-line;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 .rs-description-input {
     width: 100%;
     box-sizing: border-box;
+    font-size: 0.875rem;
 }
-
 .rs-edit-controls {
     margin-top: 8px;
 }
 
+/* Column 4: Actions */
+.rs-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
 .rs-badge {
     font-size: 0.75rem;
     font-weight: bold;
     padding: 4px 8px;
     border-radius: 4px;
     text-transform: uppercase;
+    text-align: center;
+    min-width: 70px;
 }
 .badge-high { background: #dc3545; color: white; }
 .badge-medium { background: #ffc107; color: #212529; }
 .badge-low { background: #28a745; color: white; }
-
-.rs-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
+.btn-action {
+    width: 80px;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 </style>
 
@@ -204,7 +193,7 @@
             <?php foreach ($parts as $part): ?>
                 <div class="col-12">
                     <div class="rs-card">
-                        <!-- Image -->
+                        <!-- Column 1: Image -->
                         <?php
                         $imagePath = $part['image_path'] ?? '';
                         if ($imagePath && file_exists($_SERVER['DOCUMENT_ROOT'] . $imagePath)): ?>
@@ -213,49 +202,51 @@
                             <div class="rs-image"><i class="fas fa-cube"></i></div>
                         <?php endif; ?>
 
-                        <!-- Info -->
-                        <div class="rs-info">
-                            <div class="rs-header">
-                                <div>
-                                    <h5 class="rs-title">RS No. <?= htmlspecialchars($part['part_id']) ?></h5>
-                                    <p class="rs-subtitle"><?= htmlspecialchars($part['part_name']) ?></p>
-                                </div>
-                                <span class="rs-badge <?= 
-                                    $part['category'] === 'HIGH' ? 'badge-high' : 
-                                    ($part['category'] === 'MEDIUM' ? 'badge-medium' : 'badge-low') 
-                                ?>">
-                                    <?= htmlspecialchars($part['category'] ?? 'LOW') ?>
-                                </span>
-                            </div>
-
+                        <!-- Column 2: RS Info -->
+                        <div>
+                            <h5 class="rs-info-title">RS No. <?= htmlspecialchars($part['part_id']) ?></h5>
+                            <p class="rs-info-subtitle"><?= htmlspecialchars($part['part_name']) ?></p>
                             <div class="rs-meta">
                                 <span><strong>Entity:</strong> <?= htmlspecialchars($part['entity']) ?></span>
                                 <span><strong>Serial:</strong> <?= htmlspecialchars($part['serial_no'] ?? '—') ?></span>
                                 <span><strong>Vendor:</strong> <?= htmlspecialchars($part['vendor_id'] ?? '—') ?></span>
                             </div>
+                        </div>
 
-                            <!-- Inline-editable Description -->
-                            <div class="rs-description" data-part-id="<?= (int)$part['id'] ?>">
-                                <div class="rs-description-text">
-                                    <?= nl2br(htmlspecialchars($part['description'] ?? 'Click to add description.')) ?>
-                                </div>
-                                <textarea class="rs-description-input d-none form-control" rows="3"
-                                    data-original="<?= htmlspecialchars($part['description'] ?? '') ?>"
-                                ><?= htmlspecialchars($part['description'] ?? '') ?></textarea>
-                                <div class="rs-edit-controls d-none">
-                                    <button type="button" class="btn btn-sm btn-primary btn-save-desc">Save</button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-desc">Cancel</button>
-                                </div>
+                        <!-- Column 3: Description (Inline Edit) -->
+                        <div class="rs-description" data-part-id="<?= (int)$part['id'] ?>">
+                            <div class="rs-description-text">
+                                <?= nl2br(htmlspecialchars($part['description'] ?? 'Click to add description.')) ?>
                             </div>
+                            <textarea class="rs-description-input d-none form-control" rows="4"
+                                data-original="<?= htmlspecialchars($part['description'] ?? '') ?>"
+                            ><?= htmlspecialchars($part['description'] ?? '') ?></textarea>
+                            <div class="rs-edit-controls d-none">
+                                <button type="button" class="btn btn-sm btn-primary btn-save-desc btn-action">Save</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-desc btn-action">Cancel</button>
+                            </div>
+                        </div>
 
-                            <!-- Delete only -->
-                            <div class="rs-actions">
-                                <form method="POST" action="/mes/machine-parts/delete" onsubmit="return confirm('Delete this part?')">
-                                    <input type="hidden" name="id" value="<?= (int)$part['id'] ?>">
-                                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                </form>
-                            </div>
+                        <!-- Column 4: Badge + Buttons -->
+                        <div class="rs-actions">
+                            <span class="rs-badge <?= 
+                                $part['category'] === 'HIGH' ? 'badge-high' : 
+                                ($part['category'] === 'MEDIUM' ? 'badge-medium' : 'badge-low') 
+                            ?>">
+                                <?= htmlspecialchars($part['category'] ?? 'LOW') ?>
+                            </span>
+                            <a href="/mes/machine-parts/edit/<?= (int)$part['id'] ?>" 
+                               class="btn btn-sm btn-outline-primary btn-action">
+                                Edit
+                            </a>
+                            <form method="POST" action="/mes/machine-parts/delete" 
+                                  onsubmit="return confirm('Delete this part?')">
+                                <input type="hidden" name="id" value="<?= (int)$part['id'] ?>">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger btn-action">
+                                    Delete
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -267,10 +258,9 @@
 <!-- Inline Edit JS -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Click to edit
     document.querySelectorAll('.rs-description').forEach(desc => {
         desc.addEventListener('click', function(e) {
-            if (e.target.tagName === 'TEXTAREA' || e.target.classList.contains('btn')) return;
+            if (e.target.closest('textarea, .btn')) return;
             this.classList.add('editing');
             this.querySelector('.rs-description-text').classList.add('d-none');
             const input = this.querySelector('.rs-description-input');
@@ -280,7 +270,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Save
     document.querySelectorAll('.btn-save-desc').forEach(btn => {
         btn.addEventListener('click', async function() {
             const desc = this.closest('.rs-description');
@@ -322,7 +311,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Cancel
     document.querySelectorAll('.btn-cancel-desc').forEach(btn => {
         btn.addEventListener('click', function() {
             cancelEdit(this.closest('.rs-description'));
