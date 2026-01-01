@@ -121,7 +121,7 @@
     <!-- Right: Breadcrumb -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="/mes/mms_admin">Home</a></li>
+            <li class="breadcrumb-item"><a href="/mes/dashboard_admin">Home</a></li>
             <li class="breadcrumb-item active" aria-current="page">Machine Parts</li>
         </ol>
     </nav>
