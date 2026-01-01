@@ -1,5 +1,6 @@
 <?php
-
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 /**
  * dashboard_upcoming_maint.php
  * 
@@ -267,7 +268,7 @@ foreach ($filterFields as $field => $label):
 <input type="hidden" name="asset_id" value="<?= htmlspecialchars($a['asset_id']) ?>">
 <input type="hidden" name="checklist_id" value="<?= htmlspecialchars($a['checklist_id']) ?>">
 <input type="hidden" name="work_order_ref" value="<?= htmlspecialchars($a['work_order_ref']) ?>">
-<input type="hidden" name="technician_name" value="<?= htmlspecialchars($a['technician']) ?>">
+<input type="hidden" name="technician" value="<?= htmlspecialchars($a['technician']) ?>">
 <button type="submit" class="btn btn-primary">ASSOCIATE</button>
 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 </form>
