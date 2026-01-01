@@ -1,4 +1,8 @@
-<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
+<?php 
+// checklist_lists.php
+
+if (session_status() === PHP_SESSION_NONE) session_start(); 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,12 +10,9 @@
     <title>Checklist List</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-
-
 <body>
 
 <div class="container mt-5">
-
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/mes/mms_admin">Home</a></li>
@@ -23,28 +24,22 @@
 
     <!-- Filters -->
     <form class="row g-3 mb-4" method="GET" action="">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <input type="text" name="checklist_id" class="form-control"
                    placeholder="Checklist ID"
                    value="<?= htmlspecialchars($_GET['checklist_id'] ?? '') ?>">
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-4">
             <select class="form-select" name="maintenance_type">
                 <option value="">-- Maintenance Type --</option>
-                <option value="PM"   <?= (($_GET['maintenance_type'] ?? '')=='PM' ? 'selected' : '') ?>>PM</option>
-                <option value="CM"   <?= (($_GET['maintenance_type'] ?? '')=='CM' ? 'selected' : '') ?>>CM</option>
-                <option value="Inspection" <?= (($_GET['maintenance_type'] ?? '')=='Inspection' ? 'selected' : '') ?>>Inspection</option>
+                <option value="PM" <?= (($_GET['maintenance_type'] ?? '') === 'PM') ? 'selected' : '' ?>>PM</option>
+                <option value="CM" <?= (($_GET['maintenance_type'] ?? '') === 'CM') ? 'selected' : '' ?>>CM</option>
+                <option value="Inspection" <?= (($_GET['maintenance_type'] ?? '') === 'Inspection') ? 'selected' : '' ?>>Inspection</option>
             </select>
         </div>
 
-        <div class="col-md-3">
-            <input type="text" name="technician" class="form-control"
-                   placeholder="Technician"
-                   value="<?= htmlspecialchars($_GET['technician_name'] ?? '') ?>">
-        </div>
-
-        <div class="col-md-3">
+        <div class="col-md-4">
             <button class="btn btn-primary w-100">Filter</button>
         </div>
     </form>
@@ -57,7 +52,6 @@
                     <th>Checklist ID</th>
                     <th>Maintenance Type</th>
                     <th>Work Order Code</th>
-                    <th>Technician</th>
                     <th>Interval (Days)</th>
                     <th>Description</th>
                     <th>Tasks</th>
@@ -80,14 +74,12 @@
             ?>
                 <tr>
                     <td><?= htmlspecialchars($checklistId) ?></td>
-                    <td><?= htmlspecialchars($first['maintenance_type']) ?></td>
-                    <td><?= htmlspecialchars($first['work_order']) ?></td>
-                    <td><?= htmlspecialchars($first['technician_name']) ?></td>
-                    <td><?= htmlspecialchars($first['interval_days']) ?></td>
-                    <td><?= htmlspecialchars($first['description']) ?></td>
-
+                    <td><?= htmlspecialchars($first['maintenance_type'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($first['work_order'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($first['interval_days'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($first['description'] ?? '') ?></td>
                     <td>
-                        <ul class="mb-0">
+                        <ul class="mb-0 ps-3">
                             <?php foreach ($rows as $task): ?>
                                 <?php if (!empty($task['task_text'])): ?>
                                     <li><?= htmlspecialchars($task['task_text']) ?></li>
@@ -95,11 +87,10 @@
                             <?php endforeach; ?>
                         </ul>
                     </td>
-
                     <td class="text-center">
                         <a href="/mes/form_mms/checklist_edit?checklist_id=<?= urlencode($checklistId) ?>" 
                            class="btn btn-sm btn-warning">
-                           Edit
+                            Edit
                         </a>
                     </td>
                 </tr>
@@ -108,14 +99,12 @@
 
             else: ?>
                 <tr>
-                    <td colspan="8" class="text-center text-muted">No checklists found.</td>
+                    <td colspan="7" class="text-center text-muted">No checklists found.</td>
                 </tr>
             <?php endif; ?>
             </tbody>
-
         </table>
     </div>
-
 </div>
 
 </body>
