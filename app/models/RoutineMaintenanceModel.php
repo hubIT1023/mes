@@ -52,12 +52,12 @@ class RoutineMaintenanceModel {
 
         // TECHNICIANS
         $techs = $pdo->prepare("
-            SELECT DISTINCT technician_name 
+            SELECT DISTINCT technician 
             FROM checklist_template 
             WHERE tenant_id = :tenant_id 
               AND technician_name IS NOT NULL 
               AND technician_name <> ''
-            ORDER BY technician_name
+            ORDER BY technician
         ");
         $techs->execute(['tenant_id' => $tenantId]);
         $techList = $techs->fetchAll(PDO::FETCH_COLUMN) ?: [];
@@ -104,7 +104,7 @@ class RoutineMaintenanceModel {
                 c.checklist_id,
                 c.maintenance_type,
                 c.work_order,
-                c.technician_name,  -- ✅ Fixed: was 'technician'
+                c.technician,  -- ✅ Fixed: was 'technician'
                 c.description,
                 c.interval_days
             FROM assets a
@@ -156,7 +156,7 @@ class RoutineMaintenanceModel {
                 tenant_id, asset_id, asset_name,
                 location_id_1, location_id_2, location_id_3,
                 checklist_id, maintenance_type, work_order_ref,
-                technician_name, description,
+                technician, description,
                 maint_start_date, maint_end_date,
                 next_maintenance_date, status
             ) VALUES (
@@ -203,7 +203,7 @@ class RoutineMaintenanceModel {
                 'checklist_id'  => $row['checklist_id'],
                 'type'          => $row['maintenance_type'],
                 'work_order'    => $row['work_order'],  // maps to work_order_ref
-                'tech'          => $row['technician_name'], // ✅
+                'tech'          => $row['technician'], // ✅
                 'desc'          => $row['description'],
                 'start_date'    => $today->format('Y-m-d'),
                 'end_date'      => $nextDate,
