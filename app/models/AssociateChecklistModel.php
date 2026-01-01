@@ -17,7 +17,6 @@ class AssociateChecklistModel
      */
     public function getChecklistAssociation($tenant_id, $asset_id, $checklist_id, $work_order_ref)
     {
-        // ✅ Removed 'dbo.', use lowercase table names
         $sql = "
             SELECT 
                 rwo.id AS rwo_id,
@@ -40,7 +39,7 @@ class AssociateChecklistModel
                 ct.id AS template_id,
                 ct.maintenance_type AS template_maintenance_type,
                 ct.work_order AS template_work_order,
-                ct.technician AS template_technician,  -- ✅ Use 'technician' (assume schema matches)
+                ct.technician AS template_technician,
 
                 ctask.task_order,
                 ctask.task_text
@@ -75,9 +74,8 @@ class AssociateChecklistModel
      */
     public function getMaintenanceChecklistInstance($tenant_id, $asset_id, $checklist_id, $work_order_ref)
     {
-        // ✅ Use LIMIT 1 instead of TOP 1
         $sql = "
-            SELECT id, status
+            SELECT maintenance_checklist_id, status
             FROM maintenance_checklist
             WHERE tenant_id = :tenant_id
               AND asset_id = :asset_id
@@ -96,12 +94,29 @@ class AssociateChecklistModel
     }
 
     /**
+     * Get maintenance checklist ID by business key
+     */
+    public function getMaintenanceChecklistId($tenant_id, $asset_id, $checklist_id, $work_order_ref)
+    {
+        $sql = "
+            SELECT maintenance_checklist_id
+            FROM maintenance_checklist
+            WHERE tenant_id = ? 
+              AND asset_id = ? 
+              AND checklist_id = ? 
+              AND work_order_ref = ?
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$tenant_id, $asset_id, $checklist_id, $work_order_ref]);
+        return $stmt->fetchColumn();
+    }
+
+    /**
      * Associate a checklist with an asset/work order
      */
     public function associateChecklist($tenant_id, $asset_id, $checklist_id, $work_order_ref, $technician_name = null)
     {
         if (!$technician_name) {
-            // Get technician from routine_work_orders
             $sqlTech = "
                 SELECT technician
                 FROM routine_work_orders
@@ -113,13 +128,12 @@ class AssociateChecklistModel
             $technician_name = $stmtTech->fetchColumn() ?: null;
         }
 
-        // ✅ Use NOW(), RETURNING id
         $sqlInsert = "
             INSERT INTO maintenance_checklist
                 (tenant_id, asset_id, checklist_id, work_order_ref, technician, status, created_at)
             VALUES
                 (?, ?, ?, ?, ?, 'On-Going', NOW())
-            RETURNING id
+            RETURNING maintenance_checklist_id
         ";
 
         $stmtInsert = $this->conn->prepare($sqlInsert);
@@ -132,7 +146,7 @@ class AssociateChecklistModel
         ]);
 
         $result = $stmtInsert->fetch(PDO::FETCH_ASSOC);
-        return $result ? (int)$result['id'] : 0;
+        return $result ? (int)$result['maintenance_checklist_id'] : 0;
     }
 
     /**
@@ -153,7 +167,7 @@ class AssociateChecklistModel
     }
 
     /**
-     * Check if checklist is already associated
+     * Check if a checklist is already associated
      */
     public function isChecklistAssociated($tenant_id, $asset_id, $checklist_id, $work_order_ref)
     {

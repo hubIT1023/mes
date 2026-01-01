@@ -73,18 +73,6 @@ $filters = [
 
 $assets = $routineModel->getUpcomingMaintenance($tenantId, $filters);
 $filterData = $routineModel->getFilterOptions($tenantId);
-
-// ✅ Helper: Get maintenance checklist ID using model method
-function getMaintenanceChecklistId($model, $tenant_id, $asset_id, $checklist_id, $work_order_ref) {
-    $sql = "
-        SELECT id
-        FROM maintenance_checklist
-        WHERE tenant_id = ? AND asset_id = ? AND checklist_id = ? AND work_order_ref = ?
-    ";
-    $stmt = $model->conn->prepare($sql);
-    $stmt->execute([$tenant_id, $asset_id, $checklist_id, $work_order_ref]);
-    return $stmt->fetchColumn();
-}
 ?>
 
 <!DOCTYPE html>
@@ -178,8 +166,8 @@ foreach ($filterFields as $field => $label):
 
     $maintenanceId = null;
     if ($isAssociated) {
-        $maintenanceId = getMaintenanceChecklistId(
-            $checklistModel,
+        // ✅ Use model method instead of helper function
+        $maintenanceId = $checklistModel->getMaintenanceChecklistId(
             $a['tenant_id'],
             $a['asset_id'],
             $a['checklist_id'],
