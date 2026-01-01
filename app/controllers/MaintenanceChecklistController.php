@@ -24,7 +24,7 @@ class MaintenanceChecklistController
         if (!isset($_SESSION['tenant'])) {
             http_response_code(401);
 			
-            //echo json_encode(['error' => 'Unauthorized']);
+            echo json_encode(['error' => 'Unauthorized']);
 			
             exit;
         }
@@ -32,7 +32,7 @@ class MaintenanceChecklistController
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
 			
-            //echo json_encode(['error' => 'Method Not Allowed']);
+            echo json_encode(['error' => 'Method Not Allowed']);
 			
             exit;
         }
@@ -45,7 +45,7 @@ class MaintenanceChecklistController
         if (!$tenant_id || !$asset_id || !$checklist_id || !$work_order_ref) {
             http_response_code(400);
 			
-            //echo json_encode(['error' => 'Missing required fields']);
+            echo json_encode(['error' => 'Missing required fields']);
 			
             exit;
         }
@@ -80,7 +80,7 @@ class MaintenanceChecklistController
             }
 
             http_response_code(500);
-			/*
+			
             echo json_encode([
                 'error'   => 'Association failed',
                 'message' => $e->getMessage(),
@@ -88,7 +88,7 @@ class MaintenanceChecklistController
                 'line'    => $e->getLine()
                 // Removed trace for security in production
             ]);
-			*/
+			
             exit;
         }
     }
