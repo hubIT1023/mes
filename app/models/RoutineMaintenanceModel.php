@@ -50,12 +50,12 @@ class RoutineMaintenanceModel {
         $types->execute(['tenant_id' => $tenantId]);
         $typeList = $types->fetchAll(PDO::FETCH_COLUMN) ?: [];
 
-        // TECHNICIANS
+        // TECHNICIANS — ✅ USE 'technician', NOT 'technician_name'
         $techs = $pdo->prepare("
             SELECT DISTINCT technician 
             FROM checklist_template 
             WHERE tenant_id = :tenant_id 
-              AND technician_name IS NOT NULL 
+              AND technician IS NOT NULL 
               AND technician <> ''
             ORDER BY technician
         ");
@@ -66,7 +66,7 @@ class RoutineMaintenanceModel {
             'assets'       => $assetsList,
             'work_order'   => $workOrderList,
             'types'        => $typeList,
-            'technician'  => $techList
+            'technicians'  => $techList
         ];
     }
 
@@ -104,7 +104,7 @@ class RoutineMaintenanceModel {
                 c.checklist_id,
                 c.maintenance_type,
                 c.work_order,
-                c.technician,  -- ✅ Fixed: was 'technician'
+                c.technician,          -- ✅ Correct column name
                 c.description,
                 c.interval_days
             FROM assets a
@@ -115,32 +115,27 @@ class RoutineMaintenanceModel {
 
         $params = [$tenantId];
 
-        // Filter by selected assets
         if (!empty($filters['asset_ids'])) {
             $placeholders = implode(',', array_fill(0, count($filters['asset_ids']), '?'));
             $sql .= " AND a.asset_id IN ($placeholders)";
             $params = array_merge($params, $filters['asset_ids']);
         }
 
-        // Filter by specific work order
         if (!empty($filters['work_order'])) {
             $sql .= " AND c.work_order = ?";
             $params[] = $filters['work_order'];
         }
 
-        // Filter by maintenance type (optional)
         if (!empty($filters['maintenance_type'])) {
             $sql .= " AND c.maintenance_type = ?";
             $params[] = $filters['maintenance_type'];
         }
 
-        // Filter by technician (optional)
         if (!empty($filters['technician'])) {
-            $sql .= " AND c.technician_name = ?"; // ✅ Correct column
+            $sql .= " AND c.technician = ?"; -- ✅
             $params[] = $filters['technician'];
         }
 
-        // Execute the query
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -150,13 +145,12 @@ class RoutineMaintenanceModel {
         $today = new DateTime();
         $count = 0;
 
-        // Insert into routine_work_orders (✅ lowercase table name)
         $insertQuery = "
             INSERT INTO routine_work_orders (
                 tenant_id, asset_id, asset_name,
                 location_id_1, location_id_2, location_id_3,
                 checklist_id, maintenance_type, work_order_ref,
-                technician, description,
+                technician_name, description,
                 maint_start_date, maint_end_date,
                 next_maintenance_date, status
             ) VALUES (
@@ -175,7 +169,7 @@ class RoutineMaintenanceModel {
             $interval = (int)($row['interval_days'] ?? 30);
             $nextDate = (clone $today)->modify("+$interval days")->format('Y-m-d');
 
-            // Prevent duplicates: same tenant + asset + checklist + scheduled
+            // Prevent duplicates
             $dupCheck = $this->db->prepare("
                 SELECT COUNT(*) 
                 FROM routine_work_orders
@@ -192,7 +186,6 @@ class RoutineMaintenanceModel {
 
             if ($dupCheck->fetchColumn() > 0) continue;
 
-            // Insert new routine work order
             $insertStmt->execute([
                 'tenant_id'     => $tenantId,
                 'asset_id'      => $row['asset_id'],
@@ -202,8 +195,8 @@ class RoutineMaintenanceModel {
                 'loc3'          => $row['location_id_3'],
                 'checklist_id'  => $row['checklist_id'],
                 'type'          => $row['maintenance_type'],
-                'work_order'    => $row['work_order'],  // maps to work_order_ref
-                'tech'          => $row['technician'], // ✅
+                'work_order'    => $row['work_order'],
+                'tech'          => $row['technician'], // ✅ from 'technician' column
                 'desc'          => $row['description'],
                 'start_date'    => $today->format('Y-m-d'),
                 'end_date'      => $nextDate,
