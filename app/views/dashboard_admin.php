@@ -196,7 +196,7 @@ function is_active($path, $current_page) {
 				<!-- Breadcrumb -->
 				<ol class="breadcrumb mb-0 small">
 					<li class="breadcrumb-item">
-						<a href="/mes/mms_admin" class="text-decoration-none">Hub Portal</a>
+						<a href="/mes/hub_portal" class="text-decoration-none">Hub Portal</a>
 					</li>
 				</ol>
 
