@@ -243,7 +243,7 @@ foreach ($filterFields as $field => $label):
 <tr><th>Due Date</th><td><?= htmlspecialchars($a['next_maintenance_date']) ?></td></tr>
 <tr><th>Maintenance Type</th><td><?= htmlspecialchars($a['maintenance_type']) ?></td></tr>
 <tr><th>Status</th><td><?= htmlspecialchars($a['status']) ?></td></tr>
-<tr><th>Technician</th><td><?= htmlspecialchars($a['technician_name']) ?></td></tr>
+<tr><th>Technician</th><td><?= htmlspecialchars($a['technician']) ?></td></tr>
 <tr><th>Work Order</th><td><?= htmlspecialchars($a['work_order_ref']) ?></td></tr>
 <tr><th>Checklist</th><td><?= htmlspecialchars($a['checklist_id']) ?></td></tr>
 </table>
