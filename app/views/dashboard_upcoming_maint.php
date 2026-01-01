@@ -34,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['associate_checklist']
             if ($checklistModel->isChecklistAssociated($tenant_id, $asset_id, $checklist_id, $work_order_ref)) {
                 $_SESSION['flash_message'] = "Checklist already associated.";
             } else {
-                // Associate checklist instance
                 $maintenanceId = $checklistModel->associateChecklist(
                     $tenant_id,
                     $asset_id,
@@ -43,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['associate_checklist']
                     $technician_name
                 );
                 
-                // Update work order status to 'On-Going'
                 $checklistModel->updateRoutineWorkOrderStatus(
                     $tenant_id,
                     $asset_id,
@@ -76,14 +74,17 @@ $filters = [
 $assets = $routineModel->getUpcomingMaintenance($tenantId, $filters);
 $filterData = $routineModel->getFilterOptions($tenantId);
 
-// Helper to get PDO connection from model
-function getModelConnection($model) {
-    $reflection = new ReflectionClass($model);
-    $property = $reflection->getProperty('conn');
-    $property->setAccessible(true);
-    return $property->getValue($model);
+// ✅ Helper: Get maintenance checklist ID using model method
+function getMaintenanceChecklistId($model, $tenant_id, $asset_id, $checklist_id, $work_order_ref) {
+    $sql = "
+        SELECT id  -- ✅ Use 'id', not 'maintenance_checklist_id'
+        FROM maintenance_checklist
+        WHERE tenant_id = ? AND asset_id = ? AND checklist_id = ? AND work_order_ref = ?
+    ";
+    $stmt = $model->conn->prepare($sql);
+    $stmt->execute([$tenant_id, $asset_id, $checklist_id, $work_order_ref]);
+    return $stmt->fetchColumn();
 }
-$pdo = getModelConnection($checklistModel);
 ?>
 
 <!DOCTYPE html>
@@ -168,7 +169,6 @@ foreach ($filterFields as $field => $label):
 <?php else: foreach ($assets as $a): 
     $isOverdue = isset($a['next_maintenance_date']) && strtotime($a['next_maintenance_date']) < time();
     
-    // ✅ CRITICAL: Check association against maintenance_checklist table ONLY
     $isAssociated = $checklistModel->isChecklistAssociated(
         $a['tenant_id'],
         $a['asset_id'],
@@ -178,20 +178,21 @@ foreach ($filterFields as $field => $label):
 
     $maintenanceId = null;
     if ($isAssociated) {
-        $stmtId = $pdo->prepare("
-            SELECT maintenance_checklist_id
-            FROM dbo.maintenance_checklist
-            WHERE tenant_id=? AND asset_id=? AND checklist_id=? AND work_order_ref=?
-        ");
-        $stmtId->execute([$a['tenant_id'],$a['asset_id'],$a['checklist_id'],$a['work_order_ref']]);
-        $maintenanceId = $stmtId->fetchColumn();
+        // ✅ Use helper with correct column name 'id'
+        $maintenanceId = getMaintenanceChecklistId(
+            $checklistModel,
+            $a['tenant_id'],
+            $a['asset_id'],
+            $a['checklist_id'],
+            $a['work_order_ref']
+        );
     }
 
     $modalId = "modalChecklist_" . preg_replace('/[^a-zA-Z0-9_]/', '_', $a['asset_id']) . "_" . preg_replace('/[^a-zA-Z0-9_]/', '_', $a['checklist_id']);
 ?>
 <tr class="<?= $isOverdue ? 'overdue-row' : '' ?>">
     <td><?= htmlspecialchars($a['id'] ?? '') ?></td>
-    <td><?= htmlspecialchars($a['maintenance_checklist_id'] ?? '') ?></td>
+    <td><?= htmlspecialchars($maintenanceId ?? '') ?></td>
     <td><?= htmlspecialchars($a['asset_id']) ?></td>
     <td><?= htmlspecialchars($a['asset_name']) ?></td>
     <td><?= htmlspecialchars(trim(($a['location_id_1'] ?? '') . ' ' . ($a['location_id_2'] ?? '') . ' ' . ($a['location_id_3'] ?? ''))) ?></td>
@@ -205,19 +206,10 @@ foreach ($filterFields as $field => $label):
     <td><?= htmlspecialchars($a['technician_name'] ?? '') ?></td>
     <td>
         <?php if (!$isAssociated): ?>
-            <!-- 
-                ✅ ONLY SHOW "ASSOCIATE" IF NOT IN maintenance_checklist 
-                This ensures we only show the button for truly unassociated records
-            -->
             <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#<?= $modalId ?>">
                 Associate Checklist
             </a>
         <?php else: ?>
-            <!-- 
-                ✅ SHOW 6-DIGIT CHECKLIST ID FOR ACTIVE RECORDS
-                Completed checklists are deleted from maintenance_checklist, 
-                so they won't appear here (handled by archive workflow)
-            -->
             <a href="/mes/maintenance_checklist/view?id=<?= htmlspecialchars($maintenanceId) ?>" class="btn btn-success btn-sm">
                 Checklist #<?= str_pad(htmlspecialchars($maintenanceId), 6, '0', STR_PAD_LEFT) ?>
             </a>
@@ -231,7 +223,6 @@ foreach ($filterFields as $field => $label):
 
 <!-- Modals -->
 <?php if (!empty($assets)): foreach ($assets as $a): 
-    // Skip modal if already associated
     if ($checklistModel->isChecklistAssociated($a['tenant_id'],$a['asset_id'],$a['checklist_id'],$a['work_order_ref'])) continue;
     
     $tasks = $checklistModel->getChecklistAssociation($a['tenant_id'],$a['asset_id'],$a['checklist_id'],$a['work_order_ref']);
@@ -269,12 +260,13 @@ foreach ($filterFields as $field => $label):
 </table>
 </div>
 <div class="modal-footer">
- <form method="POST" action="/mes/maintenance_checklist/associate">
+ <form method="POST" action="">
 <input type="hidden" name="associate_checklist" value="1">
 <input type="hidden" name="tenant_id" value="<?= htmlspecialchars($a['tenant_id']) ?>">
 <input type="hidden" name="asset_id" value="<?= htmlspecialchars($a['asset_id']) ?>">
 <input type="hidden" name="checklist_id" value="<?= htmlspecialchars($a['checklist_id']) ?>">
 <input type="hidden" name="work_order_ref" value="<?= htmlspecialchars($a['work_order_ref']) ?>">
+<input type="hidden" name="technician_name" value="<?= htmlspecialchars($a['technician_name']) ?>">
 <button type="submit" class="btn btn-primary">ASSOCIATE</button>
 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 </form>
