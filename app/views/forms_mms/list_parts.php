@@ -5,11 +5,11 @@
     border: 1px solid #dee2e6;
     border-radius: 8px;
     background: #fff;
-    padding: 16px;
-    display: grid;
-    grid-template-columns: 70px 1fr 2fr 100px;
+    padding: 12px;
+    display: flex;
     gap: 16px;
-    align-items: start;
+    align-items: flex-start;
+    transition: box-shadow 0.2s ease;
 }
 .rs-card:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -30,7 +30,10 @@
     color: #6c757d;
 }
 
-/* Column 2: Info */
+/* Column 2: Info (RS No., Part Name, Metadata) */
+.rs-info {
+    flex-grow: 1;
+}
 .rs-info-title {
     margin: 0 0 4px 0;
     font-size: 1rem;
@@ -45,18 +48,19 @@
     font-size: 0.75rem;
     color: #495057;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-/* Column 3: Description */
+/* Column 3: Description (Editable) */
 .rs-description {
+    width: 100%;
+    padding: 12px;
     background: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 4px;
-    padding: 12px;
-    min-height: 80px;
     font-size: 0.875rem;
+    min-height: 60px;
     cursor: pointer;
     position: relative;
 }
@@ -86,12 +90,12 @@
     margin-top: 8px;
 }
 
-/* Column 4: Actions */
+/* Column 4: Actions (Badge + Edit + Delete) */
 .rs-actions {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    align-items: flex-end;
+    align-items: flex-start;
 }
 .rs-badge {
     font-size: 0.75rem;
@@ -110,6 +114,7 @@
     font-size: 0.75rem;
     padding: 4px 8px;
     border-radius: 4px;
+    text-align: center;
 }
 </style>
 
@@ -193,6 +198,7 @@
             <?php foreach ($parts as $part): ?>
                 <div class="col-12">
                     <div class="rs-card">
+
                         <!-- Column 1: Image -->
                         <?php
                         $imagePath = $part['image_path'] ?? '';
@@ -203,7 +209,7 @@
                         <?php endif; ?>
 
                         <!-- Column 2: RS Info -->
-                        <div>
+                        <div class="rs-info">
                             <h5 class="rs-info-title">RS No. <?= htmlspecialchars($part['part_id']) ?></h5>
                             <p class="rs-info-subtitle"><?= htmlspecialchars($part['part_name']) ?></p>
                             <div class="rs-meta">
@@ -211,19 +217,19 @@
                                 <span><strong>Serial:</strong> <?= htmlspecialchars($part['serial_no'] ?? '—') ?></span>
                                 <span><strong>Vendor:</strong> <?= htmlspecialchars($part['vendor_id'] ?? '—') ?></span>
                             </div>
-                        </div>
 
-                        <!-- Column 3: Description (Inline Edit) -->
-                        <div class="rs-description" data-part-id="<?= (int)$part['id'] ?>">
-                            <div class="rs-description-text">
-                                <?= nl2br(htmlspecialchars($part['description'] ?? 'Click to add description.')) ?>
-                            </div>
-                            <textarea class="rs-description-input d-none form-control" rows="4"
-                                data-original="<?= htmlspecialchars($part['description'] ?? '') ?>"
-                            ><?= htmlspecialchars($part['description'] ?? '') ?></textarea>
-                            <div class="rs-edit-controls d-none">
-                                <button type="button" class="btn btn-sm btn-primary btn-save-desc btn-action">Save</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-desc btn-action">Cancel</button>
+                            <!-- Column 3: Description -->
+                            <div class="rs-description" data-part-id="<?= (int)$part['id'] ?>">
+                                <div class="rs-description-text">
+                                    <?= nl2br(htmlspecialchars($part['description'] ?? 'Click to add description.')) ?>
+                                </div>
+                                <textarea class="rs-description-input d-none form-control" rows="3"
+                                    data-original="<?= htmlspecialchars($part['description'] ?? '') ?>"
+                                ><?= htmlspecialchars($part['description'] ?? '') ?></textarea>
+                                <div class="rs-edit-controls d-none">
+                                    <button type="button" class="btn btn-sm btn-primary btn-save-desc btn-action">Save</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-desc btn-action">Cancel</button>
+                                </div>
                             </div>
                         </div>
 
