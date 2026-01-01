@@ -83,11 +83,10 @@
 				$imagePath = $part['image_path'] ?? '';
 
 				if ($imagePath) {
+					// ✅ CORRECT: $imagePath is already a web-accessible path like "/app/parts_img/xyz.jpg"
+					$imageUrl = $imagePath;
 
-					// URL for browser
-					$imageUrl = '/mes' . $imagePath;
-
-					// Full server path
+					// Full server path (for existence check)
 					$fullServerPath = $_SERVER['DOCUMENT_ROOT'] . $imagePath;
 
 					if (file_exists($fullServerPath)) {
@@ -97,10 +96,9 @@
 							  style="object-fit: contain; height: 160px;">';
 					} else {
 						echo '<div class="card-header bg-light text-center text-muted py-5">
-								Image Missing
+								Image Missing (file not found on server)
 							  </div>';
 					}
-
 				} else {
 					echo '<div class="card-header bg-light text-center text-muted py-5">
 							No Image Available
