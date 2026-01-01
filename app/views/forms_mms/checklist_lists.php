@@ -82,7 +82,7 @@
                     <td><?= htmlspecialchars($checklistId) ?></td>
                     <td><?= htmlspecialchars($first['maintenance_type']) ?></td>
                     <td><?= htmlspecialchars($first['work_order']) ?></td>
-                    <td><?= htmlspecialchars($first['technician']) ?></td>
+                    <td><?= htmlspecialchars($first['technician_name']) ?></td>
                     <td><?= htmlspecialchars($first['interval_days']) ?></td>
                     <td><?= htmlspecialchars($first['description']) ?></td>
 
