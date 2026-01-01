@@ -1,5 +1,23 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
+<style>
+.rs-card {
+    transition: all 0.2s ease;
+    border: 1px solid #e0e0e0;
+}
+.rs-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #c0c0c0;
+}
+.rs-card .rs-image-placeholder {
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #adb5bd;
+}
+</style>
+
 <div class="container mt-4">
     <h2 class="mb-4">Machine Parts Inventory</h2>
 
@@ -67,7 +85,7 @@
             <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">No parts found</h5>
             <p class="text-muted">
-                <?= isset($_GET) && array_filter($_GET) ? 'Try adjusting your filters.' : 'Add parts from the dashboard.' ?>
+                <?= !empty(array_filter($_GET)) ? 'Try adjusting your filters.' : 'Add parts from the dashboard.' ?>
             </p>
         </div>
     <?php else: ?>
@@ -76,54 +94,57 @@
             <a href="/mes/parts-list" class="btn btn-sm btn-outline-secondary">Refresh</a>
         </div>
 
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        <div class="row g-4">
             <?php foreach ($parts as $part): ?>
-                <div class="col">
-                    <div class="card h-100 shadow-sm border-0 rounded-3 hover-shadow">
-                        <!-- Image -->
-                        <?php
-                        $imagePath = $part['image_path'] ?? '';
-                        if ($imagePath && file_exists($_SERVER['DOCUMENT_ROOT'] . $imagePath)): ?>
-                            <img src="<?= htmlspecialchars($imagePath) ?>" 
-                                 class="card-img-top bg-light" 
-                                 alt="Part Image"
-                                 style="height: 150px; object-fit: contain;">
-                        <?php else: ?>
-                            <div class="bg-light d-flex align-items-center justify-content-center" 
-                                 style="height: 150px;">
-                                <i class="fas fa-image text-muted fa-2x"></i>
-                            </div>
-                        <?php endif; ?>
+                <div class="col-12">
+                    <div class="rs-card rounded-3 bg-white">
+                        <div class="d-flex align-items-start p-3">
+                            <!-- Image (Left) -->
+                            <?php
+                            $imagePath = $part['image_path'] ?? '';
+                            if ($imagePath && file_exists($_SERVER['DOCUMENT_ROOT'] . $imagePath)): ?>
+                                <img src="<?= htmlspecialchars($imagePath) ?>" 
+                                     alt="Part Image"
+                                     class="flex-shrink-0 rounded me-3"
+                                     style="width: 100px; height: 100px; object-fit: contain;">
+                            <?php else: ?>
+                                <div class="rs-image-placeholder flex-shrink-0 rounded me-3"
+                                     style="width: 100px; height: 100px;">
+                                    <i class="fas fa-cube fa-2x"></i>
+                                </div>
+                            <?php endif; ?>
 
-                        <!-- Body -->
-                        <div class="card-body d-flex flex-column">
-                            <div class="mb-2">
-                                <span class="badge bg-secondary"><?= htmlspecialchars($part['entity']) ?></span>
-                            </div>
-                            <h6 class="card-title fw-bold mb-1"><?= htmlspecialchars($part['part_id']) ?></h6>
-                            <p class="card-text small text-muted mb-2"><?= htmlspecialchars($part['part_name']) ?></p>
+                            <!-- Content (Right) -->
+                            <div class="flex-grow-1">
+                                <!-- Part ID & Category -->
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h5 class="mb-0 fw-bold"><?= htmlspecialchars($part['part_id']) ?></h5>
+                                    <span class="badge <?= 
+                                        $part['category'] === 'HIGH' ? 'bg-danger' : 
+                                        ($part['category'] === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success') 
+                                    ?> ms-2"><?= htmlspecialchars($part['category'] ?? 'LOW') ?></span>
+                                </div>
 
-                            <div class="mt-auto small text-muted">
-                                <div>Serial: <?= htmlspecialchars($part['serial_no'] ?? '—') ?></div>
-                                <div>Vendor: <?= htmlspecialchars($part['vendor_id'] ?? '—') ?></div>
-                            </div>
-                        </div>
+                                <!-- Part Name -->
+                                <p class="text-muted mb-2"><?= htmlspecialchars($part['part_name']) ?></p>
 
-                        <!-- Footer -->
-                        <div class="card-footer bg-white d-flex justify-content-between align-items-center pt-2">
-                            <span class="badge <?= 
-                                $part['category'] === 'HIGH' ? 'bg-danger' : 
-                                ($part['category'] === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success') 
-                            ?>"><?= htmlspecialchars($part['category'] ?? 'LOW') ?></span>
-                            
-                            <form method="POST" action="/mes/machine-parts/delete" style="display:inline;" 
-                                  onsubmit="return confirm('Delete this part?')">
-                                <input type="hidden" name="id" value="<?= (int)$part['id'] ?>">
-                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-danger p-1">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
+                                <!-- Metadata -->
+                                <div class="d-flex flex-wrap gap-3 mb-3 small text-muted">
+                                    <span><strong>Entity:</strong> <?= htmlspecialchars($part['entity']) ?></span>
+                                    <span><strong>Serial:</strong> <?= htmlspecialchars($part['serial_no'] ?? '—') ?></span>
+                                    <span><strong>Vendor:</strong> <?= htmlspecialchars($part['vendor_id'] ?? '—') ?></span>
+                                </div>
+
+                                <!-- Actions -->
+                                <form method="POST" action="/mes/machine-parts/delete" style="display:inline;" 
+                                      onsubmit="return confirm('Delete this part?')">
+                                    <input type="hidden" name="id" value="<?= (int)$part['id'] ?>">
+                                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -131,14 +152,5 @@
         </div>
     <?php endif; ?>
 </div>
-
-<!-- Optional: Add subtle hover effect -->
-<style>
-.hover-shadow:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
-    transform: translateY(-2px);
-    transition: all 0.2s ease;
-}
-</style>
 
 <?php include __DIR__ . '/../layouts/html/footer.php'; ?>
