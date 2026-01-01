@@ -214,20 +214,21 @@
                         </div>
 
                         <!-- Column 3: Description (Inline Edit) -->
-						<label class="form-label fw-bold">Details</label>
-                        <div class="rs-description" data-part-id="<?= (int)$part['id'] ?>">
-                            <div class="rs-description-text">
-                                <?= nl2br(htmlspecialchars($part['description'] ?? 'Click to add description.')) ?>
-                            </div>
-                            <textarea class="rs-description-input d-none form-control" rows="4"
-                                data-original="<?= htmlspecialchars($part['description'] ?? '') ?>"
-                            ><?= htmlspecialchars($part['description'] ?? '') ?></textarea>
-							
-                            <div class="rs-edit-controls d-none">
-                                <button type="button" class="btn btn-sm btn-primary btn-save-desc btn-action">Save</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-desc btn-action">Cancel</button>
-                            </div>
-                        </div>
+						<div class="rs-description-section">
+							<label class="form-label fw-bold mb-2">Details</label>
+							<div class="rs-description" data-part-id="<?= (int)$part['id'] ?>">
+								<div class="rs-description-text">
+									<?= nl2br(htmlspecialchars($part['description'] ?? 'Click to add description.')) ?>
+								</div>
+								<textarea class="rs-description-input d-none form-control" rows="4"
+									data-original="<?= htmlspecialchars($part['description'] ?? '') ?>"
+								><?= htmlspecialchars($part['description'] ?? '') ?></textarea>
+								<div class="rs-edit-controls d-none mt-2">
+									<button type="button" class="btn btn-sm btn-primary btn-save-desc">Save</button>
+									<button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-desc">Cancel</button>
+								</div>
+							</div>
+						</div>
 
                         <!-- Column 4: Badge + Buttons -->
                         <div class="rs-actions">
