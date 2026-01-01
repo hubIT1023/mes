@@ -117,7 +117,7 @@
                     <td><?= htmlspecialchars($order['asset_id']) ?></td>
                     <td><?= htmlspecialchars($order['asset_name']) ?></td>
                     <td><?= htmlspecialchars($order['checklist_id']) ?></td>
-                    <td><?= htmlspecialchars($order['technician_name'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($order['technician'] ?? '') ?></td>
                     <td><?= $order['date_completed'] ? date('Y-m-d H:i', strtotime($order['date_completed'])) : 'N/A' ?></td>
                     <td><?= $order['archived_at'] ? date('Y-m-d H:i', strtotime($order['archived_at'])) : 'N/A' ?></td>
                     <td>

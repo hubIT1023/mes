@@ -1,5 +1,4 @@
 <?php
-
 /**
  * dashboard_upcoming_maint.php
  * 
@@ -78,7 +77,7 @@ $filterData = $routineModel->getFilterOptions($tenantId);
 // ✅ Helper: Get maintenance checklist ID using model method
 function getMaintenanceChecklistId($model, $tenant_id, $asset_id, $checklist_id, $work_order_ref) {
     $sql = "
-        SELECT id  -- ✅ Use 'id', not 'maintenance_checklist_id'
+        SELECT id
         FROM maintenance_checklist
         WHERE tenant_id = ? AND asset_id = ? AND checklist_id = ? AND work_order_ref = ?
     ";
@@ -125,7 +124,7 @@ $filterFields = [
     'asset_name' => 'Asset Name',
     'work_order_ref' => 'Work Order',
     'maintenance_type' => 'Maintenance Type',
-    'technician' => 'technician'
+    'technician' => 'Technician'
 ];
 foreach ($filterFields as $field => $label):
 ?>
@@ -179,7 +178,6 @@ foreach ($filterFields as $field => $label):
 
     $maintenanceId = null;
     if ($isAssociated) {
-        // ✅ Use helper with correct column name 'id'
         $maintenanceId = getMaintenanceChecklistId(
             $checklistModel,
             $a['tenant_id'],
@@ -241,10 +239,10 @@ foreach ($filterFields as $field => $label):
 <tr><th>Asset ID</th><td><?= htmlspecialchars($a['asset_id']) ?></td></tr>
 <tr><th>Asset Name</th><td><?= htmlspecialchars($a['asset_name']) ?></td></tr>
 <tr><th>Location</th><td><?= htmlspecialchars(trim(($a['location_id_1'] ?? '') . ' ' . ($a['location_id_2'] ?? '') . ' ' . ($a['location_id_3'] ?? ''))) ?></td></tr>
-<tr><th>Due Date</th><td><?= htmlspecialchars($a['next_maintenance_date']) ?></td></tr>
-<tr><th>Maintenance Type</th><td><?= htmlspecialchars($a['maintenance_type']) ?></td></tr>
-<tr><th>Status</th><td><?= htmlspecialchars($a['status']) ?></td></tr>
-<tr><th>Technician</th><td><?= htmlspecialchars($a['technician']) ?></td></tr>
+<tr><th>Due Date</th><td><?= htmlspecialchars($a['next_maintenance_date'] ?? '') ?></td></tr>
+<tr><th>Maintenance Type</th><td><?= htmlspecialchars($a['maintenance_type'] ?? '') ?></td></tr>
+<tr><th>Status</th><td><?= htmlspecialchars($a['status'] ?? '') ?></td></tr>
+<tr><th>Technician</th><td><?= htmlspecialchars($a['technician'] ?? '') ?></td></tr>
 <tr><th>Work Order</th><td><?= htmlspecialchars($a['work_order_ref']) ?></td></tr>
 <tr><th>Checklist</th><td><?= htmlspecialchars($a['checklist_id']) ?></td></tr>
 </table>
@@ -267,7 +265,7 @@ foreach ($filterFields as $field => $label):
 <input type="hidden" name="asset_id" value="<?= htmlspecialchars($a['asset_id']) ?>">
 <input type="hidden" name="checklist_id" value="<?= htmlspecialchars($a['checklist_id']) ?>">
 <input type="hidden" name="work_order_ref" value="<?= htmlspecialchars($a['work_order_ref']) ?>">
-<input type="hidden" name="technician" value="<?= htmlspecialchars($a['technician']) ?>">
+<input type="hidden" name="technician" value="<?= htmlspecialchars($a['technician'] ?? '') ?>">
 <button type="submit" class="btn btn-primary">ASSOCIATE</button>
 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 </form>
