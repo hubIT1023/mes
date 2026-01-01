@@ -203,6 +203,14 @@ function is_active($path, $current_page) {
 				</div>
 				<span class="small">Mode Colors</span>
 			</a>
+			<a href="/mes/mode-color" 
+			   class="product-item d-flex flex-column align-items-center text-decoration-none 
+				<?= is_active('/mes/parts-list', $current_page) ? 'text-primary' : 'text-secondary' ?>">
+				<div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
+					<i class="fas fa-fw"></i>
+				</div>
+				<span class="small">Machine Parts</span>
+			</a>
 			
 			<a  href="#" class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" 
 				data-bs-toggle="modal" data-bs-target="#createGroupPageModal" >
@@ -221,8 +229,6 @@ function is_active($path, $current_page) {
        
     </div>
 </div>
-
-
 
     <div class="container-fluid">
         <div class="row">

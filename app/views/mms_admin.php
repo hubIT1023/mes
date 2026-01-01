@@ -153,7 +153,7 @@ $tenant = $_SESSION['tenant'];
           <p class="text-gray-600 dark:text-gray-300 mb-4">
             Search and manage parts associated with each machine.
           </p>
-          <a href="#" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 inline-block">Go</a>
+          <a href="/mes/parts-list'" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 inline-block">Go</a>
         </div>
 
       </div>
