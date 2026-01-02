@@ -66,8 +66,8 @@
     <header class="gradient-bg text-white py-20">
         <div class="container mx-auto px-6 text-center">
             <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-                HubIT.online</h1> <h5><br class="hidden md:block"> Smarter Tech. Simpler Solutions. 
-            </h5>
+                HubIT.online</h1> <h3><br class="hidden md:block"> Smarter Tech. Simpler Solutions. 
+            </h3>
             <p class="text-xl text-slate-300 max-w-3xl mx-auto mb-10">
                HubIT.online brings maintenance, asset management, and 
 			   IoT monitoring together in one real-time platform—built for factories, utilities, and modern facilities.
