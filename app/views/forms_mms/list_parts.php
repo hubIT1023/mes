@@ -1,21 +1,25 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
 <style>
+/* ======================= */
+/* Desktop: Grid Layout */
+/* ======================= */
 .rs-card {
     border: 1px solid #dee2e6;
     border-radius: 8px;
     background: #fff;
     padding: 16px;
     display: grid;
-    grid-template-columns: 70px 1fr 2fr 100px;
+    grid-template-columns: 60px 1fr 2fr auto; /* Image | Info | Description | Actions */
     gap: 16px;
     align-items: start;
+    transition: box-shadow 0.2s;
 }
+
 .rs-card:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-/* Column 1: Image */
 .rs-image {
     width: 60px;
     height: 60px;
@@ -30,7 +34,6 @@
     color: #6c757d;
 }
 
-/* Column 2: Info */
 .rs-info-title {
     margin: 0 0 4px 0;
     font-size: 1rem;
@@ -49,7 +52,6 @@
     gap: 4px;
 }
 
-/* Column 3: Description */
 .rs-description {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
@@ -86,7 +88,7 @@
     margin-top: 8px;
 }
 
-/* Column 4: Actions */
+/* Actions Column */
 .rs-actions {
     display: flex;
     flex-direction: column;
@@ -113,33 +115,8 @@
 }
 
 /* ======================= */
-/* Responsive Adjustments */
+/* Mobile Layout (≤576px) */
 /* ======================= */
-/* Ensure description takes max width on smaller screens */
-@media (max-width: 576px) {
-    .rs-description-section {
-        width: 100%;
-    }
-
-    .rs-description {
-        width: 100%;
-        min-width: unset;
-    }
-
-    .rs-description-input {
-        width: 100%;
-    }
-
-    /* Make edit controls full width too */
-    .rs-edit-controls {
-        flex-direction: row;
-        justify-content: flex-start;
-        gap: 8px;
-        width: 100%;
-    }
-}
-
-
 @media (max-width: 576px) {
     .rs-card {
         display: flex;
@@ -147,11 +124,46 @@
         gap: 12px;
         padding: 12px;
     }
-    .rs-actions {
+
+    .rs-image {
         width: 100%;
-        justify-content: space-between;
+        max-width: 100px;
+        margin: 0 auto;
+    }
+
+    .rs-description-section,
+    .rs-description,
+    .rs-description-input {
+        width: 100%;
+    }
+
+    .rs-edit-controls {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 8px;
+        width: 100%;
+    }
+
+    /* Actions: Badge + buttons in a row */
+    .rs-actions {
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .rs-badge {
+        flex-shrink: 0;
+    }
+
+    .btn-action,
+    .rs-actions form {
+        flex: 1 1 auto;
+        min-width: auto;
     }
 }
+
 </style>
 
 <div class="container mt-4">
