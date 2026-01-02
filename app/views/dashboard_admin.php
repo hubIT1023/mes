@@ -225,14 +225,15 @@ function is_active($path, $current_page) {
 				<span class="small">Machine Parts</span>
 			</a>
 			
-			<a  href="#" class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" 
-				data-bs-toggle="modal" data-bs-target="#createGroupPageModal" >
+			<!-- REPLACE THIS BUTTON -->
+			<a href="#" class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" 
+			   onclick="openDashboardPageModal(<?= json_encode($selectedPageId) ?>)">
 				<div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
 					<i class="fas fa-fw fa-plus-circle"></i>
 				</div>
-				<span class="small">Create New Page</span>
+				<span class="small">Dashboard Pages</span>
 			</a>
-    
+				
             <!--a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a>
             <a class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div><span>Loggers</span></a>
             <a class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div><span>Sensors</span></a>
@@ -388,31 +389,51 @@ function is_active($path, $current_page) {
         </div>
     </div>
 
-    <!-- CREATE PAGE MODAL -->
-    <div class="modal fade" id="createGroupPageModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="/mes/create-page" method="POST">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
-                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Create New Page</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Page Name</label>
-                            <input type="text" class="form-control" name="page_name" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create Page</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <!-- DASHBOARD PAGE MANAGER MODAL (Create / Rename / Delete) -->
+	<div class="modal fade" id="dashboardPageModal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form id="dashboardPageForm" method="POST">
+					<input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
+					<input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+					<input type="hidden" id="modal_page_id" name="page_id" value="">
+
+					<div class="modal-header">
+						<h5 class="modal-title" id="modalTitle">Manage Page</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+
+					<div class="modal-body">
+						<!-- Action Selector -->
+						<div class="mb-3">
+							<label class="form-label">Action</label>
+							<select class="form-select" id="pageAction" required>
+								<option value="create">Create New Page</option>
+								<option value="rename" <?= $selectedPageId ? '' : 'disabled' ?>>Rename Page</option>
+								<option value="delete" <?= $selectedPageId ? '' : 'disabled' ?>>Delete Page</option>
+							</select>
+						</div>
+
+						<!-- Page Name Input -->
+						<div class="mb-3" id="pageNameField">
+							<label class="form-label">Page Name</label>
+							<input type="text" class="form-control" id="pageNameInput" name="page_name" maxlength="100">
+						</div>
+
+						<!-- Delete Warning -->
+						<div class="alert alert-warning d-none" id="deleteWarning">
+							<strong>Warning:</strong> This will permanently delete the page and all its groups. Cannot be undone.
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary" id="modalSubmitBtn">Create Page</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
     <!-- UPDATE GROUP MODAL -->
     <div class="modal fade" id="updateGroupModal" tabindex="-1">
@@ -520,6 +541,76 @@ function is_active($path, $current_page) {
     <?php endforeach; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<script>
+	function openDashboardPageModal(currentPageId) {
+		const modalEl = document.getElementById('dashboardPageModal');
+		const modal = new bootstrap.Modal(modalEl);
+		const form = document.getElementById('dashboardPageForm');
+		const actionSelect = document.getElementById('pageAction');
+		const pageNameInput = document.getElementById('pageNameInput');
+		const modalTitle = document.getElementById('modalTitle');
+		const submitBtn = document.getElementById('modalSubmitBtn');
+		const deleteWarning = document.getElementById('deleteWarning');
+		const pageNameField = document.getElementById('pageNameField');
+
+		// Reset form
+		form.reset();
+		document.getElementById('modal_page_id').value = currentPageId || '';
+		
+		// Set page name if editing
+		if (currentPageId) {
+			pageNameInput.value = "<?= addslashes($selectedPageName) ?>";
+			actionSelect.disabled = false;
+		} else {
+			actionSelect.value = 'create';
+			actionSelect.querySelectorAll('option[value="rename"], option[value="delete"]').forEach(opt => {
+				opt.disabled = true;
+			});
+		}
+
+		// Update UI based on selection
+		const updateModalUI = () => {
+			const action = actionSelect.value;
+			let title, btnText, actionUrl, isDelete = false;
+
+			switch (action) {
+				case 'create':
+					title = "Create New Page";
+					btnText = "Create Page";
+					actionUrl = "/mes/create-page";
+					pageNameInput.required = true;
+					break;
+				case 'rename':
+					title = "Rename Page";
+					btnText = "Rename Page";
+					actionUrl = "/mes/rename-page";
+					pageNameInput.required = true;
+					break;
+				case 'delete':
+					title = "Delete Page";
+					btnText = "Delete Page";
+					actionUrl = "/mes/delete-page";
+					pageNameInput.required = false;
+					isDelete = true;
+					break;
+			}
+
+			modalTitle.textContent = title;
+			submitBtn.textContent = btnText;
+			submitBtn.className = submitBtn.className.replace(/btn-(primary|danger)/g, 
+				isDelete ? 'btn-danger' : 'btn-primary');
+			form.action = actionUrl;
+			pageNameField.classList.toggle('d-none', isDelete);
+			deleteWarning.classList.toggle('d-none', !isDelete);
+		};
+
+		// Re-initialize listener to avoid duplicates
+		actionSelect.onchange = updateModalUI;
+		updateModalUI();
+		modal.show();
+	}
+	</script>
     <script>
         function openCreateGroupModal(pageId) {
             const pageInput = document.getElementById('modal_page_id');

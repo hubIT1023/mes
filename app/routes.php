@@ -23,14 +23,18 @@ $staticPages = [
     'GET /dashboard_admin'  => ['PagesController', 'Dashboard_Admin'],
 ];
 
+
 // --- Business Intelligence ---
 $biRoutes = [
-    'POST /update-entity-position' => ['UpdateEntityPositionController', 'handleUpdate'],
+    
     'POST /create-page'            => ['GroupPageController', 'store'],
-    'POST /create-group'           => ['CreateGroupController', 'handleCreateGroup'],
+    'POST /mes/rename-page'  => ['GroupPageController', 'rename'],
+    'POST /mes/delete-page'  => ['GroupPageController', 'destroy'],
+	'POST /create-group'           => ['CreateGroupController', 'handleCreateGroup'],
     'POST /update-group'           => ['UpdateGroupController', 'handleUpdate'],
     'POST /delete-group'           => ['DeleteGroupController', 'handleDelete'],
     'POST /add-entity'             => ['AddEntityToDashboardController', 'handleAddEntity'],
+	'POST /update-entity-position' => ['UpdateEntityPositionController', 'handleUpdate'],
     'POST /change-tool-state'      => ['ToolStateController', 'handleChangeState'],
 ];
 
