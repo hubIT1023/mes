@@ -113,22 +113,6 @@
 /* ======================= */
 /* Responsive Adjustments */
 /* ======================= */
-@media (max-width: 992px) {
-    .rs-card {
-        grid-template-columns: 60px 1fr;
-        grid-template-rows: auto auto auto;
-    }
-    .rs-description {
-        grid-column: 1 / -1;
-    }
-    .rs-actions {
-        flex-direction: row;
-        justify-content: flex-start;
-        gap: 8px;
-        margin-top: 8px;
-    }
-}
-
 /* Ensure description takes max width on smaller screens */
 @media (max-width: 576px) {
     .rs-description-section {
@@ -153,6 +137,19 @@
     }
 }
 
+
+@media (max-width: 576px) {
+    .rs-card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+    }
+    .rs-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
 
 </style>
 
