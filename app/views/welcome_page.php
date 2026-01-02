@@ -89,7 +89,7 @@
 				<!-- Dashboard Overview -->
 				<div class="bg-slate-800 rounded-xl shadow-2xl overflow-hidden border-4 border-slate-700 group">
 					<div class="relative overflow-hidden h-[300px]"> <!-- Fixed height -->
-						<img src="/app/Assets/img/dashboard_overview.JPG" 
+						<img src="/app/Assets/img/dashboard_overview.jpg" 
 							 alt="Dashboard Overview" 
 							 class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
 					</div>
