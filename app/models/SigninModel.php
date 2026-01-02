@@ -11,7 +11,7 @@ class SigninModel {
     }
 
     public function verifyCredentials($email, $password) {
-        $stmt = $this->db->prepare("SELECT * FROM organizations WHERE email = :email");
+        $stmt = $this->conn->prepare("SELECT * FROM organizations WHERE email = :email");
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -23,7 +23,7 @@ class SigninModel {
 
     public function storeRememberToken($org_id, $token) {
         $hashedToken = hash('sha256', $token);
-        $stmt = $this->db->prepare("
+        $stmt = $this->conn->prepare("
             UPDATE organizations 
             SET remember_token = :token 
             WHERE org_id = :org_id
@@ -33,7 +33,7 @@ class SigninModel {
 
     public function verifyRememberToken($token) {
         $hashedToken = hash('sha256', $token);
-        $stmt = $this->db->prepare("
+        $stmt = $this->conn->prepare("
             SELECT * FROM organizations 
             WHERE remember_token = :token
         ");
@@ -42,7 +42,7 @@ class SigninModel {
     }
 
     public function clearRememberToken($org_id) {
-        $stmt = $this->db->prepare("
+        $stmt = $this->conn->prepare("
             UPDATE organizations 
             SET remember_token = NULL 
             WHERE org_id = :org_id
