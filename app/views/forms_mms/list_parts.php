@@ -7,15 +7,16 @@
     background: #fff;
     padding: 16px;
     display: grid;
-    grid-template-columns: 70px 1fr 2fr 100px;
+    grid-template-columns: 60px 1fr 1fr auto;
     gap: 16px;
     align-items: start;
+    transition: box-shadow 0.2s;
 }
+
 .rs-card:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-/* Column 1: Image */
 .rs-image {
     width: 60px;
     height: 60px;
@@ -30,7 +31,6 @@
     color: #6c757d;
 }
 
-/* Column 2: Info */
 .rs-info-title {
     margin: 0 0 4px 0;
     font-size: 1rem;
@@ -49,7 +49,6 @@
     gap: 4px;
 }
 
-/* Column 3: Description */
 .rs-description {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
@@ -86,7 +85,6 @@
     margin-top: 8px;
 }
 
-/* Column 4: Actions */
 .rs-actions {
     display: flex;
     flex-direction: column;
@@ -111,6 +109,39 @@
     padding: 4px 8px;
     border-radius: 4px;
 }
+
+/* ======================= */
+/* Responsive Adjustments */
+/* ======================= */
+@media (max-width: 992px) {
+    .rs-card {
+        grid-template-columns: 60px 1fr;
+        grid-template-rows: auto auto auto;
+    }
+    .rs-description {
+        grid-column: 1 / -1;
+    }
+    .rs-actions {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 8px;
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .rs-card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+    }
+    .rs-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
 </style>
 
 <div class="container mt-4">
