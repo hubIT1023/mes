@@ -79,12 +79,12 @@
       </div>
 
       <!-- Alias -->
-      <div class="mb-5">
+      <!--div class="mb-5">
         <label for="org_alias" class="block mb-2 text-sm font-medium text-gray-500">Organization Alias (Optional)</label>
         <input type="text" name="org_alias" id="org_alias"
                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-200 transition"
                placeholder="e.g. NVT" />
-      </div>
+      </div->
 
       <!-- Email -->
       <div class="mb-5">
@@ -113,7 +113,7 @@
   <!-- Sign In Link -->
   <p class="mt-6 text-center text-gray-600">
     Already have an account?
-    <a href="signin" class="text-indigo-600 hover:text-indigo-800 font-semibold">Sign In</a>
+    <a href="/mes/signin" class="text-indigo-600 hover:text-indigo-800 font-semibold">Sign In</a>
   </p>
 
 </body>

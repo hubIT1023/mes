@@ -20,7 +20,9 @@ ADD CONSTRAINT UQ_organizations_org_id UNIQUE (org_id);
 ALTER TABLE organizations
 ADD CONSTRAINT UQ_organizations_email UNIQUE (email);
 
-
+-- Run this once in your PostgreSQL DB
+ALTER TABLE organizations 
+ADD COLUMN IF NOT EXISTS remember_token VARCHAR(64) NULL;
 /* =====================================================
    ASSETS (Multi-Tenant)
 ===================================================== */
