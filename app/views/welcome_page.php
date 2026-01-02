@@ -25,7 +25,7 @@
         font-weight: bold; 
     }
     .img-overlay { 
-        background: url('/app/Assets/img/hub.png') no-repeat center center;
+        background: url('/Assets/img/hub.png') no-repeat center center;
         background-size: cover;
     }
 
