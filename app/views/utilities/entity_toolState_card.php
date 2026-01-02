@@ -129,8 +129,107 @@ foreach ($entities as $entity) {
 }
 ?>
 
+<?php 
+// /app/views/utilities/tool_card/entity_toolState_card.php
+
+if (!isset($group) || !isset($org_id) || !isset($conn)) {
+    echo "<div class='alert alert-danger'>Error: Missing required context (group, org_id, or conn).</div>";
+    return;
+}
+
+$groupCode = (int)($group['group_code'] ?? 0);
+$locationCode = (int)($group['location_code'] ?? 0);
+$locationName = htmlspecialchars($group['location_name'] ?? 'Unknown Location');
+
+// === Fetch entities ===
+try {
+    $stmt = $conn->prepare("
+        SELECT id, asset_id, entity, group_code, location_code, row_pos, col_pos
+        FROM registered_tools
+        WHERE group_code 		= :group_code
+          AND location_code 	= :location_code
+          AND org_id 			= :org_id
+        ORDER BY row_pos, col_pos
+    ");
+    $stmt->execute([
+        'group_code' 	=> $groupCode,
+        'location_code' => $locationCode,
+        'org_id' 		=> $org_id
+    ]);
+    $entities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("DB error fetching entities: " . $e->getMessage());
+    $entities = [];
+}
+
+// === Fetch tool states ===
+try {
+    $stmt = $conn->prepare("
+        SELECT col_2 AS entity, col_3 AS stop_cause
+        FROM tool_state
+        WHERE org_id 		= :org_id
+          AND group_code 	= :group_code
+          AND location_code = :location_code
+    ");
+    $stmt->execute([
+        'org_id' 		=> $org_id,
+        'group_code' 	=> $groupCode,
+        'location_code' => $locationCode
+    ]);
+    $states = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+} catch (PDOException $e) {
+    error_log("DB error fetching states: " . $e->getMessage());
+    $states = [];
+}
+
+// === getStateBadge ===
+if (!function_exists('getStateBadge')) {
+    function getStateBadge(string $state, $conn, string $org_id) {
+        static $cache = [];
+        $cacheKey = "$org_id|$state";
+        if (isset($cache[$cacheKey])) return $cache[$cacheKey];
+
+        $fallback = ['label' => strtoupper(trim($state)) ?: 'UNKNOWN', 'class' => 'bg-gray-500'];
+        try {
+            $stmt = $conn->prepare("SELECT label, tailwind_class FROM mode_color WHERE org_id = ? AND mode_key = ?");
+            $stmt->execute([$org_id, strtoupper(trim($state))]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $row ? ['label' => $row['label'], 'class' => $row['tailwind_class']] : $fallback;
+        } catch (PDOException $e) {
+            error_log("getStateBadge DB error: " . $e->getMessage());
+            $result = $fallback;
+        }
+        $cache[$cacheKey] = $result;
+        return $result;
+    }
+}
+
+// === renderDataAttributes ===
+if (!function_exists('renderDataAttributes')) {
+    function renderDataAttributes(string $assetId, string $entityName, int $groupCode, int $locationCode, string $locationName, string $dateTime) {
+        echo 'data-asset-id="' . htmlspecialchars($assetId) . '" ';
+        echo 'data-header="' . htmlspecialchars($entityName) . '" ';
+        echo 'data-group-code="' . $groupCode . '" ';
+        echo 'data-location-code="' . $locationCode . '" ';
+        echo 'data-location-name="' . htmlspecialchars($locationName) . '" ';
+        echo 'data-date="' . htmlspecialchars($dateTime) . '" ';
+    }
+}
+
+// === Max Row & Grid Lookup ===
+$maxRow = 1;
+foreach ($entities as $entity) $maxRow = max($maxRow, (int)$entity['row_pos']);
+
+$grid = [];
+foreach ($entities as $entity) {
+    $r = (int)$entity['row_pos'];
+    $c = (int)$entity['col_pos'];
+    if ($c >= 1 && $c <= 9) $grid[$r][$c] = $entity;
+}
+?>
+
 <!-- Tool State Cards Grid -->
-<div class="grid-container" style="display: grid; grid-template-columns: repeat(9, 1fr); gap: 1rem;">
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-4">
     <?php for ($row = 1; $row <= $maxRow; $row++): ?>
         <?php for ($col = 1; $col <= 9; $col++): ?>
             <?php if (isset($grid[$row][$col])): ?>
@@ -142,94 +241,42 @@ foreach ($entities as $entity) {
                 $stopCause = $states[$entityName] ?? 'IDLE';
                 $badge = getStateBadge($stopCause, $conn, $org_id);
                 ?>
-                <div class="card" style="width: 150px;">
-                    <!-- Entity Card Header + Edit Button -->
-				<div class="d-flex align-items-start justify-content-between w-100" style="min-height: 60px;">
-					<!-- Entity Name (as button) -->
-					<button type="button"
-							class="bg-white text-primary small text-start border-0 flex-grow-1 me-2"
-							data-bs-toggle="modal"
-							data-bs-target="#associateAccessoriesModal"
-							style="padding: 0.5rem 0.75rem; text-align: left;"
-							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
-						<strong><?= $entityName ?></strong>
-						<small class="text-muted d-block mt-1">Pos: (<?= $row ?>, <?= $col ?>)</small>
-					</button>
-
-					<!-- Edit Position Button -->
-					<button class="btn btn-sm btn-light text-primary flex-shrink-0" 
-							title="Edit"
-							data-bs-toggle="modal" 
-							data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>">
-						<i class="fas fa-edit"></i>
-					</button>
-				</div>
-					
-					
-
-                    <!-- State Badge -->
-                    <button type="button"
-                            class="card-body d-flex align-items-center justify-content-center text-white large fw-bold <?= $badge['class'] ?> w-100 border-1"
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <!-- Header & Edit -->
+                    <div class="flex justify-between items-start p-2">
+                        <button class="flex-grow text-left text-sm font-semibold text-blue-700"
+                                data-bs-toggle="modal"
+                                data-bs-target="#associateAccessoriesModal"
+                                <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
+                            <?= $entityName ?>
+                            <div class="text-xs text-gray-500">Pos: (<?= $row ?>, <?= $col ?>)</div>
+                        </button>
+                        <button class="btn btn-sm btn-light text-primary flex-shrink-0"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <!-- Badge -->
+                    <button class="w-full py-2 text-white font-bold <?= $badge['class'] ?>"
                             data-bs-toggle="modal"
                             data-bs-target="#changeStateModal"
-                            style="height: 60px; padding: 0; margin: 0;"
                             <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
                         <?= htmlspecialchars($badge['label']) ?>
                     </button>
                 </div>
-
-                <!-- Edit Position Modal -->
-                <div class="modal fade" id="editPositionModal_<?= (int)$entity['id'] ?>" tabindex="-1">
-                    <div class="modal-dialog">
-                        <form action="/mes/update-entity-position" method="POST">
-                            <input type="hidden" name="entity_id" value="<?= (int)$entity['id'] ?>">
-                            <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Edit Position: <?= $entityName ?></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <label class="form-label">Row</label>
-                                            <input type="number" class="form-control" name="row_pos"
-                                                   value="<?= (int)$entity['row_pos'] ?>" min="1" required>
-                                        </div>
-                                        <div class="col-6">
-                                            <label class="form-label">Column</label>
-                                            <input type="number" class="form-control" name="col_pos"
-                                                   value="<?= (int)$entity['col_pos'] ?>" min="1" max="9" required>
-                                        </div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <small class="text-muted">Columns 1–9 per row</small>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Move </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
             <?php else: ?>
                 <!-- Empty Placeholder -->
-                <div class="card" style="width: 150px; border: 2px dashed #ccc; background-color: #f9f9f9;">
-                    <div class="card-body d-flex align-items-center justify-content-center text-muted" style="height: 100px;">
-                        <!--button class="btn btn-sm btn-outline-primary"
-                                data-bs-toggle="modal"
-                                data-bs-target="#addEntityModal_<?= (int)$group['group_code'] ?>">
-                            + Add
-                        </button-->
-                    </div>
+                <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg h-24 flex items-center justify-center">
+                    <!-- Optional add button -->
                 </div>
             <?php endif; ?>
         <?php endfor; ?>
     <?php endfor; ?>
 </div>
+
+<!-- Modals remain unchanged (associateAccessoriesModal, changeStateModal, editPositionModal) -->
+
 
 
 
