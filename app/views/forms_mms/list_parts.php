@@ -129,18 +129,30 @@
     }
 }
 
+/* Ensure description takes max width on smaller screens */
 @media (max-width: 576px) {
-    .rs-card {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding: 12px;
-    }
-    .rs-actions {
+    .rs-description-section {
         width: 100%;
-        justify-content: space-between;
+    }
+
+    .rs-description {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .rs-description-input {
+        width: 100%;
+    }
+
+    /* Make edit controls full width too */
+    .rs-edit-controls {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 8px;
+        width: 100%;
     }
 }
+
 
 </style>
 
