@@ -112,8 +112,10 @@ $tenant = $_SESSION['tenant'];
           <p class="text-gray-600 dark:text-gray-300 mb-4">
             Define maintenance steps and inspections for each asset type.
           </p>
-          <a href="/mes/form_mms/checklist_template" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block">Create Checklist</a>
-		  <a href="/mes/form_mms/checklists" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block">List of Checklist</a>
+			  <div class="d-flex align-items-center gap-3">
+				  <a href="/mes/form_mms/checklist_template" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block">Create Checklist</a>
+				  <a href="/mes/form_mms/checklists" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block">List of Checklist</a>
+			  </div>
         </div>
 
          <!-- Schedule Maintenance -->
@@ -123,8 +125,10 @@ $tenant = $_SESSION['tenant'];
           <p class="text-gray-600 dark:text-gray-300 mb-4">
             Plan calibration, preventive or corrective maintenance for your assets.
           </p>
-          <a href="mes/form_mms/routine_maintenance" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block">Create WO</a>
-		  <a href="#" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block">List of Work Order </a>
+			  <div class="d-flex align-items-center gap-3">
+				  <a href="mes/form_mms/routine_maintenance" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block">Create WO</a>
+				  <a href="#" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block">List of Work Order </a>
+			  </div>
         </div>
 		
 
@@ -135,8 +139,10 @@ $tenant = $_SESSION['tenant'];
           <p class="text-gray-600 dark:text-gray-300 mb-4">
             Track upcoming and ongoing maintenance tasks and receive alerts.
           </p>
-          <a href="/mes/dashboard_upcoming_maint" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 inline-block">Work Orders</a>
-		   <a href="/mes/completed_work_orders" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block">Completed WO</a>
+		  	<div class="d-flex align-items-center gap-3">
+				<a href="/mes/dashboard_upcoming_maint" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 inline-block">Work Orders</a>
+				<a href="/mes/completed_work_orders" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block">Completed WO</a>
+		    </div>
         </div>
 
         <!-- Reports -->
