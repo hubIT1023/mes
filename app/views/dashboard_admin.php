@@ -40,6 +40,9 @@ if ($selectedPageId !== null) {
     $_SESSION['last_page_id'] = $selectedPageId;
 }
 
+// NEW: Check if any page exists
+$hasAnyPage = !empty($pages);
+
 // 8. Filter Groups & Determine UI State
 $selectedPageGroups = $selectedPageId !== null 
     ? array_filter($groups, fn($g) => (int)$g['page_id'] === $selectedPageId)
@@ -207,7 +210,6 @@ function is_active($path, $current_page) {
                 <span class="small">Machine Parts</span>
             </a>
             
-            <!-- ✅ WORKING BUTTON -->
             <a href="#" class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" 
                onclick="openDashboardPageModal(<?= json_encode($selectedPageId) ?>)">
                 <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
@@ -360,10 +362,9 @@ function is_active($path, $current_page) {
 <div class="modal fade" id="dashboardPageModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="dashboardPageForm" method="POST">
+            <form id="dashboardPageForm">
                 <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                <input type="hidden" id="modal_page_id" name="page_id" value="">
 
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalTitle">Manage Page</h5>
@@ -375,8 +376,20 @@ function is_active($path, $current_page) {
                         <label class="form-label">Action</label>
                         <select class="form-select" id="pageAction" required>
                             <option value="create">Create New Page</option>
-                            <option value="rename" <?= $selectedPageId ? '' : 'disabled' ?>>Rename Page</option>
-                            <option value="delete" <?= $selectedPageId ? '' : 'disabled' ?>>Delete Page</option>
+                            <option value="rename" <?= $hasAnyPage ? '' : 'disabled' ?>>Rename Page</option>
+                            <option value="delete" <?= $hasAnyPage ? '' : 'disabled' ?>>Delete Page</option>
+                        </select>
+                    </div>
+
+                    <!-- Page selector for rename/delete -->
+                    <div class="mb-3 d-none" id="pageSelectorField">
+                        <label class="form-label">Select Page</label>
+                        <select class="form-select" id="pageSelector" name="page_id">
+                            <?php foreach ($pages as $p): ?>
+                                <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == ($selectedPageId ?? 0) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($p['page_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
 
@@ -512,33 +525,33 @@ function openDashboardPageModal(currentPageId) {
     const modal = new bootstrap.Modal(modalEl);
     const form = document.getElementById('dashboardPageForm');
     const actionSelect = document.getElementById('pageAction');
+    const pageSelector = document.getElementById('pageSelector');
     const pageNameInput = document.getElementById('pageNameInput');
     const modalTitle = document.getElementById('modalTitle');
     const submitBtn = document.getElementById('modalSubmitBtn');
     const deleteWarning = document.getElementById('deleteWarning');
     const pageNameField = document.getElementById('pageNameField');
-    const pageIdInput = document.getElementById('modal_page_id');
+    const pageSelectorField = document.getElementById('pageSelectorField');
 
     // Reset form
     form.reset();
-    pageIdInput.value = currentPageId || '';
 
-    if (currentPageId) {
-        pageNameInput.value = "<?= addslashes($selectedPageName) ?>";
-        actionSelect.querySelectorAll('option[value="rename"], option[value="delete"]').forEach(opt => {
-            opt.disabled = false;
-        });
-        actionSelect.value = 'rename';
-    } else {
-        actionSelect.value = 'create';
-        actionSelect.querySelectorAll('option[value="rename"], option[value="delete"]').forEach(opt => {
-            opt.disabled = true;
-        });
+    // Pre-select current page if provided
+    if (currentPageId && pageSelector.querySelector(`option[value="${currentPageId}"]`)) {
+        pageSelector.value = currentPageId;
     }
+
+    // Auto-fill name when renaming
+    const updatePageName = () => {
+        if (actionSelect.value === 'rename' && pageSelector.value) {
+            const selectedOption = pageSelector.options[pageSelector.selectedIndex];
+            pageNameInput.value = selectedOption?.text || '';
+        }
+    };
 
     const updateModalUI = () => {
         const action = actionSelect.value;
-        let title, btnText, actionUrl, isDelete = false;
+        let title, btnText, actionUrl, isDelete = false, showPageSelector = false;
 
         switch (action) {
             case 'create':
@@ -552,6 +565,8 @@ function openDashboardPageModal(currentPageId) {
                 btnText = "Rename Page";
                 actionUrl = "/mes/rename-page";
                 pageNameInput.required = true;
+                showPageSelector = true;
+                updatePageName();
                 break;
             case 'delete':
                 title = "Delete Page";
@@ -559,6 +574,7 @@ function openDashboardPageModal(currentPageId) {
                 actionUrl = "/mes/delete-page";
                 pageNameInput.required = false;
                 isDelete = true;
+                showPageSelector = true;
                 break;
         }
 
@@ -568,9 +584,11 @@ function openDashboardPageModal(currentPageId) {
         form.action = actionUrl;
         pageNameField.classList.toggle('d-none', isDelete);
         deleteWarning.classList.toggle('d-none', !isDelete);
+        pageSelectorField.classList.toggle('d-none', !showPageSelector);
     };
 
-    actionSelect.onchange = updateModalUI;
+    actionSelect.addEventListener('change', updateModalUI);
+    pageSelector.addEventListener('change', updatePageName);
     updateModalUI();
     modal.show();
 }
