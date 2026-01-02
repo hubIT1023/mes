@@ -73,7 +73,7 @@
             <!-- Card -->
             <div class="bg-slate-800 rounded-xl shadow-2xl overflow-hidden border-4 border-slate-700 group">
                 <div class="h-[300px] overflow-hidden">
-                    <img src="/app/Assets/img/dashboard_overview.JPG"
+                    <img src="../Assets/img/dashboard_overview.JPG"
                          class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
                 </div>
                 <div class="p-3 text-center text-xs text-slate-400 bg-slate-900 uppercase">Dashboard Overview</div>
