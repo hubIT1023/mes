@@ -533,25 +533,22 @@ function openDashboardPageModal(currentPageId) {
     const pageNameField = document.getElementById('pageNameField');
     const pageSelectorField = document.getElementById('pageSelectorField');
 
-    // Reset form
     form.reset();
 
-    // Pre-select current page if provided
     if (currentPageId && pageSelector.querySelector(`option[value="${currentPageId}"]`)) {
         pageSelector.value = currentPageId;
     }
 
-    // Auto-fill name when renaming
     const updatePageName = () => {
         if (actionSelect.value === 'rename' && pageSelector.value) {
-            const selectedOption = pageSelector.options[pageSelector.selectedIndex];
-            pageNameInput.value = selectedOption?.text || '';
+            pageNameInput.value = pageSelector.options[pageSelector.selectedIndex]?.text || '';
         }
     };
 
     const updateModalUI = () => {
         const action = actionSelect.value;
-        let title, btnText, actionUrl, isDelete = false, showPageSelector = false;
+        let title, btnText, actionUrl;
+        let isDelete = false, showPageSelector = false;
 
         switch (action) {
             case 'create':
@@ -560,6 +557,7 @@ function openDashboardPageModal(currentPageId) {
                 actionUrl = "/mes/create-page";
                 pageNameInput.required = true;
                 break;
+
             case 'rename':
                 title = "Rename Page";
                 btnText = "Rename Page";
@@ -568,6 +566,7 @@ function openDashboardPageModal(currentPageId) {
                 showPageSelector = true;
                 updatePageName();
                 break;
+
             case 'delete':
                 title = "Delete Page";
                 btnText = "Delete Page";
@@ -580,8 +579,9 @@ function openDashboardPageModal(currentPageId) {
 
         modalTitle.textContent = title;
         submitBtn.textContent = btnText;
-        submitBtn.className = submitBtn.className.replace(/btn-(primary|danger)/g, isDelete ? 'btn-danger' : 'btn-primary');
+        submitBtn.className = `btn ${isDelete ? 'btn-danger' : 'btn-primary'}`;
         form.action = actionUrl;
+
         pageNameField.classList.toggle('d-none', isDelete);
         deleteWarning.classList.toggle('d-none', !isDelete);
         pageSelectorField.classList.toggle('d-none', !showPageSelector);
@@ -589,6 +589,7 @@ function openDashboardPageModal(currentPageId) {
 
     actionSelect.addEventListener('change', updateModalUI);
     pageSelector.addEventListener('change', updatePageName);
+
     updateModalUI();
     modal.show();
 }
