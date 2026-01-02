@@ -207,7 +207,7 @@ function is_active($path, $current_page) {
                 <span class="small">Machine Parts</span>
             </a>
             
-            <!-- ✅ UPDATED BUTTON -->
+            <!-- ✅ WORKING BUTTON -->
             <a href="#" class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" 
                onclick="openDashboardPageModal(<?= json_encode($selectedPageId) ?>)">
                 <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
@@ -325,7 +325,7 @@ function is_active($path, $current_page) {
 </div>
 
 <!-- MODALS -->
-<!-- CREATE GROUP MODAL (unchanged) -->
+<!-- CREATE GROUP MODAL -->
 <div class="modal fade" id="createGroupModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -356,7 +356,7 @@ function is_active($path, $current_page) {
     </div>
 </div>
 
-<!-- ✅ DASHBOARD PAGE MANAGER MODAL -->
+<!-- DASHBOARD PAGE MANAGER MODAL -->
 <div class="modal fade" id="dashboardPageModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -399,7 +399,7 @@ function is_active($path, $current_page) {
     </div>
 </div>
 
-<!-- UPDATE GROUP MODAL (unchanged) -->
+<!-- UPDATE GROUP MODAL -->
 <div class="modal fade" id="updateGroupModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -436,7 +436,7 @@ function is_active($path, $current_page) {
     </div>
 </div>
 
-<!-- DELETE GROUP MODAL (unchanged, correctly uses group_id + page_id) -->
+<!-- DELETE GROUP MODAL -->
 <div class="modal fade" id="deleteGroupModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -461,7 +461,7 @@ function is_active($path, $current_page) {
     </div>
 </div>
 
-<!-- Entity Modals (unchanged) -->
+<!-- Entity Modals -->
 <?php foreach ($groups as $g): ?>
     <div class="modal fade" id="addEntityModal_<?= (int)$g['group_code'] ?>" tabindex="-1">
         <div class="modal-dialog">
@@ -502,9 +502,10 @@ function is_active($path, $current_page) {
     </div>
 <?php endforeach; ?>
 
+<!-- ✅ BOOTSTRAP JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- ✅ UPDATED DASHBOARD PAGE MODAL SCRIPT -->
+<!-- ✅ COMPLETE JAVASCRIPT -->
 <script>
 function openDashboardPageModal(currentPageId) {
     const modalEl = document.getElementById('dashboardPageModal');
@@ -515,8 +516,62 @@ function openDashboardPageModal(currentPageId) {
     const modalTitle = document.getElementById('modalTitle');
     const submitBtn = document.getElementById('modalSubmitBtn');
     const deleteWarning = document.getElementById('deleteWarning');
-…    actionSelect.onchange = updateModalUI;
-    updateModalUI(); // Initialize UI
+    const pageNameField = document.getElementById('pageNameField');
+    const pageIdInput = document.getElementById('modal_page_id');
+
+    // Reset form
+    form.reset();
+    pageIdInput.value = currentPageId || '';
+
+    if (currentPageId) {
+        pageNameInput.value = "<?= addslashes($selectedPageName) ?>";
+        actionSelect.querySelectorAll('option[value="rename"], option[value="delete"]').forEach(opt => {
+            opt.disabled = false;
+        });
+        actionSelect.value = 'rename';
+    } else {
+        actionSelect.value = 'create';
+        actionSelect.querySelectorAll('option[value="rename"], option[value="delete"]').forEach(opt => {
+            opt.disabled = true;
+        });
+    }
+
+    const updateModalUI = () => {
+        const action = actionSelect.value;
+        let title, btnText, actionUrl, isDelete = false;
+
+        switch (action) {
+            case 'create':
+                title = "Create New Page";
+                btnText = "Create Page";
+                actionUrl = "/mes/create-page";
+                pageNameInput.required = true;
+                break;
+            case 'rename':
+                title = "Rename Page";
+                btnText = "Rename Page";
+                actionUrl = "/mes/rename-page";
+                pageNameInput.required = true;
+                break;
+            case 'delete':
+                title = "Delete Page";
+                btnText = "Delete Page";
+                actionUrl = "/mes/delete-page";
+                pageNameInput.required = false;
+                isDelete = true;
+                break;
+        }
+
+        modalTitle.textContent = title;
+        submitBtn.textContent = btnText;
+        submitBtn.className = submitBtn.className.replace(/btn-(primary|danger)/g, isDelete ? 'btn-danger' : 'btn-primary');
+        form.action = actionUrl;
+        pageNameField.classList.toggle('d-none', isDelete);
+        deleteWarning.classList.toggle('d-none', !isDelete);
+    };
+
+    actionSelect.onchange = updateModalUI;
+    updateModalUI();
     modal.show();
 }
 
