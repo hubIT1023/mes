@@ -573,9 +573,7 @@ function openDashboardPageModal(currentPageId) {
     updateModalUI();
     modal.show();
 }
-</script>
 
-<script>
 function openCreateGroupModal(pageId) {
     document.getElementById('modal_page_id').value = pageId;
     new bootstrap.Modal(document.getElementById('createGroupModal')).show();
