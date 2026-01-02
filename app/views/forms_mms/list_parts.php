@@ -1,120 +1,19 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
 <style>
-.rs-card {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    background: #fff;
-    padding: 16px;
-    display: grid;
-    grid-template-columns: 60px 1fr 1fr auto;
-    gap: 16px;
-    align-items: start;
-    transition: box-shadow 0.2s;
-}
-
-.rs-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-.rs-image {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: #6c757d;
-}
-
-.rs-info-title {
-    margin: 0 0 4px 0;
-    font-size: 1rem;
-    font-weight: bold;
-}
-.rs-info-subtitle {
-    margin: 0 0 8px 0;
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-.rs-meta {
-    font-size: 0.75rem;
-    color: #495057;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.rs-description {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 12px;
-    min-height: 80px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    position: relative;
-}
-.rs-description:hover::after {
-    content: "✏️";
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    font-size: 0.9em;
-    opacity: 0.6;
-}
-.rs-description.editing {
-    cursor: default;
-}
-.rs-description.editing::after {
-    display: none;
-}
-.rs-description-text {
-    white-space: pre-line;
-}
-.rs-description-input {
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 0.875rem;
-}
-.rs-edit-controls {
-    margin-top: 8px;
-}
-
-.rs-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-end;
-}
-.rs-badge {
-    font-size: 0.75rem;
-    font-weight: bold;
-    padding: 4px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    text-align: center;
-    min-width: 70px;
-}
-.badge-high { background: #dc3545; color: white; }
-.badge-medium { background: #ffc107; color: #212529; }
-.badge-low { background: #28a745; color: white; }
-.btn-action {
-    width: 80px;
-    font-size: 0.75rem;
-    padding: 4px 8px;
-    border-radius: 4px;
-}
-
 /* ======================= */
-/* Responsive Adjustments */
+/* Responsive Adjustments  */
 /* ======================= */
-/* Ensure description takes max width on smaller screens */
 @media (max-width: 576px) {
+    /* Card stacks vertically */
+    .rs-card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    /* Description section full width */
     .rs-description-section {
         width: 100%;
     }
@@ -128,26 +27,32 @@
         width: 100%;
     }
 
-    /* Make edit controls full width too */
     .rs-edit-controls {
         flex-direction: row;
         justify-content: flex-start;
         gap: 8px;
         width: 100%;
     }
-}
 
-
-@media (max-width: 576px) {
-    .rs-card {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding: 12px;
-    }
+    /* Actions: badge + buttons in a row */
     .rs-actions {
+        flex-direction: row;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
         width: 100%;
-        justify-content: space-between;
+        align-items: center;
+    }
+
+    .rs-badge {
+        margin-bottom: 0;
+        flex-shrink: 0; /* badge keeps its size */
+    }
+
+    .btn-action,
+    .rs-actions form {
+        flex: 1 1 auto; /* buttons expand equally if needed */
+        min-width: auto;
     }
 }
 
@@ -305,8 +210,7 @@
 									data-sap-code="<?= htmlspecialchars($part['sap_code'] ?? '') ?>"
 									data-category="<?= htmlspecialchars($part['category'] ?? 'LOW') ?>"
 									data-parts-available="<?= (int)($part['parts_available_on_hand'] ?? 0) ?>"
-									data-description="<?= htmlspecialchars($part['description'] ?? '') ?>"
-							>
+									data-description="<?= htmlspecialchars($part['description'] ?? '') ?>">
 								Edit
 							</button>
                             <form method="POST" action="/mes/machine-parts/delete" 
