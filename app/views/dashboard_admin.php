@@ -557,13 +557,13 @@ function openDashboardPageModal(currentPageId) {
             case 'create':
                 title = "Create New Page";
                 btnText = "Create Page";
-                actionUrl = "/mes/create-page";
+                actionUrl = "/create-page";
                 pageNameInput.required = true;
                 break;
             case 'rename':
                 title = "Rename Page";
                 btnText = "Rename Page";
-                actionUrl = "/mes/rename-page";
+                actionUrl = "/rename-page";
                 pageNameInput.required = true;
                 showPageSelector = true;
                 updatePageName();
@@ -571,7 +571,7 @@ function openDashboardPageModal(currentPageId) {
             case 'delete':
                 title = "Delete Page";
                 btnText = "Delete Page";
-                actionUrl = "/mes/delete-page";
+                actionUrl = "/delete-page";
                 pageNameInput.required = false;
                 isDelete = true;
                 showPageSelector = true;
