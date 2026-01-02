@@ -83,9 +83,9 @@ foreach ($routes as $routePattern => $routeHandler) {
 
 
 echo "<p>The requested URL '$uri' was not found on this server.</p>";
-/*
+
 echo "<p>Available routes:</p><ul>";
 foreach (array_keys($routes) as $route) {
     echo "<li>$route</li>";
 }
-*/
+
