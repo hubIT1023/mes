@@ -283,7 +283,7 @@
 						</div>
 
                         <!-- Column 4: Badge + Buttons -->
-                        <div class="d-flex justify-content-between align-items-center mb-4"">
+                        <div class="rs-actions">
                             <span class="rs-badge <?= 
                                 $part['category'] === 'HIGH' ? 'badge-high' : 
                                 ($part['category'] === 'MEDIUM' ? 'badge-medium' : 'badge-low') 
