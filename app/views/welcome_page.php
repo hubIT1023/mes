@@ -99,7 +99,7 @@
 				<!-- Work Order Details -->
 				<div class="bg-slate-800 rounded-xl shadow-2xl overflow-hidden border-4 border-slate-700 group">
 					<div class="relative overflow-hidden h-[300px]"> <!-- Fixed height -->
-						<img src="../Assets/img/work_order_details.jpg" 
+						<img src="/app/Assets/img/work_order_details.jpg" 
 							 alt="Work Order Details" 
 							 class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
 					</div>
@@ -109,7 +109,7 @@
 				<!-- Asset Management -->
 				<div class="bg-slate-800 rounded-xl shadow-2xl overflow-hidden border-4 border-slate-700 group">
 					<div class="relative overflow-hidden h-[300px]"> <!-- Fixed height -->
-						<img src="../Assets/img/prod_machineries.jpg" 
+						<img src="/app/Assets/img/prod_machineries.jpg" 
 							 alt="Asset Management" 
 							 class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
 					</div>
@@ -119,7 +119,7 @@
 				<!-- Condition Monitoring -->
 				<div class="bg-slate-800 rounded-xl shadow-2xl overflow-hidden border-4 border-slate-700 group">
 					<div class="relative overflow-hidden h-[300px]"> <!-- Fixed height -->
-						<img src="../Assets/img/condition_monitonig.jpg" 
+						<img src="/app/Assets/img/condition_monitonig.jpg" 
 							 alt="Condition Monitoring" 
 							 class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
 					</div>
