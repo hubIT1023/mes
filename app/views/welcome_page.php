@@ -56,10 +56,10 @@
     <div class="container mx-auto px-6 flex justify-between items-center">
         <img src="/app/Assets/img/hubIT_logo-v5.png" alt="HubIT.ONLINE" class="h-12 w-auto">
 
-        <div class="flex gap-3">
+        <!--div class="flex gap-3">
             <a href="/mes/register" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700">Register</a>
             <a href="/mes/signin" class="bg-slate-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-slate-700">Sign In</a>
-        </div>
+        </div-->
     </div>
 </nav>
 
@@ -72,12 +72,15 @@
                HubIT.online brings maintenance, asset management, and 
 			   IoT monitoring together in one real-time platform—built for factories, utilities, and modern facilities.
             </p>
-            <!--div class="flex flex-col md:flex-row justify-center items-center gap-4">
-                <a href="#demo" class="w-full md:w-auto bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-700">Let's Go!</a>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                <!--a href="#demo" class="w-full md:w-auto bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-700">Let's Go!</a>
                 <a href="#pricing" class="w-full md:w-auto bg-transparent border border-slate-500 
-				text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-slate-800">View Pricing</a>
+				text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-slate-800">View Pricing</a-->
+				<a href="/mes/register" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700">Register</a>
+				<a href="/mes/signin" class="bg-slate-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-slate-700">Sign In</a>
+				
             </div>
-            <p class="mt-6 text-sm text-slate-400 italic">
+            <!--p class="mt-6 text-sm text-slate-400 italic">
                 No signup required · Real interface · Demo data resets daily
             </p-->
         </div>
