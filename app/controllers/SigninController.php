@@ -1,4 +1,5 @@
 <?php
+// SigninController.php
 
 require_once __DIR__ . '/../models/SigninModel.php';
 
@@ -13,13 +14,15 @@ class SigninController {
     // GET /signin
     // -------------------------------
     public function signin() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         if (isset($_SESSION['tenant'])) {
             header("Location: /mes/hub_portal");
             exit;
         }
 
-        // Check Remember Me cookie
+        // Check "Remember Me" cookie
         if (isset($_COOKIE['remember_token'])) {
             $tenant = $this->model->verifyRememberToken($_COOKIE['remember_token']);
             if ($tenant) {
@@ -55,7 +58,13 @@ class SigninController {
             $tenant = $this->model->verifyCredentials($email, $password);
 
             if ($tenant) {
-                if (session_status() === PHP_SESSION_NONE) session_start();
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
+
+                // 🔒 Regenerate session ID on login (prevents fixation)
+                session_regenerate_id(true); // ✅ SAFE HERE — session is active
+
                 $_SESSION['tenant'] = [
                     'org_id'   => $tenant['org_id'],
                     'org_name' => $tenant['org_name'],
@@ -64,7 +73,7 @@ class SigninController {
                 $_SESSION['tenant_id'] = $tenant['org_id'];
                 $_SESSION['tenant_name'] = $tenant['org_name'];
 
-                // Remember Me feature
+                // "Remember Me" feature
                 if ($remember) {
                     $token = bin2hex(random_bytes(32)); // 64-char secure token
                     $this->model->storeRememberToken($tenant['org_id'], $token);
@@ -98,7 +107,9 @@ class SigninController {
     // GET /hub_portal
     // -------------------------------
     public function hubPortal() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         if (!isset($_SESSION['tenant'])) {
             header("Location: /mes/signin?error=Please log in first");
             exit;
@@ -111,26 +122,26 @@ class SigninController {
     }
 
     // -------------------------------
-    // GET /signout  → FULLY SECURE LOGOUT
+    // GET /signout → FIXED LOGOUT
     // -------------------------------
     public function signout() {
-        // Ensure session is active
+        // Only start session if needed
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        // 1. Clear "Remember Me" token from database (if user was logged in)
+        // 1. Clear "Remember Me" token from DB (if user was logged in)
         if (isset($_SESSION['tenant']['org_id'])) {
             $this->model->clearRememberToken($_SESSION['tenant']['org_id']);
         }
 
-        // 2. Clear all session data in memory
+        // 2. Clear all session data
         $_SESSION = [];
 
-        // 3. Delete the "remember_token" cookie
+        // 3. Delete "remember_token" cookie
         setcookie('remember_token', '', time() - 3600, '/', '', false, true);
 
-        // 4. Delete the PHP session cookie
+        // 4. Delete PHP session cookie
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
             setcookie(
@@ -144,13 +155,12 @@ class SigninController {
             );
         }
 
-        // 5. Destroy session data on the server
+        // 5. Destroy session on server
         session_destroy();
 
-        // 6. Regenerate session ID to prevent fixation (defense in depth)
-        session_regenerate_id(true);
+        // ❌ REMOVED: session_regenerate_id(true) — NOT NEEDED ON LOGOUT
 
-        // 7. Redirect to sign-in with success message
+        // 6. Redirect
         header("Location: /mes/signin?success=Signed out successfully");
         exit;
     }
