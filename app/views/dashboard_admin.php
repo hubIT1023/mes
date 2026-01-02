@@ -191,15 +191,11 @@ function is_active($path, $current_page) {
 			<!-- Right Section -->
 			<div class="d-flex align-items-center gap-3">
 				<!-- Tenant Info -->
-				<span class="text-muted small">Tenant: <?= htmlspecialchars($tenant_id) ?></span>
+				<!--span class="text-muted small">Tenant: <?//= htmlspecialchars($tenant_id) ?></span-->
 
 				<!-- Breadcrumb -->
-				<ol class="breadcrumb mb-0 small">
-					<li class="breadcrumb-item">
-						<a href="/mes/hub_portal" class="text-decoration-none">Hub Portal</a>
-					</li>
-				</ol>
-
+				<a href="/mes/hub_portal" class="text-decoration-none text-primary small">Hub Portal</a>
+					
 				<!-- Logout -->
 				<a href="/mes/logout" class="text-decoration-none text-primary small">Log out</a>
 			</div>
