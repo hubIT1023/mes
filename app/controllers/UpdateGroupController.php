@@ -2,9 +2,11 @@
 // app/controllers/UpdateGroupController.php
 
 require_once __DIR__ . '/../models/GroupModel.php';
+require_once __DIR__ . '/../models/DashboardService.php'; // ← ADD THIS
 
 class UpdateGroupController {
     private $model;
+    private $dashboardService; // ← ADD THIS
 
     public function __construct() {
         if (session_status() === PHP_SESSION_NONE) session_start();
@@ -13,6 +15,7 @@ class UpdateGroupController {
             exit;
         }
         $this->model = new GroupModel();
+        $this->dashboardService = new DashboardService(); // ← ADD THIS
     }
 
     public function handleUpdate() {
@@ -21,28 +24,33 @@ class UpdateGroupController {
             exit('Method not allowed');
         }
 
+        // Get orgId early for error handling
+        $orgId = $_SESSION['tenant_id'];
+        $pageId = (int)($_POST['page_id'] ?? 0); // ← Declare early
+
         if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
             $_SESSION['error'] = "Security check failed.";
-            header("Location: /mes/dashboard_admin");
+            $safePageId = $this->dashboardService->getValidRedirectPageId($orgId, $pageId);
+            header("Location: /mes/dashboard_admin?page_id=" . $safePageId);
             exit;
         }
 
-        $orgId = $_SESSION['tenant_id'];
         $groupId = (int)($_POST['group_id'] ?? 0);
-        $pageId = (int)($_POST['page_id'] ?? 0);
         $groupName = trim($_POST['group_name'] ?? '');
         $locationName = trim($_POST['location_name'] ?? '');
 
         if (empty($groupName) || empty($locationName) || $groupId <= 0 || $pageId <= 0) {
             $_SESSION['error'] = "All fields are required.";
-            header("Location: /mes/dashboard_admin?page_id=" . $pageId);
+            $safePageId = $this->dashboardService->getValidRedirectPageId($orgId, $pageId);
+            header("Location: /mes/dashboard_admin?page_id=" . $safePageId);
             exit;
         }
 
         // Verify group belongs to tenant and page
         if (!$this->model->groupExists($groupId, $orgId, $pageId)) {
             $_SESSION['error'] = "Invalid group selection.";
-            header("Location: /mes/dashboard_admin?page_id=" . $pageId);
+            $safePageId = $this->dashboardService->getValidRedirectPageId($orgId, $pageId);
+            header("Location: /mes/dashboard_admin?page_id=" . $safePageId);
             exit;
         }
 		
@@ -65,7 +73,8 @@ class UpdateGroupController {
             $_SESSION['error'] = "Failed to update group.";
         }
 
-        header("Location: /mes/dashboard_admin?page_id=" . $pageId);
-        exit;
+        $safePageId = $this->dashboardService->getValidRedirectPageId($orgId, $pageId);
+		header("Location: /mes/dashboard_admin?page_id=" . $safePageId);
+        exit; // ← Always exit after redirect
     }
 }

@@ -5,6 +5,8 @@ require_once __DIR__ . '/../models/CreateGroupModel.php';
 
 class CreateGroupController {
     private $model;
+	private $dashboardService; // ← ADD THIS
+
 
     public function __construct() {
         if (session_status() === PHP_SESSION_NONE) session_start();
@@ -15,6 +17,7 @@ class CreateGroupController {
         }
         
         $this->model = new CreateGroupModel();
+		$this->dashboardService = new DashboardService(); // ← ADD THIS
     }
 
     public function handleCreateGroup(): void {
@@ -105,14 +108,18 @@ class CreateGroupController {
 				]);
 			}
 
-        if ($result) {
+         if ($result) {
             $_SESSION['success'] = "Group '$group_name' created in page '$pageName'!";
         } else {
             $_SESSION['error'] = "Failed to create group.";
         }
 
-        // ✅ Always redirect back to the same page
-        header("Location: /mes/dashboard_admin?page_id=" . $pageId);
+        // Redirect to the SAME page (it still exists)
+        $safePageId = $this->dashboardService->getValidRedirectPageId($orgId, $pageId);
+        $url = $safePageId 
+            ? "/mes/dashboard_admin?page_id=$safePageId" 
+            : "/mes/dashboard_admin";
+        header("Location: $url");
         exit;
     }
 }

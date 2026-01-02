@@ -6,6 +6,8 @@ require_once __DIR__ . '/../models/GroupModel.php';
 class DeleteGroupController
 {
     private $model;
+	private $dashboardService; // ← ADD THIS
+
 
     public function __construct()
     {
@@ -57,13 +59,21 @@ class DeleteGroupController
         }
 
         // Perform deletion (cascades to entities and states)
-        if ($this->model->deleteGroup($groupId, $orgId)) {
+        $result = $this->model->deleteGroup($groupId, $orgId);
+        
+        if ($result) {
             $_SESSION['success'] = "Group deleted successfully!";
         } else {
-            $_SESSION['error'] = "Failed to delete group. Please try again.";
+            $_SESSION['error'] = "Failed to delete group.";
         }
 
-        header("Location: /mes/dashboard_admin?page_id=$pageId");
+        // Always redirect to a VALID page
+        $safePageId = $this->dashboardService->getValidRedirectPageId($orgId, $pageId);
+        if ($safePageId) {
+            header("Location: /mes/dashboard_admin?page_id=" . $safePageId);
+        } else {
+            header("Location: /mes/dashboard_admin");
+        }
         exit;
     }
 }
