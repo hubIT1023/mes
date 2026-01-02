@@ -197,7 +197,7 @@ function is_active($path, $current_page) {
 				<a href="/mes/hub_portal" class="text-decoration-none text-primary small">Hub Portal</a>
 					
 				<!-- Logout -->
-				<a href="/mes/sigout" class="text-decoration-none text-primary small">Log out</a>
+				<a href="/mes/signout" class="text-decoration-none text-primary small">Log out</a>
 			</div>
 		</div>
 	</nav>
