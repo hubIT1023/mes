@@ -515,62 +515,8 @@ function openDashboardPageModal(currentPageId) {
     const modalTitle = document.getElementById('modalTitle');
     const submitBtn = document.getElementById('modalSubmitBtn');
     const deleteWarning = document.getElementById('deleteWarning');
-    const pageNameField = document.getElementById('pageNameField');
-
-    form.reset();
-    document.getElementById('modal_page_id').value = currentPageId || '';
-    
-    if (currentPageId) {
-        pageNameInput.value = "<?= addslashes($selectedPageName) ?>";
-        // Enable rename/delete
-        actionSelect.querySelectorAll('option').forEach(opt => {
-            if (opt.value !== 'create') opt.disabled = false;
-        });
-        actionSelect.value = 'rename';
-    } else {
-        // Only allow create
-        actionSelect.value = 'create';
-        actionSelect.querySelectorAll('option[value="rename"], option[value="delete"]').forEach(opt => {
-            opt.disabled = true;
-        });
-    }
-
-    const updateModalUI = () => {
-        const action = actionSelect.value;
-        let title, btnText, actionUrl, isDelete = false;
-
-        switch (action) {
-            case 'create':
-                title = "Create New Page";
-                btnText = "Create Page";
-                actionUrl = "/mes/create-page";
-                pageNameInput.required = true;
-                break;
-            case 'rename':
-                title = "Rename Page";
-                btnText = "Rename Page";
-                actionUrl = "/mes/rename-page";
-                pageNameInput.required = true;
-                break;
-            case 'delete':
-                title = "Delete Page";
-                btnText = "Delete Page";
-                actionUrl = "/mes/delete-page";
-                pageNameInput.required = false;
-                isDelete = true;
-                break;
-        }
-
-        modalTitle.textContent = title;
-        submitBtn.textContent = btnText;
-        submitBtn.className = submitBtn.className.replace(/btn-(primary|danger)/g, isDelete ? 'btn-danger' : 'btn-primary');
-        form.action = actionUrl;
-        pageNameField.classList.toggle('d-none', isDelete);
-        deleteWarning.classList.toggle('d-none', !isDelete);
-    };
-
-    actionSelect.onchange = updateModalUI;
-    updateModalUI();
+…    actionSelect.onchange = updateModalUI;
+    updateModalUI(); // Initialize UI
     modal.show();
 }
 
