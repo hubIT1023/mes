@@ -72,5 +72,14 @@ class GroupPageModel {
         ]);
     }
 
-    // ... (keep your existing getPlaceholderRecord, updatePlaceholder if needed)
+   public function getPageName(int $pageId, string $orgId): ?string {
+    $stmt = $this->conn->prepare("
+        SELECT page_name 
+        FROM group_location_map 
+        WHERE org_id = ? AND page_id = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$orgId, $pageId]);
+    return $stmt->fetchColumn() ?: null;
+}
 }

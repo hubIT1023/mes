@@ -104,7 +104,7 @@ function fetchTenantAssets($conn, $tenant_id): array {
 function determineSelectedPage(array $pages): ?int {
     if (isset($_GET['page_id']) && $_GET['page_id'] !== '') {
         $id = (int)$_GET['page_id'];
-        return $id > 0 ? $id : null; // Ensure positive ID
+        return $id > 0 ? $id : null;
     }
     if (isset($_SESSION['last_page_id'])) {
         return (int)$_SESSION['last_page_id'];
@@ -117,7 +117,6 @@ function base_url($path = '') {
     return $base . '/' . ltrim($path, '/');
 }
 
-// Helper to detect active page
 $current_page = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 function is_active($path, $current_page) {
     return $path === $current_page ? 'active' : '';
@@ -178,470 +177,430 @@ function is_active($path, $current_page) {
 
 <body class="bg-white text-slate-900">
 
-<!-- ================= EXISTING HEADER (UNCHANGED) ================= -->
+<!-- ================= HEADER ================= -->
 <header class="sticky top-[3px] z-12 bg-white border-b border-slate-200 shadow-sm">
-
     <nav class="navbar navbar-expand navbar-light bg-white border-bottom py-2">
-		<div class="container-fluid">
-			<!-- Brand -->
-			<a class="navbar-brand fw-bold fs-4 text-primary" href="#">
-				HubIT.online
-			</a>
-
-			<!-- Right Section -->
-			<div class="d-flex align-items-center gap-3">
-				<!-- Tenant Info -->
-				<!--span class="text-muted small">Tenant: <?//= htmlspecialchars($tenant_id) ?></span-->
-
-				<!-- Breadcrumb -->
-				<a href="/mes/hub_portal" class="text-decoration-none text-primary small">Hub Portal</a>
-					
-				<!-- Logout -->
-				<a href="/mes/signout" class="text-decoration-none text-primary small">Log out</a>
-			</div>
-		</div>
-	</nav>
-	
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold fs-4 text-primary" href="#">HubIT.online</a>
+            <div class="d-flex align-items-center gap-3">
+                <a href="/mes/hub_portal" class="text-decoration-none text-primary small">Hub Portal</a>
+                <a href="/mes/signout" class="text-decoration-none text-primary small">Log out</a>
+            </div>
+        </div>
+    </nav>
 </header>
 
 <!-- ================= TOP PRODUCT BAR ================= -->
 <div class="top-product-bar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
         <div class="product-list">
-			<a href="/mes/mode-color" 
-			   class="product-item d-flex flex-column align-items-center text-decoration-none 
-				<?= is_active('/mes/mode-color', $current_page) ? 'text-primary' : 'text-secondary' ?>">
-				<div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
-					<i class="fas fa-palette fa-lg"></i>
-				</div>
-				<span class="small">Mode Colors</span>
-			</a>
-			<a href="/mes/parts-list" 
-			   class="product-item d-flex flex-column align-items-center text-decoration-none 
-				<?= is_active('/mes/parts-list', $current_page) ? 'text-primary' : 'text-secondary' ?>">
-				<div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
-					<i class="fas fa-fw fa-gears"></i>
-				</div>
-				<span class="small">Machine Parts</span>
-			</a>
-			
-			<!-- REPLACE THIS BUTTON -->
-			<a href="#" class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" 
-			   onclick="openDashboardPageModal(<?= json_encode($selectedPageId) ?>)">
-				<div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
-					<i class="fas fa-fw fa-plus-circle"></i>
-				</div>
-				<span class="small">Dashboard Pages</span>
-			</a>
-				
-            <!--a class="product-item"><div class="product-icon"><i class="fas fa-server"></i></div><span>Gateways</span></a>
-            <a class="product-item"><div class="product-icon"><i class="fas fa-database"></i></div><span>Loggers</span></a>
-            <a class="product-item"><div class="product-icon"><i class="fas fa-wifi"></i></div><span>Sensors</span></a>
-            <a class="product-item"><div class="product-icon"><i class="fas fa-router"></i></div><span>Routers</span></a>
-            <a class="product-item"><div class="product-icon"><i class="fas fa-chart-bar"></i></div><span>Analytics</span></a-->
+            <a href="/mes/mode-color" class="product-item d-flex flex-column align-items-center text-decoration-none <?= is_active('/mes/mode-color', $current_page) ? 'text-primary' : 'text-secondary' ?>">
+                <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
+                    <i class="fas fa-palette fa-lg"></i>
+                </div>
+                <span class="small">Mode Colors</span>
+            </a>
+            <a href="/mes/parts-list" class="product-item d-flex flex-column align-items-center text-decoration-none <?= is_active('/mes/parts-list', $current_page) ? 'text-primary' : 'text-secondary' ?>">
+                <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
+                    <i class="fas fa-fw fa-gears"></i>
+                </div>
+                <span class="small">Machine Parts</span>
+            </a>
+            
+            <!-- ✅ UPDATED BUTTON -->
+            <a href="#" class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" 
+               onclick="openDashboardPageModal(<?= json_encode($selectedPageId) ?>)">
+                <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
+                    <i class="fas fa-fw fa-plus-circle"></i>
+                </div>
+                <span class="small">Dashboard Pages</span>
+            </a>
         </div>
-       
     </div>
 </div>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!--div class="col-md-3 col-lg-2 bg-light sidebar-sticky p-0">
-                <?php //include __DIR__ . '/layouts/html/sidebar_2.php'; ?>
-            </div-->
+<div class="container-fluid">
+    <div class="row">
+        <main class="col-12 col-fluid p-4"> 
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <h2 class="text-2xl font-bold">
+                    Machine Status Board - <?= htmlspecialchars($selectedPageName) ?>
+                </h2>
 
-           <main class="col-12 col-fluid p-4"> 
-				<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-					<h2 class="text-2xl font-bold">
-						Machine Status Board - <?= htmlspecialchars($selectedPageName) ?>
-					</h2>
-
-					<?php if (!empty($pages)): ?>
-						<div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-							<select 
-								class="border border-gray-300 rounded px-3 py-2 text-sm w-full sm:w-auto"
-								onchange="location.href='?page_id='+this.value"
-							>
-								<?php foreach ($pages as $p): ?>
-									<option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
-										<?= htmlspecialchars($p['page_name']) ?>
-									</option>
-								<?php endforeach; ?>
-							</select>
-							<button 
-								class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium text-sm w-full sm:w-auto flex items-center justify-center gap-1"
-								onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)"
-							>
-								<i class="fas fa-plus text-xs"></i> New Group
-							</button>
-						</div>
-					<?php endif; ?>
-				</div>
-
-
-                <?php if (isset($_SESSION['success'])): ?>
-                    <div class="alert alert-success alert-dismissible fade show"><?= htmlspecialchars($_SESSION['success']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
-                    <?php unset($_SESSION['success']); ?>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-danger alert-dismissible fade show"><?= htmlspecialchars($_SESSION['error']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
-                    <?php unset($_SESSION['error']); ?>
-                <?php endif; ?>
-
-                <hr class="mb-4">
-
-                <?php if ($showBlankCanvas): ?>
-                    <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh;">
-                        <?php if (empty($pages)): ?>
-                            <div class="blank-canvas-card p-5 text-center rounded-lg" data-bs-toggle="modal" data-bs-target="#createGroupPageModal" style="width: 300px;">
-                                <i class="fas fa-file-circle-plus text-slate-300 fa-4x mb-3"></i>
-                                <h5 class="text-slate-600">Create First Page</h5>
-                            </div>
-                        <?php else: ?>
-                            <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" style="width: 300px;">
-                                <i class="fas fa-layer-group text-slate-300 fa-4x mb-3"></i>
-                                <h5 class="text-slate-600">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
-                                <p class="small text-slate-400">Click to configure your first group for this page.</p>
-                            </div>
-                        <?php endif; ?>
+                <?php if (!empty($pages)): ?>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        <select 
+                            class="border border-gray-300 rounded px-3 py-2 text-sm w-full sm:w-auto"
+                            onchange="location.href='?page_id='+this.value"
+                        >
+                            <?php foreach ($pages as $p): ?>
+                                <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($p['page_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium text-sm w-full sm:w-auto flex items-center justify-center gap-1"
+                            onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)"
+                        >
+                            <i class="fas fa-plus text-xs"></i> New Group
+                        </button>
                     </div>
-                <?php else: ?>
-                    <div class="row g-4">
-                        <?php foreach ($selectedPageGroups as $g): ?>
-                            <div class="col-12">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-                                        <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
-                                        <div class="d-flex gap-2">
-                                            <!-- Add Entity -->
-                                            <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
-                                                <i class="fas fa-plus me-1"></i>
-                                            </button>
-                                            <!-- Update Group -->
-                                            <button class="btn btn-sm btn-warning" onclick="openUpdateGroupModal(
-                                                <?= (int)$g['id'] ?>,
-                                                <?= (int)$g['page_id'] ?>,
-                                                '<?= addslashes($g['group_name']) ?>',
-                                                '<?= addslashes($g['location_name']) ?>',
-                                                <?= (int)($g['seq_id'] ?? 1) ?>
-                                            )">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <!-- Delete Group -->
-                                            <button class="btn btn-sm btn-danger" onclick="openDeleteGroupModal(
-                                                <?= (int)$g['id'] ?>,
-                                                <?= (int)$g['page_id'] ?>,
-                                                '<?= addslashes($g['group_name']) ?>'
-                                            )">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-success">
-                                                <small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body bg-slate-50">
-                                        <?php 
-                                            $group = $g;
-                                            $org_id = $tenant_id;
-                                            include __DIR__ . '/utilities/entity_toolState_card.php'; 
-                                        ?>
+                <?php endif; ?>
+            </div>
+
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="alert alert-success alert-dismissible fade show"><?= htmlspecialchars($_SESSION['success']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger alert-dismissible fade show"><?= htmlspecialchars($_SESSION['error']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
+                <?php unset($_SESSION['error']); ?>
+            <?php endif; ?>
+
+            <hr class="mb-4">
+
+            <?php if ($showBlankCanvas): ?>
+                <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh;">
+                    <?php if (empty($pages)): ?>
+                        <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openDashboardPageModal(null)" style="width: 300px; cursor: pointer;">
+                            <i class="fas fa-file-circle-plus text-slate-300 fa-4x mb-3"></i>
+                            <h5 class="text-slate-600">Create First Page</h5>
+                        </div>
+                    <?php else: ?>
+                        <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" style="width: 300px; cursor: pointer;">
+                            <i class="fas fa-layer-group text-slate-300 fa-4x mb-3"></i>
+                            <h5 class="text-slate-600">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
+                            <p class="small text-slate-400">Click to configure your first group for this page.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php else: ?>
+                <div class="row g-4">
+                    <?php foreach ($selectedPageGroups as $g): ?>
+                        <div class="col-12">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+                                    <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
+                                            <i class="fas fa-plus me-1"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" onclick="openUpdateGroupModal(
+                                            <?= (int)$g['id'] ?>,
+                                            <?= (int)$g['page_id'] ?>,
+                                            '<?= addslashes($g['group_name']) ?>',
+                                            '<?= addslashes($g['location_name']) ?>',
+                                            <?= (int)($g['seq_id'] ?? 1) ?>
+                                        )">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="openDeleteGroupModal(
+                                            <?= (int)$g['id'] ?>,
+                                            <?= (int)$g['page_id'] ?>,
+                                            '<?= addslashes($g['group_name']) ?>'
+                                        )">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-success">
+                                            <small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
+                                        </button>
                                     </div>
                                 </div>
+                                <div class="card-body bg-slate-50">
+                                    <?php 
+                                        $group = $g;
+                                        $org_id = $tenant_id;
+                                        include __DIR__ . '/utilities/entity_toolState_card.php'; 
+                                    ?>
+                                </div>
                             </div>
-                        <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </main>
+    </div>
+</div>
+
+<!-- MODALS -->
+<!-- CREATE GROUP MODAL (unchanged) -->
+<div class="modal fade" id="createGroupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/mes/create-group" method="POST">
+                <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                <input type="hidden" id="modal_page_id" name="page_id" value="">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Group</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Group Name</label>
+                        <input type="text" class="form-control" name="group_name" required>
                     </div>
-                <?php endif; ?>
-            </main>
+                    <div class="mb-3">
+                        <label class="form-label">Location Name</label>
+                        <input type="text" class="form-control" name="location_name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Group</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- CREATE GROUP MODAL -->
-    <div class="modal fade" id="createGroupModal" tabindex="-1">
+<!-- ✅ DASHBOARD PAGE MANAGER MODAL -->
+<div class="modal fade" id="dashboardPageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="dashboardPageForm" method="POST">
+                <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                <input type="hidden" id="modal_page_id" name="page_id" value="">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Manage Page</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Action</label>
+                        <select class="form-select" id="pageAction" required>
+                            <option value="create">Create New Page</option>
+                            <option value="rename" <?= $selectedPageId ? '' : 'disabled' ?>>Rename Page</option>
+                            <option value="delete" <?= $selectedPageId ? '' : 'disabled' ?>>Delete Page</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="pageNameField">
+                        <label class="form-label">Page Name</label>
+                        <input type="text" class="form-control" id="pageNameInput" name="page_name" maxlength="100">
+                    </div>
+
+                    <div class="alert alert-warning d-none" id="deleteWarning">
+                        <strong>Warning:</strong> This will permanently delete the page and all its groups and entities. Cannot be undone.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="modalSubmitBtn">Create Page</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- UPDATE GROUP MODAL (unchanged) -->
+<div class="modal fade" id="updateGroupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/mes/update-group" method="POST">
+                <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                <input type="hidden" id="update_group_id" name="group_id" value="">
+                <input type="hidden" id="update_page_id" name="page_id" value="">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Group</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Group Name</label>
+                        <input type="text" class="form-control" id="update_group_name" name="group_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Location Name</label>
+                        <input type="text" class="form-control" id="update_location_name" name="location_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sequence Order</label>
+                        <input type="number" class="form-control" id="update_seq_id" name="seq_id" min="1" required>
+                        <small class="form-text text-muted">Lower numbers appear first</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE GROUP MODAL (unchanged, correctly uses group_id + page_id) -->
+<div class="modal fade" id="deleteGroupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/mes/delete-group" method="POST">
+                <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                <input type="hidden" id="delete_group_id" name="group_id" value="">
+                <input type="hidden" id="delete_page_id" name="page_id" value="">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Group</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete group "<span id="delete_group_name"></span>" and all its entities? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Entity Modals (unchanged) -->
+<?php foreach ($groups as $g): ?>
+    <div class="modal fade" id="addEntityModal_<?= (int)$g['group_code'] ?>" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="/mes/create-group" method="POST">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
-                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                    <input type="hidden" id="modal_page_id" name="page_id" value="">
-                    
+            <form action="/mes/add-entity" method="POST">
+                <input type="hidden" name="group_code" value="<?= (int)$g['group_code'] ?>">
+                <input type="hidden" name="location_code" value="<?= (int)$g['location_code'] ?>">
+                <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
+                <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Create New Group</h5>
+                        <h5 class="modal-title">Add Entity to <?= htmlspecialchars($g['group_name']) ?></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Group Name</label>
-                            <input type="text" class="form-control" name="group_name" required>
+                            <label class="form-label">Select Asset</label>
+                            <select class="form-select" name="asset_id" required onchange="updateEntityName(this)">
+                                <option value="">-- Choose an asset --</option>
+                                <?php foreach ($tenantAssets as $asset): ?>
+                                    <option value="<?= htmlspecialchars($asset['asset_id']) ?>"
+                                            data-name="<?= htmlspecialchars($asset['asset_name']) ?>">
+                                        <?= htmlspecialchars($asset['asset_id']) ?> - <?= htmlspecialchars($asset['asset_name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Location Name</label>
-                            <input type="text" class="form-control" name="location_name" required>
+                            <label class="form-label">Entity Name</label>
+                            <input type="text" class="form-control" name="entity" readonly required>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create Group</button>
+                        <button type="submit" class="btn btn-primary">Add Entity</button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
+<?php endforeach; ?>
 
-    <!-- DASHBOARD PAGE MANAGER MODAL (Create / Rename / Delete) -->
-	<div class="modal fade" id="dashboardPageModal" tabindex="-1">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<form id="dashboardPageForm" method="POST">
-					<input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
-					<input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-					<input type="hidden" id="modal_page_id" name="page_id" value="">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-					<div class="modal-header">
-						<h5 class="modal-title" id="modalTitle">Manage Page</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-					</div>
+<!-- ✅ UPDATED DASHBOARD PAGE MODAL SCRIPT -->
+<script>
+function openDashboardPageModal(currentPageId) {
+    const modalEl = document.getElementById('dashboardPageModal');
+    const modal = new bootstrap.Modal(modalEl);
+    const form = document.getElementById('dashboardPageForm');
+    const actionSelect = document.getElementById('pageAction');
+    const pageNameInput = document.getElementById('pageNameInput');
+    const modalTitle = document.getElementById('modalTitle');
+    const submitBtn = document.getElementById('modalSubmitBtn');
+    const deleteWarning = document.getElementById('deleteWarning');
+    const pageNameField = document.getElementById('pageNameField');
 
-					<div class="modal-body">
-						<!-- Action Selector -->
-						<div class="mb-3">
-							<label class="form-label">Action</label>
-							<select class="form-select" id="pageAction" required>
-								<option value="create">Create New Page</option>
-								<option value="rename" <?= $selectedPageId ? '' : 'disabled' ?>>Rename Page</option>
-								<option value="delete" <?= $selectedPageId ? '' : 'disabled' ?>>Delete Page</option>
-							</select>
-						</div>
+    form.reset();
+    document.getElementById('modal_page_id').value = currentPageId || '';
+    
+    if (currentPageId) {
+        pageNameInput.value = "<?= addslashes($selectedPageName) ?>";
+        // Enable rename/delete
+        actionSelect.querySelectorAll('option').forEach(opt => {
+            if (opt.value !== 'create') opt.disabled = false;
+        });
+        actionSelect.value = 'rename';
+    } else {
+        // Only allow create
+        actionSelect.value = 'create';
+        actionSelect.querySelectorAll('option[value="rename"], option[value="delete"]').forEach(opt => {
+            opt.disabled = true;
+        });
+    }
 
-						<!-- Page Name Input -->
-						<div class="mb-3" id="pageNameField">
-							<label class="form-label">Page Name</label>
-							<input type="text" class="form-control" id="pageNameInput" name="page_name" maxlength="100">
-						</div>
+    const updateModalUI = () => {
+        const action = actionSelect.value;
+        let title, btnText, actionUrl, isDelete = false;
 
-						<!-- Delete Warning -->
-						<div class="alert alert-warning d-none" id="deleteWarning">
-							<strong>Warning:</strong> This will permanently delete the page and all its groups. Cannot be undone.
-						</div>
-					</div>
-
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-						<button type="submit" class="btn btn-primary" id="modalSubmitBtn">Create Page</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-
-    <!-- UPDATE GROUP MODAL -->
-    <div class="modal fade" id="updateGroupModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="/mes/update-group" method="POST">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
-                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                    <input type="hidden" id="update_group_id" name="group_id" value="">
-                    <input type="hidden" id="update_page_id" name="page_id" value="">
-                    
-                    <div class="modal-header">
-                        <h5 class="modal-title">Update Group</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Group Name</label>
-                            <input type="text" class="form-control" id="update_group_name" name="group_name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Location Name</label>
-                            <input type="text" class="form-control" id="update_location_name" name="location_name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Sequence Order</label>
-                            <input type="number" class="form-control" id="update_seq_id" name="seq_id" min="1" required>
-                            <small class="form-text text-muted">Lower numbers appear first</small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Group</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- DELETE GROUP MODAL -->
-    <div class="modal fade" id="deleteGroupModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="/mes/delete-group" method="POST">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
-                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                    <input type="hidden" id="delete_group_id" name="group_id" value="">
-                    <input type="hidden" id="delete_page_id" name="page_id" value="">
-                    
-                    <div class="modal-header">
-                        <h5 class="modal-title">Delete Group</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete group "<span id="delete_group_name"></span>"? This action cannot be undone.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Delete Group</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Entity Modals -->
-    <?php foreach ($groups as $g): ?>
-        <div class="modal fade" id="addEntityModal_<?= (int)$g['group_code'] ?>" tabindex="-1">
-            <div class="modal-dialog">
-                <form action="/mes/add-entity" method="POST">
-                    <input type="hidden" name="group_code" value="<?= (int)$g['group_code'] ?>">
-                    <input type="hidden" name="location_code" value="<?= (int)$g['location_code'] ?>">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($tenant_id) ?>">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Add Entity to <?= htmlspecialchars($g['group_name']) ?></h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">Select Asset</label>
-                                <select class="form-select" name="asset_id" required onchange="updateEntityName(this)">
-                                    <option value="">-- Choose an asset --</option>
-                                    <?php foreach ($tenantAssets as $asset): ?>
-                                        <option value="<?= htmlspecialchars($asset['asset_id']) ?>"
-                                                data-name="<?= htmlspecialchars($asset['asset_name']) ?>">
-                                            <?= htmlspecialchars($asset['asset_id']) ?> - <?= htmlspecialchars($asset['asset_name']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Entity Name</label>
-                                <input type="text" class="form-control" name="entity" readonly required>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Add Entity</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    <?php endforeach; ?>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-	
-	<script>
-	function openDashboardPageModal(currentPageId) {
-		const modalEl = document.getElementById('dashboardPageModal');
-		const modal = new bootstrap.Modal(modalEl);
-		const form = document.getElementById('dashboardPageForm');
-		const actionSelect = document.getElementById('pageAction');
-		const pageNameInput = document.getElementById('pageNameInput');
-		const modalTitle = document.getElementById('modalTitle');
-		const submitBtn = document.getElementById('modalSubmitBtn');
-		const deleteWarning = document.getElementById('deleteWarning');
-		const pageNameField = document.getElementById('pageNameField');
-
-		// Reset form
-		form.reset();
-		document.getElementById('modal_page_id').value = currentPageId || '';
-		
-		// Set page name if editing
-		if (currentPageId) {
-			pageNameInput.value = "<?= addslashes($selectedPageName) ?>";
-			actionSelect.disabled = false;
-		} else {
-			actionSelect.value = 'create';
-			actionSelect.querySelectorAll('option[value="rename"], option[value="delete"]').forEach(opt => {
-				opt.disabled = true;
-			});
-		}
-
-		// Update UI based on selection
-		const updateModalUI = () => {
-			const action = actionSelect.value;
-			let title, btnText, actionUrl, isDelete = false;
-
-			switch (action) {
-				case 'create':
-					title = "Create New Page";
-					btnText = "Create Page";
-					actionUrl = "/mes/create-page";
-					pageNameInput.required = true;
-					break;
-				case 'rename':
-					title = "Rename Page";
-					btnText = "Rename Page";
-					actionUrl = "/mes/rename-page";
-					pageNameInput.required = true;
-					break;
-				case 'delete':
-					title = "Delete Page";
-					btnText = "Delete Page";
-					actionUrl = "/mes/delete-page";
-					pageNameInput.required = false;
-					isDelete = true;
-					break;
-			}
-
-			modalTitle.textContent = title;
-			submitBtn.textContent = btnText;
-			submitBtn.className = submitBtn.className.replace(/btn-(primary|danger)/g, 
-				isDelete ? 'btn-danger' : 'btn-primary');
-			form.action = actionUrl;
-			pageNameField.classList.toggle('d-none', isDelete);
-			deleteWarning.classList.toggle('d-none', !isDelete);
-		};
-
-		// Re-initialize listener to avoid duplicates
-		actionSelect.onchange = updateModalUI;
-		updateModalUI();
-		modal.show();
-	}
-	</script>
-    <script>
-        function openCreateGroupModal(pageId) {
-            const pageInput = document.getElementById('modal_page_id');
-            if (pageInput) pageInput.value = pageId;
-            const myModal = new bootstrap.Modal(document.getElementById('createGroupModal'));
-            myModal.show();
+        switch (action) {
+            case 'create':
+                title = "Create New Page";
+                btnText = "Create Page";
+                actionUrl = "/mes/create-page";
+                pageNameInput.required = true;
+                break;
+            case 'rename':
+                title = "Rename Page";
+                btnText = "Rename Page";
+                actionUrl = "/mes/rename-page";
+                pageNameInput.required = true;
+                break;
+            case 'delete':
+                title = "Delete Page";
+                btnText = "Delete Page";
+                actionUrl = "/mes/delete-page";
+                pageNameInput.required = false;
+                isDelete = true;
+                break;
         }
 
-        function updateEntityName(select) {
-            const name = select.options[select.selectedIndex]?.getAttribute('data-name') || '';
-            const form = select.closest('form');
-            form.querySelector('input[name="entity"]').value = name;
-        }
+        modalTitle.textContent = title;
+        submitBtn.textContent = btnText;
+        submitBtn.className = submitBtn.className.replace(/btn-(primary|danger)/g, isDelete ? 'btn-danger' : 'btn-primary');
+        form.action = actionUrl;
+        pageNameField.classList.toggle('d-none', isDelete);
+        deleteWarning.classList.toggle('d-none', !isDelete);
+    };
 
-        function openUpdateGroupModal(groupId, pageId, groupName, locationName, seqId) {
-            document.getElementById('update_group_id').value = groupId;
-            document.getElementById('update_page_id').value = pageId;
-            document.getElementById('update_group_name').value = groupName;
-            document.getElementById('update_location_name').value = locationName;
-            document.getElementById('update_seq_id').value = seqId || 1;
-            const modal = new bootstrap.Modal(document.getElementById('updateGroupModal'));
-            modal.show();
-        }
+    actionSelect.onchange = updateModalUI;
+    updateModalUI();
+    modal.show();
+}
+</script>
 
-        function openDeleteGroupModal(groupId, pageId, groupName) {
-            document.getElementById('delete_group_id').value = groupId;
-            document.getElementById('delete_page_id').value = pageId;
-            document.getElementById('delete_group_name').textContent = groupName;
-            const modal = new bootstrap.Modal(document.getElementById('deleteGroupModal'));
-            modal.show();
-        }
-    </script>
+<script>
+function openCreateGroupModal(pageId) {
+    document.getElementById('modal_page_id').value = pageId;
+    new bootstrap.Modal(document.getElementById('createGroupModal')).show();
+}
+
+function updateEntityName(select) {
+    const name = select.options[select.selectedIndex]?.getAttribute('data-name') || '';
+    select.closest('form').querySelector('input[name="entity"]').value = name;
+}
+
+function openUpdateGroupModal(groupId, pageId, groupName, locationName, seqId) {
+    document.getElementById('update_group_id').value = groupId;
+    document.getElementById('update_page_id').value = pageId;
+    document.getElementById('update_group_name').value = groupName;
+    document.getElementById('update_location_name').value = locationName;
+    document.getElementById('update_seq_id').value = seqId || 1;
+    new bootstrap.Modal(document.getElementById('updateGroupModal')).show();
+}
+
+function openDeleteGroupModal(groupId, pageId, groupName) {
+    document.getElementById('delete_group_id').value = groupId;
+    document.getElementById('delete_page_id').value = pageId;
+    document.getElementById('delete_group_name').textContent = groupName;
+    new bootstrap.Modal(document.getElementById('deleteGroupModal')).show();
+}
+</script>
 </body>
 </html>

@@ -41,6 +41,7 @@ class DeleteGroupController
         $groupId = (int)($_POST['group_id'] ?? 0);
         $pageId = (int)($_POST['page_id'] ?? 0);
 
+        // Validate input
         if ($groupId <= 0 || $pageId <= 0) {
             $_SESSION['error'] = "Invalid request.";
             $redirect = $pageId ? "/mes/dashboard_admin?page_id=$pageId" : "/mes/dashboard_admin";
@@ -48,14 +49,14 @@ class DeleteGroupController
             exit;
         }
 
-        // Verify group belongs to tenant and specific page
+        // Verify group ownership and existence
         if (!$this->model->groupExists($groupId, $orgId, $pageId)) {
-            $_SESSION['error'] = "Invalid group or access denied.";
+            $_SESSION['error'] = "Group not found or access denied.";
             header("Location: /mes/dashboard_admin?page_id=$pageId");
             exit;
         }
 
-        // Perform deletion
+        // Perform deletion (cascades to entities and states)
         if ($this->model->deleteGroup($groupId, $orgId)) {
             $_SESSION['success'] = "Group deleted successfully!";
         } else {

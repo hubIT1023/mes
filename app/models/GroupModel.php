@@ -1,5 +1,5 @@
 <?php
-// app/models/GroupModel0.php → corrected to GroupModel.php
+// app/models/GroupModel.php
 
 require_once __DIR__ . '/../config/Database.php';
 
@@ -52,43 +52,64 @@ class GroupModel
     }
 
     /**
-     * Delete group and all associated tools (registered_tools)
+     * Delete a group AND all its associated data:
+     * - registered_tools (entities)
+     * - tool_state (real-time states)
+     * Uses the full composite key: (org_id, group_code, location_code)
      */
     public function deleteGroup(int $groupId, string $orgId): bool
     {
         try {
-            // 🔍 Step 1: Safely fetch group_code for this group (defensive)
+            // 🔍 Fetch group_code and location_code for this group
             $stmt = $this->conn->prepare("
-                SELECT group_code 
+                SELECT group_code, location_code 
                 FROM group_location_map 
                 WHERE id = ? AND org_id = ?
                 LIMIT 1
             ");
             $stmt->execute([$groupId, $orgId]);
-            $groupCode = $stmt->fetchColumn();
+            $groupData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($groupCode === false) {
-                // Group doesn't exist — treat as successful (idempotent)
+            if (!$groupData) {
+                // Group doesn't exist — idempotent success
                 return true;
             }
 
-            // 🗑️ Step 2: Delete associated tools
+            $groupCode = (int)$groupData['group_code'];
+            $locationCode = (int)$groupData['location_code'];
+
+            // 🧾 Begin transaction for atomicity
+            $this->conn->beginTransaction();
+
+            // 🗑️ 1. Delete associated entities
             $stmt = $this->conn->prepare("
                 DELETE FROM registered_tools 
-                WHERE org_id = ? AND group_code = ?
+                WHERE org_id = ? AND group_code = ? AND location_code = ?
             ");
-            $stmt->execute([$orgId, $groupCode]);
+            $stmt->execute([$orgId, $groupCode, $locationCode]);
 
-            // 🗑️ Step 3: Delete the group itself
+            // 🗑️ 2. Delete tool states
+            $stmt = $this->conn->prepare("
+                DELETE FROM tool_state 
+                WHERE org_id = ? AND group_code = ? AND location_code = ?
+            ");
+            $stmt->execute([$orgId, $groupCode, $locationCode]);
+
+            // 🗑️ 3. Delete the group itself
             $stmt = $this->conn->prepare("
                 DELETE FROM group_location_map 
                 WHERE id = ? AND org_id = ?
             ");
             $stmt->execute([$groupId, $orgId]);
 
+            // ✅ Commit all changes
+            $this->conn->commit();
             return true;
+
         } catch (PDOException $e) {
-            error_log("GroupModel::deleteGroup() failed: " . $e->getMessage());
+            // 🔁 Rollback on error
+            $this->conn->rollback();
+            error_log("GroupModel::deleteGroup() failed for group_id=$groupId, org_id=$orgId: " . $e->getMessage());
             return false;
         }
     }
