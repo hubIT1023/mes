@@ -283,7 +283,7 @@
 						</div>
 
                         <!-- Column 4: Badge + Buttons -->
-                        <div class="rs-actions">
+                        <div class="d-flex justify-content-between align-items-center mb-4"">
                             <span class="rs-badge <?= 
                                 $part['category'] === 'HIGH' ? 'badge-high' : 
                                 ($part['category'] === 'MEDIUM' ? 'badge-medium' : 'badge-low') 
@@ -306,8 +306,7 @@
 									data-sap-code="<?= htmlspecialchars($part['sap_code'] ?? '') ?>"
 									data-category="<?= htmlspecialchars($part['category'] ?? 'LOW') ?>"
 									data-parts-available="<?= (int)($part['parts_available_on_hand'] ?? 0) ?>"
-									data-description="<?= htmlspecialchars($part['description'] ?? '') ?>"
-							>
+									data-description="<?= htmlspecialchars($part['description'] ?? '') ?>">
 								Edit
 							</button>
                             <form method="POST" action="/mes/machine-parts/delete" 
