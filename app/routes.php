@@ -28,8 +28,8 @@ $staticPages = [
 $biRoutes = [
     
     'POST /create-page'            => ['GroupPageController', 'store'],
-    'POST /mes/rename-page'  => ['GroupPageController', 'rename'],
-    'POST /mes/delete-page'  => ['GroupPageController', 'destroy'],
+    'POST /rename-page'  => ['GroupPageController', 'rename'],
+    'POST /delete-page'  => ['GroupPageController', 'destroy'],
 	'POST /create-group'           => ['CreateGroupController', 'handleCreateGroup'],
     'POST /update-group'           => ['UpdateGroupController', 'handleUpdate'],
     'POST /delete-group'           => ['DeleteGroupController', 'handleDelete'],
