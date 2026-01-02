@@ -66,8 +66,8 @@
     <header class="gradient-bg text-white py-20">
         <div class="container mx-auto px-6 text-center">
             <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-                HubIT.online<br class="hidden md:block"> Smarter Tech. Simpler Solutions. 
-            </h1>
+                HubIT.online</h1> <h5><br class="hidden md:block"> Smarter Tech. Simpler Solutions. 
+            </h5>
             <p class="text-xl text-slate-300 max-w-3xl mx-auto mb-10">
                HubIT.online brings maintenance, asset management, and 
 			   IoT monitoring together in one real-time platform—built for factories, utilities, and modern facilities.
@@ -172,14 +172,14 @@
 					</div>
 					
 					<div class="bg-white p-8 rounded-xl border border-slate-200 card-hover shadow-sm">
-  <div class="text-3xl mb-4">🐔</div>
-  <h3 class="font-bold text-xl mb-4 text-amber-700">Poultry & Livestock</h3>
-  <ul class="text-slate-600 space-y-2 text-sm">
-    <li>• Control climate, feed & water automation systems</li>
-    <li>• Maintain HVAC, fans, and heating equipment</li>
-    <li>• Ensure biosecurity with audit-ready maintenance logs</li>
-  </ul>
-</div>
+					  <div class="text-3xl mb-4">🐔</div>
+					  <h3 class="font-bold text-xl mb-4 text-amber-700">Poultry & Livestock</h3>
+					  <ul class="text-slate-600 space-y-2 text-sm">
+						<li>• Control climate, feed & water automation systems</li>
+						<li>• Maintain HVAC, fans, and heating equipment</li>
+						<li>• Ensure biosecurity with audit-ready maintenance logs</li>
+					  </ul>
+					</div>
 				</div>
 			</div>
 		</div>

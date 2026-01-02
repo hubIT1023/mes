@@ -275,10 +275,6 @@ foreach ($entities as $entity) {
     <?php endfor; ?>
 </div>
 
-<!-- Modals remain unchanged (associateAccessoriesModal, changeStateModal, editPositionModal) -->
-
-
-
 
 <!-- Modal: Add Machine Parts -->
 <div class="modal fade" id="associateAccessoriesModal" tabindex="-1">
