@@ -99,7 +99,7 @@
 				<!-- Work Order Details -->
 				<div class="bg-slate-800 rounded-xl shadow-2xl overflow-hidden border-4 border-slate-700 group">
 					<div class="relative overflow-hidden h-[300px]"> <!-- Fixed height -->
-						<img src="../Assets/img/work_order_details.JPG" 
+						<img src="../Assets/img/work_order_details.jpg" 
 							 alt="Work Order Details" 
 							 class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
 					</div>
@@ -109,7 +109,7 @@
 				<!-- Asset Management -->
 				<div class="bg-slate-800 rounded-xl shadow-2xl overflow-hidden border-4 border-slate-700 group">
 					<div class="relative overflow-hidden h-[300px]"> <!-- Fixed height -->
-						<img src="../Assets/img/prod_machineries.JPG" 
+						<img src="../Assets/img/prod_machineries.jpg" 
 							 alt="Asset Management" 
 							 class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
 					</div>
@@ -119,7 +119,7 @@
 				<!-- Condition Monitoring -->
 				<div class="bg-slate-800 rounded-xl shadow-2xl overflow-hidden border-4 border-slate-700 group">
 					<div class="relative overflow-hidden h-[300px]"> <!-- Fixed height -->
-						<img src="../Assets/img/condition_monitonig.JPG" 
+						<img src="../Assets/img/condition_monitonig.jpg" 
 							 alt="Condition Monitoring" 
 							 class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
 					</div>
@@ -152,7 +152,7 @@
 							<li>• Reduce downtime</li>
 						</ul>
 					</div>
-					<div class="bg-white p-8 rounded-xl border border-slate-200 card-hover shadow-sm">
+					<!--div class="bg-white p-8 rounded-xl border border-slate-200 card-hover shadow-sm">
 						<div class="text-3xl mb-4">🛠️</div>
 						<h3 class="font-bold text-xl mb-4 text-blue-900">Service Companies</h3>
 						<ul class="text-slate-600 space-y-2 text-sm">
@@ -160,7 +160,7 @@
 							<li>• Technician workflows</li>
 							<li>• Professional reporting</li>
 						</ul>
-					</div>
+					</div-->
 					<div class="bg-white p-8 rounded-xl border border-slate-200 card-hover shadow-sm">
 						<div class="text-3xl mb-4">🧩</div>
 						<h3 class="font-bold text-xl mb-4 text-blue-900">Integrators & OEMs</h3>
@@ -170,6 +170,16 @@
 							<li>• Faster project delivery</li>
 						</ul>
 					</div>
+					
+					<div class="bg-white p-8 rounded-xl border border-slate-200 card-hover shadow-sm">
+  <div class="text-3xl mb-4">🐔</div>
+  <h3 class="font-bold text-xl mb-4 text-amber-700">Poultry & Livestock</h3>
+  <ul class="text-slate-600 space-y-2 text-sm">
+    <li>• Control climate, feed & water automation systems</li>
+    <li>• Maintain HVAC, fans, and heating equipment</li>
+    <li>• Ensure biosecurity with audit-ready maintenance logs</li>
+  </ul>
+</div>
 				</div>
 			</div>
 		</div>
