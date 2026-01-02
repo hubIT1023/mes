@@ -250,24 +250,27 @@ function is_active($path, $current_page) {
             </div-->
 
            <main class="col-12 col-fluid p-4"> 
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="text-2xl font-bold">Machine Status Board - <?= htmlspecialchars($selectedPageName) ?></h2>
-                    
-                    <?php if (!empty($pages)): ?>
-                        <div class="d-flex gap-2">
-                            <select class="form-select w-auto" onchange="location.href='?page_id='+this.value">
-                                <?php foreach ($pages as $p): ?>
-                                    <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($p['page_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <button class="btn btn-primary" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
-                                <i class="fas fa-plus"></i> New Group
-                            </button>
-                        </div>
-                    <?php endif; ?>
-                </div>
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-2">
+					<h2 class="text-2xl font-bold mb-2 mb-sm-0">
+						Machine Status Board - <?= htmlspecialchars($selectedPageName) ?>
+					</h2>
+					
+					<?php if (!empty($pages)): ?>
+						<div class="d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
+							<select class="form-select w-100 w-sm-auto" onchange="location.href='?page_id='+this.value">
+								<?php foreach ($pages as $p): ?>
+									<option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
+										<?= htmlspecialchars($p['page_name']) ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+							<button class="btn btn-primary w-100 w-sm-auto" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
+								<i class="fas fa-plus"></i> New Group
+							</button>
+						</div>
+					<?php endif; ?>
+				</div>
+
 
                 <?php if (isset($_SESSION['success'])): ?>
                     <div class="alert alert-success alert-dismissible fade show"><?= htmlspecialchars($_SESSION['success']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
