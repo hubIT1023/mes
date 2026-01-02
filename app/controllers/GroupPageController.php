@@ -117,22 +117,17 @@ class GroupPageController {
         }
 
         $orgId = $_SESSION['tenant_id'];
-        $pageId = (int)($_POST['page_id'] ?? 0);
+		$pageId = (int)($_POST['page_id'] ?? 0);
 
-        if (empty($pageId)) {
-            $_SESSION['error'] = "Invalid page selection.";
-            header("Location: /mes/dashboard_admin");
-            exit;
-        }
-
-        $result = $this->model->deletePage($orgId, $pageId);
-        if ($result) {
-            $_SESSION['success'] = "Page deleted successfully.";
-            header("Location: /mes/dashboard_admin");
-        } else {
-            $_SESSION['error'] = "Failed to delete page.";
-            header("Location: /mes/dashboard_admin?page_id=$pageId");
-        }
-        exit;
-    }
+		if ($pageId <= 0) {
+			$_SESSION['error'] = "Invalid page.";
+	…            header("Location: /mes/dashboard_admin?page_id=$firstPageId");
+			} else {
+				header("Location: /mes/dashboard_admin");
+			}
+		} else {
+			$_SESSION['error'] = "Failed to delete page.";
+			header("Location: /mes/dashboard_admin?page_id=$pageId");
+		}
+		exit;
 }
