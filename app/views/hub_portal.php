@@ -39,7 +39,7 @@ $tenant = $_SESSION['tenant'];
         <?= htmlspecialchars($tenant['org_name']) ?> Dashboard
       </h1>
       <div class="flex items-center gap-4">
-        <a href="/mes/logout" 
+        <a href="/mes/signout" 
            class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow transition">
            <i class="fas fa-sign-out-alt mr-2"></i> Logout
         </a>
