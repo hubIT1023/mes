@@ -7,7 +7,7 @@ class GroupPageModel {
     private $conn;
 
     public function __construct() {
-        $this->conn = Database::getInstance()->getConnection();
+        $this -> conn = Database::getInstance() -> getConnection();
     }
 
     public function getNextPageId(string $orgId): int {
@@ -61,72 +61,67 @@ class GroupPageModel {
         ]);
     }
 
-    // In app/models/GroupPageModel.php
+    public function deletePage(string $orgId, int $pageId): bool {
+        $existsStmt = $this->conn->prepare("
+            SELECT 1 FROM group_location_map 
+            WHERE org_id = ? AND page_id = ? 
+            LIMIT 1
+        ");
+        $existsStmt->execute([$orgId, $pageId]);
+        if (!$existsStmt->fetch()) {
+            return true;
+        }
 
-	public function deletePage(string $orgId, int $pageId): bool {
-		// First, check if page exists (any row with this page_id)
-		$existsStmt = $this->conn->prepare("
-			SELECT 1 FROM group_location_map 
-			WHERE org_id = ? AND page_id = ? 
-			LIMIT 1
-		");
-		$existsStmt->execute([$orgId, $pageId]);
-		if (!$existsStmt->fetch()) {
-			return true; // Page doesn't exist — idempotent success
-		}
+        try {
+            $this->conn->beginTransaction();
 
-		try {
-			$this->conn->beginTransaction();
+            $stmt1 = $this->conn->prepare("
+                DELETE FROM registered_tools 
+                WHERE org_id = ? AND page_id = ?
+            ");
+            $stmt1->execute([$orgId, $pageId]);
 
-			// Delete all related data (groups, entities, placeholder)
-			$stmt1 = $this->conn->prepare("
-				DELETE FROM registered_tools 
-				WHERE org_id = ? AND page_id = ?
-			");
-			$stmt1->execute([$orgId, $pageId]);
+            $stmt2 = $this->conn->prepare("
+                DELETE FROM tool_state 
+                WHERE org_id = ? AND page_id = ?
+            ");
+            $stmt2->execute([$orgId, $pageId]);
 
-			$stmt2 = $this->conn->prepare("
-				DELETE FROM tool_state 
-				WHERE org_id = ? AND page_id = ?
-			");
-			$stmt2->execute([$orgId, $pageId]);
+            $stmt3 = $this->conn->prepare("
+                DELETE FROM group_location_map 
+                WHERE org_id = ? AND page_id = ?
+            ");
+            $stmt3->execute([$orgId, $pageId]);
 
-			$stmt3 = $this->conn->prepare("
-				DELETE FROM group_location_map 
-				WHERE org_id = ? AND page_id = ?
-			");
-			$stmt3->execute([$orgId, $pageId]);
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            error_log("Delete page failed: " . $e->getMessage());
+            return false;
+        }
+    }
 
-			$this->conn->commit();
-			return true;
-		} catch (Exception $e) {
-			$this->conn->rollback();
-			error_log("Delete page failed: " . $e->getMessage());
-			return false;
-		}
-	}
+    public function getFirstPageId(string $orgId): ?int {
+        $stmt = $this->conn->prepare("
+            SELECT page_id FROM group_location_map 
+            WHERE org_id = ? 
+            ORDER BY page_id::INTEGER 
+            LIMIT 1
+        ");
+        $stmt->execute([$orgId]);
+        $result = $stmt->fetchColumn();
+        return $result ? (int)$result : null;
+    }
 
-	// Add this helper to get a safe redirect page
-	public function getFirstPageId(string $orgId): ?int {
-		$stmt = $this->conn->prepare("
-			SELECT page_id FROM group_location_map 
-			WHERE org_id = ? 
-			ORDER BY page_id::INTEGER 
-			LIMIT 1
-		");
-		$stmt->execute([$orgId]);
-		$result = $stmt->fetchColumn();
-		return $result ? (int)$result : null;
-	}
-
-   public function getPageName(int $pageId, string $orgId): ?string {
-    $stmt = $this->conn->prepare("
-        SELECT page_name 
-        FROM group_location_map 
-        WHERE org_id = ? AND page_id = ?
-        LIMIT 1
-    ");
-    $stmt->execute([$orgId, $pageId]);
-    return $stmt->fetchColumn() ?: null;
-}
+    public function getPageName(int $pageId, string $orgId): ?string {
+        $stmt = $this->conn->prepare("
+            SELECT page_name 
+            FROM group_location_map 
+            WHERE org_id = ? AND page_id = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$orgId, $pageId]);
+        return $stmt->fetchColumn() ?: null;
+    }
 }
