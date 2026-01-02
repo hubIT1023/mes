@@ -101,7 +101,7 @@
 				<!-- Dashboard Overview -->
 				<div class="bg-slate-800 rounded-xl shadow-2xl overflow-hidden border-4 border-slate-700 group">
 					<div class="relative overflow-hidden h-[300px]"> <!-- Fixed height -->
-						<img src="/app/Assets/img/dashboard_overview.JPG" 
+						<img src="/mes/app/Assets/img/dashboard_overview.JPG" 
 							 alt="Dashboard Overview" 
 							 class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
 					</div>
@@ -164,7 +164,7 @@
 							<li>• Reduce downtime</li>
 						</ul>
 					</div>
-					<!--div class="bg-white p-8 rounded-xl border border-slate-200 card-hover shadow-sm">
+					<div class="bg-white p-8 rounded-xl border border-slate-200 card-hover shadow-sm">
 						<div class="text-3xl mb-4">🛠️</div>
 						<h3 class="font-bold text-xl mb-4 text-blue-900">Service Companies</h3>
 						<ul class="text-slate-600 space-y-2 text-sm">
