@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Management System (MMS) Architecture</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --success: #2ecc71;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary), #1a2530);
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-weight: 700;
+            font-size: 3.2rem;
+            letter-spacing: 1px;
+        }
+        .header p {
+            font-size: 1.4rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 20px auto 0;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 25px;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+        .card-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+        }
+        .card-body {
+            padding: 25px;
+        }
+        .card-title {
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        .category-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 35px 0 25px;
+            font-weight: 600;
+            font-size: 1.4rem;
+            display: inline-block;
+        }
+        .file-list {
+            background: #f1f5f9;
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 12px 0;
+            font-family: monospace;
+        }
+        .footer {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 25px 0;
+            margin-top: 50px;
+        }
+        .workflow-diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 40px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .step-content {
+            flex: 1;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid var(--secondary);
+        }
+        .highlight {
+            background: #e3f2fd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header text-center">
+        <div class="container">
+            <h1><i class="fas fa-tools me-3"></i>Maintenance Management System (MMS)</h1>
+            <p>Enterprise-grade solution for asset maintenance, checklist management, and work order scheduling</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="workflow-diagram">
+            <h3 class="text-center mb-4" style="color: var(--primary);">Workflow Overview</h3>
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>Create Templates:</strong> Define reusable checklist templates with tasks, intervals, and work orders
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>Generate Routine Work Orders:</strong> Automatically create scheduled maintenance based on asset intervals
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>Associate Checklists:</strong> Link routine work orders to executable checklist instances
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>Execute & Update:</strong> Technicians complete tasks and update results in real-time
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <strong>Archive & Analyze:</strong> Completed checklists are archived for reporting and compliance
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-center mb-5" style="color: var(--primary);">System Components</h2>
+
+        <!-- Authentication & User Management -->
+        <div class="category-header">
+            <i class="fas fa-user-shield me-2"></i>Authentication & User Management
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #3498db;">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <h5 class="card-title">SigninController / RegisterModel</h5>
+                        <p>Handles user authentication: registration, login, session management, and secure logout. Enforces tenant-based access control.</p>
+                        <div class="file-list">
+                            SigninController.php<br>
+                            RegisterModel.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #9b59b6;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h5 class="card-title">Group Management</h5>
+                        <p>Manages user groups, permissions, and dashboard customization for different departments or teams.</p>
+                        <div class="file-list">
+                            CreateGroupController.php<br>
+                            DeleteGroupController.php<br>
+                            GroupModel.php<br>
+                            GroupPageController.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard & Admin -->
+        <div class="category-header">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard & Admin
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #2ecc71;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h5 class="card-title">Admin Dashboard</h5>
+                        <p>Main admin dashboard showing business intelligence: maintenance KPIs, overdue tasks, asset health, and team workload analytics.</p>
+                        <div class="file-list">
+                            dashboard_admin.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #e67e22;">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <h5 class="card-title">Dashboard Customization</h5>
+                        <p>Dynamically adds assets, checklists, or KPI widgets to a group's dashboard layout via drag-and-drop or form selection.</p>
+                        <div class="file-list">
+                            AddEntityToDashboardController.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Asset & Parts Management -->
+        <div class="category-header">
+            <i class="fas fa-industry me-2"></i>Asset & Parts Management
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #1abc9c;">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h5 class="card-title">Asset Management</h5>
+                        <p>Registers and manages physical assets (machines, tools) with details like ID, name, location hierarchy, and maintenance schedule linkage.</p>
+                        <div class="file-list">
+                            AssetModel.php<br>
+                            AssetController.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #f39c12;">
+                            <i class="fas fa-puzzle-piece"></i>
+                        </div>
+                        <h5 class="card-title">Parts Management</h5>
+                        <p>Manages spare parts inventory: part numbers, descriptions, stock levels, and association with specific assets or checklists.</p>
+                        <div class="file-list">
+                            MachinePartController.php<br>
+                            MachinePartModel.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist Management -->
+        <div class="category-header">
+            <i class="fas fa-clipboard-list me-2"></i>Checklist Management
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #e74c3c;">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h5 class="card-title">Checklist Templates</h5>
+                        <p>Manages reusable checklist templates: define tasks, intervals, work orders, and maintenance types for future scheduling.</p>
+                        <div class="file-list">
+                            ChecklistTemplateModel.php<br>
+                            ChecklistTemplateController.php<br>
+                            checklist_list.php<br>
+                            checklist_edit.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #34495e;">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h5 class="card-title">Active Checklists</h5>
+                        <p>Handles instantiation and updating of scheduled maintenance checklists (from templates) - used for in-progress or completed work orders.</p>
+                        <div class="file-list">
+                            ChecklistController.php<br>
+                            ChecklistModel.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maintenance Scheduling -->
+        <div class="category-header">
+            <i class="fas fa-calendar-check me-2"></i>Maintenance Scheduling
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #2980b9;">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <h5 class="card-title">Routine Maintenance</h5>
+                        <p>Generates scheduled routine work orders by associating assets with checklist templates based on intervals and work orders.</p>
+                        <div class="file-list">
+                            RoutineMaintenanceController.php<br>
+                            RoutineMaintenanceModel.php<br>
+                            RoutineWorkOrderModel.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #8e44ad;">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <h5 class="card-title">Checklist Association</h5>
+                        <p>Links routine work orders to active maintenance checklists, creating executable instances from templates (one-time association).</p>
+                        <div class="file-list">
+                            AssociateChecklistModel.php<br>
+                            AssociateChecklistController.php<br>
+                            dashboard_upcoming_maint.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Order Execution -->
+        <div class="category-header">
+            <i class="fas fa-wrench me-2"></i>Work Order Execution
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #d35400;">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h5 class="card-title">Checklist Updates</h5>
+                        <p>Enables technicians to update task results, mark checklists as complete, and archive finished work orders to history tables.</p>
+                        <div class="file-list">
+                            MaintenanceChecklistUpdateController.php<br>
+                            MaintenanceChecklistUpdateModel.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon" style="background: #27ae60;">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h5 class="card-title">Checklist View</h5>
+                        <p>Displays a read-only or editable view of an active maintenance checklist, showing tasks, results, and completion status.</p>
+                        <div class="file-list">
+                            MaintenanceChecklistViewController.php<br>
+                            MaintenanceChecklistViewModel.php
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5 p-4" style="background: var(--light); border-radius: 12px;">
+            <h4 style="color: var(--primary); margin-bottom: 20px;">Key System Features</h4>
+            <div class="row text-start">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-shield-alt text-primary me-2"></i>Security</h5>
+                    <p>Tenant isolation, role-based access control, and secure session management</p>
+                </div>
+                <div class="col-md-4">
+                    <h5><i class="fas fa-database text-success me-2"></i>Database</h5>
+                    <p>PostgreSQL optimized with proper indexing, transactions, and schema design</p>
+                </div>
+                <div class="col-md-4">
+                    <h5><i class="fas fa-sync-alt text-info me-2"></i>Workflow</h5>
+                    <p>Clear separation between templates, scheduled work orders, and active checklists</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <p>Maintenance Management System (MMS) - Enterprise Asset Management Solution</p>
+            <p>© 2026 Your Company. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

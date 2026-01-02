@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Maintenance Management System - API & Permissions</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      padding: 20px;
+      background-color: #f9fafb;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #1e40af;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      background: white;
+    }
+    th, td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+    th {
+      background-color: #eff6ff;
+      font-weight: 600;
+      color: #1d4ed8;
+      position: sticky;
+      top: 0;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    tr:hover {
+      background-color: #f0f9ff;
+    }
+    .center { text-align: center; }
+    .role-yes { color: #059669; font-weight: bold; }
+    .role-no { color: #dc2626; }
+    code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr { position: absolute; top: -9999px; left: -9999px; }
+      tr {
+        border: 1px solid #ccc;
+        margin-bottom: 15px;
+        padding: 10px;
+      }
+      td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+      }
+      td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        width: 45%;
+        text-align: left;
+        font-weight: bold;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Maintenance Management System<br><small>API Endpoints & User Permissions</small></h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th class="center">Admin</th>
+      <th class="center">Technician</th>
+      <th>API Endpoint</th>
+      <th>Method</th>
+      <th>Request Body</th>
+      <th>Response</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>SigninController / RegisterModel</td>
+      <td>Controller</td>
+      <td>Handles user registration, login, session management, and logout. Enforces tenant-based access control.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-yes">✅</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>CreateGroupController</td>
+      <td>Controller</td>
+      <td>Allows admin users to create new user groups (e.g., "Maintenance Team", "Operators").</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td><code>/mes/groups/create</code></td>
+      <td>POST</td>
+      <td><code>{ name, description, csrf_token }</code></td>
+      <td><code>{ success: true }</code></td>
+    </tr>
+    <tr>
+      <td>DeleteGroupController</td>
+      <td>Controller</td>
+      <td>Removes existing user groups (with safety checks).</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td><code>/mes/groups/delete</code></td>
+      <td>POST</td>
+      <td><code>{ group_id, csrf_token }</code></td>
+      <td><code>{ success: true }</code></td>
+    </tr>
+    <tr>
+      <td>GroupModel</td>
+      <td>Model</td>
+      <td>Manages group CRUD operations and enforces business rules.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>dashboard_admin.php</td>
+      <td>View</td>
+      <td>Main admin dashboard showing KPIs: upcoming maintenance, asset health, open work orders, and inventory alerts.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>GroupPageController / GroupPageModel</td>
+      <td>Controller</td>
+      <td>Dynamically renders group-specific dashboard pages.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-yes">✅</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>AddEntityToDashboardController</td>
+      <td>Controller</td>
+      <td>Enables admins to assign physical/logical entities to user groups.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td><code>/mes/entities/assign</code></td>
+      <td>POST</td>
+      <td><code>{ group_id, entity_name, csrf_token }</code></td>
+      <td><code>{ success: true }</code></td>
+    </tr>
+    <tr>
+      <td>AssetController / AssetModel</td>
+      <td>Controller</td>
+      <td>Registers and manages physical assets (machines, tools) with meta ID, location, status.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>MachinePartController / MachinePartModel</td>
+      <td>Controller</td>
+      <td>Manages spare parts inventory (inline edit for description).</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-yes">✅ (view-only)</td>
+      <td><code>/mes/machine-parts/update-desc</code></td>
+      <td>POST</td>
+      <td><code>{ id, description, csrf_token }</code></td>
+      <td><code>{ success: true }</code></td>
+    </tr>
+    <tr>
+      <td>MachinePartController / MachinePartModel</td>
+      <td>Controller</td>
+      <td>Manages spare parts inventory (full edit via modal).</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td><code>/mes/machine-parts/update</code></td>
+      <td>POST</td>
+      <td><code>{ id, asset_id, entity, part_id, part_name, ..., csrf_token }</code></td>
+      <td><code>{ success: true }</code></td>
+    </tr>
+    <tr>
+      <td>MachinePartController / MachinePartModel</td>
+      <td>Controller</td>
+      <td>Delete part.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td><code>/mes/machine-parts/delete</code></td>
+      <td>POST</td>
+      <td><code>id=2&amp;csrf_token=...</code> (form-encoded)</td>
+      <td>Redirect</td>
+    </tr>
+    <tr>
+      <td>ChecklistTemplateController / ChecklistTemplateModel</td>
+      <td>Controller</td>
+      <td>Defines reusable maintenance checklist templates.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>AssociateChecklistController / AssociateChecklistModel</td>
+      <td>Controller</td>
+      <td>Links checklist templates to specific assets or entities.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td><code>/mes/checklists/associate</code></td>
+      <td>POST</td>
+      <td><code>{ asset_id, template_id, schedule, csrf_token }</code></td>
+      <td><code>{ success: true }</code></td>
+    </tr>
+    <tr>
+      <td>RoutineMaintenanceController / RoutineMaintenanceModel</td>
+      <td>Controller</td>
+      <td>Schedules and manages recurring maintenance tasks.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td><code>/mes/routine/schedule</code></td>
+      <td>POST</td>
+      <td><code>{ asset_id, template_id, frequency, start_date, csrf_token }</code></td>
+      <td><code>{ success: true }</code></td>
+    </tr>
+    <tr>
+      <td>RoutineWorkOrderModel</td>
+      <td>Model</td>
+      <td>Generates individual work orders from routine schedules.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-yes">✅</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>MaintenanceChecklistUpdateController / MaintenanceChecklistUpdateModel</td>
+      <td>Controller</td>
+      <td>Allows technicians to complete/update checklist items in real-time.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-yes">✅</td>
+      <td><code>/mes/checklists/update-item</code></td>
+      <td>POST</td>
+      <td><code>{ checklist_id, item_id, status, notes, csrf_token }</code></td>
+      <td><code>{ success: true }</code></td>
+    </tr>
+    <tr>
+      <td>MaintenanceChecklistUpdateController / MaintenanceChecklistUpdateModel</td>
+      <td>Controller</td>
+      <td>Finalize checklist submission.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-yes">✅</td>
+      <td><code>/mes/checklists/submit</code></td>
+      <td>POST</td>
+      <td><code>{ checklist_id, completed_by, csrf_token }</code></td>
+      <td><code>{ success: true }</code></td>
+    </tr>
+    <tr>
+      <td>MaintenanceChecklistViewController</td>
+      <td>Controller</td>
+      <td>Displays read-only or editable views of active checklists.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-yes">✅</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>RoutineMaintenanceController</td>
+      <td>Controller</td>
+      <td>Close work order.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-yes">✅</td>
+      <td><code>/mes/routine/work-order/complete</code></td>
+      <td>POST</td>
+      <td><code>{ work_order_id, technician_notes, csrf_token }</code></td>
+      <td><code>{ success: true }</code></td>
+    </tr>
+    <tr>
+      <td>checklist_list.php</td>
+      <td>View</td>
+      <td>Lists all active maintenance checklists assigned to the user’s group.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-yes">✅</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>checklist_edit.php</td>
+      <td>View</td>
+      <td>Form to create/edit a checklist template or instance.</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-no">❌</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>dashboard_upcoming_maint.php</td>
+      <td>View</td>
+      <td>Shows upcoming scheduled maintenance tasks (next 7 days).</td>
+      <td class="center role-yes">✅</td>
+      <td class="center role-yes">✅</td>
+      <td>N/A</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="text-align: center; margin-top: 30px; color: #64748b; font-size: 0.9em;">
+  ✅ = Allowed &nbsp; | &nbsp; ❌ = Not Allowed &nbsp; | &nbsp; All endpoints require valid session + CSRF token
+</p>
+
+</body>
+</html>
