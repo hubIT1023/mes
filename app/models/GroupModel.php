@@ -10,9 +10,6 @@ class GroupModel {
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    /**
-     * ✅ Check group existence with STRING page_id
-     */
     public function groupExists(int $groupId, string $orgId, string $pageId): bool {
         $stmt = $this->conn->prepare("
             SELECT 1 
@@ -20,28 +17,37 @@ class GroupModel {
             WHERE id = ? AND org_id = ? AND page_id = ?
             LIMIT 1
         ");
-        $stmt->execute([$groupId, $orgId, $pageId]); // page_id as string
+        $stmt->execute([$groupId, $orgId, $pageId]);
         return (bool) $stmt->fetch();
     }
 
-    /**
-     * ✅ Delete group + dependent tools
-     */
     public function deleteGroup(int $groupId, string $orgId): bool {
         try {
             $this->conn->beginTransaction();
 
-            // ✅ Delete all tools associated with this group
+            // Get exact group identity
+            $groupStmt = $this->conn->prepare("
+                SELECT group_code, location_code 
+                FROM group_location_map 
+                WHERE id = ? AND org_id = ?
+            ");
+            $groupStmt->execute([$groupId, $orgId]);
+            $group = $groupStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$group) {
+                $this->conn->commit();
+                return true; // Already deleted
+            }
+
+            // Delete tools using full group key
             $this->conn->prepare("
                 DELETE FROM registered_tools 
-                WHERE group_code IN (
-                    SELECT group_code 
-                    FROM group_location_map 
-                    WHERE id = ? AND org_id = ?
-                ) AND org_id = ?
-            ")->execute([$groupId, $orgId, $orgId]);
+                WHERE org_id = ? 
+                  AND group_code = ? 
+                  AND location_code = ?
+            ")->execute([$orgId, (int)$group['group_code'], (int)$group['location_code']]);
 
-            // ✅ Delete the group itself
+            // Delete group
             $this->conn->prepare("
                 DELETE FROM group_location_map 
                 WHERE id = ? AND org_id = ?
@@ -51,7 +57,7 @@ class GroupModel {
             return true;
         } catch (Exception $e) {
             $this->conn->rollback();
-            error_log("Delete group failed: " . $e->getMessage());
+            error_log("Delete group failed: " . $e->getMessage() . "\n" . $e->getTraceAsString());
             return false;
         }
     }
