@@ -25,7 +25,10 @@ class CompletedWorkOrdersModel
         int $limit = 20
     ): array 
     {
-        // ✅ REMOVED 'dbo.' prefix (PostgreSQL doesn't use it)
+        // Ensure tenantId is integer for PostgreSQL
+        $tenantId = (int)$tenantId;
+        $params = [$tenantId];
+
         $sql = "
             SELECT 
                 maintenance_checklist_id,
@@ -40,9 +43,7 @@ class CompletedWorkOrdersModel
             WHERE tenant_id = ?
         ";
 
-        $params = [$tenantId];
-
-        // ✅ Use ILIKE for case-insensitive search (PostgreSQL)
+        // Case-insensitive search
         if ($workOrderRef !== '') {
             $sql .= " AND work_order_ref ILIKE ?";
             $params[] = "%{$workOrderRef}%";
@@ -53,18 +54,19 @@ class CompletedWorkOrdersModel
             $params[] = "%{$assetId}%";
         }
 
+        // Date filters - cast date_completed to date for comparison
         if ($dateFrom !== '') {
-            $sql .= " AND date_completed >= ?";
+            $sql .= " AND date_completed::date >= ?";
             $params[] = $dateFrom;
         }
 
         if ($dateTo !== '') {
-            $sql .= " AND date_completed <= ?";
-            $params[] = $dateTo . " 23:59:59";
+            $sql .= " AND date_completed::date <= ?";
+            $params[] = $dateTo;
         }
 
-        // Get total count
-        $countSql = "SELECT COUNT(*) FROM ($sql) AS subquery";
+        // Total count
+        $countSql = "SELECT COUNT(*) FROM ({$sql}) AS subquery_alias";
         $countStmt = $this->conn->prepare($countSql);
         $countStmt->execute($params);
         $total = (int)$countStmt->fetchColumn();
@@ -73,13 +75,17 @@ class CompletedWorkOrdersModel
             return ['data' => [], 'total' => 0];
         }
 
-        // ✅ POSTGRESQL PAGINATION: LIMIT + OFFSET
+        // Pagination
         $offset = ($page - 1) * $limit;
-        $sql .= " ORDER BY date_completed DESC LIMIT $limit OFFSET $offset";
+        $sql .= " ORDER BY date_completed DESC LIMIT {$limit} OFFSET {$offset}";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Debugging (uncomment if needed)
+        // error_log("SQL Executed: $sql");
+        // error_log("Params: " . json_encode($params));
 
         return [
             'data' => $data,
@@ -92,13 +98,14 @@ class CompletedWorkOrdersModel
      */
     public function getCompletedWorkOrderDetails(string $tenantId, int $archiveId): ?array
     {
-        // ✅ REMOVED 'dbo.' prefix
+        $tenantId = (int)$tenantId;
+
+        // Master record
         $sqlMaster = "
             SELECT *
             FROM completed_work_order
             WHERE maintenance_checklist_id = ? AND tenant_id = ?
         ";
-
         $stmt = $this->conn->prepare($sqlMaster);
         $stmt->execute([$archiveId, $tenantId]);
         $master = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -107,14 +114,13 @@ class CompletedWorkOrdersModel
             return null;
         }
 
-        // ✅ REMOVED 'dbo.' prefix
+        // Tasks associated with this work order
         $sqlTasks = "
             SELECT *
             FROM completed_work_order_tasks
             WHERE maintenance_checklist_id = ?
-            ORDER BY task_order ASC
+            ORDER BY task_order ASC NULLS LAST
         ";
-
         $stmt2 = $this->conn->prepare($sqlTasks);
         $stmt2->execute([$archiveId]);
         $tasks = $stmt2->fetchAll(PDO::FETCH_ASSOC);
