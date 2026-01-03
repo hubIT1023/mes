@@ -9,12 +9,11 @@ class CompletedWorkOrdersController
 
     public function __construct()
     {
-        // ✅ Start session ONCE in constructor
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        // ✅ Unified tenant handling (matches your auth pattern)
+        // Unified tenant handling
         if (!isset($_SESSION['tenant_id']) && isset($_SESSION['tenant']['org_id'])) {
             $_SESSION['tenant_id'] = $_SESSION['tenant']['org_id'];
         }
@@ -40,7 +39,6 @@ class CompletedWorkOrdersController
         ];
 
         try {
-            // ✅ Call model with correct signature (matches PostgreSQL model)
             $results = $this->model->getCompletedWorkOrders(
                 $tenant_id,
                 $filters['work_order_ref'],
@@ -61,7 +59,6 @@ class CompletedWorkOrdersController
 
         } catch (Exception $e) {
             error_log("Completed WO error: " . $e->getMessage());
-            // ✅ Use 'error' key to match your view expectations
             $_SESSION['error'] = 'Failed to load completed work orders.';
             header("Location: /mes/mms_admin");
             exit;
@@ -74,7 +71,7 @@ class CompletedWorkOrdersController
         $archiveId = $_GET['id'] ?? null;
 
         if (empty($archiveId) || !ctype_digit($archiveId)) {
-            $_SESSION['error'] = 'Invalid archive ID.'; // ✅ Consistent key
+            $_SESSION['error'] = 'Invalid archive ID.';
             header("Location: /mes/completed_work_orders");
             exit;
         }
@@ -83,7 +80,7 @@ class CompletedWorkOrdersController
             $work_order_data = $this->model->getCompletedWorkOrderDetails($tenant_id, (int)$archiveId);
 
             if (!$work_order_data) {
-                $_SESSION['error'] = 'Record not found or access denied.'; // ✅ Consistent key
+                $_SESSION['error'] = 'Record not found or access denied.';
                 header("Location: /mes/completed_work_orders");
                 exit;
             }
@@ -95,7 +92,7 @@ class CompletedWorkOrdersController
 
         } catch (Exception $e) {
             error_log("View error: " . $e->getMessage());
-            $_SESSION['error'] = 'Failed to load work order details.'; // ✅ Consistent key
+            $_SESSION['error'] = 'Failed to load work order details.';
             header("Location: /mes/completed_work_orders");
             exit;
         }
