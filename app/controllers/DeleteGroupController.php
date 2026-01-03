@@ -2,12 +2,10 @@
 // app/controllers/DeleteGroupController.php
 
 require_once __DIR__ . '/../models/GroupModel.php';
-require_once __DIR__ . '/../models/DashboardService.php'; // ✅ ADDED
 
 class DeleteGroupController
 {
     private $model;
-    private $dashboardService;
 
     public function __construct()
     {
@@ -21,7 +19,7 @@ class DeleteGroupController
         }
 
         $this->model = new GroupModel();
-        $this->dashboardService = new DashboardService(); // ✅ INITIALIZED
+        // ✅ REMOVED DashboardService — not needed
     }
 
     public function handleDelete()
@@ -64,13 +62,8 @@ class DeleteGroupController
             $_SESSION['error'] = "Failed to delete group.";
         }
 
-        // ✅ Now safe: $this->dashboardService is not null
-        $safePageId = $this->dashboardService->getValidRedirectPageId($orgId, $pageId);
-        if ($safePageId) {
-            header("Location: /mes/dashboard_admin?page_id=" . $safePageId);
-        } else {
-            header("Location: /mes/dashboard_admin");
-        }
+        // ✅ SAFE: Page was validated as existing → redirect to same page
+        header("Location: /mes/dashboard_admin?page_id=$pageId");
         exit;
     }
 }
