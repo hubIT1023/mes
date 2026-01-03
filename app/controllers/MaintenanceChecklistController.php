@@ -24,13 +24,13 @@ class MaintenanceChecklistController
         if (session_status() === PHP_SESSION_NONE) session_start();
         if (!isset($_SESSION['tenant'])) {
             http_response_code(401);
-            echo json_encode(['error' => 'Unauthorized']);
+            //echo json_encode(['error' => 'Unauthorized']);
             exit;
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
-            echo json_encode(['error' => 'Method Not Allowed']);
+            //echo json_encode(['error' => 'Method Not Allowed']);
             exit;
         }
 
@@ -41,7 +41,7 @@ class MaintenanceChecklistController
 
         if (!$tenant_id || !$asset_id || !$checklist_id || !$work_order_ref) {
             http_response_code(400);
-            echo json_encode(['error' => 'Missing required fields']);
+            //echo json_encode(['error' => 'Missing required fields']);
             exit;
         }
 
@@ -58,12 +58,14 @@ class MaintenanceChecklistController
             $maintenanceId = $result['maintenance_checklist_id'];
 
             http_response_code(201);
+			/*
             echo json_encode([
                 'success' => true,
                 'message' => 'Checklist associated successfully',
                 'maintenance_checklist_id' => $maintenanceId,
                 'inserted_tasks' => $result['inserted_tasks'] // Optional: include task count
             ]);
+			*/
             exit;
 
         } catch (Exception $e) {
@@ -71,20 +73,24 @@ class MaintenanceChecklistController
 
             if (strpos($e->getMessage(), 'already exists') !== false) {
                 http_response_code(409);
-                echo json_encode([
+                /*
+				echo json_encode([
                     'error' => 'Duplicate',
                     'message' => "Checklist already associated for this work order"
                 ]);
+				*/
                 exit;
             }
 
             http_response_code(500);
-            echo json_encode([
+            /*
+			echo json_encode([
                 'error'   => 'Association failed',
                 'message' => $e->getMessage(),
                 'file'    => $e->getFile(),
                 'line'    => $e->getLine()
             ]);
+			*/
             exit;
         }
     }
