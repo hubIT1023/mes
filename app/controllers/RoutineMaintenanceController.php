@@ -1,5 +1,5 @@
 <?php
-// RoutineMaintenanceController.php
+// app/controllers/RoutineMaintenanceController.php
 
 require_once __DIR__ . '/../models/RoutineMaintenanceModel.php';
 
@@ -10,9 +10,6 @@ class RoutineMaintenanceController {
         $this->model = new RoutineMaintenanceModel();
     }
 
-    /**
-     * Show Routine Maintenance Form
-     */
     public function generateForm() {
         if (session_status() === PHP_SESSION_NONE) session_start();
         $tenantId = $_SESSION['tenant']['org_id'] ?? null;
@@ -35,18 +32,21 @@ class RoutineMaintenanceController {
     }
 
     /**
-     * Handle Form Submission
+     * ✅ ENHANCED: Now returns detailed JSON on failure for debugging
      */
     public function generate() {
         if (session_status() === PHP_SESSION_NONE) session_start();
         $tenantId = $_SESSION['tenant']['org_id'] ?? null;
 
         if (!$tenantId) {
+            // Debug output even on redirect
+            error_log("❌ No tenant_id in session");
             header("Location: /mes/signin?error=Please login first");
             exit;
         }
 
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+            error_log("❌ CSRF token mismatch");
             $_SESSION['error'] = "Invalid or expired submission token.";
             header("Location: /mes/form_mms/routine_maintenance");
             exit;
@@ -59,24 +59,27 @@ class RoutineMaintenanceController {
         $technicianOverride = trim($_POST['technician'] ?? '');
 
         if (empty($assetIds)) {
+            error_log("❌ No assets selected");
             $_SESSION['error'] = "Please select at least one asset.";
             header("Location: /mes/form_mms/routine_maintenance");
             exit;
         }
 
         if (empty($workOrder)) {
+            error_log("❌ No work order selected");
             $_SESSION['error'] = "Please select a Work Order.";
             header("Location: /mes/form_mms/routine_maintenance");
             exit;
         }
 
         try {
-            // Prepare filters array
             $filters = [
                 'asset_ids' => $assetIds,
                 'work_order' => $workOrder,
                 'technician' => $technicianOverride ?: null
             ];
+
+            error_log("🔍 Generating WOs for tenant: $tenantId, filters: " . json_encode($filters));
 
             $count = $this->model->generateRoutineWorkOrders($tenantId, $filters);
 
@@ -87,29 +90,31 @@ class RoutineMaintenanceController {
             }
 
         } catch (Exception $e) {
-            error_log("Routine Maintenance Error: " . $e->getMessage());
+            // ✅ ALWAYS log full error
+            $errorMsg = "Routine Maintenance Error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine();
+            error_log($errorMsg);
 
-            // For debugging or AJAX requests, return JSON error
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'success' => false,
-                    'error' => 'Failed to generate work orders',
-                    'details' => $e->getMessage()
-                ]);
-                exit;
-            }
-
-            $_SESSION['error'] = "Failed to generate work orders. Please try again.";
+            // ✅ Return JSON for debugging (even on regular POST)
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to generate work orders',
+                'details' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => [
+                    'tenant_id' => $tenantId,
+                    'work_order' => $workOrder,
+                    'asset_ids' => $assetIds,
+                    'technician' => $technicianOverride
+                ]
+            ], JSON_PRETTY_PRINT);
+            exit; // ⚠️ Stop redirect to show JSON
         }
 
         header("Location: /mes/form_mms/routine_maintenance");
         exit;
     }
 
-    /**
-     * AJAX: Get maintenance_type by work_order
-     */
     public function getMaintenanceTypeByWorkOrder() {
         if (session_status() === PHP_SESSION_NONE) session_start();
 
@@ -139,4 +144,3 @@ class RoutineMaintenanceController {
         }
     }
 }
-
