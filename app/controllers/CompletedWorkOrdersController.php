@@ -1,5 +1,6 @@
 <?php
 // app/controllers/CompletedWorkOrdersController.php
+
 require_once __DIR__ . '/../models/CompletedWorkOrdersModel.php';
 
 class CompletedWorkOrdersController
@@ -12,10 +13,12 @@ class CompletedWorkOrdersController
             session_start();
         }
 
+        // Use tenant_id if available
         if (!isset($_SESSION['tenant_id']) && isset($_SESSION['tenant']['org_id'])) {
             $_SESSION['tenant_id'] = $_SESSION['tenant']['org_id'];
         }
 
+        // Redirect if not logged in
         if (!isset($_SESSION['tenant_id'])) {
             header("Location: /mes/signin?error=" . urlencode("Please log in first"));
             exit;
@@ -24,10 +27,14 @@ class CompletedWorkOrdersController
         $this->model = new CompletedWorkOrdersModel();
     }
 
+    /**
+     * List Completed Work Orders
+     */
     public function index()
     {
-        $tenant_id = $_SESSION['tenant_id'];
+        $tenant_id = $_SESSION['tenant_id'] ?? '';
 
+        // Filters
         $filters = [
             'work_order_ref' => trim($_GET['work_order_ref'] ?? ''),
             'asset_id'       => trim($_GET['asset_id'] ?? ''),
@@ -47,7 +54,6 @@ class CompletedWorkOrdersController
                 20
             );
 
-            // Data for the view
             $completed_work_orders = $results['data'];
             $total_records = $results['total'];
             $items_per_page = 20;
@@ -64,22 +70,25 @@ class CompletedWorkOrdersController
         }
     }
 
+    /**
+     * View Completed Work Order Details
+     */
     public function view()
     {
-        $tenant_id = $_SESSION['tenant_id'];
+        $tenant_id = $_SESSION['tenant_id'] ?? '';
         $archiveId = $_GET['id'] ?? null;
 
         if (empty($archiveId) || !ctype_digit($archiveId)) {
-            $_SESSION['error'] = 'Invalid archive ID.';
+            $_SESSION['error'] = 'Invalid work order ID.';
             header("Location: /mes/completed_work_orders");
             exit;
         }
 
         try {
-            $work_order_data = $this->model->getCompletedWorkOrderDetails($tenant_id, (int)$archiveId);
+            $work_order_data = $this->model->getCompletedWorkOrderDetails((int)$archiveId, $tenant_id);
 
             if (!$work_order_data) {
-                $_SESSION['error'] = 'Record not found or access denied.';
+                $_SESSION['error'] = 'Work order not found or access denied.';
                 header("Location: /mes/completed_work_orders");
                 exit;
             }
