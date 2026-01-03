@@ -1,6 +1,5 @@
 <?php
 // app/models/CompletedWorkOrdersModel.php
-
 require_once __DIR__ . '/../config/Database.php';
 
 class CompletedWorkOrdersModel
@@ -12,9 +11,6 @@ class CompletedWorkOrdersModel
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    /**
-     * LIST COMPLETED WORK ORDERS (FILTERED + PAGINATED) - PostgreSQL
-     */
     public function getCompletedWorkOrders(
         string $tenantId,
         string $workOrderRef = '',
@@ -25,46 +21,44 @@ class CompletedWorkOrdersModel
         int $limit = 20
     ): array 
     {
-        $tenantId = (int)$tenantId; // ensure tenant ID is integer
+        $tenantId = (int)$tenantId;
         $params = [$tenantId];
 
-        // Base SQL
         $sql = "
             SELECT 
-                cwo.maintenance_checklist_id,
-                cwo.work_order_ref,
-                cwo.asset_id,
-                cwo.asset_name,
-                cwo.checklist_id,
-                cwo.technician_name,
-                cwo.date_completed,
-                cwo.created_at AS archived_at
-            FROM completed_work_order cwo
-            WHERE cwo.tenant_id = ?
+                maintenance_checklist_id,
+                work_order_ref,
+                asset_id,
+                asset_name,
+                checklist_id,
+                technician_name,
+                date_completed,
+                created_at AS archived_at
+            FROM completed_work_order
+            WHERE tenant_id = ?
         ";
 
-        // Filters
         if ($workOrderRef !== '') {
-            $sql .= " AND cwo.work_order_ref ILIKE ?";
+            $sql .= " AND work_order_ref ILIKE ?";
             $params[] = "%{$workOrderRef}%";
         }
 
         if ($assetId !== '') {
-            $sql .= " AND cwo.asset_id ILIKE ?";
+            $sql .= " AND asset_id ILIKE ?";
             $params[] = "%{$assetId}%";
         }
 
         if ($dateFrom !== '') {
-            $sql .= " AND cwo.date_completed::date >= ?";
+            $sql .= " AND date_completed::date >= ?";
             $params[] = $dateFrom;
         }
 
         if ($dateTo !== '') {
-            $sql .= " AND cwo.date_completed::date <= ?";
+            $sql .= " AND date_completed::date <= ?";
             $params[] = $dateTo;
         }
 
-        // Count total records
+        // Count total
         $countSql = "SELECT COUNT(*) FROM ({$sql}) AS t";
         $stmt = $this->conn->prepare($countSql);
         $stmt->execute($params);
@@ -74,28 +68,20 @@ class CompletedWorkOrdersModel
             return ['data' => [], 'total' => 0];
         }
 
-        // PostgreSQL pagination
         $offset = ($page - 1) * $limit;
-        $sql .= " ORDER BY cwo.date_completed DESC LIMIT {$limit} OFFSET {$offset}";
+        $sql .= " ORDER BY date_completed DESC LIMIT {$limit} OFFSET {$offset}";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return [
-            'data' => $data,
-            'total' => $total
-        ];
+        return ['data' => $data, 'total' => $total];
     }
 
-    /**
-     * GET COMPLETED WORK ORDER DETAILS (MASTER + TASKS) - PostgreSQL
-     */
     public function getCompletedWorkOrderDetails(string $tenantId, int $archiveId): ?array
     {
         $tenantId = (int)$tenantId;
 
-        // Master record
         $sqlMaster = "
             SELECT *
             FROM completed_work_order
@@ -105,11 +91,8 @@ class CompletedWorkOrdersModel
         $stmt->execute([$archiveId, $tenantId]);
         $master = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$master) {
-            return null;
-        }
+        if (!$master) return null;
 
-        // Tasks
         $sqlTasks = "
             SELECT *
             FROM completed_work_order_tasks
@@ -120,9 +103,6 @@ class CompletedWorkOrdersModel
         $stmt2->execute([$archiveId]);
         $tasks = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
-        return [
-            'master' => $master,
-            'tasks' => $tasks
-        ];
+        return ['master' => $master, 'tasks' => $tasks];
     }
 }
