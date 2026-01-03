@@ -10,12 +10,7 @@ class DashboardService {
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    /**
-     * Get a safe page ID to redirect to after any action.
-     * Prefers the current page if it still exists.
-     */
     public function getValidRedirectPageId(string $orgId, ?int $preferredPageId = null): ?int {
-        // Try preferred page first
         if ($preferredPageId !== null) {
             $stmt = $this->conn->prepare("
                 SELECT 1 FROM group_location_map 
@@ -28,7 +23,6 @@ class DashboardService {
             }
         }
 
-        // Fallback: get first available page
         $stmt = $this->conn->prepare("
             SELECT page_id FROM group_location_map 
             WHERE org_id = ? 

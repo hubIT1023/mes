@@ -11,13 +11,14 @@ class CreateGroupController {
     public function __construct() {
         if (session_status() === PHP_SESSION_NONE) session_start();
         
+		
         if (!isset($_SESSION['tenant_id'])) {
             header("Location: /mes/signin?error=" . urlencode("Please log in first"));
             exit;
         }
         
         $this->model = new CreateGroupModel();
-		$this->dashboardService = new DashboardService(); // ← ADD THIS
+		$this->dashboardService = new DashboardService(); // ✅ autoloaded
     }
 
     public function handleCreateGroup(): void {
