@@ -123,6 +123,33 @@ foreach ($routes as $routePattern => $routeHandler) {
     }
 }
 
+// ================= DEBUG AUTLOADER =================
+spl_autoload_register(function ($class) use ($baseDir) {
+    $paths = [
+        "$baseDir/app/controllers/$class.php",
+        "$baseDir/app/models/$class.php",
+        "$baseDir/app/config/$class.php",
+    ];
+
+    $found = false;
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            require_once $path;
+            error_log("[AUTOLOAD] Loaded class '$class' from $path");
+            $found = true;
+            break;
+        }
+    }
+
+    if (!$found) {
+        error_log("[AUTOLOAD FAIL] Could not load class '$class'. Tried paths:\n" . implode("\n", $paths));
+        
+        // Extra debug: list all controller files
+        $controllers = glob("$baseDir/app/controllers/*.php");
+        error_log("[AUTOLOAD INFO] Controllers present: " . implode(", ", $controllers));
+    }
+});
+
 // -------------------------------------------------
 // 404 fallback
 // -------------------------------------------------
