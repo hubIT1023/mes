@@ -95,30 +95,33 @@ $tenant = $_SESSION['tenant'];
       </div>
 
       <!-- Schedule Maintenance -->
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow hover:shadow-lg transition flex flex-col">
-        <i class="fas fa-calendar-alt text-4xl text-purple-600 mb-4"></i>
-        <h3 class="text-lg font-semibold mb-2">Work Orders</h3>
-        <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">
-          Plan calibration, preventive or corrective maintenance for your assets.
-        </p>
-        <div class="flex flex-wrap gap-3">
-          <a href="mes/form_mms/routine_maintenance" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block text-center">Create WO</a>
-          <a href="#" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block text-center">List of Work Order</a>
-        </div>
-      </div>
+		<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow hover:shadow-lg transition flex flex-col">
+		  <i class="fas fa-calendar-alt text-4xl text-purple-600 mb-4"></i>
+		  <h3 class="text-lg font-semibold mb-2">Work Orders</h3>
+		  <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">
+			Plan calibration, preventive or corrective maintenance for your assets.
+		  </p>
+		  <div class="flex flex-wrap gap-3">
+			<!-- ✅ FIXED: Added leading slash -->
+			<a href="/mes/form_mms/routine_maintenance" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block text-center">Create WO</a>
+			<a href="#" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block text-center">List of Work Order</a>
+		  </div>
+		</div>
 
-      <!-- Monitor Upcoming -->
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow hover:shadow-lg transition flex flex-col">
-        <i class="fas fa-bell text-4xl text-yellow-500 mb-4"></i>
-        <h3 class="text-lg font-semibold mb-2">Maintenance – Scheduled & In Progress</h3>
-        <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">
-          Track upcoming and ongoing maintenance tasks and receive alerts.
-        </p>
-        <div class="flex flex-wrap gap-3">
-          <a href="/mes/dashboard_upcoming_maint" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 inline-block text-center">Work Orders</a>
-          <a href="/mes/completed_work_orders" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block text-center">Completed WO</a>
-        </div>
-      </div>
+		<!-- Monitor Upcoming -->
+		<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow hover:shadow-lg transition flex flex-col">
+		  <i class="fas fa-bell text-4xl text-yellow-500 mb-4"></i>
+		  <h3 class="text-lg font-semibold mb-2">Maintenance – Scheduled & In Progress</h3>
+		  <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">
+			Track upcoming and ongoing maintenance tasks and receive alerts.
+		  </p>
+		  <div class="flex flex-wrap gap-3">
+			<!-- ✅ Already correct -->
+			<a href="/mes/dashboard_upcoming_maint" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 inline-block text-center">Work Orders</a>
+			<!-- ✅ Already correct -->
+			<a href="/mes/completed_work_orders" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block text-center">Completed WO</a>
+		  </div>
+		</div>
 
       <!-- Reports -->
       <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow hover:shadow-lg transition flex flex-col">
