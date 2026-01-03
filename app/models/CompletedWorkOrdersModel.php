@@ -12,6 +12,9 @@ class CompletedWorkOrdersModel
         $this->conn = Database::getInstance()->getConnection();
     }
 
+    /**
+     * LIST COMPLETED WORK ORDERS (FILTERED + PAGINATED) - PostgreSQL
+     */
     public function getCompletedWorkOrders(
         string $tenantId,
         string $workOrderRef = '',
@@ -22,49 +25,50 @@ class CompletedWorkOrdersModel
         int $limit = 20
     ): array 
     {
-        // ✅ USE ACTUAL TABLE NAME: maintenance_checklists
-        $sql = "
-            SELECT 
-                maintenance_checklist_id,
-                work_order_ref,        -- Verify this column exists
-                asset_id,
-                asset_name,
-                checklist_id,
-                technician,            -- Most likely column name (not technician_name)
-                date_completed,
-                archived_at            -- Most likely column name (not created_at)
-            FROM maintenance_checklists
-            WHERE tenant_id = ?
-              AND status = 'completed' -- Only completed records
-        ";
-
+        $tenantId = (int)$tenantId; // ensure tenant ID is integer
         $params = [$tenantId];
 
+        // Base SQL
+        $sql = "
+            SELECT 
+                cwo.maintenance_checklist_id,
+                cwo.work_order_ref,
+                cwo.asset_id,
+                cwo.asset_name,
+                cwo.checklist_id,
+                cwo.technician_name,
+                cwo.date_completed,
+                cwo.created_at AS archived_at
+            FROM completed_work_order cwo
+            WHERE cwo.tenant_id = ?
+        ";
+
+        // Filters
         if ($workOrderRef !== '') {
-            $sql .= " AND work_order_ref ILIKE ?";
+            $sql .= " AND cwo.work_order_ref ILIKE ?";
             $params[] = "%{$workOrderRef}%";
         }
 
         if ($assetId !== '') {
-            $sql .= " AND asset_id ILIKE ?";
+            $sql .= " AND cwo.asset_id ILIKE ?";
             $params[] = "%{$assetId}%";
         }
 
         if ($dateFrom !== '') {
-            $sql .= " AND date_completed >= ?";
+            $sql .= " AND cwo.date_completed::date >= ?";
             $params[] = $dateFrom;
         }
 
         if ($dateTo !== '') {
-            $sql .= " AND date_completed <= ?";
-            $params[] = $dateTo . " 23:59:59";
+            $sql .= " AND cwo.date_completed::date <= ?";
+            $params[] = $dateTo;
         }
 
-        // Get total count
-        $countSql = "SELECT COUNT(*) FROM ($sql) AS sub";
-        $countStmt = $this->conn->prepare($countSql);
-        $countStmt->execute($params);
-        $total = (int)$countStmt->fetchColumn();
+        // Count total records
+        $countSql = "SELECT COUNT(*) FROM ({$sql}) AS t";
+        $stmt = $this->conn->prepare($countSql);
+        $stmt->execute($params);
+        $total = (int)$stmt->fetchColumn();
 
         if ($total === 0) {
             return ['data' => [], 'total' => 0];
@@ -72,52 +76,53 @@ class CompletedWorkOrdersModel
 
         // PostgreSQL pagination
         $offset = ($page - 1) * $limit;
-        $sql .= " ORDER BY date_completed DESC LIMIT $limit OFFSET $offset";
+        $sql .= " ORDER BY cwo.date_completed DESC LIMIT {$limit} OFFSET {$offset}";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return ['data' => $data, 'total' => $total];
+        return [
+            'data' => $data,
+            'total' => $total
+        ];
     }
 
+    /**
+     * GET COMPLETED WORK ORDER DETAILS (MASTER + TASKS) - PostgreSQL
+     */
     public function getCompletedWorkOrderDetails(string $tenantId, int $archiveId): ?array
     {
-        // ✅ Query actual table
-        $stmt = $this->conn->prepare("
-            SELECT * 
-            FROM maintenance_checklists
+        $tenantId = (int)$tenantId;
+
+        // Master record
+        $sqlMaster = "
+            SELECT *
+            FROM completed_work_order
             WHERE maintenance_checklist_id = ? AND tenant_id = ?
-        ");
+        ";
+        $stmt = $this->conn->prepare($sqlMaster);
         $stmt->execute([$archiveId, $tenantId]);
         $master = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$master) return null;
-
-        // ✅ Task table (if exists)
-        $tasks = [];
-        if ($this->tableExists('maintenance_checklist_tasks')) {
-            $stmt2 = $this->conn->prepare("
-                SELECT * FROM maintenance_checklist_tasks
-                WHERE maintenance_checklist_id = ?
-                ORDER BY task_order ASC
-            ");
-            $stmt2->execute([$archiveId]);
-            $tasks = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+        if (!$master) {
+            return null;
         }
 
-        return ['master' => $master, 'tasks' => $tasks];
-    }
+        // Tasks
+        $sqlTasks = "
+            SELECT *
+            FROM completed_work_order_tasks
+            WHERE maintenance_checklist_id = ?
+            ORDER BY task_order ASC NULLS LAST
+        ";
+        $stmt2 = $this->conn->prepare($sqlTasks);
+        $stmt2->execute([$archiveId]);
+        $tasks = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
-    private function tableExists(string $tableName): bool {
-        $stmt = $this->conn->prepare("
-            SELECT EXISTS (
-                SELECT FROM information_schema.tables 
-                WHERE table_schema = 'public' 
-                AND table_name = ?
-            );
-        ");
-        $stmt->execute([$tableName]);
-        return (bool) $stmt->fetchColumn();
+        return [
+            'master' => $master,
+            'tasks' => $tasks
+        ];
     }
 }
