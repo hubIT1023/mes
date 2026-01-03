@@ -48,7 +48,6 @@ class GroupPageModel {
         return $stmt->execute($data);
     }
 
-    // ✅ FIXED: removed non-existent updated_at
     public function renamePage(string $orgId, int $pageId, string $newName): bool {
         $stmt = $this->conn->prepare("
             UPDATE group_location_map 
@@ -62,9 +61,7 @@ class GroupPageModel {
         ]);
     }
 
-    // ✅ SAFE DELETE: only delete from group_location_map
     public function deletePage(string $orgId, int $pageId): bool {
-        // First, check if page exists
         $existsStmt = $this->conn->prepare("
             SELECT 1 FROM group_location_map 
             WHERE org_id = ? AND page_id = ? 
@@ -72,19 +69,16 @@ class GroupPageModel {
         ");
         $existsStmt->execute([$orgId, $pageId]);
         if (!$existsStmt->fetch()) {
-            return true; // already gone
+            return true;
         }
 
         try {
             $this->conn->beginTransaction();
-
-            // Only delete from group_location_map (safe fallback)
             $stmt = $this->conn->prepare("
                 DELETE FROM group_location_map 
                 WHERE org_id = ? AND page_id = ?
             ");
             $stmt->execute([$orgId, $pageId]);
-
             $this->conn->commit();
             return true;
         } catch (Exception $e) {
