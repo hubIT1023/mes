@@ -5,20 +5,19 @@ require_once __DIR__ . '/../models/CreateGroupModel.php';
 
 class CreateGroupController {
     private $model;
-	private $dashboardService; // ← ADD THIS
-
 
     public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         
-		
         if (!isset($_SESSION['tenant_id'])) {
             header("Location: /mes/signin?error=" . urlencode("Please log in first"));
             exit;
         }
         
         $this->model = new CreateGroupModel();
-		$this->dashboardService = new DashboardService(); // ✅ autoloaded
+        // ✅ REMOVED DashboardService — not needed (page already validated)
     }
 
     public function handleCreateGroup(): void {
@@ -85,42 +84,38 @@ class CreateGroupController {
         $placeholder = $this->model->getPlaceholderRecord($orgId, $pageId);
 
         if ($placeholder) {
-        // ✅ UPDATE placeholder record (first group on page)
-				$result = $this->model->updatePlaceholder([
-					'id' => $placeholder['id'],
-					'group_code' => $group_code,
-					'location_code' => $location_code,
-					'group_name' => $group_name,
-					'location_name' => $location_name,
-					'page_name' => $pageName,
-					'seq_id' => $seqId  // ✅ Add seq_id
-				]);
-			} else {
-				// ✅ CREATE new group record (additional groups on page)
-				$result = $this->model->createGroup([
-					'org_id' => $orgId,
-					'page_id' => $pageId,
-					'page_name' => $pageName,
-					'group_name' => $group_name,
-					'location_name' => $location_name,
-					'group_code' => $group_code,
-					'location_code' => $location_code,
-					'seq_id' => $seqId  // ✅ Add seq_id
-				]);
-			}
+            // ✅ UPDATE placeholder record (first group on page)
+            $result = $this->model->updatePlaceholder([
+                'id' => $placeholder['id'],
+                'group_code' => $group_code,
+                'location_code' => $location_code,
+                'group_name' => $group_name,
+                'location_name' => $location_name,
+                'page_name' => $pageName,
+                'seq_id' => $seqId
+            ]);
+        } else {
+            // ✅ CREATE new group record (additional groups on page)
+            $result = $this->model->createGroup([
+                'org_id' => $orgId,
+                'page_id' => $pageId,
+                'page_name' => $pageName,
+                'group_name' => $group_name,
+                'location_name' => $location_name,
+                'group_code' => $group_code,
+                'location_code' => $location_code,
+                'seq_id' => $seqId
+            ]);
+        }
 
-         if ($result) {
+        if ($result) {
             $_SESSION['success'] = "Group '$group_name' created in page '$pageName'!";
         } else {
             $_SESSION['error'] = "Failed to create group.";
         }
 
-        // Redirect to the SAME page (it still exists)
-        $safePageId = $this->dashboardService->getValidRedirectPageId($orgId, $pageId);
-        $url = $safePageId 
-            ? "/mes/dashboard_admin?page_id=$safePageId" 
-            : "/mes/dashboard_admin";
-        header("Location: $url");
+        // ✅ SAFE REDIRECT: page was already validated as existing!
+        header("Location: /mes/dashboard_admin?page_id=" . $pageId);
         exit;
     }
 }

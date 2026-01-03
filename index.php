@@ -19,16 +19,14 @@ spl_autoload_register(function ($class) use ($baseDir) {
         "$baseDir/app/models/$class.php",
         "$baseDir/app/config/$class.php",
     ];
-
     foreach ($paths as $path) {
         if (file_exists($path)) {
             require_once $path;
             return;
         }
     }
-
-    // 🔍 Debug: log missing classes (remove in production if desired)
-    error_log("Autoloader failed to find class: $class");
+    // 🔥 TEMPORARY DEBUG: log what it tried
+    error_log("Autoloader tried and failed to load class '$class' from: " . json_encode($paths));
 });
 
 // -------------------------------------------------
