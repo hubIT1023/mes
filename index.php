@@ -11,7 +11,7 @@ $baseDir = __DIR__;
 $baseUrl = '/mes';
 
 // -------------------------------------------------
-// Enhanced Autoloader with Debugging
+// SINGLE, ENHANCED AUTOLOADER WITH DEBUGGING
 // -------------------------------------------------
 spl_autoload_register(function ($class) use ($baseDir) {
     $paths = [
@@ -19,18 +19,28 @@ spl_autoload_register(function ($class) use ($baseDir) {
         "$baseDir/app/models/$class.php",
         "$baseDir/app/config/$class.php",
     ];
+
+    $found = false;
     foreach ($paths as $path) {
         if (file_exists($path)) {
             require_once $path;
-            return;
+            error_log("[AUTOLOAD] Loaded class '$class' from $path");
+            $found = true;
+            break;
         }
     }
-    // 🔥 TEMPORARY DEBUG: log what it tried
-    error_log("Autoloader tried and failed to load class '$class' from: " . json_encode($paths));
+
+    if (!$found) {
+        error_log("[AUTOLOAD FAIL] Could not load class '$class'. Tried paths:\n" . implode("\n", $paths));
+
+        // Extra debug: list all controller files
+        $controllers = glob("$baseDir/app/controllers/*.php");
+        error_log("[AUTOLOAD INFO] Controllers present: " . implode(", ", $controllers));
+    }
 });
 
 // -------------------------------------------------
-// Parse URL & enforce base path (HARDENING)
+// Parse URL & enforce base path
 // -------------------------------------------------
 $method = $_SERVER['REQUEST_METHOD'];
 $rawUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -58,7 +68,6 @@ if (!file_exists($routesPath)) {
 }
 
 $routes = require $routesPath;
-
 if (!is_array($routes)) {
     error_log("Routes file did not return an array");
     http_response_code(500);
@@ -70,26 +79,20 @@ if (!is_array($routes)) {
 // -------------------------------------------------
 $matched = false;
 foreach ($routes as $routePattern => $routeHandler) {
-    if (!is_string($routePattern) || !is_array($routeHandler)) {
-        continue;
-    }
+    if (!is_string($routePattern) || !is_array($routeHandler)) continue;
 
     $parts = explode(' ', $routePattern, 2);
     if (count($parts) !== 2) continue;
 
     [$routeMethod, $routePath] = $parts;
 
-    if ($routeMethod !== $method) {
-        continue;
-    }
+    if ($routeMethod !== $method) continue;
 
     $regex = preg_quote($routePath, '/');
     $regex = preg_replace('/\\\(:num)/', '(\d+)', $regex);
     $regex = '/^' . $regex . '$/i';
 
-    if (!preg_match($regex, $uri, $matches)) {
-        continue;
-    }
+    if (!preg_match($regex, $uri, $matches)) continue;
 
     array_shift($matches);
     $matched = true;
@@ -97,12 +100,7 @@ foreach ($routes as $routePattern => $routeHandler) {
     $controllerName = $routeHandler[0] ?? null;
     $action = $routeHandler[1] ?? ($routeHandler['action'] ?? null);
 
-    if (
-        !$controllerName ||
-        !$action ||
-        !class_exists($controllerName) ||
-        !method_exists($controllerName, $action)
-    ) {
+    if (!$controllerName || !$action || !class_exists($controllerName) || !method_exists($controllerName, $action)) {
         error_log("Invalid route handler for: $routePattern");
         http_response_code(500);
         exit('Controller or action not found');
@@ -122,33 +120,6 @@ foreach ($routes as $routePattern => $routeHandler) {
         exit('Internal error in controller');
     }
 }
-
-// ================= DEBUG AUTLOADER =================
-spl_autoload_register(function ($class) use ($baseDir) {
-    $paths = [
-        "$baseDir/app/controllers/$class.php",
-        "$baseDir/app/models/$class.php",
-        "$baseDir/app/config/$class.php",
-    ];
-
-    $found = false;
-    foreach ($paths as $path) {
-        if (file_exists($path)) {
-            require_once $path;
-            error_log("[AUTOLOAD] Loaded class '$class' from $path");
-            $found = true;
-            break;
-        }
-    }
-
-    if (!$found) {
-        error_log("[AUTOLOAD FAIL] Could not load class '$class'. Tried paths:\n" . implode("\n", $paths));
-        
-        // Extra debug: list all controller files
-        $controllers = glob("$baseDir/app/controllers/*.php");
-        error_log("[AUTOLOAD INFO] Controllers present: " . implode(", ", $controllers));
-    }
-});
 
 // -------------------------------------------------
 // 404 fallback
