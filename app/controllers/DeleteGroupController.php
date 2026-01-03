@@ -19,7 +19,6 @@ class DeleteGroupController
         }
 
         $this->model = new GroupModel();
-        // ✅ REMOVED DashboardService — not needed
     }
 
     public function handleDelete()
@@ -31,26 +30,28 @@ class DeleteGroupController
 
         if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
             $_SESSION['error'] = "Security check failed.";
-            $pageId = (int)($_POST['page_id'] ?? 0);
-            $redirect = $pageId ? "/mes/dashboard_admin?page_id=$pageId" : "/mes/dashboard_admin";
+            $pageId = trim($_POST['page_id'] ?? '');
+            $redirect = $pageId ? "/mes/dashboard_admin?page_id=" . urlencode($pageId) : "/mes/dashboard_admin";
             header("Location: $redirect");
             exit;
         }
 
         $orgId = $_SESSION['tenant_id'];
         $groupId = (int)($_POST['group_id'] ?? 0);
-        $pageId = (int)($_POST['page_id'] ?? 0);
+        $pageId = trim($_POST['page_id'] ?? ''); // ✅ Keep as STRING
 
-        if ($groupId <= 0 || $pageId <= 0) {
+        // Validate inputs (pageId as string)
+        if ($groupId <= 0 || empty($pageId)) {
             $_SESSION['error'] = "Invalid request.";
-            $redirect = $pageId ? "/mes/dashboard_admin?page_id=$pageId" : "/mes/dashboard_admin";
+            $redirect = $pageId ? "/mes/dashboard_admin?page_id=" . urlencode($pageId) : "/mes/dashboard_admin";
             header("Location: $redirect");
             exit;
         }
 
+        // ✅ Pass pageId as string to model
         if (!$this->model->groupExists($groupId, $orgId, $pageId)) {
             $_SESSION['error'] = "Group not found or access denied.";
-            header("Location: /mes/dashboard_admin?page_id=$pageId");
+            header("Location: /mes/dashboard_admin?page_id=" . urlencode($pageId));
             exit;
         }
 
@@ -62,8 +63,7 @@ class DeleteGroupController
             $_SESSION['error'] = "Failed to delete group.";
         }
 
-        // ✅ SAFE: Page was validated as existing → redirect to same page
-        header("Location: /mes/dashboard_admin?page_id=$pageId");
+        header("Location: /mes/dashboard_admin?page_id=" . urlencode($pageId));
         exit;
     }
 }

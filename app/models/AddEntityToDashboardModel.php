@@ -11,26 +11,24 @@ class AddEntityToDashboardModel {
     }
 
     /**
-     * ✅ Get page_id from group_code
+     * ✅ Return page_id as STRING (matches VARCHAR(10) in DB)
      */
-    public function getPageIdByGroupCode(int $group_code, string $orgId): int {
+    public function getPageIdByGroupCode(int $group_code, string $orgId): ?string {
         try {
             $stmt = $this->conn->prepare("
                 SELECT page_id FROM group_location_map 
                 WHERE group_code = ? AND org_id = ?
+                LIMIT 1
             ");
             $stmt->execute([$group_code, $orgId]);
             $result = $stmt->fetchColumn();
-            return $result !== false ? (int) $result : 1;
+            return $result !== false ? (string) $result : null;
         } catch (PDOException $e) {
             error_log("getPageIdByGroupCode failed: " . $e->getMessage());
-            return 1;
+            return null;
         }
     }
 
-    /**
-     * Fetch official asset_name from assets table
-     */
     public function getAssetName(string $orgId, string $assetId): ?string {
         try {
             $stmt = $this->conn->prepare("
@@ -45,9 +43,6 @@ class AddEntityToDashboardModel {
         }
     }
 
-    /**
-     * Check if asset is already in this group/location
-     */
     public function isEntityUsed(string $orgId, int $groupCode, int $locationCode, string $assetId): bool {
         try {
             $stmt = $this->conn->prepare("
@@ -66,30 +61,31 @@ class AddEntityToDashboardModel {
     }
 
     /**
-     * Add entity with auto-generated grid position (9 columns per row)
+     * ✅ Insert page_id into registered_tools
      */
     public function addEntity(array $data): bool {
         try {
-            // Get next grid position
             [$row_pos, $col_pos] = $this->getNextGridPosition(
                 $data['org_id'],
                 $data['group_code'],
                 $data['location_code']
             );
 
-            // ✅ PostgreSQL: Use CURRENT_TIMESTAMP instead of GETDATE()
             $stmt = $this->conn->prepare("
                 INSERT INTO registered_tools (
-                    org_id, asset_id, entity, group_code, location_code,
+                    org_id, page_id, asset_id, entity, 
+                    group_code, location_code,
                     row_pos, col_pos, created_at
                 ) VALUES (
-                    :org_id, :asset_id, :entity, :group_code, :location_code,
+                    :org_id, :page_id, :asset_id, :entity, 
+                    :group_code, :location_code,
                     :row_pos, :col_pos, CURRENT_TIMESTAMP
                 )
             ");
 
             return $stmt->execute([
                 'org_id' => $data['org_id'],
+                'page_id' => $data['page_id'],        // STRING
                 'asset_id' => $data['asset_id'],
                 'entity' => $data['entity'],
                 'group_code' => $data['group_code'],
@@ -103,9 +99,6 @@ class AddEntityToDashboardModel {
         }
     }
 
-    /**
-     * Auto-generate next grid position (max 9 columns per row)
-     */
     private function getNextGridPosition(string $orgId, int $groupCode, int $locationCode): array {
         $stmt = $this->conn->prepare("
             SELECT row_pos, col_pos
