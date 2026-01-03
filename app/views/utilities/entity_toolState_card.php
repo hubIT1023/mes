@@ -32,7 +32,6 @@ if (!function_exists('getStateBadge')) {
             error_log("getStateBadge DB error: " . $e->getMessage());
             $result = $fallback;
         }
-
         return $cache[$cacheKey] = $result;
     }
 }
@@ -111,7 +110,6 @@ foreach ($entities as $entity) {
 }
 
 $currentDateTime = date('Y-m-d H:i:s');
-
 ?>
 
 <!-- ====================== -->
@@ -158,23 +156,144 @@ $currentDateTime = date('Y-m-d H:i:s');
 </div>
 
 <!-- ====================== -->
-<!-- === Modals Section === -->
+<!-- === Associate Accessories Modal === -->
 <!-- ====================== -->
+<div class="modal fade" id="associateAccessoriesModal" tabindex="-1">
+  <div class="modal-dialog modal-md">
+    <form id="AddAccessoriesForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="associateAccessoriesModalLabel">Associate Machine Parts</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+          <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
 
-<?php include __DIR__ . '/modals/associateAccessoriesModal.php'; ?>
-<?php include __DIR__ . '/modals/changeStateModal.php'; ?>
+          <!-- Hidden Inputs (Populated by JS) -->
+          <input type="hidden" name="asset_id" id="acc_modal_asset_id_hidden" data-field="assetId">
+          <input type="hidden" name="entity" id="acc_modal_entity_hidden" data-field="entity">
+          <input type="hidden" name="group_code" id="acc_modal_group_code" data-field="groupCode">
+          <input type="hidden" name="location_code" id="acc_modal_location_code" data-field="locationCode">
+          <input type="hidden" name="col_6" id="acc_modal_date_time" data-field="dateTime">
+
+          <!-- Display Fields -->
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label">Location</label>
+              <input type="text" id="acc_modal_location" class="form-control" readonly data-field="locationName" />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label">Entity</label>
+              <input type="text" id="acc_ipt_entity" name="col_2" class="form-control" readonly data-field="entity"/>
+            </div>
+            <div class="col">
+              <label class="form-label">Asset ID</label>
+              <input type="text" id="acc_modal_asset_id_display" class="form-control" readonly data-field="assetId"/>
+            </div>
+          </div>
+
+          <!-- Other fields (Part ID, Name, Serial, Vendor, SAP, Category, Description, Image) -->
+          <div class="row mb-3">
+            <div class="col"><label>Part ID *</label><input type="text" name="part_id" class="form-control" required></div>
+            <div class="col"><label>Part Name *</label><input type="text" name="part_name" class="form-control" required></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col"><label>Serial No</label><input type="text" name="serial_no" class="form-control"></div>
+            <div class="col"><label>Vendor ID</label><input type="text" name="vendor_id" class="form-control"></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col"><label>SAP Code</label><input type="text" name="sap_code" class="form-control"></div>
+            <div class="col"><label>Category</label>
+              <select name="category" class="form-select">
+                <option value="">-- Select Priority Level --</option>
+                <option value="HIGH">HIGH</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="LOW">LOW</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3"><label>Description</label><textarea name="description" class="form-control"></textarea></div>
+          <div class="mb-3"><label>Part Image</label><input type="file" name="part_image" class="form-control" accept="image/*"></div>
+
+          <div class="row mb-3">
+            <div class="col"><label>Added By *</label><input type="text" name="col_8" class="form-control" placeholder="Type Your Name" required></div>
+            <div class="col"><label>Date / Time</label><input type="text" class="form-control" value="<?= $currentDateTime ?>" readonly></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ====================== -->
+<!-- === Change State Modal === -->
+<!-- ====================== -->
+<div class="modal fade" id="changeStateModal" tabindex="-1">
+  <div class="modal-dialog modal-md">
+    <form method="POST" action="/mes/change-tool-state">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Change Entity Mode</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+          <input type="hidden" name="group_code" id="ts_modal_group_code" data-field="groupCode">
+          <input type="hidden" name="location_code" id="ts_modal_location_code" data-field="locationCode">
+          <input type="hidden" name="col_1" id="ts_modal_asset_id" data-field="assetId">
+          <input type="hidden" name="col_6" id="ts_modal_date_time" data-field="dateTime">
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+
+          <div class="row mb-3">
+            <div class="col"><label>Asset ID</label><input type="text" id="ts_modal_asset_id_display" class="form-control" readonly data-field="assetId"></div>
+            <div class="col"><label>Entity</label><input type="text" id="ts_ipt_entity" name="col_2" class="form-control" readonly data-field="entity"></div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label>Stop Cause</label>
+              <select id="ts_modal_stopcause" name="col_3" class="form-control" onchange="handleStopCauseChange(this)">
+                <option value="">Select stop cause</option>
+                <option value="CUSTOM">Other (specify)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3" id="customInputContainer" style="display:none;">
+            <label>Custom Stop Cause</label>
+            <input type="text" id="ts_customInput" class="form-control" />
+          </div>
+
+          <div class="mb-3">
+            <label>Posted By</label>
+            <input type="text" name="col_8" class="form-control" placeholder="Type Your Name" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- ====================== -->
 <!-- === JS Section === -->
 <!-- ====================== -->
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-
     function handleStopCauseChange(selectEl) {
         const container = document.getElementById('customInputContainer');
         const customInput = document.getElementById('ts_customInput');
-
         if (selectEl.value === 'CUSTOM') {
             container.style.display = 'block';
             selectEl.removeAttribute('name');
@@ -186,10 +305,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    window.handleStopCauseChange = handleStopCauseChange;
+
     function populateModal(modalId, btn) {
         const modal = document.getElementById(modalId);
         if (!modal) return;
-
         const mapping = {
             assetId: btn.getAttribute('data-asset-id'),
             entity: btn.getAttribute('data-header'),
@@ -198,7 +318,6 @@ document.addEventListener('DOMContentLoaded', function() {
             locationName: btn.getAttribute('data-location-name'),
             dateTime: btn.getAttribute('data-date')
         };
-
         modal.querySelectorAll('[data-field]').forEach(el => {
             const key = el.getAttribute('data-field');
             if (mapping[key] !== undefined) el.value = mapping[key];
@@ -207,12 +326,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
         btn.addEventListener('click', e => {
-            const targetId = btn.getAttribute('data-bs-target').replace('#', '');
+            const targetId = btn.getAttribute('data-bs-target').replace('#','');
             populateModal(targetId, btn);
         });
     });
-
-    window.handleStopCauseChange = handleStopCauseChange;
-
 });
 </script>
