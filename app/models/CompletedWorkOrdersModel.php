@@ -32,7 +32,7 @@ class CompletedWorkOrdersModel
                 asset_id,
                 asset_name,
                 checklist_id,
-                technician_name,
+                technician,
                 date_completed,
                 created_at AS archived_at
             FROM public.completed_work_order
