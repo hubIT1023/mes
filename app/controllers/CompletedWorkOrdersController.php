@@ -1,5 +1,5 @@
 <?php
-// CompletedWorkOrdersController.php
+// app/controllers/CompletedWorkOrdersController.php
 
 require_once __DIR__ . '/../models/CompletedWorkOrdersModel.php';
 
@@ -9,26 +9,28 @@ class CompletedWorkOrdersController
 
     public function __construct()
     {
+        // ✅ Start session ONCE in constructor
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // ✅ Unified tenant handling (matches your auth pattern)
+        if (!isset($_SESSION['tenant_id']) && isset($_SESSION['tenant']['org_id'])) {
+            $_SESSION['tenant_id'] = $_SESSION['tenant']['org_id'];
+        }
+
+        if (!isset($_SESSION['tenant_id'])) {
+            header("Location: /mes/signin?error=" . urlencode("Please log in first"));
+            exit;
+        }
+
         $this->model = new CompletedWorkOrdersModel();
     }
 
     public function index()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Unified tenant handling
-        if (!empty($_SESSION['tenant_id'])) {
-            $tenant_id = $_SESSION['tenant_id'];
-        } elseif (!empty($_SESSION['tenant']['org_id'])) {
-            $tenant_id = $_SESSION['tenant']['org_id'];
-            $_SESSION['tenant_id'] = $tenant_id;
-        } else {
-            header("Location: /mes/signin?error=Please+log+in+first");
-            exit;
-        }
-
+        $tenant_id = $_SESSION['tenant_id'];
+        
         $filters = [
             'work_order_ref' => trim($_GET['work_order_ref'] ?? ''),
             'asset_id'       => trim($_GET['asset_id'] ?? ''),
@@ -38,6 +40,7 @@ class CompletedWorkOrdersController
         ];
 
         try {
+            // ✅ Call model with correct signature (matches PostgreSQL model)
             $results = $this->model->getCompletedWorkOrders(
                 $tenant_id,
                 $filters['work_order_ref'],
@@ -51,46 +54,27 @@ class CompletedWorkOrdersController
             $completed_work_orders = $results['data'];
             $total_records = $results['total'];
             $items_per_page = 20;
-
             $total_pages = max(1, ceil($total_records / $items_per_page));
             $current_page = $filters['page'];
 
             require __DIR__ . '/../views/completed_work_orders.php';
 
         } catch (Exception $e) {
-            error_log("Completed WO index error: " . $e->getMessage());
-            $_SESSION['flash_error'] = 'Failed to load completed work orders.';
+            error_log("Completed WO error: " . $e->getMessage());
+            // ✅ Use 'error' key to match your view expectations
+            $_SESSION['error'] = 'Failed to load completed work orders.';
             header("Location: /mes/mms_admin");
             exit;
         }
     }
 
-    /**
-     * View details of a completed work order
-     * Uses query string: ?id=123
-     */
     public function view()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Unified tenant handling
-        if (isset($_SESSION['tenant_id'])) {
-            $tenant_id = $_SESSION['tenant_id'];
-        } elseif (isset($_SESSION['tenant']['org_id'])) {
-            $tenant_id = $_SESSION['tenant']['org_id'];
-            $_SESSION['tenant_id'] = $tenant_id;
-        } else {
-            header("Location: /mes/signin?error=Please+log+in+first");
-            exit;
-        }
-
-        // ✅ Get ID from query string (not route parameter)
+        $tenant_id = $_SESSION['tenant_id'];
         $archiveId = $_GET['id'] ?? null;
 
         if (empty($archiveId) || !ctype_digit($archiveId)) {
-            $_SESSION['flash_error'] = 'Invalid archive ID.';
+            $_SESSION['error'] = 'Invalid archive ID.'; // ✅ Consistent key
             header("Location: /mes/completed_work_orders");
             exit;
         }
@@ -99,7 +83,7 @@ class CompletedWorkOrdersController
             $work_order_data = $this->model->getCompletedWorkOrderDetails($tenant_id, (int)$archiveId);
 
             if (!$work_order_data) {
-                $_SESSION['flash_error'] = 'Record not found or access denied.';
+                $_SESSION['error'] = 'Record not found or access denied.'; // ✅ Consistent key
                 header("Location: /mes/completed_work_orders");
                 exit;
             }
@@ -111,7 +95,7 @@ class CompletedWorkOrdersController
 
         } catch (Exception $e) {
             error_log("View error: " . $e->getMessage());
-            $_SESSION['flash_error'] = 'Failed to load work order details.';
+            $_SESSION['error'] = 'Failed to load work order details.'; // ✅ Consistent key
             header("Location: /mes/completed_work_orders");
             exit;
         }

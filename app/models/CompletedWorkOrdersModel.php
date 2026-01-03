@@ -1,5 +1,6 @@
 <?php
-// CompletedWorkOrdersModel.php
+// app/models/CompletedWorkOrdersModel.php
+
 require_once __DIR__ . '/../config/Database.php';
 
 class CompletedWorkOrdersModel
@@ -12,7 +13,7 @@ class CompletedWorkOrdersModel
     }
 
     /**
-     * LIST COMPLETED WORK ORDERS (FILTERED + PAGINATED)
+     * LIST COMPLETED WORK ORDERS (FILTERED + PAGINATED) - POSTGRESQL
      */
     public function getCompletedWorkOrders(
         string $tenantId,
@@ -24,6 +25,7 @@ class CompletedWorkOrdersModel
         int $limit = 20
     ): array 
     {
+        // ✅ Removed 'dbo.' prefix (PostgreSQL doesn't use it)
         $sql = "
             SELECT 
                 cwo.maintenance_checklist_id,
@@ -34,19 +36,20 @@ class CompletedWorkOrdersModel
                 cwo.technician_name,
                 cwo.date_completed,
                 cwo.created_at AS archived_at
-            FROM dbo.completed_work_order cwo
+            FROM completed_work_order cwo
             WHERE cwo.tenant_id = ?
         ";
 
         $params = [$tenantId];
 
+        // ✅ Use ILIKE for case-insensitive search (PostgreSQL)
         if ($workOrderRef !== '') {
-            $sql .= " AND cwo.work_order_ref LIKE ?";
+            $sql .= " AND cwo.work_order_ref ILIKE ?";
             $params[] = "%{$workOrderRef}%";
         }
 
         if ($assetId !== '') {
-            $sql .= " AND cwo.asset_id LIKE ?";
+            $sql .= " AND cwo.asset_id ILIKE ?";
             $params[] = "%{$assetId}%";
         }
 
@@ -60,19 +63,19 @@ class CompletedWorkOrdersModel
             $params[] = $dateTo . " 23:59:59";
         }
 
-        // Count total
-        $countSql = "SELECT COUNT(*) FROM ({$sql}) AS t";
-        $stmt = $this->conn->prepare($countSql);
-        $stmt->execute($params);
-        $total = (int)$stmt->fetchColumn();
+        // ✅ Get total count
+        $countSql = "SELECT COUNT(*) FROM ($sql) AS count_subquery";
+        $countStmt = $this->conn->prepare($countSql);
+        $countStmt->execute($params);
+        $total = (int)$countStmt->fetchColumn();
 
         if ($total === 0) {
             return ['data' => [], 'total' => 0];
         }
 
+        // ✅ POSTGRESQL PAGINATION: LIMIT + OFFSET
         $offset = ($page - 1) * $limit;
-        $sql .= " ORDER BY cwo.date_completed DESC 
-                  OFFSET {$offset} ROWS FETCH NEXT {$limit} ROWS ONLY";
+        $sql .= " ORDER BY cwo.date_completed DESC LIMIT $limit OFFSET $offset";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
@@ -85,13 +88,14 @@ class CompletedWorkOrdersModel
     }
 
     /**
-     * GET COMPLETED WORK ORDER DETAILS (MASTER + TASKS)
+     * GET COMPLETED WORK ORDER DETAILS (MASTER + TASKS) - POSTGRESQL
      */
     public function getCompletedWorkOrderDetails(string $tenantId, int $archiveId): ?array
     {
+        // ✅ Removed 'dbo.' prefix
         $sqlMaster = "
             SELECT *
-            FROM dbo.completed_work_order
+            FROM completed_work_order
             WHERE maintenance_checklist_id = ? AND tenant_id = ?
         ";
 
@@ -103,9 +107,10 @@ class CompletedWorkOrdersModel
             return null;
         }
 
+        // ✅ Removed 'dbo.' prefix
         $sqlTasks = "
             SELECT *
-            FROM dbo.completed_work_order_tasks
+            FROM completed_work_order_tasks
             WHERE maintenance_checklist_id = ?
             ORDER BY task_order ASC
         ";
