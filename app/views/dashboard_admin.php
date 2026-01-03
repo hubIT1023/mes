@@ -1,7 +1,6 @@
 <?php
 // /app/views/dashboard_admin.php
 
-// 1. Session & Auth
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -10,40 +9,32 @@ if (!isset($_SESSION['tenant_id'])) {
     exit;
 }
 
-// 2. CSRF Token
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// 3. Tenant Context
 $tenant_id = $_SESSION['tenant_id'] ?? null;
 $tenant_name = $_SESSION['tenant_name'] ?? 'Unknown';
 
-// 4. Database Setup
 require_once __DIR__ . '/../config/Database.php';
 $conn = Database::getInstance()->getConnection();
 
-// 5. Fetch Data from DB
 $groups = fetchGroups($conn, $tenant_id);
 $allPages = fetchAllPages($conn, $tenant_id);
 $tenantAssets = fetchTenantAssets($conn, $tenant_id);
 
-// 6. Organize Pages
 $pages = [];
 foreach ($allPages as $pageId => $pageName) {
     $pages[(int)$pageId] = ['page_id' => (int)$pageId, 'page_name' => $pageName];
 }
 
-// 7. Determine Selected Page
 $selectedPageId = determineSelectedPage($pages);
 if ($selectedPageId !== null) {
     $_SESSION['last_page_id'] = $selectedPageId;
 }
 
-// NEW: Check if any page exists
 $hasAnyPage = !empty($pages);
 
-// 8. Filter Groups & Determine UI State
 $selectedPageGroups = $selectedPageId !== null 
     ? array_filter($groups, fn($g) => (int)$g['page_id'] === $selectedPageId)
     : [];
@@ -53,13 +44,11 @@ $selectedPageName = ($selectedPageId !== null && isset($pages[$selectedPageId]))
     ? $pages[$selectedPageId]['page_name']
     : 'Dashboard';
 
-// 9. Initialize Mode Model
 require_once __DIR__ . '/../models/ToolStateModel.php';
 $modeModel = new ToolStateModel();
 $modeChoices = $modeModel->getModeColorChoices($tenant_id);
 
 // --- HELPER FUNCTIONS ---
-
 function fetchGroups($conn, $tenant_id): array {
     try {
         $stmt = $conn->prepare("
@@ -113,11 +102,6 @@ function determineSelectedPage(array $pages): ?int {
         return (int)$_SESSION['last_page_id'];
     }
     return !empty($pages) ? (int)array_key_first($pages) : null;
-}
-
-function base_url($path = '') {
-    $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-    return $base . '/' . ltrim($path, '/');
 }
 
 $current_page = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -180,7 +164,7 @@ function is_active($path, $current_page) {
 
 <body class="bg-white text-slate-900">
 
-<!-- ================= HEADER ================= -->
+<!-- HEADER -->
 <header class="sticky top-[3px] z-12 bg-white border-b border-slate-200 shadow-sm">
     <nav class="navbar navbar-expand navbar-light bg-white border-bottom py-2">
         <div class="container-fluid">
@@ -193,7 +177,7 @@ function is_active($path, $current_page) {
     </nav>
 </header>
 
-<!-- ================= TOP PRODUCT BAR ================= -->
+<!-- TOP PRODUCT BAR -->
 <div class="top-product-bar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
         <div class="product-list">
@@ -209,7 +193,6 @@ function is_active($path, $current_page) {
                 </div>
                 <span class="small">Machine Parts</span>
             </a>
-            
             <a href="#" class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" 
                onclick="openDashboardPageModal(<?= json_encode($selectedPageId) ?>)">
                 <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
@@ -381,7 +364,6 @@ function is_active($path, $current_page) {
                         </select>
                     </div>
 
-                    <!-- Page selector for rename/delete -->
                     <div class="mb-3 d-none" id="pageSelectorField">
                         <label class="form-label">Select Page</label>
                         <select class="form-select" id="pageSelector" name="page_id">
@@ -411,6 +393,8 @@ function is_active($path, $current_page) {
         </div>
     </div>
 </div>
+
+<!-- Other modals (Update/Delete Group, Add Entity) remain unchanged -->
 
 <!-- UPDATE GROUP MODAL -->
 <div class="modal fade" id="updateGroupModal" tabindex="-1">
@@ -515,10 +499,8 @@ function is_active($path, $current_page) {
     </div>
 <?php endforeach; ?>
 
-<!-- ✅ BOOTSTRAP JS -->
+<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- ✅ COMPLETE JAVASCRIPT -->
 <script>
 function openDashboardPageModal(currentPageId) {
     const modalEl = document.getElementById('dashboardPageModal');
@@ -547,21 +529,37 @@ function openDashboardPageModal(currentPageId) {
     const updateModalUI = () => {
         const action = actionSelect.value;
         let title, btnText, actionUrl;
-        let isDelete=false, showPageSelector=false;
+        let isDelete = false, showPageSelector = false;
 
         switch(action) {
             case 'create':
-                title="Create New Page"; btnText="Create Page"; actionUrl="/mes/create-page"; pageNameInput.required=true; break;
+                title = "Create New Page";
+                btnText = "Create Page";
+                actionUrl = "/mes/create-page";
+                pageNameInput.required = true;
+                break;
             case 'rename':
-                title="Rename Page"; btnText="Rename Page"; actionUrl="/mes/rename-page"; pageNameInput.required=true; showPageSelector=true; updatePageName(); break;
+                title = "Rename Page";
+                btnText = "Rename Page";
+                actionUrl = "/mes/rename-page";
+                pageNameInput.required = true;
+                showPageSelector = true;
+                updatePageName();
+                break;
             case 'delete':
-                title="Delete Page"; btnText="Delete Page"; actionUrl="/mes/delete-page"; pageNameInput.required=false; isDelete=true; showPageSelector=true; break;
+                title = "Delete Page";
+                btnText = "Delete Page";
+                actionUrl = "/mes/delete-page";
+                pageNameInput.required = false;
+                isDelete = true;
+                showPageSelector = true;
+                break;
         }
 
-        modalTitle.textContent=title;
-        submitBtn.textContent=btnText;
-        submitBtn.className=`btn ${isDelete?'btn-danger':'btn-primary'}`;
-        form.action=actionUrl;
+        modalTitle.textContent = title;
+        submitBtn.textContent = btnText;
+        submitBtn.className = `btn ${isDelete ? 'btn-danger' : 'btn-primary'}`;
+        form.action = actionUrl;
 
         pageNameField.classList.toggle('d-none', isDelete);
         deleteWarning.classList.toggle('d-none', !isDelete);
@@ -569,17 +567,10 @@ function openDashboardPageModal(currentPageId) {
     };
 
     actionSelect.onchange = updateModalUI;
-    if(pageSelector) pageSelector.onchange = updatePageName;
-
+    if (pageSelector) pageSelector.onchange = updatePageName;
     updateModalUI();
     modal.show();
 }
-
-function openCreateGroupModal(pageId) { document.getElementById('modal_page_id').value=pageId; new bootstrap.Modal(document.getElementById('createGroupModal')).show(); }
-function updateEntityName(select) { const name=select.options[select.selectedIndex]?.getAttribute('data-name')||''; select.closest('form').querySelector('input[name="entity"]').value=name; }
-function openUpdateGroupModal(groupId,pageId,groupName,locationName,seqId){ document.getElementById('update_group_id').value=groupId; document.getElementById('update_page_id').value=pageId; document.getElementById('update_group_name').value=groupName; document.getElementById('update_location_name').value=locationName; document.getElementById('update_seq_id').value=seqId||1; new bootstrap.Modal(document.getElementById('updateGroupModal')).show();}
-function openDeleteGroupModal(groupId,pageId,groupName){ document.getElementById('delete_group_id').value=groupId; document.getElementById('delete_page_id').value=pageId; document.getElementById('delete_group_name').textContent=groupName; new bootstrap.Modal(document.getElementById('deleteGroupModal')).show();}
-
 
 function openCreateGroupModal(pageId) {
     document.getElementById('modal_page_id').value = pageId;
