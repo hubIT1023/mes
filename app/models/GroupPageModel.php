@@ -7,7 +7,7 @@ class GroupPageModel {
     private $conn;
 
     public function __construct() {
-        $this -> conn = Database::getInstance() -> getConnection();
+        $this->conn = Database::getInstance()->getConnection();
     }
 
     public function getNextPageId(string $orgId): int {
@@ -48,10 +48,11 @@ class GroupPageModel {
         return $stmt->execute($data);
     }
 
+    // ✅ FIXED: removed 'updated_at' (column doesn't exist)
     public function renamePage(string $orgId, int $pageId, string $newName): bool {
         $stmt = $this->conn->prepare("
             UPDATE group_location_map 
-            SET page_name = :page_name, updated_at = CURRENT_TIMESTAMP
+            SET page_name = :page_name
             WHERE org_id = :org_id AND page_id = :page_id
         ");
         return $stmt->execute([
