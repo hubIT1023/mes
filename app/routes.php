@@ -5,11 +5,9 @@
 $authRoutes = [
     'GET /register'  => ['RegisterController', 'register'],
     'POST /register' => ['RegisterController', 'submit'],
-
     'GET /signin'    => ['SigninController', 'signin'],
     'POST /signin'   => ['SigninController', 'authenticate'],
     'GET /signout'   => ['SigninController', 'signout'],
-
     'GET /hub_portal' => ['SigninController', 'hubPortal'],
 ];
 
@@ -23,22 +21,18 @@ $staticPages = [
     'GET /dashboard_admin'  => ['PagesController', 'Dashboard_Admin'],
 ];
 
-
 // --- Business Intelligence ---
 $biRoutes = [
-    
     'POST /create-page'            => ['GroupPageController', 'store'],
-    'POST /rename-page'  => ['GroupPageController', 'rename'],
-    'POST /delete-page'  => ['GroupPageController', 'destroy'],
-	'POST /create-group'           => ['CreateGroupController', 'handleCreateGroup'],
+    'POST /rename-page'            => ['GroupPageController', 'rename'],
+    'POST /delete-page'            => ['GroupPageController', 'destroy'],
+    'POST /create-group'           => ['CreateGroupController', 'handleCreateGroup'],
     'POST /update-group'           => ['UpdateGroupController', 'handleUpdate'],
     'POST /delete-group'           => ['DeleteGroupController', 'handleDelete'],
     'POST /add-entity'             => ['AddEntityToDashboardController', 'handleAddEntity'],
-	'POST /update-entity-position' => ['UpdateEntityPositionController', 'handleUpdate'],
+    'POST /update-entity-position' => ['UpdateEntityPositionController', 'handleUpdate'],
     'POST /change-tool-state'      => ['ToolStateController', 'handleChangeState'],
 ];
-
-
 
 // --- Meta Database ---
 $metaDatabaseRoutes = [
@@ -50,16 +44,16 @@ $metaDatabaseRoutes = [
 $modeColorRoutes = [
     'GET /mode-color'        => ['ModeColorController', 'index'],
     'POST /mode-color'       => ['ModeColorController', 'store'],
-    'GET /mode-color/edit'   => ['ModeColorController', 'edit'],      // ?id=123
-    'POST /mode-color/update'=> ['ModeColorController', 'update'],    // POST with id
-    'POST /mode-color/delete'=> ['ModeColorController', 'destroy'],   // POST with id
+    'GET /mode-color/edit'   => ['ModeColorController', 'edit'],
+    'POST /mode-color/update'=> ['ModeColorController', 'update'],
+    'POST /mode-color/delete'=> ['ModeColorController', 'destroy'],
 ];
 
-// --- Maintenance Management ---
+// --- Maintenance Management --- ✅ FIXED
 $maintenanceRoutes = [
-    'GET /dashboard_upcoming_maint'     => ['MaintenanceDashboardController', 'action' => 'upcoming'],
+    'GET /dashboard_upcoming_maint'     => ['MaintenanceDashboardController', 'upcoming'], // ✅ Simple syntax
     'GET /completed_work_orders'        => ['CompletedWorkOrdersController', 'index'],
-    'GET /completed_work_order_details'=> ['CompletedWorkOrdersController', 'view'],
+    'GET /completed_work_order_details' => ['CompletedWorkOrdersController', 'view'],
 ];
 
 // --- Demo Pages ---
@@ -72,37 +66,33 @@ $demoRoutes = [
 $formMmsRoutes = [
     'GET /form_mms/addAsset'              => ['AssetController', 'create'],
     'POST /form_mms/addAsset'             => ['AssetController', 'store'],
-
-    'GET /form_mms/addMaintenance'        => ['AssetMaintenanceController', 'action' => 'create'],
-    'POST /form_mms/addMaintenance'       => ['AssetMaintenanceController', 'action' => 'store'],
-
-    'GET /form_mms/checklist_template'    => ['ChecklistTemplateController', 'action' => 'create'],
-    'POST /form_mms/checklist_template'   => ['ChecklistTemplateController', 'action' => 'store'],
-    'GET /form_mms/checklist_template/:id'=> ['ChecklistTemplateController', 'action' => 'edit'],
-    'POST /form_mms/checklist_template/update'=> ['ChecklistTemplateController', 'action' => 'update'],
-
-    'GET /form_mms/routine_maintenance'   => ['RoutineMaintenanceController', 'action' => 'generateForm'],
-    'POST /form_mms/routine_maintenance'  => ['RoutineMaintenanceController', 'action' => 'generate'],
-
-    'GET /form_mms/checklists'           => ['ChecklistController', 'action' => 'index'],
-    'GET /form_mms/checklist_edit'       => ['ChecklistController', 'action' => 'edit'],
-    'POST /form_mms/checklist_update'    => ['ChecklistController', 'action' => 'update'],
+    'GET /form_mms/addMaintenance'        => ['AssetMaintenanceController', 'create'],
+    'POST /form_mms/addMaintenance'       => ['AssetMaintenanceController', 'store'],
+    'GET /form_mms/checklist_template'    => ['ChecklistTemplateController', 'create'],
+    'POST /form_mms/checklist_template'   => ['ChecklistTemplateController', 'store'],
+    'GET /form_mms/checklist_template/:id'=> ['ChecklistTemplateController', 'edit'],
+    'POST /form_mms/checklist_template/update'=> ['ChecklistTemplateController', 'update'],
+    'GET /form_mms/routine_maintenance'   => ['RoutineMaintenanceController', 'generateForm'],
+    'POST /form_mms/routine_maintenance'  => ['RoutineMaintenanceController', 'generate'],
+    'GET /form_mms/checklists'            => ['ChecklistController', 'index'],
+    'GET /form_mms/checklist_edit'        => ['ChecklistController', 'edit'],
+    'POST /form_mms/checklist_update'     => ['ChecklistController', 'update'],
 ];
 
 // --- Maintenance Checklist ---
 $maintenanceChecklistRoutes = [
     'POST /maintenance_checklist/associate' => ['MaintenanceChecklistController', 'associate'],
-    'GET /maintenance_checklist/view'       => ['MaintenanceChecklistViewController', 'action' => 'show'],
-    'POST /maintenance_checklist/update'    => ['MaintenanceChecklistUpdateController', 'action' => 'update'],
+    'GET /maintenance_checklist/view'       => ['MaintenanceChecklistViewController', 'show'],
+    'POST /maintenance_checklist/update'    => ['MaintenanceChecklistUpdateController', 'update'],
 ];
 
 // --- Machine Parts ---
 $machinePartsRoutes = [
-    'POST /machine-parts'                => ['MachinePartController', 'store'],
-    'POST /machine-parts/delete'         => ['MachinePartController', 'destroy'],
-    'POST /machine-parts/update'         => ['MachinePartController', 'update'], // 👈 NEW
-    'POST /machine-parts/update-desc'    => ['MachinePartController', 'updateDescription'],
-    'GET /parts-list'                    => ['MachinePartController', 'list'],
+    'POST /machine-parts'             => ['MachinePartController', 'store'],
+    'POST /machine-parts/delete'      => ['MachinePartController', 'destroy'],
+    'POST /machine-parts/update'      => ['MachinePartController', 'update'],
+    'POST /machine-parts/update-desc' => ['MachinePartController', 'updateDescription'],
+    'GET /parts-list'                 => ['MachinePartController', 'list'],
 ];
 
 // --- API ---
