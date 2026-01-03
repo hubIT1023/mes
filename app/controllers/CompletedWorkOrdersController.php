@@ -1,4 +1,4 @@
-this one is working but not fetching the data:<?php
+<?php
 // app/controllers/CompletedWorkOrdersController.php
 
 require_once __DIR__ . '/../models/CompletedWorkOrdersModel.php';
@@ -19,7 +19,7 @@ class CompletedWorkOrdersController
             $this->tenant_id = $_SESSION['tenant_id'];
         } elseif (isset($_SESSION['tenant']['org_id'])) {
             $this->tenant_id = $_SESSION['tenant']['org_id'];
-            $_SESSION['tenant_id'] = $this->tenant_id;
+            $_SESSION['tenant_id'] = $this->tenant_id; // ✅ Ensure it's set
         }
 
         $this->model = new CompletedWorkOrdersModel();
@@ -31,7 +31,9 @@ class CompletedWorkOrdersController
     public function index()
     {
         if (!$this->tenant_id) {
-            die("Error: Tenant not set. Please log in.");
+            // ✅ Show login form if tenant_id is missing
+            header("Location: /mes/signin?error=" . urlencode("Please log in first"));
+            exit;
         }
 
         $filters = [
@@ -69,7 +71,6 @@ class CompletedWorkOrdersController
             $error_message = "Failed to load completed work orders. Please try again later.";
         }
 
-        // Render view
         require __DIR__ . '/../views/completed_work_orders.php';
     }
 
@@ -79,7 +80,8 @@ class CompletedWorkOrdersController
     public function view()
     {
         if (!$this->tenant_id) {
-            die("Error: Tenant not set. Please log in.");
+            header("Location: /mes/signin?error=" . urlencode("Please log in first"));
+            exit;
         }
 
         $archiveId = $_GET['id'] ?? null;

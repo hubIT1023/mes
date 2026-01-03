@@ -25,7 +25,6 @@ class CompletedWorkOrdersModel
         int $limit = 20
     ): array 
     {
-        // Base query
         $sql = "
             SELECT 
                 maintenance_checklist_id,
@@ -42,13 +41,11 @@ class CompletedWorkOrdersModel
 
         $params = [];
 
-        // Tenant filter (optional)
         if ($tenantId !== '') {
             $sql .= " AND tenant_id = ?";
             $params[] = $tenantId;
         }
 
-        // Filters
         if ($workOrderRef !== '') {
             $sql .= " AND work_order_ref ILIKE ?";
             $params[] = "%{$workOrderRef}%";
@@ -71,17 +68,17 @@ class CompletedWorkOrdersModel
 
         // Total count
         $countSql = "SELECT COUNT(*) FROM ($sql) AS subquery";
-        $stmt = $this->conn->prepare($countSql);
-        $stmt->execute($params);
-        $total = (int)$stmt->fetchColumn();
+        $countStmt = $this->conn->prepare($countSql);
+        $countStmt->execute($params);
+        $total = (int)$countStmt->fetchColumn();
 
         if ($total === 0) {
             return ['data' => [], 'total' => 0];
         }
 
-        // Pagination
+        // ✅ CORRECTED: Sort by date descending (newest first)
         $offset = ($page - 1) * $limit;
-        $sql .= " ORDER BY maintenance_checklist_id ASC LIMIT $limit OFFSET $offset";
+        $sql .= " ORDER BY date_completed DESC, maintenance_checklist_id DESC LIMIT $limit OFFSET $offset";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
@@ -94,29 +91,22 @@ class CompletedWorkOrdersModel
     }
 
     /**
-     * GET COMPLETED WORK ORDER DETAILS (MASTER + TASKS)
+     * ✅ FIXED: Parameter order matches controller call
      */
-    public function getCompletedWorkOrderDetails(int $archiveId, string $tenantId = ''): ?array
+    public function getCompletedWorkOrderDetails(string $tenantId, int $archiveId): ?array
     {
-        // Master
         $sqlMaster = "
             SELECT *
             FROM public.completed_work_order
-            WHERE maintenance_checklist_id = ?
+            WHERE tenant_id = ? AND maintenance_checklist_id = ?
         ";
-        $params = [$archiveId];
-        if ($tenantId !== '') {
-            $sqlMaster .= " AND tenant_id = ?";
-            $params[] = $tenantId;
-        }
 
         $stmt = $this->conn->prepare($sqlMaster);
-        $stmt->execute($params);
+        $stmt->execute([$tenantId, $archiveId]); // ✅ tenantId first, archiveId second
         $master = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$master) return null;
 
-        // Tasks
         $sqlTasks = "
             SELECT *
             FROM public.completed_work_order_tasks
