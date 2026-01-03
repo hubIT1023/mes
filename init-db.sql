@@ -337,6 +337,12 @@ CREATE INDEX IX_registered_tools_org_id ON registered_tools (org_id);
 CREATE INDEX IX_registered_tools_asset_id ON registered_tools (asset_id);
 CREATE INDEX IX_registered_tools_codes ON registered_tools (group_code, location_code);
 
+-- Step 1: Add page_id column
+ALTER TABLE registered_tools 
+ADD COLUMN page_id VARCHAR(255) NOT NULL DEFAULT 1;
+
+
+
 
 /* =====================================================
    TOOL STATE

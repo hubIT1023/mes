@@ -61,7 +61,7 @@ $tenant = $_SESSION['tenant'];
       <a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition">
         <i class="fas fa-tools mr-2 text-gray-500"></i> Machine Parts
       </a>
-      <a href="/mes/logout" class="flex items-center px-3 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 text-red-600 transition">
+      <a href="/mes/signout" class="flex items-center px-3 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 text-red-600 transition">
         <i class="fas fa-sign-out-alt mr-2"></i> Logout
       </a>
     </nav>
