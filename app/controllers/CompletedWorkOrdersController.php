@@ -1,4 +1,34 @@
-public function index()
+<?php
+// app/controllers/CompletedWorkOrdersController.php
+
+require_once __DIR__ . '/../models/CompletedWorkOrdersModel.php';
+
+class CompletedWorkOrdersController
+{
+    private CompletedWorkOrdersModel $model;
+    private ?string $tenant_id = null;
+
+    public function __construct()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Unified tenant handling
+        if (isset($_SESSION['tenant_id'])) {
+            $this->tenant_id = $_SESSION['tenant_id'];
+        } elseif (isset($_SESSION['tenant']['org_id'])) {
+            $this->tenant_id = $_SESSION['tenant']['org_id'];
+            $_SESSION['tenant_id'] = $this->tenant_id; // ✅ Ensure it's set
+        }
+
+        $this->model = new CompletedWorkOrdersModel();
+    }
+
+    /**
+     * List completed work orders
+     */
+   public function index()
 {
     // Start output buffering to prevent partial HTML
     ob_clean();
@@ -65,4 +95,46 @@ public function index()
         ], JSON_PRETTY_PRINT);
     }
     exit;
+}
+
+    /**
+     * View single completed work order details
+     */
+    public function view()
+    {
+        if (!$this->tenant_id) {
+            header("Location: /mes/signin?error=" . urlencode("Please log in first"));
+            exit;
+        }
+
+        $archiveId = $_GET['id'] ?? null;
+        if (empty($archiveId) || !ctype_digit($archiveId)) {
+            $error_message = 'Invalid archive ID.';
+            $work_order = null;
+            $tasks = [];
+            require __DIR__ . '/../views/completed_work_order_details.php';
+            return;
+        }
+
+        $work_order = null;
+        $tasks = [];
+        $error_message = '';
+
+        try {
+            $data = $this->model->getCompletedWorkOrderDetails($this->tenant_id, (int)$archiveId);
+
+            if (!$data) {
+                $error_message = 'Record not found or access denied.';
+            } else {
+                $work_order = $data['master'];
+                $tasks = $data['tasks'];
+            }
+
+        } catch (Exception $e) {
+            error_log("[CompletedWorkOrdersController] view error: " . $e->getMessage());
+            $error_message = "Failed to load work order details.";
+        }
+
+        require __DIR__ . '/../views/completed_work_order_details.php';
+    }
 }
