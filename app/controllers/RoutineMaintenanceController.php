@@ -94,7 +94,8 @@ class RoutineMaintenanceController {
 
             // ✅ Return JSON for debugging
             header('Content-Type: application/json');
-            echo json_encode([
+            /*
+			echo json_encode([
                 'success' => false,
                 'error' => 'Failed to generate work orders',
                 'details' => $e->getMessage(),
@@ -106,6 +107,7 @@ class RoutineMaintenanceController {
                     'technician' => $technicianOverride
                 ]
             ], JSON_PRETTY_PRINT);
+			*/
             exit;
         }
 
@@ -125,20 +127,24 @@ class RoutineMaintenanceController {
         header('Content-Type: application/json');
 
         if (!$tenantId || $workOrder === '') {
-            echo json_encode(['maintenance_type' => '']);
+            //echo json_encode(['maintenance_type' => '']);
             return;
         }
 
         try {
             $type = $this->model->getMaintenanceTypeByWorkOrder($tenantId, $workOrder);
-            echo json_encode(['maintenance_type' => $type ?: '']);
+           // echo json_encode(['maintenance_type' => $type ?: '']);
         } catch (Exception $e) {
             error_log("AJAX Error: " . $e->getMessage());
-            echo json_encode([
+            
+			/*
+			echo json_encode([
                 'maintenance_type' => '',
                 'error' => 'Failed to fetch maintenance type',
                 'details' => $e->getMessage()
             ]);
-        }
+        */
+		}	
+		
     }
 }
