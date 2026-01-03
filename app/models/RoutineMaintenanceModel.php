@@ -67,6 +67,9 @@ class RoutineMaintenanceModel {
         ];
     }
 
+    /**
+     * ✅ FIXED: Handle PostgreSQL fetchColumn() returning false
+     */
     public function getMaintenanceTypeByWorkOrder($tenantId, $workOrder) {
         $stmt = $this->db->prepare("
             SELECT maintenance_type
@@ -81,7 +84,7 @@ class RoutineMaintenanceModel {
         ]);
 
         $result = $stmt->fetchColumn();
-        return $result !== false ? $result : null; // ✅ Handle empty result
+        return $result !== false ? $result : null;
     }
 
     public function generateRoutineWorkOrders($tenantId, $filters = []) {
@@ -138,13 +141,14 @@ class RoutineMaintenanceModel {
         $today = new DateTime();
         $count = 0;
 
-        // ✅ MAKE SURE COLUMN NAME MATCHES YOUR TABLE: work_order_ref
+        // ✅ CORRECTED: Use 'technician' (not 'technician_name')
+        // ✅ Verify your table has: work_order_ref, technician
         $insertQuery = "
             INSERT INTO routine_work_orders (
                 tenant_id, asset_id, asset_name,
                 location_id_1, location_id_2, location_id_3,
                 checklist_id, maintenance_type, work_order_ref,
-                technician_name, description,
+                technician, description,
                 maint_start_date, maint_end_date,
                 next_maintenance_date, status
             ) VALUES (
@@ -188,12 +192,12 @@ class RoutineMaintenanceModel {
                 $row['location_id_3'],
                 $row['checklist_id'],
                 $row['maintenance_type'],
-                $row['work_order'],          // ✅ Source: c.work_order
-                $row['technician'],          // ✅ Maps to technician_name
+                $row['work_order'],      // → work_order_ref
+                $row['technician'],      // → technician (✅ corrected)
                 $row['description'],
-                $today->format('Y-m-d'),     // maint_start_date
-                $nextDate,                   // maint_end_date
-                $nextDate,                   // next_maintenance_date
+                $today->format('Y-m-d'), // maint_start_date
+                $nextDate,               // maint_end_date
+                $nextDate,               // next_maintenance_date
                 'scheduled'
             ]);
 

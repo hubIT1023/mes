@@ -32,14 +32,13 @@ class RoutineMaintenanceController {
     }
 
     /**
-     * ✅ ENHANCED: Now returns detailed JSON on failure for debugging
+     * ✅ DEBUG MODE: Returns JSON on error
      */
     public function generate() {
         if (session_status() === PHP_SESSION_NONE) session_start();
         $tenantId = $_SESSION['tenant']['org_id'] ?? null;
 
         if (!$tenantId) {
-            // Debug output even on redirect
             error_log("❌ No tenant_id in session");
             header("Location: /mes/signin?error=Please login first");
             exit;
@@ -90,11 +89,10 @@ class RoutineMaintenanceController {
             }
 
         } catch (Exception $e) {
-            // ✅ ALWAYS log full error
             $errorMsg = "Routine Maintenance Error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine();
             error_log($errorMsg);
 
-            // ✅ Return JSON for debugging (even on regular POST)
+            // ✅ Return JSON for debugging
             header('Content-Type: application/json');
             echo json_encode([
                 'success' => false,
@@ -108,7 +106,7 @@ class RoutineMaintenanceController {
                     'technician' => $technicianOverride
                 ]
             ], JSON_PRETTY_PRINT);
-            exit; // ⚠️ Stop redirect to show JSON
+            exit;
         }
 
         header("Location: /mes/form_mms/routine_maintenance");
