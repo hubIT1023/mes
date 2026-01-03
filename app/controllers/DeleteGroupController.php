@@ -2,12 +2,12 @@
 // app/controllers/DeleteGroupController.php
 
 require_once __DIR__ . '/../models/GroupModel.php';
+require_once __DIR__ . '/../models/DashboardService.php'; // ✅ ADDED
 
 class DeleteGroupController
 {
     private $model;
-	private $dashboardService; // ← ADD THIS
-
+    private $dashboardService;
 
     public function __construct()
     {
@@ -21,6 +21,7 @@ class DeleteGroupController
         }
 
         $this->model = new GroupModel();
+        $this->dashboardService = new DashboardService(); // ✅ INITIALIZED
     }
 
     public function handleDelete()
@@ -30,7 +31,6 @@ class DeleteGroupController
             exit('Method not allowed');
         }
 
-        // CSRF protection
         if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
             $_SESSION['error'] = "Security check failed.";
             $pageId = (int)($_POST['page_id'] ?? 0);
@@ -43,7 +43,6 @@ class DeleteGroupController
         $groupId = (int)($_POST['group_id'] ?? 0);
         $pageId = (int)($_POST['page_id'] ?? 0);
 
-        // Validate input
         if ($groupId <= 0 || $pageId <= 0) {
             $_SESSION['error'] = "Invalid request.";
             $redirect = $pageId ? "/mes/dashboard_admin?page_id=$pageId" : "/mes/dashboard_admin";
@@ -51,14 +50,12 @@ class DeleteGroupController
             exit;
         }
 
-        // Verify group ownership and existence
         if (!$this->model->groupExists($groupId, $orgId, $pageId)) {
             $_SESSION['error'] = "Group not found or access denied.";
             header("Location: /mes/dashboard_admin?page_id=$pageId");
             exit;
         }
 
-        // Perform deletion (cascades to entities and states)
         $result = $this->model->deleteGroup($groupId, $orgId);
         
         if ($result) {
@@ -67,7 +64,7 @@ class DeleteGroupController
             $_SESSION['error'] = "Failed to delete group.";
         }
 
-        // Always redirect to a VALID page
+        // ✅ Now safe: $this->dashboardService is not null
         $safePageId = $this->dashboardService->getValidRedirectPageId($orgId, $pageId);
         if ($safePageId) {
             header("Location: /mes/dashboard_admin?page_id=" . $safePageId);
