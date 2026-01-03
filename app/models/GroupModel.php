@@ -1,116 +1,119 @@
 <?php
-// app/models/GroupModel.php
+// app/models/GroupPageModel.php
 
 require_once __DIR__ . '/../config/Database.php';
 
-class GroupModel
-{
+class GroupPageModel {
     private $conn;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    /**
-     * Check if a group exists for the given tenant, page, and ID
-     */
-    public function groupExists(int $groupId, string $orgId, int $pageId): bool
-    {
+    public function getNextPageId(string $orgId): int {
         $stmt = $this->conn->prepare("
-            SELECT 1
-            FROM group_location_map
-            WHERE id = ?
-              AND org_id = ?
-              AND page_id = ?
+            SELECT COALESCE(MAX(page_id::INTEGER), 0) + 1 
+            FROM group_location_map 
+            WHERE org_id = ?
+        ");
+        $stmt->execute([$orgId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function isPageNameUsed(string $orgId, string $pageName): bool {
+        $stmt = $this->conn->prepare("
+            SELECT 1 FROM group_location_map 
+            WHERE org_id = ? AND page_name = ?
             LIMIT 1
         ");
-        $stmt->execute([$groupId, $orgId, $pageId]);
+        $stmt->execute([$orgId, $pageName]);
         return (bool) $stmt->fetch();
     }
 
-    /**
-     * Update group name, location, and sequence
-     */
-    public function updateGroup(array $data): bool
-    {
+    public function createPage(array $data): bool {
         $sql = "
-            UPDATE group_location_map 
-            SET 
-                group_name = ?, 
-                location_name = ?, 
-                seq_id = ?     
-            WHERE id = ?
+            INSERT INTO group_location_map (
+                org_id, page_id, page_name,
+                group_code, location_code,
+                group_name, location_name,
+                created_at
+            ) VALUES (
+                :org_id, :page_id, :page_name,
+                :group_code, :location_code,
+                :group_name, :location_name,
+                CURRENT_TIMESTAMP
+            )
         ";
         $stmt = $this->conn->prepare($sql);
-        return (bool) $stmt->execute([
-            $data['group_name'],
-            $data['location_name'],
-            $data['seq_id'],
-            $data['id']
+        return $stmt->execute($data);
+    }
+
+    // ✅ FIXED: removed non-existent updated_at
+    public function renamePage(string $orgId, int $pageId, string $newName): bool {
+        $stmt = $this->conn->prepare("
+            UPDATE group_location_map 
+            SET page_name = :page_name
+            WHERE org_id = :org_id AND page_id = :page_id
+        ");
+        return $stmt->execute([
+            'org_id' => $orgId,
+            'page_id' => $pageId,
+            'page_name' => $newName
         ]);
     }
 
-    /**
-     * Delete a group AND all its associated data:
-     * - registered_tools (entities)
-     * - tool_state (real-time states)
-     * Uses the full composite key: (org_id, group_code, location_code)
-     */
-    public function deleteGroup(int $groupId, string $orgId): bool
-    {
+    // ✅ SAFE DELETE: only delete from group_location_map
+    public function deletePage(string $orgId, int $pageId): bool {
+        // First, check if page exists
+        $existsStmt = $this->conn->prepare("
+            SELECT 1 FROM group_location_map 
+            WHERE org_id = ? AND page_id = ? 
+            LIMIT 1
+        ");
+        $existsStmt->execute([$orgId, $pageId]);
+        if (!$existsStmt->fetch()) {
+            return true; // already gone
+        }
+
         try {
-            // 🔍 Fetch group_code and location_code for this group
-            $stmt = $this->conn->prepare("
-                SELECT group_code, location_code 
-                FROM group_location_map 
-                WHERE id = ? AND org_id = ?
-                LIMIT 1
-            ");
-            $stmt->execute([$groupId, $orgId]);
-            $groupData = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$groupData) {
-                // Group doesn't exist — idempotent success
-                return true;
-            }
-
-            $groupCode = (int)$groupData['group_code'];
-            $locationCode = (int)$groupData['location_code'];
-
-            // 🧾 Begin transaction for atomicity
             $this->conn->beginTransaction();
 
-            // 🗑️ 1. Delete associated entities
-            $stmt = $this->conn->prepare("
-                DELETE FROM registered_tools 
-                WHERE org_id = ? AND group_code = ? AND location_code = ?
-            ");
-            $stmt->execute([$orgId, $groupCode, $locationCode]);
-
-            // 🗑️ 2. Delete tool states
-            $stmt = $this->conn->prepare("
-                DELETE FROM tool_state 
-                WHERE org_id = ? AND group_code = ? AND location_code = ?
-            ");
-            $stmt->execute([$orgId, $groupCode, $locationCode]);
-
-            // 🗑️ 3. Delete the group itself
+            // Only delete from group_location_map (safe fallback)
             $stmt = $this->conn->prepare("
                 DELETE FROM group_location_map 
-                WHERE id = ? AND org_id = ?
+                WHERE org_id = ? AND page_id = ?
             ");
-            $stmt->execute([$groupId, $orgId]);
+            $stmt->execute([$orgId, $pageId]);
 
-            // ✅ Commit all changes
             $this->conn->commit();
             return true;
-
-        } catch (PDOException $e) {
-            // 🔁 Rollback on error
+        } catch (Exception $e) {
             $this->conn->rollback();
-            error_log("GroupModel::deleteGroup() failed for group_id=$groupId, org_id=$orgId: " . $e->getMessage());
+            error_log("Delete page failed: " . $e->getMessage());
             return false;
         }
+    }
+
+    public function getFirstPageId(string $orgId): ?int {
+        $stmt = $this->conn->prepare("
+            SELECT page_id FROM group_location_map 
+            WHERE org_id = ? 
+            ORDER BY page_id::INTEGER 
+            LIMIT 1
+        ");
+        $stmt->execute([$orgId]);
+        $result = $stmt->fetchColumn();
+        return $result ? (int)$result : null;
+    }
+
+    public function getPageName(int $pageId, string $orgId): ?string {
+        $stmt = $this->conn->prepare("
+            SELECT page_name 
+            FROM group_location_map 
+            WHERE org_id = ? AND page_id = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$orgId, $pageId]);
+        return $stmt->fetchColumn() ?: null;
     }
 }

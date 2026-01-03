@@ -48,7 +48,7 @@ class GroupPageModel {
         return $stmt->execute($data);
     }
 
-    // ✅ FIXED: removed 'updated_at' (column doesn't exist)
+    // ✅ FIXED: removed non-existent updated_at
     public function renamePage(string $orgId, int $pageId, string $newName): bool {
         $stmt = $this->conn->prepare("
             UPDATE group_location_map 
@@ -62,7 +62,9 @@ class GroupPageModel {
         ]);
     }
 
+    // ✅ SAFE DELETE: only delete from group_location_map
     public function deletePage(string $orgId, int $pageId): bool {
+        // First, check if page exists
         $existsStmt = $this->conn->prepare("
             SELECT 1 FROM group_location_map 
             WHERE org_id = ? AND page_id = ? 
@@ -70,29 +72,18 @@ class GroupPageModel {
         ");
         $existsStmt->execute([$orgId, $pageId]);
         if (!$existsStmt->fetch()) {
-            return true;
+            return true; // already gone
         }
 
         try {
             $this->conn->beginTransaction();
 
-            $stmt1 = $this->conn->prepare("
-                DELETE FROM registered_tools 
-                WHERE org_id = ? AND page_id = ?
-            ");
-            $stmt1->execute([$orgId, $pageId]);
-
-            $stmt2 = $this->conn->prepare("
-                DELETE FROM tool_state 
-                WHERE org_id = ? AND page_id = ?
-            ");
-            $stmt2->execute([$orgId, $pageId]);
-
-            $stmt3 = $this->conn->prepare("
+            // Only delete from group_location_map (safe fallback)
+            $stmt = $this->conn->prepare("
                 DELETE FROM group_location_map 
                 WHERE org_id = ? AND page_id = ?
             ");
-            $stmt3->execute([$orgId, $pageId]);
+            $stmt->execute([$orgId, $pageId]);
 
             $this->conn->commit();
             return true;
