@@ -18,8 +18,8 @@ $staticPages = [
     'GET /about'            => ['PagesController', 'about'],
     'GET /canvas'           => ['PagesController', 'canvas'],
     'GET /mms_admin'        => ['PagesController', 'mms_Admin'],
-	//'GET /dashboard_admin' => ['AdminDashboardController', 'index'],--Refractore
-    'GET /dashboard_admin'  => ['PagesController', 'Dashboard_Admin'],
+	'GET /dashboard_admin' => ['AdminDashboardController', 'index'],--Refractore
+    //'GET /dashboard_admin'  => ['PagesController', 'Dashboard_Admin'],
 ];
 
 // --- Business Intelligence ---
