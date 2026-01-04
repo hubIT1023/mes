@@ -206,7 +206,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 						<button
 							class="w-full py-2 text-white font-bold rounded transition-all hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 <?= htmlspecialchars($badge['class']) ?>"
 							data-bs-toggle="modal"
-							data-bs-target="#changeStateModal"
+							data-bs-target="#setMaintModal"
 							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
 							aria-label="Change state: <?= htmlspecialchars($badge['label']) ?>"
 						>
@@ -275,10 +275,59 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     </div>
 
     <div class="modal-body">
-        <input class="form-control mb-2" placeholder="Marial No.">
-        <input class="form-control mb-3" placeholder="Qnty">
+		<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+		<input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+		<input type="hidden" name="asset_id" id="acc_modal_asset_id_hidden">
+		<input type="hidden" name="entity" id="acc_modal_entity_hidden">
+		<input type="hidden" name="group_code" id="acc_modal_group_code">
+		<input type="hidden" name="location_code" id="acc_modal_location_code">
+        <input class="form-control mb-2" placeholder="Material No.">
+        <input class="form-control mb-3" placeholder="Qnty.">
 		<input class="form-control mb-2" placeholder="Operator">
         <button class="btn btn-primary w-100" data-bs-dismiss="modal">LOAD</button>
+    </div>
+
+</div>
+</div>
+</div>
+
+<!-- SET MORE STATE MODAL -->
+<div class="modal fade" id="setMaintModal" tabindex="-1">
+<div class="modal-dialog modal-sm modal-dialog-centered">
+<div class="modal-content">
+
+    <div class="modal-header">
+        <h6 class="modal-title">Set More State</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <div class="modal-body p-0">
+        <div class="list-group list-group-flush">
+
+            <button
+                class="list-group-item list-group-item-action"
+                data-bs-dismiss="modal"
+                data-bs-toggle="modal"
+                data-bs-target="#standingIssueModal">
+                Post Standing Issue
+            </button>
+			<button
+                class="list-group-item list-group-item-action"
+                data-bs-dismiss="modal"
+                data-bs-toggle="modal"
+                data-bs-target="#changeStateModal">
+                Change State
+            </button>
+
+            <button
+                class="list-group-item list-group-item-action"
+                data-bs-dismiss="modal"
+                data-bs-toggle="modal"
+                data-bs-target="#associatePartsModal">
+                Maint Log
+            </button>
+
+        </div>
     </div>
 
 </div>
