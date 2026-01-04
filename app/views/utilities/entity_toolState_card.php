@@ -406,15 +406,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 <!-- LIST OF ASSOCIATED ACCESSORIES -->
 
-<!--ul id="accessoriesList" class="list-group">
-    <?php// if (!empty($accessories)): ?>
-        <?php //foreach ($accessories as $acc): ?>
-            <li class="list-group-item"><?//= htmlspecialchars($acc['name']) ?></li>
-        <?php //endforeach; ?>
-    <?php //else: ?>
-        <li class="list-group-item text-muted">No accessories associated</li>
-    <?php //endif; ?>
-</ul-->
+<!--Option A: PHP (if data is available server-side)-->
 
 <div class="modal fade" id="listAccessoriesModal" tabindex="-1" aria-labelledby="listAccessoriesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered">
