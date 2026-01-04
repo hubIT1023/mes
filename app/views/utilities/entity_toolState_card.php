@@ -405,6 +405,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div>
 
 <!-- LIST OF ASSOCIATED ACCESSORIES -->
+
 <!--ul id="accessoriesList" class="list-group">
     <?php// if (!empty($accessories)): ?>
         <?php //foreach ($accessories as $acc): ?>
