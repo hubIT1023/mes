@@ -148,7 +148,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                 ?>
 
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <!-- Header: Entity name + Position + Edit -->
+                    <!-- Header -->
                     <div class="flex justify-between items-start p-2 border-b border-gray-100">
                         <button
                             class="flex-grow text-left text-sm font-semibold text-blue-700 hover:underline focus:outline-none"
@@ -170,8 +170,9 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         </button>
                     </div>
 
-                    <!-- Body: Action buttons -->
+                    <!-- Body -->
                     <div class="p-2 space-y-2">
+                        <!-- WOF Due -->
                         <div
                             class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-yellow-50 rounded hover:bg-yellow-100 cursor-pointer"
                             data-bs-toggle="modal"
@@ -182,26 +183,29 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             WOF Due
                         </div>
 
+                        <!-- Cal Due -->
                         <div
                             class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-blue-100 cursor-pointer"
                             data-bs-toggle="modal"
                             data-bs-target="#CalDueModal"
                             <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Calibration Due for <?= htmlspecialchars($entityName) ?>"
+                            aria-label="Calibration Due"
                         >
                             Cal Due
                         </div>
 
+                        <!-- Load Work -->
                         <div
                             class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
                             data-bs-toggle="modal"
                             data-bs-target="#LoadWorkModal"
                             <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Load work for <?= htmlspecialchars($entityName) ?>"
+                            aria-label="Load work"
                         >
                             Load Work to Process
                         </div>
 
+                        <!-- State Badge -->
                         <button
                             class="w-full py-2 text-white font-bold rounded transition-all hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 <?= htmlspecialchars($badge['class']) ?>"
                             data-bs-toggle="modal"
@@ -262,13 +266,59 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- SHARED MODALS -->
 <!-- =============================== -->
 
+<!-- setMaintModal: Gateway to other actions -->
+<div class="modal fade" id="setMaintModal" tabindex="-1" aria-labelledby="setMaintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="setMaintModalLabel">More Actions</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="list-group list-group-flush">
+                    <button
+                        type="button"
+                        class="list-group-item list-group-item-action"
+                        data-bs-dismiss="modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#changeStateModal"
+                        data-use-stored-context="true"
+                    >
+                        Change State
+                    </button>
+                    <button
+                        type="button"
+                        class="list-group-item list-group-item-action"
+                        data-bs-dismiss="modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#standingIssueModal"
+                        data-use-stored-context="true"
+                    >
+                        Post Standing Issue
+                    </button>
+                    <button
+                        type="button"
+                        class="list-group-item list-group-item-action"
+                        data-bs-dismiss="modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#associateAccessoriesModal"
+                        data-use-stored-context="true"
+                    >
+                        Maint Log
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- LOAD WORK MODAL -->
-<div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-labelledby="loadWorkModalLabel" aria-hidden="true">
+<div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
-                <h6 class="modal-title" id="loadWorkModalLabel">LOAD WORK TO PROCESS</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h6 class="modal-title">LOAD WORK TO PROCESS</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form>
                 <div class="modal-body">
@@ -289,12 +339,12 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div>
 
 <!-- CAL DUE MODAL -->
-<div class="modal fade" id="CalDueModal" tabindex="-1" aria-labelledby="calDueModalLabel" aria-hidden="true">
+<div class="modal fade" id="CalDueModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-blue-600 text-white">
-                <h6 class="modal-title" id="calDueModalLabel">CALIBRATION DUE</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h6 class="modal-title">CALIBRATION DUE</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center py-3">
                 <p>Calibration is due soon.</p>
@@ -304,38 +354,13 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     </div>
 </div>
 
-<!-- SET MAINTENANCE ACTIONS MODAL -->
-<div class="modal fade" id="setMaintModal" tabindex="-1" aria-labelledby="setMaintModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title" id="setMaintModalLabel">More Actions</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <div class="list-group list-group-flush">
-                    <button type="button" class="list-group-item list-group-item-action" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#changeStateModal">
-                        Change State
-                    </button>
-                    <button type="button" class="list-group-item list-group-item-action" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#standingIssueModal">
-                        Post Standing Issue
-                    </button>
-                    <button type="button" class="list-group-item list-group-item-action" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#associateAccessoriesModal">
-                        Maint Log
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- STANDING ISSUE MODAL -->
-<div class="modal fade" id="standingIssueModal" tabindex="-1" aria-labelledby="standingIssueModalLabel" aria-hidden="true">
+<div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="standingIssueModalLabel">Post Standing Issue</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Post Standing Issue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form>
                 <div class="modal-body">
@@ -356,10 +381,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     </div>
 </div>
 
-<!-- MAINTENANCE LOG MODAL (Removed - Covered by associateAccessoriesModal) -->
-<!-- NOTE: "Maint Log" in setMaintModal now correctly points to #associateAccessoriesModal -->
-
-<!-- Modal: Add Machine Parts -->
+<!-- ASSOCIATE PARTS MODAL (Maint Log) -->
 <div class="modal fade" id="associateAccessoriesModal" tabindex="-1" aria-labelledby="associateAccessoriesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <form id="AddAccesoriesForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
@@ -475,7 +497,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     </div>
 </div>
 
-<!-- Modal: Change Entity Mode -->
+<!-- CHANGE STATE MODAL -->
 <div class="modal fade" id="changeStateModal" tabindex="-1" aria-labelledby="changeStateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <form id="toolStateForm" method="POST" action="/mes/change-tool-state">
@@ -533,7 +555,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
                     <div class="mb-3" id="customInputContainer" style="display:none;">
                         <label class="form-label">Custom Stop Cause</label>
-                        <input type="text" id="ts_customInput" class="form-control" />
+                        <input type="text" id="ts_customInput" class="form-control" name="col_3" />
                     </div>
 
                     <div class="row mb-3">
@@ -566,84 +588,102 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     </div>
 </div>
 
-<!-- JavaScript -->
+<!-- JavaScript: Handle multi-modal data flow -->
 <script>
-function handleStopCauseChange(value) {
-    const container = document.getElementById('customInputContainer');
-    const customInput = document.getElementById('ts_customInput');
-    const select = document.getElementById('ts_modal_stopcause');
+// Global context storage
+let currentEntityContext = null;
 
-    if (value === 'CUSTOM') {
-        container.style.display = 'block';
-        select.removeAttribute('name');
-        customInput.setAttribute('name', 'col_3');
-    } else {
-        container.style.display = 'none';
-        select.setAttribute('name', 'col_3');
-        customInput.removeAttribute('name');
-    }
+// Handle setMaintModal opening → capture data
+const setMaintModal = document.getElementById('setMaintModal');
+if (setMaintModal) {
+    setMaintModal.addEventListener('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
+        currentEntityContext = {
+            assetId: btn.getAttribute('data-asset-id'),
+            entity: btn.getAttribute('data-header'),
+            groupCode: btn.getAttribute('data-group-code'),
+            locationCode: btn.getAttribute('data-location-code'),
+            locationName: btn.getAttribute('data-location-name'),
+            dateTime: btn.getAttribute('data-date')
+        };
+    });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Generic modal populator
-    function setupModal(modalId, idPrefix) {
-        const modal = document.getElementById(modalId);
-        if (!modal) return;
+// Handle modals that use stored context
+['changeStateModal', 'standingIssueModal', 'associateAccessoriesModal', 'LoadWorkModal'].forEach(modalId => {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
 
-        modal.addEventListener('show.bs.modal', function (event) {
-            const btn = event.relatedTarget;
-            const assetId = btn.getAttribute('data-asset-id');
-            const entity = btn.getAttribute('data-header');
-            const groupCode = btn.getAttribute('data-group-code');
-            const locationCode = btn.getAttribute('data-location-code');
+    modal.addEventListener('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
 
-            if (idPrefix) {
-                document.getElementById(idPrefix + '_asset_id')?.setAttribute('value', assetId);
-                document.getElementById(idPrefix + '_entity')?.setAttribute('value', entity);
-                document.getElementById(idPrefix + '_group_code')?.setAttribute('value', groupCode);
-                document.getElementById(idPrefix + '_location_code')?.setAttribute('value', locationCode);
+        // Direct trigger (e.g., from card) → use its data
+        if (btn.hasAttribute('data-asset-id')) {
+            currentEntityContext = {
+                assetId: btn.getAttribute('data-asset-id'),
+                entity: btn.getAttribute('data-header'),
+                groupCode: btn.getAttribute('data-group-code'),
+                locationCode: btn.getAttribute('data-location-code'),
+                locationName: btn.getAttribute('data-location-name'),
+                dateTime: btn.getAttribute('data-date')
+            };
+        }
+
+        // From setMaintModal → use stored context
+        if (btn.hasAttribute('data-use-stored-context') && currentEntityContext) {
+            // For LoadWorkModal and standingIssueModal
+            if (modalId === 'LoadWorkModal') {
+                document.getElementById('lw_asset_id').value = currentEntityContext.assetId;
+                document.getElementById('lw_entity').value = currentEntityContext.entity;
+                document.getElementById('lw_group_code').value = currentEntityContext.groupCode;
+                document.getElementById('lw_location_code').value = currentEntityContext.locationCode;
+            } else if (modalId === 'standingIssueModal') {
+                document.getElementById('si_asset_id').value = currentEntityContext.assetId;
             }
 
-            // Special handling for associateAccessoriesModal
-            if (modalId === 'associateAccessoriesModal') {
-                const locationName = btn.getAttribute('data-location-name');
-                const dateTime = btn.getAttribute('data-date');
-                document.getElementById('acc_ipt_entity').value = entity;
-                document.getElementById('acc_modal_asset_id').value = assetId;
-                document.getElementById('acc_modal_asset_id_display').value = assetId;
-                document.getElementById('acc_modal_group_code').value = groupCode;
-                document.getElementById('acc_modal_location_code').value = locationCode;
-                document.getElementById('acc_modal_location').value = locationName;
-                document.getElementById('acc_modal_date_time').value = dateTime;
-                document.getElementById('acc_modal_start_time').value = dateTime;
-                document.getElementById('acc_modal_datetime_display').value = dateTime;
-                document.getElementById('acc_modal_asset_id_hidden').value = assetId;
-                document.getElementById('acc_modal_entity_hidden').value = entity;
-                document.getElementById('associateAccessoriesModalLabel').textContent = 'Add Part to: ' + entity;
+            // For associateAccessoriesModal and changeStateModal
+            if (['associateAccessoriesModal', 'changeStateModal'].includes(modalId)) {
+                const ctx = currentEntityContext;
+                if (modalId === 'associateAccessoriesModal') {
+                    document.getElementById('acc_ipt_entity').value = ctx.entity;
+                    document.getElementById('acc_modal_asset_id').value = ctx.assetId;
+                    document.getElementById('acc_modal_asset_id_display').value = ctx.assetId;
+                    document.getElementById('acc_modal_group_code').value = ctx.groupCode;
+                    document.getElementById('acc_modal_location_code').value = ctx.locationCode;
+                    document.getElementById('acc_modal_location').value = ctx.locationName;
+                    document.getElementById('acc_modal_date_time').value = ctx.dateTime;
+                    document.getElementById('acc_modal_start_time').value = ctx.dateTime;
+                    document.getElementById('acc_modal_asset_id_hidden').value = ctx.assetId;
+                    document.getElementById('acc_modal_entity_hidden').value = ctx.entity;
+                    document.getElementById('associateAccessoriesModalLabel').textContent = 'Add Part to: ' + ctx.entity;
+                } else if (modalId === 'changeStateModal') {
+                    document.getElementById('ts_ipt_entity').value = ctx.entity;
+                    document.getElementById('ts_modal_asset_id').value = ctx.assetId;
+                    document.getElementById('ts_modal_asset_id_display').value = ctx.assetId;
+                    document.getElementById('ts_modal_group_code').value = ctx.groupCode;
+                    document.getElementById('ts_modal_location_code').value = ctx.locationCode;
+                    document.getElementById('ts_modal_location').value = ctx.locationName;
+                    document.getElementById('ts_modal_group').value = ctx.groupCode;
+                    document.getElementById('ts_modal_date_time').value = ctx.dateTime;
+                    document.getElementById('ts_modal_start_time').value = ctx.dateTime;
+                    document.getElementById('changeStateModalLabel').textContent = 'Change Mode: ' + ctx.entity;
+                }
             }
-
-            // Special handling for changeStateModal
-            if (modalId === 'changeStateModal') {
-                const locationName = btn.getAttribute('data-location-name');
-                const dateTime = btn.getAttribute('data-date');
-                document.getElementById('ts_ipt_entity').value = entity;
-                document.getElementById('ts_modal_asset_id').value = assetId;
-                document.getElementById('ts_modal_asset_id_display').value = assetId;
-                document.getElementById('ts_modal_group_code').value = groupCode;
-                document.getElementById('ts_modal_location_code').value = locationCode;
-                document.getElementById('ts_modal_location').value = locationName;
-                document.getElementById('ts_modal_group').value = groupCode;
-                document.getElementById('ts_modal_date_time').value = dateTime;
-                document.getElementById('ts_modal_start_time').value = dateTime;
-                document.getElementById('changeStateModalLabel').textContent = 'Change Mode: ' + entity;
-            }
-        });
-    }
-
-    // Initialize modals
-    setupModal('associateAccessoriesModal');
-    setupModal('changeStateModal');
-    setupModal('LoadWorkModal', 'lw');
-    setupModal('standingIssueModal', 'si');
+        }
+    });
 });
+
+// Handle custom stop cause
+function handleStopCauseChange(value) {
+    const container = document.getElementById('customInputContainer');
+    if (value === 'CUSTOM') {
+        container.style.display = 'block';
+        document.getElementById('ts_customInput').setAttribute('name', 'col_3');
+        document.querySelector('#ts_modal_stopcause').removeAttribute('name');
+    } else {
+        container.style.display = 'none';
+        document.getElementById('ts_customInput').removeAttribute('name');
+        document.querySelector('#ts_modal_stopcause').setAttribute('name', 'col_3');
+    }
+}
 </script>
