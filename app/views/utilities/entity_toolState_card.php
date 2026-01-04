@@ -146,74 +146,77 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                 $stopCause = $states[$entityName] ?? 'IDLE';
                 $badge = getStateBadge($stopCause, $conn, $org_id);
                 ?>
-				
+
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
-					<!-- Header: Entity name + Position + Edit -->
-					<div class="flex justify-between items-start p-2 border-b border-gray-100">
-						<button
-							class="flex-grow text-left text-sm font-semibold text-blue-700 hover:underline focus:outline-none"
-							data-bs-toggle="modal"
-							data-bs-target="#associateAccessoriesModal"
-							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-							aria-label="View details for <?= htmlspecialchars($entityName) ?>"
-						>
-							<?= htmlspecialchars($entityName) ?>
-							<div class="text-xs text-gray-500 mt-1">Pos: (<?= (int)$row ?>, <?= (int)$col ?>)</div>
-						</button>
-						<button
-							class="btn btn-sm btn-light text-primary flex-shrink-0 p-1"
-							data-bs-toggle="modal"
-							data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
-							aria-label="Edit position"
-						>
-							<i class="fas fa-edit text-sm"></i>
-						</button>
-					</div>
+                    <!-- Header: Entity name + Position + Edit -->
+                    <div class="flex justify-between items-start p-2 border-b border-gray-100">
+                        <button
+                            class="flex-grow text-left text-sm font-semibold text-blue-700 hover:underline focus:outline-none"
+                            data-bs-toggle="modal"
+                            data-bs-target="#associateAccessoriesModal"
+                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+                            aria-label="View details for <?= htmlspecialchars($entityName) ?>"
+                        >
+                            <?= htmlspecialchars($entityName) ?>
+                            <div class="text-xs text-gray-500 mt-1">Pos: (<?= (int)$row ?>, <?= (int)$col ?>)</div>
+                        </button>
+                        <button
+                            class="btn btn-sm btn-light text-primary flex-shrink-0 p-1"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
+                            aria-label="Edit position"
+                        >
+                            <i class="fas fa-edit text-sm"></i>
+                        </button>
+                    </div>
 
-					<!-- Body: WIP section + State badge -->
-					<div class="p-2 space-y-2">
-				
-						<!-- WOF Due date -->
-						<div
-							class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
-							data-bs-toggle="modal"
-							data-bs-target="#LoadWorkModal"
-							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-							aria-label="Manage associated parts for <?= htmlspecialchars($entityName) ?>">
-							WOF Due
-						</div>
-							<!-- Cal Due Date -->
-						<div
-							class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-gray-100 cursor-pointer"
-							data-bs-toggle="modal"
-							data-bs-target="#CalDueModal"
-							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-							aria-label="Manage associated parts for <?= htmlspecialchars($entityName) ?>">
-							Cal Due:
-						</div>
-					
-						<!-- WIP Indicator -->
-						<div
-							class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
-							data-bs-toggle="modal"
-							data-bs-target="#LoadWorkModal"
-							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-							aria-label="Manage associated parts for <?= htmlspecialchars($entityName) ?>">
-							Load Work to Process 
-						</div>
+                    <!-- Body: WOF, Cal, WIP, State -->
+                    <div class="p-2 space-y-2">
+                        <!-- WOF Due -->
+                        <div
+                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-yellow-50 rounded hover:bg-yellow-100 cursor-pointer"
+                            data-bs-toggle="modal"
+                            data-bs-target="#LoadWorkModal"
+                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+                            aria-label="WOF Due for <?= htmlspecialchars($entityName) ?>"
+                        >
+                            WOF Due
+                        </div>
 
-						<!-- State Badge Button -->
-						<button
-							class="w-full py-2 text-white font-bold rounded transition-all hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 <?= htmlspecialchars($badge['class']) ?>"
-							data-bs-toggle="modal"
-							data-bs-target="#setMaintModal"
-							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-							aria-label="Change state: <?= htmlspecialchars($badge['label']) ?>"
-						>
-							<?= htmlspecialchars($badge['label']) ?>
-						</button>
-					</div>
-				</div>
+                        <!-- Cal Due -->
+                        <div
+                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-blue-100 cursor-pointer"
+                            data-bs-toggle="modal"
+                            data-bs-target="#CalDueModal"
+                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+                            aria-label="Calibration Due for <?= htmlspecialchars($entityName) ?>"
+                        >
+                            Cal Due
+                        </div>
+
+                        <!-- Load Work -->
+                        <div
+                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+                            data-bs-toggle="modal"
+                            data-bs-target="#LoadWorkModal"
+                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+                            aria-label="Load work for <?= htmlspecialchars($entityName) ?>"
+                        >
+                            Load Work to Process
+                        </div>
+
+                        <!-- State Badge -->
+                        <button
+                            class="w-full py-2 text-white font-bold rounded transition-all hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 <?= htmlspecialchars($badge['class']) ?>"
+                            data-bs-toggle="modal"
+                            data-bs-target="#setMaintModal"
+                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+                            aria-label="Current state: <?= htmlspecialchars($badge['label']) ?>"
+                        >
+                            <?= htmlspecialchars($badge['label']) ?>
+                        </button>
+                    </div>
+                </div>
 
                 <!-- Edit Position Modal (per entity) -->
                 <div class="modal fade" id="editPositionModal_<?= (int)$entity['id'] ?>" tabindex="-1">
@@ -263,78 +266,116 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- Shared Modals (Outside Loop!) -->
 <!-- =============================== -->
 
-
-<!-- LOAD WORK TO RUN -->
+<!-- LOAD WORK MODAL -->
 <div class="modal fade" id="LoadWorkModal" tabindex="-1">
-<div class="modal-dialog modal-sm modal-dialog-centered">
-<div class="modal-content">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h6 class="modal-title text-white">LOAD WORK TO PROCESS</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="asset_id" id="lw_asset_id">
+                    <input type="hidden" name="entity" id="lw_entity">
+                    <input type="hidden" name="group_code" id="lw_group_code">
+                    <input type="hidden" name="location_code" id="lw_location_code">
 
-    <div class="modal-header bg-info">
-        <h6 class="modal-title">LOAD WORK TO PROCESS</h6>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    <input class="form-control mb-2" placeholder="Material No." required>
+                    <input class="form-control mb-2" type="number" placeholder="Quantity" min="1" required>
+                    <input class="form-control mb-2" placeholder="Operator" required>
+                    <button type="submit" class="btn btn-primary w-100">LOAD</button>
+                </form>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="modal-body">
-		<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-		<input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-		<input type="hidden" name="asset_id" id="acc_modal_asset_id_hidden">
-		<input type="hidden" name="entity" id="acc_modal_entity_hidden">
-		<input type="hidden" name="group_code" id="acc_modal_group_code">
-		<input type="hidden" name="location_code" id="acc_modal_location_code">
-        <input class="form-control mb-2" placeholder="Material No.">
-        <input class="form-control mb-3" placeholder="Qnty.">
-		<input class="form-control mb-2" placeholder="Operator">
-        <button class="btn btn-primary w-100" data-bs-dismiss="modal">LOAD</button>
+<!-- CAL DUE MODAL (Placeholder – implement as needed) -->
+<div class="modal fade" id="CalDueModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-blue-500">
+                <h6 class="modal-title text-white">CALIBRATION DUE</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-3">
+                <p class="text-gray-700">Calibration is due soon.</p>
+                <button class="btn btn-primary" data-bs-dismiss="modal">Acknowledge</button>
+            </div>
+        </div>
     </div>
-
-</div>
-</div>
 </div>
 
 <!-- SET MORE STATE MODAL -->
 <div class="modal fade" id="setMaintModal" tabindex="-1">
-<div class="modal-dialog modal-sm modal-dialog-centered">
-<div class="modal-content">
-
-    <div class="modal-header">
-        <h6 class="modal-title">Set More State</h6>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
-    </div>
-
-    <div class="modal-body p-0">
-        <div class="list-group list-group-flush">
-
-            <button
-                class="list-group-item list-group-item-action"
-                data-bs-dismiss="modal"
-                data-bs-toggle="modal"
-                data-bs-target="#standingIssueModal">
-                Post Standing Issue
-            </button>
-			<button
-                class="list-group-item list-group-item-action"
-                data-bs-dismiss="modal"
-                data-bs-toggle="modal"
-                data-bs-target="#changeStateModal">
-                Change State
-            </button>
-
-            <button
-                class="list-group-item list-group-item-action"
-                data-bs-dismiss="modal"
-                data-bs-toggle="modal"
-                data-bs-target="#associatePartsModal">
-                Maint Log
-            </button>
-
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">More Actions</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="list-group list-group-flush">
+                    <button
+                        class="list-group-item list-group-item-action"
+                        data-bs-dismiss="modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#changeStateModal"
+                    >
+                        Change State
+                    </button>
+                    <button
+                        class="list-group-item list-group-item-action"
+                        data-bs-dismiss="modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#standingIssueModal"
+                    >
+                        Post Standing Issue
+                    </button>
+                    <button
+                        class="list-group-item list-group-item-action"
+                        data-bs-dismiss="modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#associateAccessoriesModal"
+                    >
+                        Associate Parts
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-
-</div>
-</div>
 </div>
 
-
+<!-- STANDING ISSUE MODAL (Basic Placeholder) -->
+<div class="modal fade" id="standingIssueModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Post Standing Issue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="asset_id" id="si_asset_id">
+                    <!-- JS will populate -->
+                    <div class="mb-3">
+                        <label class="form-label">Issue Description</label>
+                        <textarea class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reported By</label>
+                        <input class="form-control" placeholder="Your name" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Post Issue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal: Add Machine Parts -->
 <div class="modal fade" id="associateAccessoriesModal" tabindex="-1">
@@ -562,10 +603,12 @@ function handleStopCauseChange(value) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize Associate Accessories Modal
-    const accModal = document.getElementById('associateAccessoriesModal');
-    if (accModal) {
-        accModal.addEventListener('show.bs.modal', function (event) {
+    // Populate modals from data attributes
+    function populateModal(modalId, dataMap) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+
+        modal.addEventListener('show.bs.modal', function (event) {
             const btn = event.relatedTarget;
             const assetId = btn.getAttribute('data-asset-id');
             const entity = btn.getAttribute('data-header');
@@ -574,44 +617,78 @@ document.addEventListener('DOMContentLoaded', function () {
             const locationName = btn.getAttribute('data-location-name');
             const dateTime = btn.getAttribute('data-date');
 
-            document.getElementById('acc_ipt_entity').value = entity;
-            document.getElementById('acc_modal_asset_id').value = assetId;
-            document.getElementById('acc_modal_asset_id_display').value = assetId;
-            document.getElementById('acc_modal_group_code').value = groupCode;
-            document.getElementById('acc_modal_location_code').value = locationCode;
-            document.getElementById('acc_modal_location').value = locationName;
-            document.getElementById('acc_modal_date_time').value = dateTime;
-            document.getElementById('acc_modal_start_time').value = dateTime;
-            document.getElementById('acc_modal_datetime_display').value = dateTime;
-            document.getElementById('acc_modal_asset_id_hidden').value = assetId;
-            document.getElementById('acc_modal_entity_hidden').value = entity;
-            document.getElementById('associateAccessoriesModalLabel').textContent = 'Add Part to: ' + entity;
+            // Update all mapped fields
+            for (const [id, attr] of Object.entries(dataMap)) {
+                const el = document.getElementById(id);
+                if (el) el.value = eval(attr); // safe because attr is literal string like 'assetId'
+            }
+
+            // Update labels if needed
+            if (modalId === 'associateAccessoriesModal') {
+                document.getElementById('associateAccessoriesModalLabel').textContent = 'Add Part to: ' + entity;
+            }
         });
     }
 
-    // Initialize Change State Modal
-    const tsModal = document.getElementById('changeStateModal');
-    if (tsModal) {
-        tsModal.addEventListener('show.bs.modal', function (event) {
-            const btn = event.relatedTarget;
-            const assetId = btn.getAttribute('data-asset-id');
-            const entity = btn.getAttribute('data-header');
-            const groupCode = btn.getAttribute('data-group-code');
-            const locationCode = btn.getAttribute('data-location-code');
-            const locationName = btn.getAttribute('data-location-name');
-            const dateTime = btn.getAttribute('data-date');
+    // Define data mappings
+    const baseData = {
+        assetId: 'assetId',
+        entity: 'entity',
+        groupCode: 'groupCode',
+        locationCode: 'locationCode',
+        locationName: 'locationName',
+        dateTime: 'dateTime'
+    };
 
-            document.getElementById('ts_ipt_entity').value = entity;
-            document.getElementById('ts_modal_asset_id').value = assetId;
-            document.getElementById('ts_modal_asset_id_display').value = assetId;
-            document.getElementById('ts_modal_group_code').value = groupCode;
-            document.getElementById('ts_modal_location_code').value = locationCode;
-            document.getElementById('ts_modal_location').value = locationName;
-            document.getElementById('ts_modal_group').value = groupCode;
-            document.getElementById('ts_modal_date_time').value = dateTime;
-            document.getElementById('ts_modal_start_time').value = dateTime;
-            document.getElementById('changeStateModalLabel').textContent = 'Change Mode: ' + entity;
-        });
-    }
+    // Map IDs to variable names
+    const accMap = {
+        'acc_ipt_entity': 'entity',
+        'acc_modal_asset_id': 'assetId',
+        'acc_modal_asset_id_display': 'assetId',
+        'acc_modal_group_code': 'groupCode',
+        'acc_modal_location_code': 'locationCode',
+        'acc_modal_location': 'locationName',
+        'acc_modal_date_time': 'dateTime',
+        'acc_modal_start_time': 'dateTime',
+        'acc_modal_asset_id_hidden': 'assetId',
+        'acc_modal_entity_hidden': 'entity'
+    };
+
+    const tsMap = {
+        'ts_ipt_entity': 'entity',
+        'ts_modal_asset_id': 'assetId',
+        'ts_modal_asset_id_display': 'assetId',
+        'ts_modal_group_code': 'groupCode',
+        'ts_modal_location_code': 'locationCode',
+        'ts_modal_location': 'locationName',
+        'ts_modal_group': 'groupCode',
+        'ts_modal_date_time': 'dateTime',
+        'ts_modal_start_time': 'dateTime'
+    };
+
+    // Apply
+    populateModal('associateAccessoriesModal', accMap);
+    populateModal('changeStateModal', tsMap);
+
+    // Handle simple modals (LoadWork, etc.)
+    ['LoadWorkModal', 'standingIssueModal'].forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.addEventListener('show.bs.modal', function (event) {
+                const btn = event.relatedTarget;
+                const assetId = btn.getAttribute('data-asset-id');
+                const entity = btn.getAttribute('data-header');
+                const groupCode = btn.getAttribute('data-group-code');
+                const locationCode = btn.getAttribute('data-location-code');
+
+                // Set hidden inputs
+                const prefix = id === 'LoadWorkModal' ? 'lw_' : 'si_';
+                document.getElementById(prefix + 'asset_id')?.setAttribute('value', assetId);
+                document.getElementById(prefix + 'entity')?.setAttribute('value', entity);
+                document.getElementById(prefix + 'group_code')?.setAttribute('value', groupCode);
+                document.getElementById(prefix + 'location_code')?.setAttribute('value', locationCode);
+            });
+        }
+    });
 });
 </script>
