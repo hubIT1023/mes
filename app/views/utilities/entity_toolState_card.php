@@ -276,8 +276,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
     <div class="modal-body">
         <input class="form-control mb-2" placeholder="Marial No.">
-        <input class="form-control mb-2" placeholder="Operator">
-        <!--input class="form-control mb-3" placeholder="Portals"-->
+        <input class="form-control mb-3" placeholder="Qnty">
+		<input class="form-control mb-2" placeholder="Operator">
         <button class="btn btn-primary w-100" data-bs-dismiss="modal">LOAD</button>
     </div>
 
