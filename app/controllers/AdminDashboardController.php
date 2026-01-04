@@ -1,13 +1,12 @@
 <?php
-// /app/controllers/DashboardAdminController.php
-//for refractore dashboard_admin
+// /app/controllers/AdminDashboardController.php
 
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../middleware/url.php';
 require_once __DIR__ . '/../config/Database.php';
 
-// ✅ Updated model requires
-require_once __DIR__ . '/./models/FetchPageModel.php';
+// ✅ FIXED: All models are in /app/models/, so use ../models/
+require_once __DIR__ . '/../models/FetchPageModel.php';
 require_once __DIR__ . '/../models/FetchGroupModel.php';
 require_once __DIR__ . '/../models/FetchAssetModel.php';
 require_once __DIR__ . '/../models/ToolStateModel.php';
@@ -23,7 +22,6 @@ class AdminDashboardController
 
         $conn = Database::getInstance()->getConnection();
 
-        // ✅ Updated model calls
         $groups = FetchGroupModel::fetchGroups($conn, $tenant_id);
         $allPages = FetchPageModel::fetchAllPages($conn, $tenant_id);
         $tenantAssets = FetchAssetModel::fetchTenantAssets($conn, $tenant_id);
