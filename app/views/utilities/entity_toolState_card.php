@@ -1,23 +1,190 @@
 <?php
 // /app/views/utilities/tool_card/entity_toolState_card.php
 
-if (!isset($group, $org_id, $conn)) {
+if (!isset($group) || !isset($org_id) || !isset($conn)) {
     echo "<div class='alert alert-danger'>Error: Missing required context (group, org_id, or conn).</div>";
     return;
 }
-
-define('MAX_COLS', 9);
 
 $groupCode = (int)($group['group_code'] ?? 0);
 $locationCode = (int)($group['location_code'] ?? 0);
 $locationName = htmlspecialchars($group['location_name'] ?? 'Unknown Location');
 
-// ======================
-// === Helper Functions ===
-// ======================
+// === Fetch entities ===
+try {
+    $stmt = $conn->prepare("
+        SELECT id, asset_id, entity, group_code, location_code, row_pos, col_pos
+        FROM registered_tools
+        WHERE group_code 		= :group_code
+          AND location_code 	= :location_code
+          AND org_id 			= :org_id
+        ORDER BY row_pos, col_pos
+    ");
+    $stmt->execute([
+        'group_code' 	=> $groupCode,
+        'location_code' => $locationCode,
+        'org_id' 		=> $org_id
+    ]);
+    $entities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("DB error fetching entities: " . $e->getMessage());
+    $entities = [];
+}
 
+// === Fetch tool states ===
+try {
+    $stmt = $conn->prepare("
+        SELECT col_2 AS entity, col_3 AS stop_cause
+        FROM tool_state
+        WHERE org_id 		= :org_id
+          AND group_code 	= :group_code
+          AND location_code = :location_code
+    ");
+    $stmt->execute([
+        'org_id' 		=> $org_id,
+        'group_code' 	=> $groupCode,
+        'location_code' => $locationCode
+    ]);
+    $states = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+} catch (PDOException $e) {
+    error_log("DB error fetching states: " . $e->getMessage());
+    $states = [];
+}
+
+// === Fetch data  getStateBadge===
 if (!function_exists('getStateBadge')) {
-    function getStateBadge(string $state, PDO $conn, string $org_id): array {
+    function getStateBadge(string $state, $conn, string $org_id) {
+		static $cache = [];
+
+		$cacheKey = "$org_id|$state";
+		if (isset($cache[$cacheKey])) {
+			return $cache[$cacheKey];
+		}
+
+		// Default fallback
+		$fallback = [
+			'label' => strtoupper(trim($state)) ?: 'UNKNOWN',
+			'class' => 'bg-gray-500'
+		];
+
+		try {
+			$stmt = $conn->prepare("
+				SELECT label, tailwind_class 
+				FROM mode_color 
+				WHERE org_id = ? AND mode_key = ?
+			");
+			$stmt->execute([$org_id, strtoupper(trim($state))]);
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+			if ($row) {
+				$result = [
+					'label' => $row['label'],
+					'class' => $row['tailwind_class']
+				];
+			} else {
+				$result = $fallback;
+			}
+		} catch (PDOException $e) {
+			error_log("getStateBadge DB error: " . $e->getMessage());
+			$result = $fallback;
+		}
+
+		$cache[$cacheKey] = $result;
+		return $result;
+	}
+}
+
+if (!function_exists('renderDataAttributes')) {
+    function renderDataAttributes(
+        string $assetId,
+        string $entityName,
+        int $groupCode,
+        int $locationCode,
+        string $locationName,
+        string $dateTime
+    ) {
+        echo 'data-asset-id			="' . htmlspecialchars($assetId) . '" ';
+        echo 'data-header			="' . htmlspecialchars($entityName) . '" ';
+        echo 'data-group-code		="' . $groupCode . '" ';
+        echo 'data-location-code	="' . $locationCode . '" ';
+        echo 'data-location-name	="' . htmlspecialchars($locationName) . '" ';
+        echo 'data-date				="' . htmlspecialchars($dateTime) . '" ';
+    }
+}
+
+// === Determine max row ===
+$maxRow = 1;
+foreach ($entities as $entity) {
+    $maxRow = max($maxRow, (int)$entity['row_pos']);
+}
+
+// === Build grid lookup ===
+$grid = [];
+foreach ($entities as $entity) {
+    $r = (int)$entity['row_pos'];
+    $c = (int)$entity['col_pos'];
+    if ($c >= 1 && $c <= 9) {
+        $grid[$r][$c] = $entity;
+    }
+}
+?>
+
+<?php 
+// /app/views/utilities/tool_card/entity_toolState_card.php
+
+if (!isset($group) || !isset($org_id) || !isset($conn)) {
+    echo "<div class='alert alert-danger'>Error: Missing required context (group, org_id, or conn).</div>";
+    return;
+}
+
+$groupCode = (int)($group['group_code'] ?? 0);
+$locationCode = (int)($group['location_code'] ?? 0);
+$locationName = htmlspecialchars($group['location_name'] ?? 'Unknown Location');
+
+// === Fetch entities ===
+try {
+    $stmt = $conn->prepare("
+        SELECT id, asset_id, entity, group_code, location_code, row_pos, col_pos
+        FROM registered_tools
+        WHERE group_code 		= :group_code
+          AND location_code 	= :location_code
+          AND org_id 			= :org_id
+        ORDER BY row_pos, col_pos
+    ");
+    $stmt->execute([
+        'group_code' 	=> $groupCode,
+        'location_code' => $locationCode,
+        'org_id' 		=> $org_id
+    ]);
+    $entities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("DB error fetching entities: " . $e->getMessage());
+    $entities = [];
+}
+
+// === Fetch tool states ===
+try {
+    $stmt = $conn->prepare("
+        SELECT col_2 AS entity, col_3 AS stop_cause
+        FROM tool_state
+        WHERE org_id 		= :org_id
+          AND group_code 	= :group_code
+          AND location_code = :location_code
+    ");
+    $stmt->execute([
+        'org_id' 		=> $org_id,
+        'group_code' 	=> $groupCode,
+        'location_code' => $locationCode
+    ]);
+    $states = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+} catch (PDOException $e) {
+    error_log("DB error fetching states: " . $e->getMessage());
+    $states = [];
+}
+
+// === getStateBadge ===
+if (!function_exists('getStateBadge')) {
+    function getStateBadge(string $state, $conn, string $org_id) {
         static $cache = [];
         $cacheKey = "$org_id|$state";
         if (isset($cache[$cacheKey])) return $cache[$cacheKey];
@@ -32,129 +199,81 @@ if (!function_exists('getStateBadge')) {
             error_log("getStateBadge DB error: " . $e->getMessage());
             $result = $fallback;
         }
-        return $cache[$cacheKey] = $result;
+        $cache[$cacheKey] = $result;
+        return $result;
     }
 }
 
+// === renderDataAttributes ===
 if (!function_exists('renderDataAttributes')) {
-    function renderDataAttributes(array $entity, string $locationName, string $dateTime) {
-        $attrs = [
-            'data-asset-id' => $entity['asset_id'] ?? '',
-            'data-header' => $entity['entity'] ?? '',
-            'data-group-code' => $entity['group_code'] ?? '',
-            'data-location-code' => $entity['location_code'] ?? '',
-            'data-location-name' => $locationName,
-            'data-date' => $dateTime
-        ];
-        foreach ($attrs as $key => $value) {
-            echo sprintf('%s="%s" ', $key, htmlspecialchars($value));
-        }
+    function renderDataAttributes(string $assetId, string $entityName, int $groupCode, int $locationCode, string $locationName, string $dateTime) {
+        echo 'data-asset-id="' . htmlspecialchars($assetId) . '" ';
+        echo 'data-header="' . htmlspecialchars($entityName) . '" ';
+        echo 'data-group-code="' . $groupCode . '" ';
+        echo 'data-location-code="' . $locationCode . '" ';
+        echo 'data-location-name="' . htmlspecialchars($locationName) . '" ';
+        echo 'data-date="' . htmlspecialchars($dateTime) . '" ';
     }
 }
 
-// ======================
-// === Fetch Data ===
-// ======================
-
-try {
-    $stmt = $conn->prepare("
-        SELECT id, asset_id, entity, group_code, location_code, row_pos, col_pos
-        FROM registered_tools
-        WHERE group_code = :group_code
-          AND location_code = :location_code
-          AND org_id = :org_id
-        ORDER BY row_pos, col_pos
-    ");
-    $stmt->execute([
-        'group_code' => $groupCode,
-        'location_code' => $locationCode,
-        'org_id' => $org_id
-    ]);
-    $entities = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    error_log("DB error fetching entities: " . $e->getMessage());
-    $entities = [];
-}
-
-try {
-    $stmt = $conn->prepare("
-        SELECT col_2 AS entity, col_3 AS stop_cause
-        FROM tool_state
-        WHERE org_id = :org_id
-          AND group_code = :group_code
-          AND location_code = :location_code
-    ");
-    $stmt->execute([
-        'org_id' => $org_id,
-        'group_code' => $groupCode,
-        'location_code' => $locationCode
-    ]);
-    $states = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
-} catch (PDOException $e) {
-    error_log("DB error fetching states: " . $e->getMessage());
-    $states = [];
-}
-
-// ======================
-// === Build Grid ===
-// ======================
-
+// === Max Row & Grid Lookup ===
 $maxRow = 1;
-$grid = [];
+foreach ($entities as $entity) $maxRow = max($maxRow, (int)$entity['row_pos']);
 
+$grid = [];
 foreach ($entities as $entity) {
     $r = (int)$entity['row_pos'];
     $c = (int)$entity['col_pos'];
-    if ($c >= 1 && $c <= MAX_COLS) $grid[$r][$c] = $entity;
-    $maxRow = max($maxRow, $r);
+    if ($c >= 1 && $c <= 9) $grid[$r][$c] = $entity;
 }
-
-$currentDateTime = date('Y-m-d H:i:s');
 ?>
 
-<!-- ====================== -->
-<!-- === Tool Cards Grid === -->
-<!-- ====================== -->
-
+<!-- Tool State Cards Grid -->
 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-4">
-<?php for ($row = 1; $row <= $maxRow; $row++): ?>
-    <?php for ($col = 1; $col <= MAX_COLS; $col++): ?>
-        <?php if (isset($grid[$row][$col])): 
-            $entity = $grid[$row][$col];
-            $assetId = htmlspecialchars($entity['asset_id']);
-            $entityName = htmlspecialchars($entity['entity']);
-            $stopCause = $states[$entityName] ?? 'IDLE';
-            $badge = getStateBadge($stopCause, $conn, $org_id);
-        ?>
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="flex justify-between items-start p-2">
-                <button class="flex-grow text-left text-sm font-semibold text-blue-700"
-                        data-bs-toggle="modal"
-                        data-bs-target="#associateAccessoriesModal"
-                        <?php renderDataAttributes($entity, $locationName, $currentDateTime); ?>>
-                    <?= $entityName ?>
-                    <div class="text-xs text-gray-500">Pos: (<?= $row ?>, <?= $col ?>)</div>
-                </button>
-                <button class="btn btn-sm btn-light text-primary flex-shrink-0"
-                        data-bs-toggle="modal"
-                        data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </div>
-            <button class="w-full py-2 text-white font-bold <?= htmlspecialchars($badge['class']) ?>"
-                    data-bs-toggle="modal"
-                    data-bs-target="#changeStateModal"
-                    <?php renderDataAttributes($entity, $locationName, $currentDateTime); ?>>
-                <?= htmlspecialchars($badge['label']) ?>
-            </button>
-        </div>
-        <?php else: ?>
-        <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg h-24 flex items-center justify-center"></div>
-        <?php endif; ?>
+    <?php for ($row = 1; $row <= $maxRow; $row++): ?>
+        <?php for ($col = 1; $col <= 9; $col++): ?>
+            <?php if (isset($grid[$row][$col])): ?>
+                <?php
+                $entity = $grid[$row][$col];
+                $assetId = htmlspecialchars($entity['asset_id']);
+                $entityName = htmlspecialchars($entity['entity']);
+                $currentDateTime = date('Y-m-d H:i:s');
+                $stopCause = $states[$entityName] ?? 'IDLE';
+                $badge = getStateBadge($stopCause, $conn, $org_id);
+                ?>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <!-- Header & Edit -->
+                    <div class="flex justify-between items-start p-2">
+                        <button class="flex-grow text-left text-sm font-semibold text-blue-700"
+                                data-bs-toggle="modal"
+                                data-bs-target="#associateAccessoriesModal"
+                                <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
+                            <?= $entityName ?>
+                            <div class="text-xs text-gray-500">Pos: (<?= $row ?>, <?= $col ?>)</div>
+                        </button>
+                        <button class="btn btn-sm btn-light text-primary flex-shrink-0"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <!-- Badge -->
+                    <button class="w-full py-2 text-white font-bold <?= $badge['class'] ?>"
+                            data-bs-toggle="modal"
+                            data-bs-target="#changeStateModal"
+                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
+                        <?= htmlspecialchars($badge['label']) ?>
+                    </button>
+                </div>
+            <?php else: ?>
+                <!-- Empty Placeholder -->
+                <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg h-24 flex items-center justify-center">
+                    <!-- Optional add button -->
+                </div>
+            <?php endif; ?>
+        <?php endfor; ?>
     <?php endfor; ?>
-<?php endfor; ?>
 </div>
-
 
 <!-- ====================== -->
 <!-- === Edit Position Modal === -->
@@ -197,180 +316,333 @@ $currentDateTime = date('Y-m-d H:i:s');
 
 
 
-<!-- ====================== -->
-<!-- === Associate Accessories Modal === -->
-<!-- ====================== -->
+<!-- Modal: Add Machine Parts -->
 <div class="modal fade" id="associateAccessoriesModal" tabindex="-1">
   <div class="modal-dialog modal-md">
-    <form id="AddAccessoriesForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
+    <form id="AddAccesoriesForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="associateAccessoriesModalLabel">Associate Machine Parts</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+
         <div class="modal-body">
           <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
           <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
 
           <!-- Hidden Inputs (Populated by JS) -->
-          <input type="hidden" name="asset_id" id="acc_modal_asset_id_hidden" data-field="assetId">
-          <input type="hidden" name="entity" id="acc_modal_entity_hidden" data-field="entity">
-          <input type="hidden" name="group_code" id="acc_modal_group_code" data-field="groupCode">
-          <input type="hidden" name="location_code" id="acc_modal_location_code" data-field="locationCode">
-          <input type="hidden" name="col_6" id="acc_modal_date_time" data-field="dateTime">
+          <input type="hidden" name="asset_id" id="acc_modal_asset_id_hidden">
+          <input type="hidden" name="entity" id="acc_modal_entity_hidden">
+          <input type="hidden" name="group_code" id="acc_modal_group_code">
+          <input type="hidden" name="location_code" id="acc_modal_location_code">
+          <input type="hidden" name="col_1" id="acc_modal_asset_id"> <!-- asset_id -->
+          <input type="hidden" name="col_3" id="acc_tool_state_col3">
+          <input type="hidden" name="col_6" id="acc_modal_date_time">
+          <input type="hidden" name="col_7" id="acc_modal_start_time">
 
           <!-- Display Fields -->
           <div class="row mb-3">
             <div class="col">
               <label class="form-label">Location</label>
-              <input type="text" id="acc_modal_location" class="form-control" readonly data-field="locationName" />
+              <input type="text" id="acc_modal_location" class="form-control" readonly />
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col">
               <label class="form-label">Entity</label>
-              <input type="text" id="acc_ipt_entity" name="col_2" class="form-control" readonly data-field="entity"/>
+              <input type="text" id="acc_ipt_entity" name="col_2" class="form-control" readonly />
             </div>
             <div class="col">
               <label class="form-label">Asset ID</label>
-              <input type="text" id="acc_modal_asset_id_display" class="form-control" readonly data-field="assetId"/>
+              <input type="text" id="acc_modal_asset_id_display" class="form-control" readonly />
+            </div>
+			<div class="col">
+                <label class="form-label">Maker</label>
+                <input type="text" name="mfg_code" class="form-control" Placeholder = "ex. Akim">
             </div>
           </div>
 
-          <!-- Other fields (Part ID, Name, Serial, Vendor, SAP, Category, Description, Image) -->
-          <div class="row mb-3">
-            <div class="col"><label>Part ID *</label><input type="text" name="part_id" class="form-control" required></div>
-            <div class="col"><label>Part Name *</label><input type="text" name="part_name" class="form-control" required></div>
+          <div class="mb-3">
+            <hr class="divider my-0">
           </div>
+
+          <!-- Part Details -->
           <div class="row mb-3">
-            <div class="col"><label>Serial No</label><input type="text" name="serial_no" class="form-control"></div>
-            <div class="col"><label>Vendor ID</label><input type="text" name="vendor_id" class="form-control"></div>
-          </div>
-          <div class="row mb-3">
-            <div class="col"><label>SAP Code</label><input type="text" name="sap_code" class="form-control"></div>
-            <div class="col"><label>Category</label>
-              <select name="category" class="form-select">
-                <option value="">-- Select Priority Level --</option>
-                <option value="HIGH">HIGH</option>
-                <option value="MEDIUM">MEDIUM</option>
-                <option value="LOW">LOW</option>
-              </select>
+            <div class="col">
+                <label class="form-label">Part ID *</label>
+                <input type="text" name="part_id" class="form-control" required>
             </div>
-          </div>
-          <div class="mb-3"><label>Description</label><textarea name="description" class="form-control"></textarea></div>
-          <div class="mb-3"><label>Part Image</label><input type="file" name="part_image" class="form-control" accept="image/*"></div>
-
-          <div class="row mb-3">
-            <div class="col"><label>Added By *</label><input type="text" name="col_8" class="form-control" placeholder="Type Your Name" required></div>
-            <div class="col"><label>Date / Time</label><input type="text" class="form-control" value="<?= $currentDateTime ?>" readonly></div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ====================== -->
-<!-- === Change State Modal === -->
-<!-- ====================== -->
-<div class="modal fade" id="changeStateModal" tabindex="-1">
-  <div class="modal-dialog modal-md">
-    <form method="POST" action="/mes/change-tool-state">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Change Entity Mode</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-          <input type="hidden" name="group_code" id="ts_modal_group_code" data-field="groupCode">
-          <input type="hidden" name="location_code" id="ts_modal_location_code" data-field="locationCode">
-          <input type="hidden" name="col_1" id="ts_modal_asset_id" data-field="assetId">
-          <input type="hidden" name="col_6" id="ts_modal_date_time" data-field="dateTime">
-          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-
-          <div class="row mb-3">
-            <div class="col"><label>Asset ID</label><input type="text" id="ts_modal_asset_id_display" class="form-control" readonly data-field="assetId"></div>
-            <div class="col"><label>Entity</label><input type="text" id="ts_ipt_entity" name="col_2" class="form-control" readonly data-field="entity"></div>
+            <div class="col">
+                <label class="form-label">Part Name *</label>
+                <input type="text" name="part_name" class="form-control" required>
+            </div>
           </div>
 
           <div class="row mb-3">
             <div class="col">
-              <label>Stop Cause</label>
-              <select id="ts_modal_stopcause" name="col_3" class="form-control" onchange="handleStopCauseChange(this)">
-                <option value="">Select stop cause</option>
-                <option value="CUSTOM">Other (specify)</option>
-              </select>
+                <label class="form-label">Serial No</label>
+                <input type="text" name="serial_no" class="form-control" required>
+            </div>
+            <div class="col">
+                <label class="form-label">Vendor ID</label>
+                <input type="text" name="vendor_id" class="form-control">
             </div>
           </div>
 
-          <div class="mb-3" id="customInputContainer" style="display:none;">
-            <label>Custom Stop Cause</label>
-            <input type="text" id="ts_customInput" class="form-control" />
+          <div class="row mb-3">
+            
+            <div class="col">
+                <label class="form-label">SAP Code</label>
+                <input type="text" name="sap_code" class="form-control">
+            </div>
+            <div class="col">
+                <label class="form-label">Category</label>
+                <select class="form-select" name="category">
+                    <option value="">-- Select Priority Level --</option>
+                    <option value="HIGH">HIGH</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="LOW">LOW</option>
+                </select>
+            </div>
           </div>
 
           <div class="mb-3">
-            <label>Posted By</label>
-            <input type="text" name="col_8" class="form-control" placeholder="Type Your Name" required>
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" ></textarea>
+          </div>
+			
+			
+          <!-- Image Upload -->
+          <div class="mb-3">
+            <label class="form-label">Part Image (Optional)</label>
+            <input type="file" name="part_image" class="form-control" accept="image/*">
+          </div>
+
+
+          <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">Added By *</label>
+                <input type="text"  name="col_8" id="acc_posted_by" class="form-control"value="" placeholder="Type Your Name" required>
+            </div>
+            <div class="col">
+                <label class="form-label">Date / Time</label>
+                <input type="text" class="form-control" id="acc_modal_datetime_display" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>" readonly />
+            </div>
           </div>
         </div>
+
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <button type="submit" class="btn btn-primary" id="acc_submitBtn">
+            <span class="spinner-border spinner-border-sm d-none" id="acc_spinner" role="status" aria-hidden="true"></span>
+            <span id="acc_submitText">ADD</span>
+          </button>
         </div>
       </div>
     </form>
   </div>
 </div>
 
-<!-- ====================== -->
-<!-- === JS Section === -->
-<!-- ====================== -->
+
+
+<!-- Modal: Change Entity Mode -->
+<div class="modal fade" id="changeStateModal" tabindex="-1" 
+     aria-labelledby="changeStateModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <form id="toolStateForm" method="POST" action="/mes/change-tool-state">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="changeStateModalLabel">Change Entity Mode</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Hidden Inputs -->
+          <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+          <input type="hidden" name="group_code" id="ts_modal_group_code">
+          <input type="hidden" name="location_code" id="ts_modal_location_code">
+          <input type="hidden" name="col_1" id="ts_modal_asset_id">
+          <input type="hidden" name="col_6" id="ts_modal_date_time">
+          <input type="hidden" name="col_7" id="ts_modal_start_time">
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+
+          <!-- Display Fields -->
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label">Location</label>
+              <input type="text" id="ts_modal_location" class="form-control" readonly />
+            </div>
+            <div class="col">
+              <label class="form-label">Group</label>
+              <input type="text" id="ts_modal_group" class="form-control" readonly />
+            </div>
+            <div class="col">
+              <label class="form-label">Date / Time</label>
+              <input type="text" class="form-control" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>" readonly />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label">Asset ID</label>
+              <input type="text" id="ts_modal_asset_id_display" class="form-control" readonly />
+            </div>
+            <div class="col">
+              <label class="form-label">Entity</label>
+              <input type="text" id="ts_ipt_entity" name="col_2" class="form-control" readonly />
+            </div>
+          </div>
+
+          <!-- Stop Cause -->
+          <div class="row mb-3">
+            <div class="col">
+              <select id="ts_modal_stopcause" name="col_3" class="form-control" required onchange="handleStopCauseChange(this.value)">
+				<option value="">Select stop cause</option>
+				<?php foreach ($modeChoices as $mode_key => $label): ?>
+					<option value="<?= htmlspecialchars($mode_key) ?>">
+						<?= htmlspecialchars($label) ?>
+					</option>
+				<?php endforeach; ?>
+				<option value="CUSTOM">Other (specify)</option>
+			</select>
+            </div>
+          </div>
+
+          <!-- Custom Input -->
+          <div class="mb-3" id="customInputContainer" style="display:none;">
+            <label class="form-label">Custom Stop Cause</label>
+            <input type="text" id="ts_customInput" class="form-control" />
+          </div>
+
+          <!-- Issues / Actions -->
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label">Issue(s)</label>
+              <input type="text" name="col_4" id="ts_modal_issue" list="issueOptions" class="form-control" required />
+              <datalist id="issueOptions"></datalist>
+            </div>
+            <div class="col">
+              <label class="form-label">Action(s)</label>
+              <input type="text" name="col_5" id="ts_modal_action" list="actionOptions" class="form-control" required />
+              <datalist id="actionOptions"></datalist>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Posted By</label>
+            <input type="text" name="col_8" id="ts_posted_by" class="form-control" placeholder="Type Your Name" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="ts_submitBtn">
+            <span class="spinner-border spinner-border-sm d-none" id="ts_spinner" role="status"></span>
+            <span id="ts_submitText">Submit</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JavaScript for Modal Initialization -->
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    function handleStopCauseChange(selectEl) {
-        const container = document.getElementById('customInputContainer');
-        const customInput = document.getElementById('ts_customInput');
-        if (selectEl.value === 'CUSTOM') {
-            container.style.display = 'block';
-            selectEl.removeAttribute('name');
-            customInput.setAttribute('name', 'col_3');
-        } else {
-            container.style.display = 'none';
-            selectEl.setAttribute('name', 'col_3');
-            customInput.removeAttribute('name');
-        }
+function handleStopCauseChange(value) {
+    const container = document.getElementById('customInputContainer');
+    const customInput = document.getElementById('ts_customInput');
+    const select = document.getElementById('ts_modal_stopcause');
+    
+    if (value === 'CUSTOM') {
+        container.style.display = 'block';
+        select.removeAttribute('name');
+        customInput.setAttribute('name', 'col_3');
+    } else {
+        container.style.display = 'none';
+        select.setAttribute('name', 'col_3');
+        customInput.removeAttribute('name');
     }
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('changeStateModal');
+    if (!modal) return;
 
-    window.handleStopCauseChange = handleStopCauseChange;
+    modal.addEventListener('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
+        const assetId = btn.getAttribute('data-asset-id');
+        const entity = btn.getAttribute('data-header');
+        const groupCode = btn.getAttribute('data-group-code');
+        const locationCode = btn.getAttribute('data-location-code');
+        const locationName = btn.getAttribute('data-location-name');
+        const dateTime = btn.getAttribute('data-date');
 
-    function populateModal(modalId, btn) {
-        const modal = document.getElementById(modalId);
-        if (!modal) return;
-        const mapping = {
-            assetId: btn.getAttribute('data-asset-id'),
-            entity: btn.getAttribute('data-header'),
-            groupCode: btn.getAttribute('data-group-code'),
-            locationCode: btn.getAttribute('data-location-code'),
-            locationName: btn.getAttribute('data-location-name'),
-            dateTime: btn.getAttribute('data-date')
-        };
-        modal.querySelectorAll('[data-field]').forEach(el => {
-            const key = el.getAttribute('data-field');
-            if (mapping[key] !== undefined) el.value = mapping[key];
-        });
+        // Populate fields
+        document.getElementById('ts_ipt_entity').value = entity;
+        document.getElementById('ts_modal_asset_id').value = assetId;
+        document.getElementById('ts_modal_asset_id_display').value = assetId;
+        document.getElementById('ts_modal_group_code').value = groupCode;
+        document.getElementById('ts_modal_location_code').value = locationCode;
+        document.getElementById('ts_modal_location').value = locationName;
+        document.getElementById('ts_modal_group').value = groupCode;
+        document.getElementById('ts_modal_date_time').value = dateTime;
+        document.getElementById('ts_modal_start_time').value = dateTime;
+        document.getElementById('changeStateModalLabel').textContent = 'Change Mode: ' + entity;
+    });
+});
+
+// Handle custom stop cause
+function handleStopCauseChange(value) {
+    const container = document.getElementById('customInputContainer');
+    const customInput = document.getElementById('ts_customInput');
+    const select = document.getElementById('ts_modal_stopcause');
+    
+    if (value === 'CUSTOM') {
+        container.style.display = 'block';
+        select.removeAttribute('name'); // Remove name from select
+        customInput.setAttribute('name', 'col_3'); // Add name to custom input
+    } else {
+        container.style.display = 'none';
+        select.setAttribute('name', 'col_3'); // Restore name to select
+        customInput.removeAttribute('name');
     }
+}
+</script>
 
-    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const targetId = btn.getAttribute('data-bs-target').replace('#','');
-            populateModal(targetId, btn);
-        });
+
+<!-- Modal Initialization Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('associateAccessoriesModal');
+    if (!modal) return;
+
+    modal.addEventListener('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
+        const assetId = btn.getAttribute('data-asset-id');
+        const entity = btn.getAttribute('data-header');
+        const groupCode = btn.getAttribute('data-group-code');
+        const locationCode = btn.getAttribute('data-location-code');
+        const locationName = btn.getAttribute('data-location-name');
+        const dateTime = btn.getAttribute('data-date');
+
+        // Populate display fields
+        document.getElementById('acc_ipt_entity').value = entity;
+        document.getElementById('acc_modal_asset_id').value = assetId;
+        document.getElementById('acc_modal_asset_id_display').value = assetId;
+        document.getElementById('acc_modal_group_code').value = groupCode;
+        document.getElementById('acc_modal_location_code').value = locationCode;
+        document.getElementById('acc_modal_location').value = locationName;
+        document.getElementById('acc_modal_date_time').value = dateTime;
+        document.getElementById('acc_modal_start_time').value = dateTime;
+        document.getElementById('acc_modal_datetime_display').value = dateTime;
+        document.getElementById('associateAccessoriesModalLabel').textContent = 'Add Part to: ' + entity;
+
+        // Set hidden fields for form submission
+        document.getElementById('acc_modal_asset_id_hidden').value = assetId;
+        document.getElementById('acc_modal_entity_hidden').value = entity;
     });
 });
 </script>
