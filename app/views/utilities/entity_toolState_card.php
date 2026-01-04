@@ -146,9 +146,11 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                 $stopCause = $states[$entityName] ?? 'IDLE';
                 $badge = getStateBadge($stopCause, $conn, $org_id);
                 ?>
+				
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <!-- Header & Edit -->
-                    <div class="flex justify-between items-start p-2">
+					<!--div class="card-header topbar d-flex flex-row align-items-center justify-content-between" style = " height: 40px; "-->
+                    <div class="card-header flex justify-between items-start p-2">
                         <button class="flex-grow text-left text-sm font-semibold text-blue-700"
                                 data-bs-toggle="modal"
                                 data-bs-target="#associateAccessoriesModal"
@@ -162,6 +164,9 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
+					
+					<!--card-body-->
+					<div class="card-body" >
                     <!-- Badge -->
                     <button class="w-full py-2 text-white font-bold <?= htmlspecialchars($badge['class']) ?>"
                             data-bs-toggle="modal"
@@ -169,6 +174,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
                         <?= htmlspecialchars($badge['label']) ?>
                     </button>
+					</div>
                 </div>
 
                 <!-- Edit Position Modal (per entity) -->
