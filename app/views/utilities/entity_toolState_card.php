@@ -168,7 +168,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 					<!--card-body-->
 					<div class="card-body" >
 					
-					<div class="list-item" data-bs-toggle="modal" data-bs-target="#associatePartsModal">
+					<div class="flex-grow text-left text-sm font-semibold text-blue-700"
+					data-bs-toggle="modal" data-bs-target="#associatePartsModal">
 						WIP
 					</div>
 
