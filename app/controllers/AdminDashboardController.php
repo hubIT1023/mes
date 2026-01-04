@@ -1,16 +1,18 @@
 <?php
-// /app/controllers/AdminDashboardController.php
-//an update
+// /app/controllers/DashboardAdminController.php
+//for refractore dashboard_admin
 
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
-require_once __DIR__ . '/../middleware/url.php'; // ✅ Keep as procedural
+require_once __DIR__ . '/../middleware/url.php';
 require_once __DIR__ . '/../config/Database.php';
-require_once __DIR__ . '/../models/PageModel.php';
-require_once __DIR__ . '/../models/GroupModel.php';
-require_once __DIR__ . '/../models/AssetModel.php';
+
+// ✅ Updated model requires
+require_once __DIR__ . '/../models/FetchPageModel.php';
+require_once __DIR__ . '/../models/FetchGroupModel.php';
+require_once __DIR__ . '/../models/FetchAssetModel.php';
 require_once __DIR__ . '/../models/ToolStateModel.php';
 
-class AdminDashboardController
+class DashboardAdminController
 {
     public function index(): void
     {
@@ -21,16 +23,16 @@ class AdminDashboardController
 
         $conn = Database::getInstance()->getConnection();
 
-        $groups = GroupModel::fetchGroups($conn, $tenant_id);
-        $allPages = PageModel::fetchAllPages($conn, $tenant_id);
-        $tenantAssets = AssetModel::fetchTenantAssets($conn, $tenant_id);
+        // ✅ Updated model calls
+        $groups = FetchGroupModel::fetchGroups($conn, $tenant_id);
+        $allPages = FetchPageModel::fetchAllPages($conn, $tenant_id);
+        $tenantAssets = FetchAssetModel::fetchTenantAssets($conn, $tenant_id);
 
         $pages = [];
         foreach ($allPages as $pageId => $pageName) {
             $pages[(int)$pageId] = ['page_id' => (int)$pageId, 'page_name' => $pageName];
         }
 
-        // ✅ Call global function directly
         $selectedPageId = determineSelectedPage($pages);
         if ($selectedPageId !== null) {
             $_SESSION['last_page_id'] = $selectedPageId;
@@ -49,7 +51,6 @@ class AdminDashboardController
         $modeModel = new ToolStateModel();
         $modeChoices = $modeModel->getModeColorChoices($tenant_id);
 
-        // Make all vars available in view
         require_once __DIR__ . '/../views/dashboard_admin.php';
     }
 }
