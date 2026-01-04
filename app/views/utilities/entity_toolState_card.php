@@ -301,6 +301,16 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     >
                         ASSOCIATE PARTS
                     </button>
+					<button
+                        type="button"
+                        class="list-group-item list-group-item-action"
+                        data-bs-dismiss="modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#listAccessoriesModal"
+                        data-use-stored-context="true"
+                    >
+                        Associated Accessories
+                    </button>
                 </div>
             </div>
         </div>
@@ -393,6 +403,60 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
         </div>
     </div>
 </div>
+
+<!-- LIST OF ASSOCIATED ACCESSORIES -->
+<!--ul id="accessoriesList" class="list-group">
+    <?php// if (!empty($accessories)): ?>
+        <?php //foreach ($accessories as $acc): ?>
+            <li class="list-group-item"><?//= htmlspecialchars($acc['name']) ?></li>
+        <?php //endforeach; ?>
+    <?php //else: ?>
+        <li class="list-group-item text-muted">No accessories associated</li>
+    <?php //endif; ?>
+</ul-->
+
+<div class="modal fade" id="listAccessoriesModal" tabindex="-1" aria-labelledby="listAccessoriesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h6 class="modal-title" id="listAccessoriesModalLabel">Associated Accessories</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Parent Tool -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Parent Tool</label>
+                    <input type="text" class="form-control" id="list_acc_entity_display" readonly>
+                </div>
+
+                <h6 class="mb-2">Attached Accessories</h6>
+
+                <!-- Dynamic List (Placeholder) -->
+                <ul id="accessoriesList" class="list-group">
+                    <!-- Example item (will be replaced by JS or PHP) -->
+                    <li class="list-group-item">Oscilloscope</li>
+                    <li class="list-group-item">Frequency Counter</li>
+                    <li class="list-group-item">Power Supply</li>
+                    <!-- If no accessories -->
+                    <!-- <li class="list-group-item text-muted">No accessories associated</li> -->
+                </ul>
+
+                <!-- Optional: Add button if needed -->
+                <!-- 
+                <div class="mt-3 text-end">
+                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#associateAccessoriesModal">
+                        + Add Accessory
+                    </button>
+                </div>
+                -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- LOAD WORK MODAL -->
 <div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-hidden="true">
