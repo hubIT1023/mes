@@ -230,11 +230,13 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <input type="hidden" name="entity_id" value="<?= (int)$entity['id'] ?>">
                             <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
                             <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Edit Position: <?= htmlspecialchars($entityName) ?></h5>
+                                
+								<div class="modal-header">
+                                    <h5 class="modal-title">Move Location of <strong><?= htmlspecialchars($entityName) ?> </strong>to:</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
-                                <div class="modal-body">
+                                
+								<div class="modal-body">
                                     <div class="row">
                                         <div class="col-6">
                                             <label class="form-label">Row</label>
