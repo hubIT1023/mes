@@ -356,16 +356,32 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                 <h6 class="modal-title">Associate Accessories</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form>
+            <form method="POST" action="/mes/associate-accessories">
                 <div class="modal-body">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                     <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-                    <input type="hidden" name="asset_id" id="acc_asset_id">
-                    <input type="hidden" name="entity" id="acc_entity">
-                    <input class="form-control mb-2" type="text" name="entity_display" id="acc_entity_display" readonly>
-                    <textarea class="form-control mb-2" name="issue" placeholder="Issue" required></textarea>
-                    <textarea class="form-control mb-2" name="action" placeholder="Action taken" required></textarea>
-                    <input class="form-control mb-2" name="operator" placeholder="Operator" required>
+                    <input type="hidden" name="parent_asset_id" id="acc_asset_id"> <!-- Renamed to avoid conflict -->
+                    <input type="hidden" name="parent_entity" id="acc_entity">
+                    
+                    <!-- Display parent entity -->
+                    <div class="mb-3">
+                        <label class="form-label">Parent Tool</label>
+                        <input class="form-control" type="text" id="acc_entity_display" readonly>
+                    </div>
+
+                    <p class="mb-2">Associate a new asset with this tool</p>
+                    
+                    <!-- Child asset fields -->
+                    <div class="mb-2">
+                        <input class="form-control" name="child_asset_id" placeholder="Child Asset ID" required>
+                    </div>
+                    <div class="mb-2">
+                        <input class="form-control" name="child_asset_name" placeholder="Child Asset Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <input class="form-control" name="operator" placeholder="Operator" required>
+                    </div>
+                    
                     <button type="submit" class="btn btn-primary w-100">ASSOCIATE</button>
                 </div>
             </form>
