@@ -172,15 +172,34 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 					<!-- Body: WIP section + State badge -->
 					<div class="p-2 space-y-2">
+				
+						<!-- WOF Due date -->
+						<div
+							class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+							data-bs-toggle="modal"
+							data-bs-target="#LoadWorkModal"
+							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+							aria-label="Manage associated parts for <?= htmlspecialchars($entityName) ?>">
+							WOF Due
+						</div>
+							<!-- Cal Due Date -->
+						<div
+							class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+							data-bs-toggle="modal"
+							data-bs-target="#CalDueModal"
+							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+							aria-label="Manage associated parts for <?= htmlspecialchars($entityName) ?>">
+							Cal Due:
+						</div>
+					
 						<!-- WIP Indicator -->
 						<div
 							class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
 							data-bs-toggle="modal"
-							data-bs-target="#associatePartsModal"
+							data-bs-target="#LoadWorkModal"
 							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-							aria-label="Manage associated parts for <?= htmlspecialchars($entityName) ?>"
-						>
-							Work in Progress (WIP)
+							aria-label="Manage associated parts for <?= htmlspecialchars($entityName) ?>">
+							Load Work to RUN 
 						</div>
 
 						<!-- State Badge Button -->
