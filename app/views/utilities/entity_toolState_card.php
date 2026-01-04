@@ -352,7 +352,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         class="list-group-item list-group-item-action"
                         data-bs-dismiss="modal"
                         data-bs-toggle="modal"
-                        data-bs-target="#associateAccessoriesModal"
+                        data-bs-target="#MaintLogModal"
                         data-use-stored-context="true"
                     >
                         Maint Log
@@ -398,6 +398,53 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100">ASSOCIATE</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- MAINTENANCE LOG -->
+<div class="modal fade" id="MaintLogModal" tabindex="-1" aria-labelledby="maintLogModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h6 class="modal-title" id="maintLogModalLabel">Maintenance Log</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/mes/log-maintenance">
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="asset_id" id="maint_asset_id">
+                    <input type="hidden" name="entity" id="maint_entity">
+
+                    <!-- Parent Entity -->
+                    <div class="mb-3">
+                        <label for="maint_entity_display" class="form-label">Entity</label>
+                        <input type="text" class="form-control" id="maint_entity_display" readonly>
+                    </div>
+
+                    <!-- Issue -->
+                    <div class="mb-3">
+                        <label for="issue" class="form-label">Issue</label>
+                        <textarea class="form-control" id="issue" name="issue" rows="2" required></textarea>
+                    </div>
+
+                    <!-- Action -->
+                    <div class="mb-3">
+                        <label for="action" class="form-label">Action Taken</label>
+                        <textarea class="form-control" id="action" name="action" rows="2" required></textarea>
+                    </div>
+
+                    <!-- Reported By -->
+                    <div class="mb-3">
+                        <label for="reported_by" class="form-label">Reported By</label>
+                        <input type="text" class="form-control" id="reported_by" name="reported_by" placeholder="Enter your name" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Log Entry</button>
                 </div>
             </form>
         </div>
