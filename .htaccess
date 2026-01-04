@@ -1,3 +1,5 @@
+# --.htaccess--
+
 RewriteEngine On
 #RewriteBase /mes/
 
