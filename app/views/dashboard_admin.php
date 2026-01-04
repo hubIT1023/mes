@@ -144,20 +144,29 @@
             <hr class="mb-4">
 
             <?php if ($showBlankCanvas): ?>
-                <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh;">
-                    <?php if (empty($pages)): ?>
-                        <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openDashboardPageModal(null)" style="width: 300px; cursor: pointer;">
-                            <i class="fas fa-file-circle-plus text-slate-300 fa-4x mb-3"></i>
-                            <h5 class="text-slate-600">Create First Page</h5>
-                        </div>
-                    <?php else: ?>
-                        <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" style="width: 300px; cursor: pointer;">
-                            <i class="fas fa-layer-group text-slate-300 fa-4x mb-3"></i>
-                            <h5 class="text-slate-600">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
-                            <p class="small text-slate-400">Click to configure your first group for this page.</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
+					<div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh; background-color: #f8f9fa;">
+						<?php if (empty($pages)): ?>
+							<div 
+								onclick="openDashboardPageModal(null)" 
+								style="width: 300px; padding: 30px; text-align: center; background: white; border: 2px dashed #ccc; border-radius: 10px; cursor: pointer;"
+							>
+								<!-- Fallback emoji if Font Awesome fails -->
+								<div style="font-size: 48px; margin-bottom: 16px;">📁</div>
+								<h5 style="color: #495057; margin: 0;">Create Your First Dashboard Page</h5>
+								<p style="color: #6c757d; font-size: 14px; margin-top: 8px;">Click here to get started</p>
+							</div>
+						<?php else: ?>
+							<div 
+								onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" 
+								style="width: 30 p: 30px; text-align: center; background: white; border: 2px dashed #ccc; border-radius: 10px; cursor: pointer;"
+							>
+								<div style="font-size: 48px; margin-bottom: 16px;">🧩</div>
+								<h5 style="color: #495057; margin: 0;">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
+								<p style="color: #6c757d; font-size: 14px; margin-top: 8px;">Click to configure your first group</p>
+							</div>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
             <?php else: ?>
                 <div class="row g-4">
                     <?php foreach ($selectedPageGroups as $g): ?>
