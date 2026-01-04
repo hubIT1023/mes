@@ -64,7 +64,16 @@
         </div>
     </nav>
 </header>
-
+<!-- DEBUG: Force visible output -->
+<div class="container">
+    <div class="alert alert-info">
+        DEBUG: 
+        Pages count: <?= count($pages) ?>, 
+        Selected Page ID: <?= $selectedPageId ?>, 
+        Groups count: <?= count($selectedPageGroups) ?>, 
+        Show Blank Canvas: <?= $showBlankCanvas ? 'YES' : 'NO' ?>
+    </div>
+</div>
 <!-- TOP PRODUCT BAR -->
 <div class="top-product-bar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
