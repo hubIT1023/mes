@@ -148,43 +148,53 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                 ?>
 				
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <!-- Header & Edit -->
-					<!--div class="card-header topbar d-flex flex-row align-items-center justify-content-between" style = " height: 40px; "-->
-                    <div class="card-header flex justify-between items-start p-2">
-                        <button class="flex-grow text-left text-sm font-semibold text-blue-700"
-                                data-bs-toggle="modal"
-                                data-bs-target="#associateAccessoriesModal"
-                                <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
-                            <?= htmlspecialchars($entityName) ?>
-                            <div class="text-xs text-gray-500">Pos: (<?= $row ?>, <?= $col ?>)</div>
-                        </button>
-                        <button class="btn btn-sm btn-light text-primary flex-shrink-0"
-                                data-bs-toggle="modal"
-                                data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </div>
-					
-					<!--card-body-->
-					<div class="card-body" >
-					
-					<div class="flex-grow text-left text-sm font-semibold text-blue-700"
-					data-bs-toggle="modal" data-bs-target="#associatePartsModal">
-						WIP
+					<!-- Header: Entity name + Position + Edit -->
+					<div class="flex justify-between items-start p-2 border-b border-gray-100">
+						<button
+							class="flex-grow text-left text-sm font-semibold text-blue-700 hover:underline focus:outline-none"
+							data-bs-toggle="modal"
+							data-bs-target="#associateAccessoriesModal"
+							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+							aria-label="View details for <?= htmlspecialchars($entityName) ?>"
+						>
+							<?= htmlspecialchars($entityName) ?>
+							<div class="text-xs text-gray-500 mt-1">Pos: (<?= (int)$row ?>, <?= (int)$col ?>)</div>
+						</button>
+						<button
+							class="btn btn-sm btn-light text-primary flex-shrink-0 p-1"
+							data-bs-toggle="modal"
+							data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
+							aria-label="Edit position"
+						>
+							<i class="fas fa-edit text-sm"></i>
+						</button>
 					</div>
 
-					<!-- HORIZONTAL DIVIDER -->
-					<hr class="my-0">
-					
-                    <!-- Badge -->
-                    <button class="w-full py-2 text-white font-bold <?= htmlspecialchars($badge['class']) ?>"
-                            data-bs-toggle="modal"
-                            data-bs-target="#changeStateModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
-                        <?= htmlspecialchars($badge['label']) ?>
-                    </button>
+					<!-- Body: WIP section + State badge -->
+					<div class="p-2 space-y-2">
+						<!-- WIP Indicator -->
+						<div
+							class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+							data-bs-toggle="modal"
+							data-bs-target="#associatePartsModal"
+							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+							aria-label="Manage associated parts for <?= htmlspecialchars($entityName) ?>"
+						>
+							Work in Progress (WIP)
+						</div>
+
+						<!-- State Badge Button -->
+						<button
+							class="w-full py-2 text-white font-bold rounded transition-all hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 <?= htmlspecialchars($badge['class']) ?>"
+							data-bs-toggle="modal"
+							data-bs-target="#changeStateModal"
+							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+							aria-label="Change state: <?= htmlspecialchars($badge['label']) ?>"
+						>
+							<?= htmlspecialchars($badge['label']) ?>
+						</button>
 					</div>
-                </div>
+				</div>
 
                 <!-- Edit Position Modal (per entity) -->
                 <div class="modal fade" id="editPositionModal_<?= (int)$entity['id'] ?>" tabindex="-1">
