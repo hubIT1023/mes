@@ -167,6 +167,14 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 					
 					<!--card-body-->
 					<div class="card-body" >
+					
+					<div class="list-item" data-bs-toggle="modal" data-bs-target="#associatePartsModal">
+						WIP
+					</div>
+
+					<!-- HORIZONTAL DIVIDER -->
+					<hr class="my-0">
+					
                     <!-- Badge -->
                     <button class="w-full py-2 text-white font-bold <?= htmlspecialchars($badge['class']) ?>"
                             data-bs-toggle="modal"
