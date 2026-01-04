@@ -184,7 +184,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 						</div>
 							<!-- Cal Due Date -->
 						<div
-							class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+							class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-gray-100 cursor-pointer"
 							data-bs-toggle="modal"
 							data-bs-target="#CalDueModal"
 							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
