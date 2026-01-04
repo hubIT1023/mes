@@ -124,9 +124,11 @@ foreach ($routes as $routePattern => $routeHandler) {
 // 404 fallback
 // -------------------------------------------------
 http_response_code(404);
-echo "<p>The requested URL '$uri' was not found.</p>";
+//echo "<p>The requested URL '$uri' was not found.</p>";
+/*
 echo "<p>Available routes:</p><ul>";
 foreach (array_keys($routes) as $route) {
     echo "<li>" . htmlspecialchars($route) . "</li>";
 }
 echo "</ul>";
+*/
