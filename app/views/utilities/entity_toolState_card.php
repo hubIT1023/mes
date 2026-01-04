@@ -261,7 +261,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                 </div>
 
             <?php else: ?>
-                <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg h-24 flex items-center justify-center"></div>
+                <div class="bg-gray-200 border-2 border-dashed border-gray-300 rounded-lg h-24 flex items-center justify-center"></div>
             <?php endif; ?>
         <?php endfor; ?>
     <?php endfor; ?>
