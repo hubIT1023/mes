@@ -1,16 +1,26 @@
 <?php
-// tbpm_scheduler.php
-// CLI script for TBPM (Time-Based Preventive Maintenance)
+// app/cron/tbpm_scheduler.php
 
-require_once __DIR__ . '/../config/bootstrap.php'; // ensure PDO and environment loaded
+require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../middleware/TenantMiddleware.php';
+require_once __DIR__ . '/../models/AssetMaintenanceModel.php';
+require_once __DIR__ . '/../models/RoutineWorkOrderModel.php';
 
+// -----------------------------------------
+// Logging helper
+// -----------------------------------------
+function logMessage($msg) {
+    $logFile = __DIR__ . '/../storage/cron_logs/tbpm_cron.log';
+    $date = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$date] $msg\n", FILE_APPEND);
+}
+
+// Initialize middleware/models
 $tenantMiddleware = new TenantMiddleware();
-$tenants = $tenantMiddleware->getAllTenants();
-
 $assetMaintenanceModel = new AssetMaintenanceModel();
 $routineWorkOrderModel = new RoutineWorkOrderModel();
 
-logMessage("TBPM Scheduler started.");
+logMessage("=== TBPM Scheduler Started ===");
 
 foreach ($tenants as $tenant) {
     $tenantId = $tenant['org_id'];
