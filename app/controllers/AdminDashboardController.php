@@ -7,8 +7,8 @@ require_once __DIR__ . '/../middleware/url.php';
 require_once __DIR__ . '/../config/Database.php';
 
 // ✅ Updated model requires
-require_once __DIR__ . './models/FetchPageModel.php';
-require_once __DIR__ . '../models/FetchGroupModel.php';
+require_once __DIR__ . '/./models/FetchPageModel.php';
+require_once __DIR__ . '/../models/FetchGroupModel.php';
 require_once __DIR__ . '/../models/FetchAssetModel.php';
 require_once __DIR__ . '/../models/ToolStateModel.php';
 
