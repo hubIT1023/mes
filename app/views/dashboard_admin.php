@@ -64,6 +64,7 @@
         </div>
     </nav>
 </header>
+
 <!-- DEBUG: Force visible output -->
 <div class="container">
     <div class="alert alert-info">
@@ -74,17 +75,18 @@
         Show Blank Canvas: <?= $showBlankCanvas ? 'YES' : 'NO' ?>
     </div>
 </div>
+
 <!-- TOP PRODUCT BAR -->
 <div class="top-product-bar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
         <div class="product-list">
-            <a href="/mes/mode-color" class="product-item d-flex flex-column align-items-center text-decoration-none <?= UrlHelper::is_active('/mes/mode-color') ? 'text-primary' : 'text-secondary' ?>">
+            <a href="/mes/mode-color" class="product-item d-flex flex-column align-items-center text-decoration-none <?= is_active('/mes/mode-color') ? 'text-primary' : 'text-secondary' ?>">
                 <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
                     <i class="fas fa-palette fa-lg"></i>
                 </div>
                 <span class="small">Mode Colors</span>
             </a>
-            <a href="/mes/parts-list" class="product-item d-flex flex-column align-items-center text-decoration-none <?= UrlHelper::is_active('/mes/parts-list') ? 'text-primary' : 'text-secondary' ?>">
+            <a href="/mes/parts-list" class="product-item d-flex flex-column align-items-center text-decoration-none <?= is_active('/mes/parts-list') ? 'text-primary' : 'text-secondary' ?>">
                 <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
                     <i class="fas fa-fw fa-gears"></i>
                 </div>
@@ -103,7 +105,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <main class="col-12 col-fluid p-4"> 
+        <main class="col-12 p-4"> 
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <h2 class="text-2xl font-bold">
                     Machine Status Board - <?= htmlspecialchars($selectedPageName) ?>
@@ -144,29 +146,27 @@
             <hr class="mb-4">
 
             <?php if ($showBlankCanvas): ?>
-					<div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh; background-color: #f8f9fa;">
-						<?php if (empty($pages)): ?>
-							<div 
-								onclick="openDashboardPageModal(null)" 
-								style="width: 300px; padding: 30px; text-align: center; background: white; border: 2px dashed #ccc; border-radius: 10px; cursor: pointer;"
-							>
-								<!-- Fallback emoji if Font Awesome fails -->
-								<div style="font-size: 48px; margin-bottom: 16px;">📁</div>
-								<h5 style="color: #495057; margin: 0;">Create Your First Dashboard Page</h5>
-								<p style="color: #6c757d; font-size: 14px; margin-top: 8px;">Click here to get started</p>
-							</div>
-						<?php else: ?>
-							<div 
-								onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" 
-								style="width: 30 p: 30px; text-align: center; background: white; border: 2px dashed #ccc; border-radius: 10px; cursor: pointer;"
-							>
-								<div style="font-size: 48px; margin-bottom: 16px;">🧩</div>
-								<h5 style="color: #495057; margin: 0;">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
-								<p style="color: #6c757d; font-size: 14px; margin-top: 8px;">Click to configure your first group</p>
-							</div>
-						<?php endif; ?>
-					</div>
-				<?php endif; ?>
+                <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh; background-color: #f8f9fa;">
+                    <?php if (empty($pages)): ?>
+                        <div 
+                            onclick="openDashboardPageModal(null)" 
+                            style="width: 300px; padding: 30px; text-align: center; background: white; border: 2px dashed #ccc; border-radius: 10px; cursor: pointer;"
+                        >
+                            <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
+                            <h5 style="color: #495057; margin: 0;">Create Your First Dashboard Page</h5>
+                            <p style="color: #6c757d; font-size: 14px; margin-top: 8px;">Click here to get started</p>
+                        </div>
+                    <?php else: ?>
+                        <div 
+                            onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" 
+                            style="width: 300px; padding: 30px; text-align: center; background: white; border: 2px dashed #ccc; border-radius: 10px; cursor: pointer;"
+                        >
+                            <div style="font-size: 48px; margin-bottom: 16px;">🧩</div>
+                            <h5 style="color: #495057; margin: 0;">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
+                            <p style="color: #6c757d; font-size: 14px; margin-top: 8px;">Click to configure your first group</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
             <?php else: ?>
                 <div class="row g-4">
                     <?php foreach ($selectedPageGroups as $g): ?>
@@ -229,16 +229,85 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function openDashboardPageModal(currentPageId) {
-    // ... (your existing JS logic — unchanged)
+    const modalEl = document.getElementById('dashboardPageModal');
+    const modal = new bootstrap.Modal(modalEl);
+    const form = document.getElementById('dashboardPageForm');
+    const actionSelect = document.getElementById('pageAction');
+    const pageSelector = document.getElementById('pageSelector');
+    const pageNameInput = document.getElementById('pageNameInput');
+    const modalTitle = document.getElementById('modalTitle');
+    const submitBtn = document.getElementById('modalSubmitBtn');
+    const deleteWarning = document.getElementById('deleteWarning');
+    const pageNameField = document.getElementById('pageNameField');
+    const pageSelectorField = document.getElementById('pageSelectorField');
+
+    form.reset();
+    if (pageSelector && currentPageId && pageSelector.querySelector(`option[value="${currentPageId}"]`)) {
+        pageSelector.value = currentPageId;
+    }
+
+    const updatePageName = () => {
+        if (actionSelect.value === 'rename' && pageSelector) {
+            pageNameInput.value = pageSelector.options[pageSelector.selectedIndex]?.text || '';
+        }
+    };
+
+    const updateModalUI = () => {
+        const action = actionSelect.value;
+        let title, btnText, actionUrl;
+        let isDelete = false, showPageSelector = false;
+
+        switch(action) {
+            case 'create':
+                title = "Create New Page";
+                btnText = "Create Page";
+                actionUrl = "/mes/create-page";
+                pageNameInput.required = true;
+                break;
+            case 'rename':
+                title = "Rename Page";
+                btnText = "Rename Page";
+                actionUrl = "/mes/rename-page";
+                pageNameInput.required = true;
+                showPageSelector = true;
+                updatePageName();
+                break;
+            case 'delete':
+                title = "Delete Page";
+                btnText = "Delete Page";
+                actionUrl = "/mes/delete-page";
+                pageNameInput.required = false;
+                isDelete = true;
+                showPageSelector = true;
+                break;
+        }
+
+        modalTitle.textContent = title;
+        submitBtn.textContent = btnText;
+        submitBtn.className = `btn ${isDelete ? 'btn-danger' : 'btn-primary'}`;
+        form.action = actionUrl;
+
+        pageNameField.classList.toggle('d-none', isDelete);
+        deleteWarning.classList.toggle('d-none', !isDelete);
+        pageSelectorField.classList.toggle('d-none', !showPageSelector);
+    };
+
+    actionSelect.onchange = updateModalUI;
+    if (pageSelector) pageSelector.onchange = updatePageName;
+    updateModalUI();
+    modal.show();
 }
+
 function openCreateGroupModal(pageId) {
     document.getElementById('modal_page_id').value = pageId;
     new bootstrap.Modal(document.getElementById('createGroupModal')).show();
 }
+
 function updateEntityName(select) {
     const name = select.options[select.selectedIndex]?.getAttribute('data-name') || '';
     select.closest('form').querySelector('input[name="entity"]').value = name;
 }
+
 function openUpdateGroupModal(groupId, pageId, groupName, locationName, seqId) {
     document.getElementById('update_group_id').value = groupId;
     document.getElementById('update_page_id').value = pageId;
@@ -247,6 +316,7 @@ function openUpdateGroupModal(groupId, pageId, groupName, locationName, seqId) {
     document.getElementById('update_seq_id').value = seqId || 1;
     new bootstrap.Modal(document.getElementById('updateGroupModal')).show();
 }
+
 function openDeleteGroupModal(groupId, pageId, groupName) {
     document.getElementById('delete_group_id').value = groupId;
     document.getElementById('delete_page_id').value = pageId;
