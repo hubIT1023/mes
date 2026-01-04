@@ -7,25 +7,27 @@ update dashboard_admin.php to match postgres queries
 
 update AssetModel.php/AssetCon to match postgres queries
 
-SigninController/RegisterModel  		-- register/signin/logout
-GroupPageModel/GroupPageController      -- create new page
-CreateGroupController					-- create group
-DeleteGroupController					-- delete group
-AddEntityToDashboardController			-- add entity
-GroupModel 								-- update/delete group
-dashboard_admin.php                 	-- main page for business intelligence dashboard
-AssetModel.php/AssetController			-- Register Assets
-MachinePartController/MachinePartModel  -- parts management
-checklisController/ChecklistModel       -- creating checklist
+ ------package/classes----------------------------- application/description--
+
+SigninController/RegisterModel  				-- register/signin/logout
+GroupPageModel/GroupPageController      		-- create new page
+CreateGroupController							-- create group
+DeleteGroupController							-- delete group
+AddEntityToDashboardController					-- add entity
+GroupModel 										-- update/delete group
+dashboard_admin.php                 			-- main page for business intelligence dashboard
+AssetModel.php/AssetController					-- Register Assets
+MachinePartController/MachinePartModel  		-- parts management
+checklisController/ChecklistModel       		-- creating checklist
 RoutineMaintenanceController
-		/RoutineMaintenanceModel    	-- 
-RoutineWorkOrderModel					--
+		/RoutineMaintenanceModel    			-- 
+RoutineWorkOrderModel							--
 
 MaintenanceChecklistUpdateController.php
-	/MaintenanceChecklistUpdateModel.php  -- 
+	/MaintenanceChecklistUpdateModel.php  		-- 
 
 MaintenanceChecklistUpdateModel.php	
-	/MaintenanceChecklistUpdateController.php --
+	/MaintenanceChecklistUpdateController.php 	--
 	
 ChecklistTemplateModel.php
 		/ChecklistTemplateController.php

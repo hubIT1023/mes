@@ -9,35 +9,57 @@
 
 
 
+/app
+├── controllers/
+│   └── DashboardAdminController.php     				← Business logic & data prep
+├── models/
+│   ├── GroupModel.php
+│   ├── PageModel.php
+│   ├── AssetModel.php
+│   └── ToolStateModel.php               				← Keep existing model here
+├── middleware/
+│   ├── AuthMiddleware.php                         		← Session + auth check
+│   └── url.php                          				← is_active(), determineSelectedPage()
+├── views/
+│   ├── modals/
+│   │   ├── create_group_modal.php
+│   │   ├── update_group_modal.php
+│   │   ├── delete_group_modal.php
+│   │   ├── dashboard_page_modal.php
+│   │   └── add_entity_modal.php         				← For use in loop
+│   └── dashboard_admin.php              				← Pure HTML + variable output only
+
+
+
 f:\xamp_server\htdocs\mes\
 │
 ├── storage\
-│    └── error_logs\                -- save errors
-├── index.php                       -- Front Controller (all requests route through here)
-├── .htaccess                        -- Apache URL rewriting and security rules
-├── .env                             -- Environment variables (DB credentials, etc.)
+│    └── error_logs\                					-- save errors
+├── index.php                       					-- Front Controller (all requests route through here)
+├── .htaccess                        					-- Apache URL rewriting and security rules
+├── .env                             					-- Environment variables (DB credentials, etc.)
 └── app\
-    ├── routes.php                   -- Routing definitions (maps URLs to controllers/actions)
+    ├── routes.php                   					-- Routing definitions (maps URLs to controllers/actions)
     ├── config\
-    │   ├── EnvLoader.php            -- Loads environment variables from .env
-    │   └── Database.php             -- Database connection singleton (PDO)
+    │   ├── EnvLoader.php            					-- Loads environment variables from .env
+    │   └── Database.php             					-- Database connection singleton (PDO)
     ├── controllers\
-    │   ├── PagesController.php      -- Handles static pages (welcome, about, dashboard)
-    │   ├── ContactController.php    -- Contact form logic
-    │   ├── RegisterController.php   -- Organization/user registration
-    │   ├── SigninController.php     -- Login/logout and tenant portal
-    │   ├── AssetController.php      -- Asset creation & management
-    │   ├── AssetMaintenanceController.php -- Add/Edit asset maintenance
-    │   ├── ChecklistTemplateController.php -- CRUD for checklist templates
-    │   ├── ChecklistController.php  -- Manage checklist entries
-    │   ├── RoutineMaintenanceController.php -- Generate routine work orders, AJAX endpoints
+    │   ├── PagesController.php      					-- Handles static pages (welcome, about, dashboard)
+    │   ├── ContactController.php    					-- Contact form logic
+    │   ├── RegisterController.php   					-- Organization/user registration
+    │   ├── SigninController.php     					-- Login/logout and tenant portal
+    │   ├── AssetController.php      					-- Asset creation & management
+    │   ├── AssetMaintenanceController.php 				-- Add/Edit asset maintenance
+    │   ├── ChecklistTemplateController.php 			-- CRUD for checklist templates
+    │   ├── ChecklistController.php  					-- Manage checklist entries
+    │   ├── RoutineMaintenanceController.php 			-- Generate routine work orders, AJAX endpoints
 	│   ├── AssociateChecklistController.php
 	│   ├── ChecklistController.php
 	│   ├── ChecklistTemplateController.php
 	│   ├── MaintenanceChecklistController.php
 	│   ├── MaintenanceChecklistViewController.php
 	│   ├── MaintenanceChecklistUpdateController.php
-    │   └── MaintenanceDashboardController.php -- Upcoming maintenance dashboard
+    │   └── MaintenanceDashboardController.php 			-- Upcoming maintenance dashboard
     ├── models\
     │   ├── Contact.php
     │   ├── RegisterModel.php
@@ -50,34 +72,34 @@ f:\xamp_server\htdocs\mes\
 	│   ├──MaintenanceChecklistViewModel.php
 	│   ├──MaintenanceChecklistUpdateModel.php
 	│   ├── AssociateChecklistModel.php
-    │   └── RoutineMaintenanceModel.php -- Core logic for generating work orders
+    │   └── RoutineMaintenanceModel.php 				-- Core logic for generating work orders
     └── views\
 		├── assets\
-        │   └── css\              -- Custom CSS snippets for cards/forms
+        │   └── css\              						-- Custom CSS snippets for cards/forms
         ├── custom_cards\
-        │   └── form_css                 -- Custom CSS snippets for cards/forms
+        │   └── form_css                 				-- Custom CSS snippets for cards/forms
         ├── layouts\
         │   ├── header.php              
 		│   ├── footer.php                
-        │   └── js                       -- Global JS for forms/UX
+        │   └── js                       				-- Global JS for forms/UX
         ├── forms_bid\
-        │   └── addAssets.php            -- Form for bid assets
+        │   └── addAssets.php            				-- Form for bid assets
         ├── forms_mms\
-        │   ├── config_maint_form.php    -- (not in use)
-        │   ├── register_asset_modal.php -- Modal to register asset
-        │   ├── addAssets.php            -- Add MMS assets
-        │   ├── checklist_template.php   -- Checklist template CRUD form
-        │   ├── create_checklist.php     -- Create a checklist entry
-        │   ├── checklist_lists.php      -- List all checklists
-        │   ├── checklist_edit.php       -- Edit checklist entry
-        │   ├── routine_maintenance.php  -- Routine maintenance generation form
+        │   ├── config_maint_form.php    				-- (not in use)
+        │   ├── register_asset_modal.php 				-- Modal to register asset
+        │   ├── addAssets.php            				-- Add MMS assets
+        │   ├── checklist_template.php   				-- Checklist template CRUD form
+        │   ├── create_checklist.php     				-- Create a checklist entry
+        │   ├── checklist_lists.php      				-- List all checklists
+        │   ├── checklist_edit.php       				-- Edit checklist entry
+        │   ├── routine_maintenance.php  				-- Routine maintenance generation form
 		│   ├── maintenance_checklist.php  
 		│   ├── addMaintenance.php  
-        │   ├── routine_maintenance_preview.php -- Preview generated work orders
+        │   ├── routine_maintenance_preview.php 		-- Preview generated work orders
         │   └── (other future MMS forms)
         ├── welcome_page.php
         ├── about.php
         ├── contact.php
         ├── register.php
         ├── signin.php
-        └── hub_portal.php                -- Tenant dashboard / portal
+        └── hub_portal.php                				-- Tenant dashboard / portal

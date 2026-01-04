@@ -1,43 +1,44 @@
 <?php
 // index.php -- Front Controller
 
-require_once __DIR__ . '/app/helpers/logger.php';
+require_once __DIR__ . '/app/middleware/logger.php'; // optional logging helper
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$baseDir = __DIR__;
+$baseDir = __DIR__;      // project root
 $baseUrl = '/mes';
 
 // -------------------------------------------------
-// SINGLE, ENHANCED AUTOLOADER WITH DEBUGGING
+// SINGLE, ENHANCED AUTOLOADER
 // -------------------------------------------------
 spl_autoload_register(function ($class) use ($baseDir) {
     $paths = [
         "$baseDir/app/controllers/$class.php",
         "$baseDir/app/models/$class.php",
         "$baseDir/app/config/$class.php",
+        "$baseDir/app/middleware/$class.php",  // use middleware instead of helpers
     ];
 
-    $found = false;
     foreach ($paths as $path) {
         if (file_exists($path)) {
             require_once $path;
             error_log("[AUTOLOAD] Loaded class '$class' from $path");
-            $found = true;
-            break;
+            return;
         }
     }
 
-    if (!$found) {
-        error_log("[AUTOLOAD FAIL] Could not load class '$class'. Tried paths:\n" . implode("\n", $paths));
-
-        // Extra debug: list all controller files
-        $controllers = glob("$baseDir/app/controllers/*.php");
-        error_log("[AUTOLOAD INFO] Controllers present: " . implode(", ", $controllers));
-    }
+    error_log("[AUTOLOAD FAIL] Could not load class '$class'. Tried paths: " . implode(', ', $paths));
 });
+
+// -------------------------------------------------
+// CLI vs HTTP
+// -------------------------------------------------
+if (php_sapi_name() === 'cli') {
+    // Stop routing in CLI (for cron, scheduler scripts)
+    return;
+}
 
 // -------------------------------------------------
 // Parse URL & enforce base path
@@ -45,9 +46,7 @@ spl_autoload_register(function ($class) use ($baseDir) {
 $method = $_SERVER['REQUEST_METHOD'];
 $rawUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-if ($rawUri === $baseUrl) {
-    $rawUri .= '/';
-}
+if ($rawUri === $baseUrl) $rawUri .= '/';
 
 if (strpos($rawUri, $baseUrl) !== 0) {
     http_response_code(404);
@@ -60,7 +59,7 @@ $uri = rtrim($uri, '/') ?: '/';
 // -------------------------------------------------
 // Load routes
 // -------------------------------------------------
-$routesPath = $baseDir . '/app/routes.php';
+$routesPath = $baseDir . '/app/routes.php';  // routes.php is inside app/
 if (!file_exists($routesPath)) {
     error_log("Routes file not found: $routesPath");
     http_response_code(500);
@@ -85,11 +84,11 @@ foreach ($routes as $routePattern => $routeHandler) {
     if (count($parts) !== 2) continue;
 
     [$routeMethod, $routePath] = $parts;
-
     if ($routeMethod !== $method) continue;
 
     $regex = preg_quote($routePath, '/');
     $regex = preg_replace('/\\\(:num)/', '(\d+)', $regex);
+	//$regex = preg_replace('/\\\(:id)/', '(\d+)', $regex);
     $regex = '/^' . $regex . '$/i';
 
     if (!preg_match($regex, $uri, $matches)) continue;

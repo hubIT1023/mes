@@ -64,19 +64,19 @@ $demoRoutes = [
 
 // --- MMS / Forms ---
 $formMmsRoutes = [
-    'GET /form_mms/addAsset'              => ['AssetController', 'create'],
-    'POST /form_mms/addAsset'             => ['AssetController', 'store'],
-    'GET /form_mms/addMaintenance'        => ['AssetMaintenanceController', 'create'],
-    'POST /form_mms/addMaintenance'       => ['AssetMaintenanceController', 'store'],
-    'GET /form_mms/checklist_template'    => ['ChecklistTemplateController', 'create'],
-    'POST /form_mms/checklist_template'   => ['ChecklistTemplateController', 'store'],
-    'GET /form_mms/checklist_template/:id'=> ['ChecklistTemplateController', 'edit'],
-    'POST /form_mms/checklist_template/update'=> ['ChecklistTemplateController', 'update'],
-    'GET /form_mms/routine_maintenance'   => ['RoutineMaintenanceController', 'generateForm'],
-    'POST /form_mms/routine_maintenance'  => ['RoutineMaintenanceController', 'generate'],
-    'GET /form_mms/checklists'            => ['ChecklistController', 'index'],
-    'GET /form_mms/checklist_edit'        => ['ChecklistController', 'edit'],
-    'POST /form_mms/checklist_update'     => ['ChecklistController', 'update'],
+    'GET /form_mms/addAsset'              		=> ['AssetController', 'create'],
+    'POST /form_mms/addAsset'             		=> ['AssetController', 'store'],
+    'GET /form_mms/addMaintenance'        		=> ['AssetMaintenanceController', 'create'],
+    'POST /form_mms/addMaintenance'       		=> ['AssetMaintenanceController', 'store'],
+    'GET /form_mms/checklist_template'    		=> ['ChecklistTemplateController', 'create'],
+    'POST /form_mms/checklist_template'   		=> ['ChecklistTemplateController', 'store'],
+    'GET /form_mms/checklist_template/:id'		=> ['ChecklistTemplateController', 'edit'],
+    'POST /form_mms/checklist_template/update'	=> ['ChecklistTemplateController', 'update'],
+    'GET /form_mms/routine_maintenance'   		=> ['RoutineMaintenanceController', 'generateForm'],
+    'POST /form_mms/routine_maintenance'  		=> ['RoutineMaintenanceController', 'generate'],
+    'GET /form_mms/checklists'            		=> ['ChecklistController', 'index'],
+    'GET /form_mms/checklist_edit'        		=> ['ChecklistController', 'edit'],
+    'POST /form_mms/checklist_update'     		=> ['ChecklistController', 'update'],
 ];
 
 // --- Maintenance Checklist ---
@@ -100,6 +100,12 @@ $apiRoutes = [
     'GET /api/get_maintenance_type_by_work_order' => ['RoutineMaintenanceController', 'getMaintenanceTypeByWorkOrder'],
 ];
 
+// --- Scheduler Config (TBPM) ---
+$schedulerRoutes = [
+    'GET /form_mms/scheduler_config'         => ['SchedulerConfigController', 'edit'],
+    'POST /form_mms/scheduler_config_update'=> ['SchedulerConfigController', 'update'],
+];
+
 // --- Merge all routes ---
 return array_merge(
     $authRoutes,
@@ -112,5 +118,6 @@ return array_merge(
     $formMmsRoutes,
     $maintenanceChecklistRoutes,
     $machinePartsRoutes,
-    $apiRoutes
+    $apiRoutes,
+	$schedulerRoutes
 );

@@ -23,6 +23,7 @@ ADD CONSTRAINT UQ_organizations_email UNIQUE (email);
 -- Run this once in your PostgreSQL DB
 ALTER TABLE organizations 
 ADD COLUMN IF NOT EXISTS remember_token VARCHAR(64) NULL;
+
 /* =====================================================
    ASSETS (Multi-Tenant)
 ===================================================== */
@@ -439,3 +440,20 @@ CREATE TABLE machine_parts_list (
 );
 
 CREATE INDEX IX_parts_org_asset_entity ON machine_parts_list (org_id, asset_id, entity);
+
+/* =====================================================
+   TIME BASE SCHEDULER
+===================================================== */
+
+CREATE TABLE tbpm_schedule_config (
+    id SERIAL PRIMARY KEY,
+    tenant_id UUID NOT NULL,
+    maintenance_type VARCHAR(50) NOT NULL,
+    interval_days INT NOT NULL DEFAULT 30,
+    enabled BOOLEAN DEFAULT TRUE,
+    technician_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT FK_tbpm_tenant FOREIGN KEY (tenant_id) REFERENCES organizations(org_id)
+);
