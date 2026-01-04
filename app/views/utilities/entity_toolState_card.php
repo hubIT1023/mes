@@ -173,10 +173,17 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     <!-- Body -->
                     <div class="p-2 space-y-2">
                         <!-- WOF Due -->
-                        <div
+                        <!--div
                             class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-yellow-50 rounded hover:bg-yellow-100 cursor-pointer"
                             data-bs-toggle="modal"
                             data-bs-target="#LoadWorkModal"
+                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+                            aria-label="WOF Due for <?= htmlspecialchars($entityName) ?>"
+                        >
+                            WOF Due
+                        </div-->
+						 <div
+                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-yellow-50 rounded hover:bg-yellow-100 cursor-pointer"
                             <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
                             aria-label="WOF Due for <?= htmlspecialchars($entityName) ?>"
                         >
@@ -186,8 +193,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         <!-- Cal Due -->
                         <div
                             class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-blue-100 cursor-pointer"
-                            data-bs-toggle="modal"
-                            data-bs-target="#CalDueModal"
                             <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
                             aria-label="Calibration Due"
                         >
