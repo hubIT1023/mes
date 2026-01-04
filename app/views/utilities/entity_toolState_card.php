@@ -199,7 +199,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 							data-bs-target="#LoadWorkModal"
 							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
 							aria-label="Manage associated parts for <?= htmlspecialchars($entityName) ?>">
-							Load Work to RUN 
+							Load Work to Process 
 						</div>
 
 						<!-- State Badge Button -->
@@ -262,6 +262,30 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- =============================== -->
 <!-- Shared Modals (Outside Loop!) -->
 <!-- =============================== -->
+
+
+<!-- LOAD WORK TO RUN -->
+<div class="modal fade" id="LoadWorkModal" tabindex="-1">
+<div class="modal-dialog modal-sm modal-dialog-centered">
+<div class="modal-content">
+
+    <div class="modal-header bg-info">
+        <h6 class="modal-title">LOAD WORK TO PROCESS</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <div class="modal-body">
+        <input class="form-control mb-2" placeholder="Marial No.">
+        <input class="form-control mb-2" placeholder="Operator">
+        <!--input class="form-control mb-3" placeholder="Portals"-->
+        <button class="btn btn-primary w-100" data-bs-dismiss="modal">LOAD</button>
+    </div>
+
+</div>
+</div>
+</div>
+
+
 
 <!-- Modal: Add Machine Parts -->
 <div class="modal fade" id="associateAccessoriesModal" tabindex="-1">
