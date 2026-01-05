@@ -1,11 +1,9 @@
 <?php
 // /app/views/utilities/tool_card/entity_toolState_card.php
-
 if (!isset($group) || !isset($org_id) || !isset($conn)) {
     echo "<div class='alert alert-danger'>Error: Missing required context (group, org_id, or conn).</div>";
     return;
 }
-
 $groupCode = (int)($group['group_code'] ?? 0);
 $locationCode = (int)($group['location_code'] ?? 0);
 $locationName = htmlspecialchars($group['location_name'] ?? 'Unknown Location');
@@ -16,8 +14,8 @@ try {
         SELECT id, asset_id, entity, group_code, location_code, row_pos, col_pos
         FROM registered_tools
         WHERE group_code = :group_code
-          AND location_code = :location_code
-          AND org_id = :org_id
+        AND location_code = :location_code
+        AND org_id = :org_id
         ORDER BY row_pos, col_pos
     ");
     $stmt->execute([
@@ -37,8 +35,8 @@ try {
         SELECT col_2 AS entity, col_3 AS stop_cause
         FROM tool_state
         WHERE org_id = :org_id
-          AND group_code = :group_code
-          AND location_code = :location_code
+        AND group_code = :group_code
+        AND location_code = :location_code
     ");
     $stmt->execute([
         'org_id' => $org_id,
@@ -70,12 +68,10 @@ if (!function_exists('getStateBadge')) {
         if (isset($cache[$cacheKey])) {
             return $cache[$cacheKey];
         }
-
         $fallback = [
             'label' => strtoupper(trim($state)) ?: 'UNKNOWN',
             'class' => 'bg-gray-500'
         ];
-
         try {
             $stmt = $conn->prepare("SELECT label, tailwind_class FROM mode_color WHERE org_id = ? AND mode_key = ?");
             $stmt->execute([$org_id, strtoupper(trim($state))]);
@@ -85,7 +81,6 @@ if (!function_exists('getStateBadge')) {
             error_log("getStateBadge DB error: " . $e->getMessage());
             $result = $fallback;
         }
-
         $cache[$cacheKey] = $result;
         return $result;
     }
@@ -109,7 +104,6 @@ if (!function_exists('renderDataAttributes')) {
             'data-location-name' => htmlspecialchars($locationName),
             'data-date' => htmlspecialchars($dateTime),
         ];
-
         foreach ($attrs as $key => $val) {
             echo "$key=\"$val\" ";
         }
@@ -119,7 +113,6 @@ if (!function_exists('renderDataAttributes')) {
 // === Build grid ===
 $maxRow = 1;
 $grid = [];
-
 foreach ($entities as $entity) {
     $r = (int)$entity['row_pos'];
     $c = (int)$entity['col_pos'];
@@ -131,143 +124,130 @@ foreach ($entities as $entity) {
 
 // === CSRF Token Safety ===
 $csrfToken = $_SESSION['csrf_token'] ?? '';
+$currentDateTime = date('Y-m-d H:i:s');
 ?>
 
 <!-- Tool State Cards Grid -->
 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-4">
-    <?php for ($row = 1; $row <= $maxRow; $row++): ?>
-        <?php for ($col = 1; $col <= 9; $col++): ?>
-            <?php if (isset($grid[$row][$col])): ?>
-                <?php
-                $entity = $grid[$row][$col];
-                $assetId = $entity['asset_id'];
-                $entityName = $entity['entity'];
-                $currentDateTime = date('Y-m-d H:i:s');
-                $stopCause = $states[$entityName] ?? 'IDLE';
-                $badge = getStateBadge($stopCause, $conn, $org_id);
-                ?>
+<?php for ($row = 1; $row <= $maxRow; $row++): ?>
+<?php for ($col = 1; $col <= 9; $col++): ?>
+<?php if (isset($grid[$row][$col])): ?>
+<?php
+$entity = $grid[$row][$col];
+$assetId = $entity['asset_id'];
+$entityName = $entity['entity'];
+$stopCause = $states[$entityName] ?? 'IDLE';
+$badge = getStateBadge($stopCause, $conn, $org_id);
+?>
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <!-- Header -->
+    <div class="flex justify-between items-start p-2 border-b border-gray-100">
+        <button
+            class="flex-grow text-left text-sm font-semibold text-blue-700 hover:underline focus:outline-none"
+            data-bs-toggle="modal"
+            data-bs-target="#associateAcc-PartsModal"
+            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+            aria-label="View details for <?= htmlspecialchars($entityName) ?>"
+        >
+            <?= htmlspecialchars($entityName) ?>
+        </button>
+        <button
+            class="btn btn-sm btn-light text-primary flex-shrink-0 p-1"
+            data-bs-toggle="modal"
+            data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
+            aria-label="Edit position"
+        >
+            <i class="fas fa-edit text-sm"></i>
+        </button>
+    </div>
+    <!-- Body -->
+    <div class="p-2 space-y-2">
+        <!-- WOF Due -->
+        <div
+            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-yellow-50 rounded hover:bg-yellow-100 cursor-pointer"
+            data-bs-toggle="modal"
+            data-bs-target="#CalDueModal"
+            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+            aria-label="WOF Due for <?= htmlspecialchars($entityName) ?>"
+        >
+            WOF Due
+        </div>
+        <!-- Cal Due -->
+        <div
+            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-blue-100 cursor-pointer"
+            data-bs-toggle="modal"
+            data-bs-target="#CalDueModal"
+            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+            aria-label="Calibration Due"
+        >
+            Cal Due
+        </div>
+        <!-- Load Work -->
+        <div
+            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+            data-bs-toggle="modal"
+            data-bs-target="#LoadWorkModal"
+            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+            aria-label="Load work"
+        >
+            Load Work to Process
+        </div>
+        <!-- State Badge -->
+        <button
+            class="w-full py-2 text-white font-bold rounded transition-all hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 <?= htmlspecialchars($badge['class']) ?>"
+            data-bs-toggle="modal"
+            data-bs-target="#setMaintModal"
+            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+            aria-label="Current state: <?= htmlspecialchars($badge['label']) ?>"
+        >
+            <?= htmlspecialchars($badge['label']) ?>
+        </button>
+    </div>
+</div>
 
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <!-- Header -->
-                    <div class="flex justify-between items-start p-2 border-b border-gray-100">
-                        <button
-                            class="flex-grow text-left text-sm font-semibold text-blue-700 hover:underline focus:outline-none"
-                            data-bs-toggle="modal"
-                            data-bs-target="#associateAcc-PartsModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="View details for <?= htmlspecialchars($entityName) ?>"
-                        >
-                            <?= htmlspecialchars($entityName) ?>
-                            <!-- <div class="text-xs text-gray-500 mt-1">Pos: (<?= (int)$row ?>, <?= (int)$col ?>)</div> -->
-                        </button>
-                        <button
-                            class="btn btn-sm btn-light text-primary flex-shrink-0 p-1"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
-                            aria-label="Edit position"
-                        >
-                            <i class="fas fa-edit text-sm"></i>
-                        </button>
+<!-- Edit Position Modal -->
+<div class="modal fade" id="editPositionModal_<?= (int)$entity['id'] ?>" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="/mes/update-entity-position" method="POST">
+            <input type="hidden" name="entity_id" value="<?= (int)$entity['id'] ?>">
+            <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Move Location of <strong><?= htmlspecialchars($entityName) ?> </strong>to:</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label">Row</label>
+                            <input type="number" class="form-control" name="row_pos"
+                                   value="<?= (int)$entity['row_pos'] ?>" min="1" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Column</label>
+                            <input type="number" class="form-control" name="col_pos"
+                                   value="<?= (int)$entity['col_pos'] ?>" min="1" max="9" required>
+                        </div>
                     </div>
-
-                    <!-- Body -->
-                    <div class="p-2 space-y-2">
-                        <!-- WOF Due -->
-                        <!--div
-                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-yellow-50 rounded hover:bg-yellow-100 cursor-pointer"
-                            data-bs-toggle="modal"
-                            data-bs-target="#LoadWorkModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="WOF Due for <?= htmlspecialchars($entityName) ?>"
-                        >
-                            WOF Due
-                        </div-->
-						 <div
-                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-yellow-50 rounded hover:bg-yellow-100 cursor-pointer"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="WOF Due for <?= htmlspecialchars($entityName) ?>"
-                        >
-                            WOF Due
-                        </div>
-
-                        <!-- Cal Due -->
-                        <div
-                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-blue-100 cursor-pointer"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Calibration Due"
-                        >
-                            Cal Due
-                        </div>
-
-                        <!-- Load Work -->
-                        <div
-                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
-                            data-bs-toggle="modal"
-                            data-bs-target="#LoadWorkModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Load work"
-                        >
-                            Load Work to Process
-                        </div>
-
-                        <!-- State Badge -->
-                        <button
-                            class="w-full py-2 text-white font-bold rounded transition-all hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 <?= htmlspecialchars($badge['class']) ?>"
-                            data-bs-toggle="modal"
-                            data-bs-target="#setMaintModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Current state: <?= htmlspecialchars($badge['label']) ?>"
-                        >
-                            <?= htmlspecialchars($badge['label']) ?>
-                        </button>
+                    <div class="mt-3">
+                        <small class="text-muted">Columns 1–9 per row</small>
                     </div>
                 </div>
-
-                <!-- Edit Position Modal -->
-                <div class="modal fade" id="editPositionModal_<?= (int)$entity['id'] ?>" tabindex="-1">
-                    <div class="modal-dialog">
-                        <form action="/mes/update-entity-position" method="POST">
-                            <input type="hidden" name="entity_id" value="<?= (int)$entity['id'] ?>">
-                            <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-                            <div class="modal-content">
-                                
-								<div class="modal-header">
-                                    <h5 class="modal-title">Move Location of <strong><?= htmlspecialchars($entityName) ?> </strong>to:</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                
-								<div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <label class="form-label">Row</label>
-                                            <input type="number" class="form-control" name="row_pos"
-                                                   value="<?= (int)$entity['row_pos'] ?>" min="1" required>
-                                        </div>
-                                        <div class="col-6">
-                                            <label class="form-label">Column</label>
-                                            <input type="number" class="form-control" name="col_pos"
-                                                   value="<?= (int)$entity['col_pos'] ?>" min="1" max="9" required>
-                                        </div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <small class="text-muted">Columns 1–9 per row</small>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Move</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Move</button>
                 </div>
+            </div>
+        </form>
+    </div>
+</div>
 
-            <?php else: ?>
-			    <!-- Empty Box -->
-                <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg h-34 flex items-center justify-center"></div>
-            <?php endif; ?>
-        <?php endfor; ?>
-    <?php endfor; ?>
+<?php else: ?>
+<!-- Empty Box -->
+<div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg h-34 flex items-center justify-center"></div>
+<?php endif; ?>
+<?php endfor; ?>
+<?php endfor; ?>
 </div>
 
 <!-- =============================== -->
@@ -284,34 +264,25 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </div>
             <div class="modal-body p-0">
                 <div class="list-group list-group-flush">
-                    <button
-                        type="button"
-                        class="list-group-item list-group-item-action"
-                        data-bs-dismiss="modal"
-                        data-bs-toggle="modal"
-                        data-bs-target="#associateAccessoriesModal"
-                        data-use-stored-context="true"
-                    >
+                    <button type="button" class="list-group-item list-group-item-action"
+                            data-bs-dismiss="modal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#associateAccessoriesModal"
+                            data-use-stored-context="true">
                         ASSOCIATE ACCESSORIES
                     </button>
-                    <button
-                        type="button"
-                        class="list-group-item list-group-item-action"
-                        data-bs-dismiss="modal"
-                        data-bs-toggle="modal"
-                        data-bs-target="#associatePartsModal"
-                        data-use-stored-context="true"
-                    >
+                    <button type="button" class="list-group-item list-group-item-action"
+                            data-bs-dismiss="modal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#associatePartsModal"
+                            data-use-stored-context="true">
                         ASSOCIATE PARTS
                     </button>
-					<button
-                        type="button"
-                        class="list-group-item list-group-item-action"
-                        data-bs-dismiss="modal"
-                        data-bs-toggle="modal"
-                        data-bs-target="#listAccessoriesModal"
-                        data-use-stored-context="true"
-                    >
+                    <button type="button" class="list-group-item list-group-item-action"
+                            data-bs-dismiss="modal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#listAccessoriesModal"
+                            data-use-stored-context="true">
                         Associated Accessories
                     </button>
                 </div>
@@ -330,34 +301,25 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </div>
             <div class="modal-body p-0">
                 <div class="list-group list-group-flush">
-                    <button
-                        type="button"
-                        class="list-group-item list-group-item-action"
-                        data-bs-dismiss="modal"
-                        data-bs-toggle="modal"
-                        data-bs-target="#changeStateModal"
-                        data-use-stored-context="true"
-                    >
+                    <button type="button" class="list-group-item list-group-item-action"
+                            data-bs-dismiss="modal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#changeStateModal"
+                            data-use-stored-context="true">
                         Change State
                     </button>
-                    <button
-                        type="button"
-                        class="list-group-item list-group-item-action"
-                        data-bs-dismiss="modal"
-                        data-bs-toggle="modal"
-                        data-bs-target="#standingIssueModal"
-                        data-use-stored-context="true"
-                    >
+                    <button type="button" class="list-group-item list-group-item-action"
+                            data-bs-dismiss="modal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#standingIssueModal"
+                            data-use-stored-context="true">
                         Post Standing Issue
                     </button>
-                    <button
-                        type="button"
-                        class="list-group-item list-group-item-action"
-                        data-bs-dismiss="modal"
-                        data-bs-toggle="modal"
-                        data-bs-target="#MaintLogModal"
-                        data-use-stored-context="true"
-                    >
+                    <button type="button" class="list-group-item list-group-item-action"
+                            data-bs-dismiss="modal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#MaintLogModal"
+                            data-use-stored-context="true">
                         Maint Log
                     </button>
                 </div>
@@ -366,29 +328,51 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     </div>
 </div>
 
-<!-- ASSOCIATE ACCESSORIES (Simple version) -->
+<!-- ASSOCIATE ACCESSORIES -->
 <div class="modal fade" id="associateAccessoriesModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h6 class="modal-title">Associate Accessories</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="/mes/associate-accessories">
+            <form method="POST" action="/mes/associate-accessory">
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                     <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-                    <input type="hidden" name="parent_asset_id" id="acc_asset_id"> <!-- Renamed to avoid conflict -->
-                    <input type="hidden" name="parent_entity" id="acc_entity">
-                    
+                    <input type="hidden" name="group_code" id="acc_group_code">
+                    <input type="hidden" name="location_code" id="acc_location_code">
+                    <input type="hidden" name="col_1" id="acc_asset_id">
+                    <input type="hidden" name="col_2" id="acc_entity">
+                    <input type="hidden" name="col_6" id="acc_date_time">
+                    <input type="hidden" name="col_7" id="acc_start_time">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="acc_location" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Group</label>
+                            <input type="text" id="acc_group" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Date / Time</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Asset ID</label>
+                            <input type="text" id="acc_asset_id_display" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Entity</label>
+                            <input type="text" id="acc_entity_display" class="form-control" readonly />
+                        </div>
+                    </div>
                     <!-- Display parent entity -->
                     <div class="mb-3">
                         <label class="form-label">Parent Tool</label>
-                        <input class="form-control" type="text" id="acc_entity_display" readonly>
+                        <input class="form-control" type="text" id="acc_parent_display" readonly>
                     </div>
-
                     <p class="mb-2">Associate a new asset with this tool</p>
-                    
                     <!-- Child asset fields -->
                     <div class="mb-2">
                         <input class="form-control" name="child_asset_id" placeholder="Child Asset ID" required>
@@ -399,14 +383,12 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     <div class="mb-3">
                         <input class="form-control" name="operator" placeholder="Operator" required>
                     </div>
-                    
                     <button type="submit" class="btn btn-primary w-100">ASSOCIATE</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
 
 <!-- MAINTENANCE LOG -->
 <div class="modal fade" id="MaintLogModal" tabindex="-1" aria-labelledby="maintLogModalLabel" aria-hidden="true">
@@ -418,35 +400,48 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </div>
             <form method="POST" action="/mes/log-maintenance">
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                     <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-                    <input type="hidden" name="asset_id" id="maint_asset_id">
-                    <input type="hidden" name="entity" id="maint_entity">
+                    <input type="hidden" name="col_1" id="ml_asset_id">
+                    <input type="hidden" name="col_2" id="ml_entity">
+                    <input type="hidden" name="col_6" value="<?= htmlspecialchars($currentDateTime) ?>">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
-                    <!-- Parent Entity -->
-                    <div class="mb-3">
-                        <label for="maint_entity_display" class="form-label">Entity</label>
-                        <input type="text" class="form-control" id="maint_entity_display" readonly>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="ml_location" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Group</label>
+                            <input type="text" id="ml_group" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Date / Time</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
+                        </div>
                     </div>
-
-                    <!-- Issue -->
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Asset ID</label>
+                            <input type="text" id="ml_asset_id_display" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Entity</label>
+                            <input type="text" id="ml_entity_display" class="form-control" readonly />
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label for="issue" class="form-label">Issue</label>
                         <textarea class="form-control" id="issue" name="issue" rows="2" required></textarea>
                     </div>
-
-                    <!-- Action -->
                     <div class="mb-3">
                         <label for="action" class="form-label">Action Taken</label>
                         <textarea class="form-control" id="action" name="action" rows="2" required></textarea>
                     </div>
-
-                    <!-- Reported By -->
                     <div class="mb-3">
                         <label for="reported_by" class="form-label">Reported By</label>
                         <input type="text" class="form-control" id="reported_by" name="reported_by" placeholder="Enter your name" required>
                     </div>
-
                     <button type="submit" class="btn btn-primary w-100">Log Entry</button>
                 </div>
             </form>
@@ -455,9 +450,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div>
 
 <!-- LIST OF ASSOCIATED ACCESSORIES -->
-
-<!--Option A: PHP (if data is available server-side)-->
-
 <div class="modal fade" id="listAccessoriesModal" tabindex="-1" aria-labelledby="listAccessoriesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content">
@@ -466,32 +458,34 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Parent Tool -->
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Parent Tool</label>
-                    <input type="text" class="form-control" id="list_acc_entity_display" readonly>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label">Location</label>
+                        <input type="text" id="la_location" class="form-control" readonly />
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Group</label>
+                        <input type="text" id="la_group" class="form-control" readonly />
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Date / Time</label>
+                        <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
+                    </div>
                 </div>
-
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label">Asset ID</label>
+                        <input type="text" id="la_asset_id_display" class="form-control" readonly />
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Parent Tool</label>
+                        <input type="text" id="la_entity_display" class="form-control" readonly />
+                    </div>
+                </div>
                 <h6 class="mb-2">Attached Accessories</h6>
-
-                <!-- Dynamic List (Placeholder) -->
                 <ul id="accessoriesList" class="list-group">
-                    <!-- Example item (will be replaced by JS or PHP) -->
-                    <li class="list-group-item">Oscilloscope</li>
-                    <li class="list-group-item">Frequency Counter</li>
-                    <li class="list-group-item">Power Supply</li>
-                    <!-- If no accessories -->
-                    <!-- <li class="list-group-item text-muted">No accessories associated</li> -->
+                    <li class="list-group-item text-muted">Loading...</li>
                 </ul>
-
-                <!-- Optional: Add button if needed -->
-                <!-- 
-                <div class="mt-3 text-end">
-                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#associateAccessoriesModal">
-                        + Add Accessory
-                    </button>
-                </div>
-                -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -499,7 +493,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
         </div>
     </div>
 </div>
-
 
 <!-- LOAD WORK MODAL -->
 <div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-hidden="true">
@@ -509,17 +502,43 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                 <h6 class="modal-title">LOAD WORK TO PROCESS</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form>
+            <form method="POST" action="/mes/load-work">
+                <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                <input type="hidden" name="group_code" id="lw_group_code">
+                <input type="hidden" name="location_code" id="lw_location_code">
+                <input type="hidden" name="col_1" id="lw_asset_id">
+                <input type="hidden" name="col_2" id="lw_entity">
+                <input type="hidden" name="col_6" value="<?= htmlspecialchars($currentDateTime) ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-                    <input type="hidden" name="asset_id" id="lw_asset_id">
-                    <input type="hidden" name="entity" id="lw_entity">
-                    <input type="hidden" name="group_code" id="lw_group_code">
-                    <input type="hidden" name="location_code" id="lw_location_code">
-                    <input class="form-control mb-2" placeholder="Material No." required>
-                    <input class="form-control mb-2" type="number" placeholder="Quantity" min="1" required>
-                    <input class="form-control mb-2" placeholder="Operator" required>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="lw_location" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Group</label>
+                            <input type="text" id="lw_group" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Date / Time</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Asset ID</label>
+                            <input type="text" id="lw_asset_id_display" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Entity</label>
+                            <input type="text" id="lw_entity_display" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <input class="form-control mb-2" name="material_no" placeholder="Material No." required>
+                    <input class="form-control mb-2" type="number" name="quantity" placeholder="Quantity" min="1" required>
+                    <input class="form-control mb-2" name="operator" placeholder="Operator" required>
                     <button type="submit" class="btn btn-primary w-100">LOAD</button>
                 </div>
             </form>
@@ -551,17 +570,47 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                 <h5 class="modal-title">Post Standing Issue</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form>
+            <form method="POST" action="/mes/post-standing-issue">
+                <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                <input type="hidden" name="group_code" id="si_group_code">
+                <input type="hidden" name="location_code" id="si_location_code">
+                <input type="hidden" name="col_1" id="si_asset_id">
+                <input type="hidden" name="col_2" id="si_entity">
+                <input type="hidden" name="col_6" value="<?= htmlspecialchars($currentDateTime) ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="asset_id" id="si_asset_id">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="si_location" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Group</label>
+                            <input type="text" id="si_group" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Date / Time</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Asset ID</label>
+                            <input type="text" id="si_asset_id_display" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Entity</label>
+                            <input type="text" id="si_entity_display" class="form-control" readonly />
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Issue Description</label>
-                        <textarea class="form-control" rows="3" required></textarea>
+                        <textarea class="form-control" name="issue_description" rows="3" required></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Reported By</label>
-                        <input class="form-control" placeholder="Your name" required>
+                        <input class="form-control" name="reported_by" placeholder="Your name" required>
                     </div>
                     <button type="submit" class="btn btn-danger w-100">Post Issue</button>
                 </div>
@@ -570,7 +619,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     </div>
 </div>
 
-<!-- ASSOCIATE PARTS MODAL (Full Form) -->
+<!-- ASSOCIATE PARTS MODAL -->
 <div class="modal fade" id="associatePartsModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <form id="AddPartsForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
@@ -587,6 +636,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     <input type="hidden" name="group_code" id="ap_modal_group_code">
                     <input type="hidden" name="location_code" id="ap_modal_location_code">
                     <input type="hidden" name="col_1" id="ap_modal_asset_id">
+                    <input type="hidden" name="col_2" id="ap_modal_entity">
                     <input type="hidden" name="col_6" id="ap_modal_date_time">
                     <input type="hidden" name="col_7" id="ap_modal_start_time">
 
@@ -596,11 +646,10 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <input type="text" id="ap_modal_location" class="form-control" readonly />
                         </div>
                     </div>
-
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">Entity</label>
-                            <input type="text" id="ap_ipt_entity" name="col_2" class="form-control" readonly />
+                            <input type="text" id="ap_ipt_entity" class="form-control" readonly />
                         </div>
                         <div class="col">
                             <label class="form-label">Asset ID</label>
@@ -611,9 +660,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <input type="text" name="mfg_code" class="form-control" placeholder="ex. Akim">
                         </div>
                     </div>
-
                     <hr class="divider my-0 mb-3">
-
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">Part ID *</label>
@@ -624,7 +671,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <input type="text" name="part_name" class="form-control" required>
                         </div>
                     </div>
-
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">Serial No</label>
@@ -635,7 +681,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <input type="text" name="vendor_id" class="form-control">
                         </div>
                     </div>
-
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">SAP Code</label>
@@ -651,17 +696,14 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             </select>
                         </div>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Description</label>
                         <textarea name="description" class="form-control"></textarea>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Part Image (Optional)</label>
                         <input type="file" name="part_image" class="form-control" accept="image/*">
                     </div>
-
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">Added By *</label>
@@ -669,7 +711,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         </div>
                         <div class="col">
                             <label class="form-label">Date / Time</label>
-                            <input type="text" class="form-control" id="ap_modal_datetime_display" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>" readonly />
+                            <input type="text" class="form-control" id="ap_modal_datetime_display" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
                         </div>
                     </div>
                 </div>
@@ -699,6 +741,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     <input type="hidden" name="group_code" id="ts_modal_group_code">
                     <input type="hidden" name="location_code" id="ts_modal_location_code">
                     <input type="hidden" name="col_1" id="ts_modal_asset_id">
+                    <input type="hidden" name="col_2" id="ts_modal_entity">
                     <input type="hidden" name="col_6" id="ts_modal_date_time">
                     <input type="hidden" name="col_7" id="ts_modal_start_time">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
@@ -714,10 +757,9 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         </div>
                         <div class="col">
                             <label class="form-label">Date / Time</label>
-                            <input type="text" class="form-control" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>" readonly />
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
                         </div>
                     </div>
-
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">Asset ID</label>
@@ -725,10 +767,9 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         </div>
                         <div class="col">
                             <label class="form-label">Entity</label>
-                            <input type="text" id="ts_ipt_entity" name="col_2" class="form-control" readonly />
+                            <input type="text" id="ts_ipt_entity" class="form-control" readonly />
                         </div>
                     </div>
-
                     <div class="row mb-3">
                         <div class="col">
                             <select id="ts_modal_stopcause" name="col_3" class="form-control" required onchange="handleStopCauseChange(this.value)">
@@ -740,12 +781,10 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             </select>
                         </div>
                     </div>
-
                     <div class="mb-3" id="customInputContainer" style="display:none;">
                         <label class="form-label">Custom Stop Cause</label>
-                        <input type="text" id="ts_customInput" class="form-control" name="col_3" />
+                        <input type="text" id="ts_customInput" class="form-control" name="col_3_custom" />
                     </div>
-
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">Issue(s)</label>
@@ -758,7 +797,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <datalist id="actionOptions"></datalist>
                         </div>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Posted By</label>
                         <input type="text" name="col_8" id="ts_posted_by" class="form-control" placeholder="Type Your Name" required>
@@ -780,7 +818,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <script>
 let currentEntityContext = null;
 
-// Capture context from ANY button with data attributes
 function captureContextFromButton(btn) {
     return {
         assetId: btn.getAttribute('data-asset-id'),
@@ -792,99 +829,93 @@ function captureContextFromButton(btn) {
     };
 }
 
-// Handle both setMaintModal and associateAcc-PartsModal
 ['setMaintModal', 'associateAcc-PartsModal'].forEach(modalId => {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.addEventListener('show.bs.modal', function (event) {
             const btn = event.relatedTarget;
-            if (btn.hasAttribute('data-asset-id')) {
+            if (btn && btn.hasAttribute('data-asset-id')) {
                 currentEntityContext = captureContextFromButton(btn);
             }
         });
     }
 });
 
-// Handle all action modals
 const actionModals = [
     'changeStateModal', 'standingIssueModal', 'associateAccessoriesModal',
-    'associatePartsModal', 'LoadWorkModal'
+    'associatePartsModal', 'LoadWorkModal', 'listAccessoriesModal'
 ];
-
 actionModals.forEach(modalId => {
     const modal = document.getElementById(modalId);
     if (!modal) return;
-
     modal.addEventListener('show.bs.modal', function (event) {
         const btn = event.relatedTarget;
-
-        // Direct trigger
-        if (btn.hasAttribute('data-asset-id')) {
-            currentEntityContext = captureContextFromButton(btn);
+        let ctx = null;
+        if (btn && btn.hasAttribute('data-asset-id')) {
+            ctx = captureContextFromButton(btn);
+            currentEntityContext = ctx;
+        } else if (btn && btn.hasAttribute('data-use-stored-context') && currentEntityContext) {
+            ctx = currentEntityContext;
         }
+        if (!ctx) return;
 
-        // From gateway modals
-        if (btn.hasAttribute('data-use-stored-context') && currentEntityContext) {
-            const ctx = currentEntityContext;
-            const prefixMap = {
-                'LoadWorkModal': 'lw',
-                'standingIssueModal': 'si',
-                'associateAccessoriesModal': 'acc',
-                'associatePartsModal': 'ap'
-            };
+        // Unified field mapping
+        const map = {
+            'assetId': ['asset_id', 'col_1', 'asset_id_display'],
+            'entity': ['entity', 'col_2', 'entity_display'],
+            'groupCode': ['group_code'],
+            'locationCode': ['location_code'],
+            'locationName': ['location'],
+            'dateTime': ['date_time', 'start_time', 'datetime_display']
+        };
 
-            // Handle simple modals
-            if (modalId === 'LoadWorkModal') {
-                document.getElementById('lw_asset_id').value = ctx.assetId;
-                document.getElementById('lw_entity').value = ctx.entity;
-                document.getElementById('lw_group_code').value = ctx.groupCode;
-                document.getElementById('lw_location_code').value = ctx.locationCode;
-            } else if (modalId === 'standingIssueModal') {
-                document.getElementById('si_asset_id').value = ctx.assetId;
-            } else if (modalId === 'associateAccessoriesModal') {
-                document.getElementById('acc_asset_id').value = ctx.assetId;
-                document.getElementById('acc_entity').value = ctx.entity;
-                document.getElementById('acc_entity_display').value = ctx.entity;
-            }
-            // Handle full-form modals
-            else if (modalId === 'associatePartsModal') {
-                document.getElementById('ap_ipt_entity').value = ctx.entity;
-                document.getElementById('ap_modal_asset_id').value = ctx.assetId;
-                document.getElementById('ap_modal_asset_id_display').value = ctx.assetId;
-                document.getElementById('ap_modal_group_code').value = ctx.groupCode;
-                document.getElementById('ap_modal_location_code').value = ctx.locationCode;
-                document.getElementById('ap_modal_location').value = ctx.locationName;
-                document.getElementById('ap_modal_date_time').value = ctx.dateTime;
-                document.getElementById('ap_modal_start_time').value = ctx.dateTime;
-                document.getElementById('ap_modal_asset_id_hidden').value = ctx.assetId;
-                document.getElementById('ap_modal_entity_hidden').value = ctx.entity;
-                document.getElementById('associatePartsModalLabel').textContent = 'Add Part to: ' + ctx.entity;
-            } else if (modalId === 'changeStateModal') {
-                document.getElementById('ts_ipt_entity').value = ctx.entity;
-                document.getElementById('ts_modal_asset_id').value = ctx.assetId;
-                document.getElementById('ts_modal_asset_id_display').value = ctx.assetId;
-                document.getElementById('ts_modal_group_code').value = ctx.groupCode;
-                document.getElementById('ts_modal_location_code').value = ctx.locationCode;
-                document.getElementById('ts_modal_location').value = ctx.locationName;
-                document.getElementById('ts_modal_group').value = ctx.groupCode;
-                document.getElementById('ts_modal_date_time').value = ctx.dateTime;
-                document.getElementById('ts_modal_start_time').value = ctx.dateTime;
-                document.getElementById('changeStateModalLabel').textContent = 'Change Mode: ' + ctx.entity;
-            }
+        const prefixes = {
+            'associateAccessoriesModal': 'acc',
+            'associatePartsModal': 'ap',
+            'LoadWorkModal': 'lw',
+            'standingIssueModal': 'si',
+            'MaintLogModal': 'ml',
+            'changeStateModal': 'ts',
+            'listAccessoriesModal': 'la'
+        };
+        const prefix = prefixes[modalId] || '';
+
+        Object.entries(map).forEach(([key, fields]) => {
+            const value = ctx[key];
+            fields.forEach(field => {
+                let id = prefix ? `${prefix}_${field}` : field;
+                const el = document.getElementById(id);
+                if (el) el.value = value;
+                // Also try with 'modal_' prefix fallback
+                if (!el && prefix) {
+                    const altId = `ts_modal_${field}`;
+                    const altEl = document.getElementById(altId);
+                    if (altEl) altEl.value = value;
+                }
+            });
+        });
+
+        // Special modal title updates
+        if (modalId === 'associatePartsModal') {
+            document.getElementById('associatePartsModalLabel').textContent = 'Add Part to: ' + ctx.entity;
+        } else if (modalId === 'changeStateModal') {
+            document.getElementById('changeStateModalLabel').textContent = 'Change Mode: ' + ctx.entity;
         }
     });
 });
 
 function handleStopCauseChange(value) {
     const container = document.getElementById('customInputContainer');
+    const customInput = document.getElementById('ts_customInput');
+    const select = document.getElementById('ts_modal_stopcause');
     if (value === 'CUSTOM') {
         container.style.display = 'block';
-        document.getElementById('ts_customInput').setAttribute('name', 'col_3');
-        document.querySelector('#ts_modal_stopcause').removeAttribute('name');
+        customInput.setAttribute('name', 'col_3_custom');
+        select.removeAttribute('name');
     } else {
         container.style.display = 'none';
-        document.getElementById('ts_customInput').removeAttribute('name');
-        document.querySelector('#ts_modal_stopcause').setAttribute('name', 'col_3');
+        customInput.removeAttribute('name');
+        select.setAttribute('name', 'col_3');
     }
 }
 </script>
