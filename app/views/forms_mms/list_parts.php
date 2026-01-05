@@ -2,383 +2,266 @@
 
 <style>
 /* ======================= */
-/* Desktop: Grid Layout */
+/* Modern Grid Design      */
 /* ======================= */
+:root {
+    --primary-blue: #3498db;
+    --border-color: #e0e6ed;
+    --bg-light: #f8f9fa;
+}
+
 .rs-card {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     background: #fff;
-    padding: 16px;
+    padding: 20px;
     display: grid;
-    grid-template-columns: 60px 1fr 2fr auto; /* Image | Info | Description | Actions */
-    gap: 16px;
-    align-items: start;
-    transition: box-shadow 0.2s;
+    grid-template-columns: 80px 1.2fr 2fr 130px; /* Image | Info | Description | Actions */
+    gap: 24px;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    margin-bottom: 1rem;
 }
 
 .rs-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    border-color: var(--primary-blue);
+    transform: translateY(-2px);
+}
+
+/* ======================= */
+/* Enhanced Image Zoom     */
+/* ======================= */
+.rs-image-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    z-index: 5;
 }
 
 .rs-image {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     border: 1px solid #ddd;
-    border-radius: 4px;
-    background: #f8f9fa;
+    border-radius: 8px;
+    background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
     color: #6c757d;
-}
-
-.rs-info-title {
-    margin: 0 0 4px 0;
-    font-size: 1rem;
-    font-weight: bold;
-}
-.rs-info-subtitle {
-    margin: 0 0 8px 0;
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-.rs-meta {
-    font-size: 0.75rem;
-    color: #495057;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.rs-description {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 12px;
-    min-height: 80px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    position: relative;
-}
-.rs-description:hover::after {
-    content: "✏️";
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    font-size: 0.9em;
-    opacity: 0.6;
-}
-.rs-description.editing {
-    cursor: default;
-}
-.rs-description.editing::after {
-    display: none;
-}
-.rs-description-text {
-    white-space: pre-line;
-}
-.rs-description-input {
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 0.875rem;
-}
-.rs-edit-controls {
-    margin-top: 8px;
-}
-
-/* Actions Column */
-.rs-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-end;
-}
-.rs-badge {
-    font-size: 0.75rem;
-    font-weight: bold;
-    padding: 4px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    text-align: center;
-    min-width: 70px;
-}
-.badge-high { background: #dc3545; color: white; }
-.badge-medium { background: #ffc107; color: #212529; }
-.badge-low { background: #28a745; color: white; }
-.btn-action {
-    width: 80px;
-    font-size: 0.75rem;
-    padding: 4px 8px;
-    border-radius: 4px;
-}
-
-/* ======================= */
-/* Mobile Layout (≤576px) */
-/* ======================= */
-@media (max-width: 576px) {
-    .rs-card {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding: 12px;
-    }
-
-    .rs-image {
-        width: 100%;
-        max-width: 100px;
-        margin: 0 auto;
-    }
-
-    .rs-description-section,
-    .rs-description,
-    .rs-description-input {
-        width: 100%;
-    }
-
-    .rs-edit-controls {
-        flex-direction: row;
-        justify-content: flex-start;
-        gap: 8px;
-        width: 100%;
-    }
-
-    /* Actions: Badge + buttons in a row */
-    .rs-actions {
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
-    }
-
-    .rs-badge {
-        flex-shrink: 0;
-    }
-
-    .btn-action,
-    .rs-actions form {
-        flex: 1 1 auto;
-        min-width: auto;
-    }
-}
-
-/* ... your existing CSS ... */
-
-/* Zoomable image container */
-.rs-image-container {
-    position: relative;
-    display: inline-block; /* or block, depending on layout */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: zoom-in;
 }
 
-/* Zoom effect on hover/focus */
-.rs-image-container:hover .rs-image,
-.rs-image-container:focus .rs-image {
-    transform: scale(2.5); /* Adjust zoom level (e.g., 2.5x) */
-    z-index: 10;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+.rs-image-container:hover .rs-image {
+    transform: scale(2.5);
+    z-index: 50;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* ======================= */
+/* Content & Typography    */
+/* ======================= */
+.rs-info-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+.rs-info-subtitle {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.rs-meta span {
+    display: block;
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    line-height: 1.5;
+}
+
+/* Inline Edit Area */
+.rs-description {
+    background: #fafafa;
+    border: 1px dashed #cbd5e0;
     border-radius: 8px;
-}
-
-/* Ensure the image can be transformed */
-.rs-image {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: #6c757d;
-    /* Add transition for smooth zoom */
-    transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0.3s ease;
-    /* Ensure it can be layered above others */
+    padding: 12px;
+    min-height: 90px;
+    font-size: 0.875rem;
+    cursor: text;
     position: relative;
+    transition: background 0.2s;
 }
 
-/* Optional: Improve mobile touch experience */
-@media (hover: none) and (pointer: coarse) {
-    .rs-image-container {
-        cursor: pointer;
-    }
-    /* Use :active for immediate feedback on touch */
-    .rs-image-container:active .rs-image {
-        transform: scale(2.5);
-        z-index: 10;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-        border-radius: 8px;
-    }
+.rs-description:hover {
+    background: #fffdf5;
+    border-style: solid;
 }
 
+.rs-description:hover::after {
+    content: "Edit Details ✎";
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    font-size: 0.75rem;
+    color: var(--primary-blue);
+}
+
+/* Badges & Actions */
+.rs-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rs-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 5px;
+    border-radius: 6px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+.badge-high { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+.badge-medium { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+.badge-low { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+
+/* Mobile Adjustments */
+@media (max-width: 992px) {
+    .rs-card {
+        grid-template-columns: 80px 1fr 1fr;
+    }
+    .rs-actions { grid-column: span 3; flex-direction: row; }
+}
+
+@media (max-width: 576px) {
+    .rs-card { display: flex; flex-direction: column; align-items: flex-start; }
+    .rs-image-container { align-self: center; width: 120px; height: 120px; }
+    .rs-actions { width: 100%; }
+    .rs-actions .btn { flex: 1; }
+}
 </style>
 
 <div class="container mt-4">
-	<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-    <!-- Left: Page Title -->
-    <h2 class="mb-0">Machine Parts Inventory</h2>
-
-    <!-- Right: Breadcrumb -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="/mes/dashboard_admin">Dasboard</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Machine Parts</li>
-        </ol>
-    </nav>
-	</div>
-
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?= htmlspecialchars($_SESSION['success']) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Machine Parts Inventory</h2>
+            <p class="text-muted small">Manage and track critical spare parts</p>
         </div>
-        <?php unset($_SESSION['success']); ?>
-    <?php endif; ?>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-light p-2 px-3 rounded shadow-sm">
+                <li class="breadcrumb-item"><a href="/mes/dashboard_admin">Dashboard</a></li>
+                <li class="breadcrumb-item active">Machine Parts</li>
+            </ol>
+        </nav>
+    </div>
 
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <?= htmlspecialchars($_SESSION['error']) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <?php foreach (['success' => 'alert-success', 'error' => 'alert-danger'] as $key => $class): ?>
+        <?php if (isset($_SESSION[$key])): ?>
+            <div class="alert <?= $class ?> alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas <?= $key === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle' ?> me-2"></i>
+                <?= htmlspecialchars($_SESSION[$key]) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <?php unset($_SESSION[$key]); ?>
+        <?php endif; ?>
+    <?php endforeach; ?>
+
+    <div class="card border-0 shadow-sm mb-5 bg-light">
+        <div class="card-body">
+            <form method="GET" action="/mes/parts-list" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small">Entity</label>
+                    <select name="entity" class="form-select border-0 shadow-sm">
+                        <option value="">All Entities</option>
+                        <?php foreach ($entities as $ent): ?>
+                            <option value="<?= htmlspecialchars($ent) ?>" <?= (($_GET['entity'] ?? '') === $ent) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($ent) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small">Part Name</label>
+                    <input type="text" name="part_name" class="form-control border-0 shadow-sm" value="<?= htmlspecialchars($_GET['part_name'] ?? '') ?>" placeholder="Search name...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">Part ID</label>
+                    <input type="text" name="part_id" class="form-control border-0 shadow-sm" value="<?= htmlspecialchars($_GET['part_id'] ?? '') ?>" placeholder="ID...">
+                </div>
+                <div class="col-md-4 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm w-100">Apply Filters</button>
+                    <a href="/mes/parts-list" class="btn btn-outline-secondary w-100">Clear</a>
+                </div>
+            </form>
         </div>
-        <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
+    </div>
 
-    <!-- Filter Form -->
-    <form method="GET" action="/mes/parts-list" class="row g-3 mb-5">
-        <div class="col-md-3">
-            <label class="form-label fw-bold">Entity</label>
-            <select name="entity" class="form-select">
-                <option value="">All Entities</option>
-                <?php foreach ($entities as $ent): ?>
-                    <option value="<?= htmlspecialchars($ent) ?>" 
-                            <?= (($_GET['entity'] ?? '') === $ent) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($ent) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-
-        <div class="col-md-3">
-            <label class="form-label fw-bold">Part Name</label>
-            <input type="text" name="part_name" class="form-control" 
-                   value="<?= htmlspecialchars($_GET['part_name'] ?? '') ?>" 
-                   placeholder="e.g., Solenoid Valve">
-        </div>
-
-        <div class="col-md-2">
-            <label class="form-label fw-bold">Part ID</label>
-            <input type="text" name="part_id" class="form-control" 
-                   value="<?= htmlspecialchars($_GET['part_id'] ?? '') ?>" 
-                   placeholder="e.g., RS-873-2506">
-        </div>
-
-        <div class="col-md-2">
-            <label class="form-label fw-bold">Vendor</label>
-            <input type="text" name="vendor_id" class="form-control" 
-                   value="<?= htmlspecialchars($_GET['vendor_id'] ?? '') ?>" 
-                   placeholder="e.g., SMC">
-        </div>
-
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
-            <a href="/mes/parts-list" class="btn btn-outline-secondary">Clear</a>
-        </div>
-    </form>
-
-    <!-- Results -->
     <?php if (empty($parts)): ?>
         <div class="text-center py-5">
-            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No parts found</h5>
-            <p class="text-muted">
-                <?= !empty(array_filter($_GET)) ? 'Try adjusting your filters.' : 'Add parts from the dashboard.' ?>
-            </p>
+            <i class="fas fa-box-open fa-4x text-light mb-3"></i>
+            <h4 class="text-muted">No matching parts found</h4>
         </div>
     <?php else: ?>
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="mb-0">Results (<?= count($parts) ?> parts)</h5>
-            <a href="/mes/parts-list" class="btn btn-sm btn-outline-secondary">Refresh</a>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0 text-muted">Showing <?= count($parts) ?> results</h5>
         </div>
 
-        <div class="row g-4">
+        <div class="row">
             <?php foreach ($parts as $part): ?>
                 <div class="col-12">
                     <div class="rs-card">
-                        <!-- Column 1: Image -->
                         <div class="rs-image-container">
-							<?php
-							$imagePath = $part['image_path'] ?? '';
-							if ($imagePath && file_exists($_SERVER['DOCUMENT_ROOT'] . $imagePath)): ?>
-								<img src="<?= htmlspecialchars($imagePath) ?>" alt="Part Image" class="rs-image">
-							<?php else: ?>
-								<div class="rs-image"><i class="fas fa-cube"></i></div>
-							<?php endif; ?>
-						</div>
-                        <!-- Column 2: RS Info -->
+                            <?php 
+                            $img = $part['image_path'] ?? '';
+                            if ($img && file_exists($_SERVER['DOCUMENT_ROOT'] . $img)): ?>
+                                <img src="<?= htmlspecialchars($img) ?>" alt="Part" class="rs-image shadow-sm">
+                            <?php else: ?>
+                                <div class="rs-image bg-light border"><i class="fas fa-microchip opacity-25"></i></div>
+                            <?php endif; ?>
+                        </div>
+
                         <div>
-                            <h5 class="rs-info-title">Model No. <?= htmlspecialchars($part['part_id']) ?></h5>
-                            <p class="rs-info-subtitle"><?= htmlspecialchars($part['part_name']) ?></p>
-                            <div class="rs-meta">
+                            <span class="badge bg-light text-dark border mb-1">#<?= htmlspecialchars($part['part_id']) ?></span>
+                            <h5 class="rs-info-title"><?= htmlspecialchars($part['part_name']) ?></h5>
+                            <div class="rs-meta mt-2">
                                 <span><strong>Entity:</strong> <?= htmlspecialchars($part['entity']) ?></span>
-                                <span><strong>Serial:</strong> <?= htmlspecialchars($part['serial_no'] ?? '—') ?></span>
                                 <span><strong>Vendor:</strong> <?= htmlspecialchars($part['vendor_id'] ?? '—') ?></span>
+                                <span class="text-primary fw-bold mt-1">Stock: <?= (int)$part['parts_available_on_hand'] ?> units</span>
                             </div>
                         </div>
 
-                        <!-- Column 3: Description (Inline Edit) -->
-						<div class="rs-description-section">
-							<label class="form-label fw-bold mb-2">Details</label>
-							<div class="rs-description" data-part-id="<?= (int)$part['id'] ?>">
-								<div class="rs-description-text">
-									<?= nl2br(htmlspecialchars($part['description'] ?? 'Click to add description.')) ?>
-								</div>
-								<textarea class="rs-description-input d-none form-control" rows="4"
-									data-original="<?= htmlspecialchars($part['description'] ?? '') ?>"
-								><?= htmlspecialchars($part['description'] ?? '') ?></textarea>
-								<div class="rs-edit-controls d-none mt-2">
-									<button type="button" class="btn btn-sm btn-primary btn-save-desc">Save</button>
-									<button type="button" class="btn btn-sm btn-outline-secondary btn-cancel-desc">Cancel</button>
-								</div>
-							</div>
-						</div>
+                        <div class="rs-description-section">
+                            <div class="rs-description shadow-sm" data-part-id="<?= (int)$part['id'] ?>">
+                                <div class="rs-description-text text-muted">
+                                    <?= nl2br(htmlspecialchars($part['description'] ?? 'No description provided.')) ?>
+                                </div>
+                                <textarea class="rs-description-input d-none form-control" rows="4" 
+                                          data-original="<?= htmlspecialchars($part['description'] ?? '') ?>"><?= htmlspecialchars($part['description'] ?? '') ?></textarea>
+                                <div class="rs-edit-controls d-none mt-2">
+                                    <button class="btn btn-sm btn-primary btn-save-desc">Save</button>
+                                    <button class="btn btn-sm btn-link text-muted btn-cancel-desc">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
 
-                        <!-- Column 4: Badge + Buttons -->
                         <div class="rs-actions">
-                            <span class="rs-badge <?= 
-                                $part['category'] === 'HIGH' ? 'badge-high' : 
-                                ($part['category'] === 'MEDIUM' ? 'badge-medium' : 'badge-low') 
-                            ?>">
-                                <?= htmlspecialchars($part['category'] ?? 'LOW') ?>
-                            </span>
-                            <!-- Replace the Edit button in .rs-actions -->
-							<button type="button" 
-									class="btn btn-sm btn-outline-primary btn-action"
-									data-bs-toggle="modal" 
-									data-bs-target="#editPartModal"
-									data-part-id="<?= (int)$part['id'] ?>"
-									data-asset-id="<?= htmlspecialchars($part['asset_id']) ?>"
-									data-entity="<?= htmlspecialchars($part['entity']) ?>"
-									data-part-id-field="<?= htmlspecialchars($part['part_id']) ?>"
-									data-part-name="<?= htmlspecialchars($part['part_name']) ?>"
-									data-serial-no="<?= htmlspecialchars($part['serial_no'] ?? '') ?>"
-									data-vendor-id="<?= htmlspecialchars($part['vendor_id'] ?? '') ?>"
-									data-mfg-code="<?= htmlspecialchars($part['mfg_code'] ?? '') ?>"
-									data-sap-code="<?= htmlspecialchars($part['sap_code'] ?? '') ?>"
-									data-category="<?= htmlspecialchars($part['category'] ?? 'LOW') ?>"
-									data-parts-available="<?= (int)($part['parts_available_on_hand'] ?? 0) ?>"
-									data-description="<?= htmlspecialchars($part['description'] ?? '') ?>">
-								Edit
-							</button>
-                            <form method="POST" action="/mes/machine-parts/delete" 
-                                  onsubmit="return confirm('Delete this part?')">
+                            <div class="rs-badge <?= $part['category'] === 'HIGH' ? 'badge-high' : ($part['category'] === 'MEDIUM' ? 'badge-medium' : 'badge-low') ?>">
+                                <?= htmlspecialchars($part['category'] ?? 'LOW') ?> PRIORITY
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editPartModal"
+                                    data-part-json='<?= json_encode($part, JSON_HEX_APOS) ?>'>
+                                <i class="fas fa-edit me-1"></i> Full Edit
+                            </button>
+                            <form method="POST" action="/mes/machine-parts/delete" onsubmit="return confirm('Permanently delete this part?')">
                                 <input type="hidden" name="id" value="<?= (int)$part['id'] ?>">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-danger btn-action">
-                                    Delete
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                    <i class="fas fa-trash me-1"></i> Delete
                                 </button>
                             </form>
                         </div>
@@ -389,85 +272,56 @@
     <?php endif; ?>
 </div>
 
-
-<!-- Edit Part Modal -->
-<div class="modal fade" id="editPartModal" tabindex="-1" aria-labelledby="editPartModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editPartModalLabel">Edit Machine Part</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="editPartForm">
-          <input type="hidden" id="edit-id" name="id">
-          <input type="hidden" id="edit-csrf" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Asset ID</label>
-              <input type="text" class="form-control" id="edit-asset-id" name="asset_id" required>
+<div class="modal fade" id="editPartModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Edit Machine Part</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Entity</label>
-              <input type="text" class="form-control" id="edit-entity" name="entity" required>
+            <div class="modal-body p-4">
+                <form id="editPartForm">
+                    <input type="hidden" id="edit-id" name="id">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Part ID / Model No</label>
+                            <input type="text" class="form-control" name="part_id" id="edit-part_id" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Part Name</label>
+                            <input type="text" class="form-control" name="part_name" id="edit-part_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Entity</label>
+                            <input type="text" class="form-control" name="entity" id="edit-entity">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Category Priority</label>
+                            <select class="form-select" name="category" id="edit-category">
+                                <option value="LOW">Low</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="HIGH">High</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Full Description</label>
+                            <textarea class="form-control" name="description" id="edit-description" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Part ID</label>
-              <input type="text" class="form-control" id="edit-part-id" name="part_id" required>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="savePartBtn">Update Part</button>
             </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Part Name</label>
-              <input type="text" class="form-control" id="edit-part-name" name="part_name" required>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Serial No</label>
-              <input type="text" class="form-control" id="edit-serial-no" name="serial_no">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Vendor ID</label>
-              <input type="text" class="form-control" id="edit-vendor-id" name="vendor_id">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">MFG Code</label>
-              <input type="text" class="form-control" id="edit-mfg-code" name="mfg_code">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">SAP Code</label>
-              <input type="text" class="form-control" id="edit-sap-code" name="sap_code">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Category</label>
-              <select class="form-select" id="edit-category" name="category">
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-              </select>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Parts Available</label>
-              <input type="number" class="form-control" id="edit-parts-available" name="parts_available_on_hand" min="0">
-            </div>
-            <div class="col-12 mb-3">
-              <label class="form-label">Description</label>
-              <textarea class="form-control" id="edit-description" name="description" rows="3"></textarea>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="savePartBtn">Save Changes</button>
-      </div>
+        </div>
     </div>
-  </div>
 </div>
 
-
-
-<!-- Inline Edit JS -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // 1. INLINE EDITING LOGIC
     document.querySelectorAll('.rs-description').forEach(desc => {
         desc.addEventListener('click', function(e) {
             if (e.target.closest('textarea, .btn')) return;
@@ -483,110 +337,66 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.btn-save-desc').forEach(btn => {
         btn.addEventListener('click', async function() {
             const desc = this.closest('.rs-description');
-            const id = desc.dataset.partId;
             const textarea = desc.querySelector('.rs-description-input');
             const newText = textarea.value.trim();
-            const original = textarea.dataset.original;
-
-            if (newText === original) {
-                cancelEdit(desc);
-                return;
-            }
 
             try {
                 const res = await fetch('/mes/machine-parts/update-desc', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        id: id,
+                        id: desc.dataset.partId,
                         description: newText,
                         csrf_token: '<?= $_SESSION['csrf_token'] ?? "" ?>'
                     })
                 });
 
                 if (res.ok) {
-                    desc.querySelector('.rs-description-text').innerHTML = 
-                        newText ? newText.replace(/\n/g, '<br>') : 'Click to add description.';
+                    desc.querySelector('.rs-description-text').innerHTML = newText.replace(/\n/g, '<br>') || 'No description.';
                     textarea.dataset.original = newText;
-                    cancelEdit(desc);
-                } else {
-                    const err = await res.json();
-                    alert('Error: ' + (err.message || 'Failed to save'));
-                    cancelEdit(desc);
+                    closeInline(desc);
                 }
-            } catch (e) {
-                alert('Network error');
-                cancelEdit(desc);
-            }
+            } catch (e) { alert('Save failed'); }
         });
     });
 
     document.querySelectorAll('.btn-cancel-desc').forEach(btn => {
-        btn.addEventListener('click', function() {
-            cancelEdit(this.closest('.rs-description'));
+        btn.addEventListener('click', () => closeInline(btn.closest('.rs-description')));
+    });
+
+    function closeInline(container) {
+        container.classList.remove('editing');
+        container.querySelector('.rs-description-text').classList.remove('d-none');
+        container.querySelector('.rs-description-input').classList.add('d-none');
+        container.querySelector('.rs-edit-controls').classList.add('d-none');
+    }
+
+    // 2. MODAL POPULATION (Using JSON data attribute for cleanliness)
+    const editModal = document.getElementById('editPartModal');
+    editModal.addEventListener('show.bs.modal', function (event) {
+        const data = JSON.parse(event.relatedTarget.getAttribute('data-part-json'));
+        Object.keys(data).forEach(key => {
+            const field = document.getElementById('edit-' + key);
+            if (field) field.value = data[key];
         });
     });
 
-    function cancelEdit(desc) {
-        desc.classList.remove('editing');
-        desc.querySelector('.rs-description-text').classList.remove('d-none');
-        desc.querySelector('.rs-description-input').classList.add('d-none');
-        desc.querySelector('.rs-edit-controls').classList.add('d-none');
-        const textarea = desc.querySelector('.rs-description-input');
-        textarea.value = textarea.dataset.original;
-    }
+    // 3. MODAL SAVE
+    document.getElementById('savePartBtn').addEventListener('click', async function() {
+        const formData = new FormData(document.getElementById('editPartForm'));
+        const payload = Object.fromEntries(formData.entries());
+
+        try {
+            const res = await fetch('/mes/machine-parts/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) location.reload();
+            else alert('Update failed');
+        } catch (e) { alert('Network error'); }
+    });
 });
-
-// Populate modal when "Edit" is clicked
-const editModal = document.getElementById('editPartModal');
-editModal.addEventListener('show.bs.modal', function (event) {
-    const button = event.relatedTarget;
-    document.getElementById('edit-id').value = button.getAttribute('data-part-id');
-    document.getElementById('edit-asset-id').value = button.getAttribute('data-asset-id');
-    document.getElementById('edit-entity').value = button.getAttribute('data-entity');
-    document.getElementById('edit-part-id').value = button.getAttribute('data-part-id-field');
-    document.getElementById('edit-part-name').value = button.getAttribute('data-part-name');
-    document.getElementById('edit-serial-no').value = button.getAttribute('data-serial-no');
-    document.getElementById('edit-vendor-id').value = button.getAttribute('data-vendor-id');
-    document.getElementById('edit-mfg-code').value = button.getAttribute('data-mfg-code');
-    document.getElementById('edit-sap-code').value = button.getAttribute('data-sap-code');
-    document.getElementById('edit-category').value = button.getAttribute('data-category');
-    document.getElementById('edit-parts-available').value = button.getAttribute('data-parts-available');
-    document.getElementById('edit-description').value = button.getAttribute('data-description');
-});
-
-// Save updated part
-document.getElementById('savePartBtn').addEventListener('click', async function() {
-    const formData = new FormData(document.getElementById('editPartForm'));
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-        data[key] = value;
-    }
-
-    try {
-        const res = await fetch('/mes/machine-parts/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        if (res.ok) {
-            // Close modal
-            bootstrap.Modal.getInstance(editModal).hide();
-            // Show success
-            alert('Part updated successfully!');
-            // Optional: reload page or update card
-            location.reload();
-        } else {
-            const err = await res.json();
-            alert('Error: ' + (err.message || 'Failed to update'));
-        }
-    } catch (e) {
-        alert('Network error');
-    }
-});
-
-
 </script>
 
 <?php include __DIR__ . '/../layouts/html/footer.php'; ?>
