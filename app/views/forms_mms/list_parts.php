@@ -202,12 +202,18 @@
             <h2 class="fw-bold mb-0">Machine Parts Inventory</h2>
             <p class="text-muted small">Manage and track critical spare parts</p>
         </div>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb bg-light p-2 px-3 rounded shadow-sm">
-                <li class="breadcrumb-item"><a href="/mes/dashboard_admin">Dashboard</a></li>
-                <li class="breadcrumb-item active">Machine Parts</li>
-            </ol>
-        </nav>
+		
+        <nav class="flex flex-wrap gap-2 sm:gap-4 space-y-1">
+		  <a href="/mes/hub_portal" class="flex items-center px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition group">
+			<i class="fas fa-th-large mr-3 text-gray-400 group-hover:text-blue-500"></i> 
+			<span class="font-medium">Hub Portal</span>
+		  </a>
+
+		  <a href="/mes/signout" class="flex items-center px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition group">
+			<i class="fas fa-power-off mr-3 opacity-80 group-hover:scale-110 transition-transform"></i> 
+			<span class="font-medium">Logout</span>
+		  </a>
+		</nav>
     </div>
 
     <?php foreach (['success' => 'alert-success', 'error' => 'alert-danger'] as $key => $class): ?>
