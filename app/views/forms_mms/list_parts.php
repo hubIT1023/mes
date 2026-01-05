@@ -286,7 +286,7 @@
                         </div>
 
                         <div>
-                            <span class="badge bg-light text-dark border mb-1">#<?= htmlspecialchars($part['part_id']) ?></span>
+                            <span class="badge bg-light text-dark border mb-1">model: <?= htmlspecialchars($part['part_id']) ?></span>
                             <h5 class="rs-info-title"><?= htmlspecialchars($part['part_name']) ?></h5>
                             <div class="rs-meta mt-2">
                                 <span><strong>Entity:</strong> <?= htmlspecialchars($part['entity']) ?></span>
