@@ -196,7 +196,7 @@
 }
 </style>
 
-<div class="px-20 mt-4">
+<div class="px-30 mt-4">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
         <div>
             <h2 class="fw-bold mb-0">Machine Parts Inventory</h2>
