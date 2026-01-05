@@ -16,11 +16,13 @@
     background: #fff;
     padding: 20px;
     display: grid;
-    grid-template-columns: 80px 1.2fr 2fr 130px; /* Image | Info | Description | Actions */
+    /* Wider image: 120px instead of 80px */
+    grid-template-columns: 120px 1fr 2fr 130px; /* Image | Info | Description | Actions */
     gap: 24px;
-    align-items: center;
+    align-items: start; /* Changed to 'start' for vertical alignment with taller content */
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     margin-bottom: 1rem;
+    position: relative; /* Ensure zoom stays within card context */
 }
 
 .rs-card:hover {
@@ -34,31 +36,42 @@
 /* ======================= */
 .rs-image-container {
     position: relative;
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px; /* Square, larger */
     z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .rs-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain; /* Use 'contain' to preserve aspect ratio (better for part images) */
     border: 1px solid #ddd;
     border-radius: 8px;
     background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 2rem; /* Slightly larger icon */
     color: #6c757d;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: zoom-in;
+    position: relative;
 }
 
+/* Zoom on hover */
 .rs-image-container:hover .rs-image {
-    transform: scale(2.5);
-    z-index: 50;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transform: scale(2.2); /* Slightly reduced scale for better fit */
+    z-index: 1000;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.35);
+    border-radius: 10px;
+}
+
+/* Ensure zoomed image appears above everything */
+.rs-image-container:hover {
+    z-index: 1001;
 }
 
 /* ======================= */
@@ -130,19 +143,56 @@
 .badge-medium { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
 .badge-low { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
 
-/* Mobile Adjustments */
-@media (max-width: 992px) {
+/* Desktop+: Adjust gaps */
+@media (min-width: 993px) {
     .rs-card {
-        grid-template-columns: 80px 1fr 1fr;
+        grid-column-gap: 28px;
     }
-    .rs-actions { grid-column: span 3; flex-direction: row; }
 }
 
+/* Tablet: Reduce image size slightly */
+@media (max-width: 992px) {
+    .rs-card {
+        grid-template-columns: 100px 1fr 1fr;
+        gap: 16px;
+    }
+    .rs-image-container {
+        width: 100px;
+        height: 100px;
+    }
+    .rs-actions {
+        grid-column: span 3;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .rs-actions > * {
+        flex: 1 1 45%;
+    }
+}
+
+/* Mobile: Full stack */
 @media (max-width: 576px) {
-    .rs-card { display: flex; flex-direction: column; align-items: flex-start; }
-    .rs-image-container { align-self: center; width: 120px; height: 120px; }
-    .rs-actions { width: 100%; }
-    .rs-actions .btn { flex: 1; }
+    .rs-card {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px;
+    }
+    .rs-image-container {
+        align-self: center;
+        width: 140px;
+        height: 140px;
+        margin-bottom: 16px;
+    }
+    .rs-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .rs-actions .btn,
+    .rs-actions form {
+        width: 100%;
+    }
 }
 </style>
 
@@ -219,7 +269,7 @@
                             <?php 
                             $img = $part['image_path'] ?? '';
                             if ($img && file_exists($_SERVER['DOCUMENT_ROOT'] . $img)): ?>
-                                <img src="<?= htmlspecialchars($img) ?>" alt="Part" class="rs-image shadow-sm">
+                                <img src="<?= htmlspecialchars($img) ?>" alt="Part image for <?= htmlspecialchars($part['part_name']) ?>" class="rs-image shadow-sm">
                             <?php else: ?>
                                 <div class="rs-image bg-light border"><i class="fas fa-microchip opacity-25"></i></div>
                             <?php endif; ?>
@@ -254,7 +304,7 @@
                                 <?= htmlspecialchars($part['category'] ?? 'LOW') ?> PRIORITY
                             </div>
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editPartModal"
-                                    data-part-json='<?= json_encode($part, JSON_HEX_APOS) ?>'>
+                                    data-part-json='<?= json_encode($part, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
                                 <i class="fas fa-edit me-1"></i> Full Edit
                             </button>
                             <form method="POST" action="/mes/machine-parts/delete" onsubmit="return confirm('Permanently delete this part?')">
@@ -272,6 +322,7 @@
     <?php endif; ?>
 </div>
 
+<!-- Edit Modal (unchanged, but works better with wider layout) -->
 <div class="modal fade" id="editPartModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -321,7 +372,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // 1. INLINE EDITING LOGIC
+    // Inline editing logic (unchanged)
     document.querySelectorAll('.rs-description').forEach(desc => {
         desc.addEventListener('click', function(e) {
             if (e.target.closest('textarea, .btn')) return;
@@ -371,17 +422,17 @@ document.addEventListener('DOMContentLoaded', function () {
         container.querySelector('.rs-edit-controls').classList.add('d-none');
     }
 
-    // 2. MODAL POPULATION (Using JSON data attribute for cleanliness)
+    // Modal population
     const editModal = document.getElementById('editPartModal');
     editModal.addEventListener('show.bs.modal', function (event) {
         const data = JSON.parse(event.relatedTarget.getAttribute('data-part-json'));
         Object.keys(data).forEach(key => {
             const field = document.getElementById('edit-' + key);
-            if (field) field.value = data[key];
+            if (field) field.value = data[key] ?? '';
         });
     });
 
-    // 3. MODAL SAVE
+    // Modal save
     document.getElementById('savePartBtn').addEventListener('click', async function() {
         const formData = new FormData(document.getElementById('editPartForm'));
         const payload = Object.fromEntries(formData.entries());
