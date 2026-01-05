@@ -1,21 +1,8 @@
 <?php
 
-// include __DIR__ . '/../layouts/html/header.php'; 
-?>
+// include __DIR__ . '/../layouts/html/header.php'; ?>
 
-<!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= htmlspecialchars($tenant['org_name']) ?> — Maintenance Management</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-
-
+<style>
 /* ======================= */
 /* Desktop: Grid Layout */
 /* ======================= */
@@ -231,41 +218,20 @@
 }
 
 </style>
-  
-</head>
 
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen">
+<div class="container mt-4">
+	<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <!-- Left: Page Title -->
+    <h2 class="mb-0">Machine Parts Inventory</h2>
 
-  <!-- Top Navigation Bar -->
-  <header class="bg-white dark:bg-gray-800 shadow-md py-4 px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-    <div class="flex items-center gap-3">
-      <h1 class="text-xl font-bold text-blue-600 dark:text-blue-400">
-        <?= htmlspecialchars($_SESSION['org_alias'] ?? $_SESSION['org_name'] ?? 'MMS') ?>
-      </h1>
-    </div>
-
-    <nav class="flex flex-wrap gap-2 sm:gap-4">
-      <a href="/mes/hub_portal" class="flex items-center px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition group">
-        <i class="fas fa-th-large mr-2 text-gray-400 group-hover:text-blue-500"></i> Hub Portal
-      </a>
-      <a href="/mes/signout" class="flex items-center px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition group">
-        <i class="fas fa-power-off mr-2 opacity-80"></i> Logout
-      </a>
-    </nav>
-  </header>
-
-  <!-- Main Content -->
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-      <h2 class="mb-0">Machine Parts Inventory</h2>
-      <nav aria-label="breadcrumb">
+    <!-- Right: Breadcrumb -->
+    <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-0">
-          <li class="breadcrumb-item"><a href="/mes/dashboard_admin">Dashboard</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Machine Parts</li>
+            <li class="breadcrumb-item"><a href="/mes/dashboard_admin">Dasboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Machine Parts</li>
         </ol>
-      </nav>
-    </div>
-
+    </nav>
+	</div>
 
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
