@@ -330,7 +330,7 @@ $badge = getStateBadge($stopCause, $conn, $org_id);
 
 <!-- ASSOCIATE ACCESSORIES -->
 <div class="modal fade" id="associateAccessoriesModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content">
             <form method="POST" action="/mes/associate-accessory">
                 <div class="modal-body">
@@ -348,10 +348,10 @@ $badge = getStateBadge($stopCause, $conn, $org_id);
                             <label class="form-label">Location</label>
                             <input type="text" id="acc_location" class="form-control" readonly />
                         </div>
-                        <div class="col">
+                        <!--div class="col">
                             <label class="form-label">Group</label>
                             <input type="text" id="acc_group" class="form-control" readonly />
-                        </div>
+                        </div-->
                         <div class="col">
                             <label class="form-label">Date / Time</label>
                             <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
@@ -411,10 +411,10 @@ $badge = getStateBadge($stopCause, $conn, $org_id);
                             <label class="form-label">Location</label>
                             <input type="text" id="ml_location" class="form-control" readonly />
                         </div>
-                        <div class="col">
+                        <!--div class="col">
                             <label class="form-label">Group</label>
                             <input type="text" id="ml_group" class="form-control" readonly />
-                        </div>
+                        </div-->
                         <div class="col">
                             <label class="form-label">Date / Time</label>
                             <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
@@ -463,10 +463,10 @@ $badge = getStateBadge($stopCause, $conn, $org_id);
                         <label class="form-label">Location</label>
                         <input type="text" id="la_location" class="form-control" readonly />
                     </div>
-                    <div class="col">
+                    <!--div class="col">
                         <label class="form-label">Group</label>
                         <input type="text" id="la_group" class="form-control" readonly />
-                    </div>
+                    </div-->
                     <div class="col">
                         <label class="form-label">Date / Time</label>
                         <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
@@ -496,7 +496,7 @@ $badge = getStateBadge($stopCause, $conn, $org_id);
 
 <!-- LOAD WORK MODAL -->
 <div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
                 <h6 class="modal-title">LOAD WORK TO PROCESS</h6>
@@ -517,10 +517,10 @@ $badge = getStateBadge($stopCause, $conn, $org_id);
                             <label class="form-label">Location</label>
                             <input type="text" id="lw_location" class="form-control" readonly />
                         </div>
-                        <div class="col">
+                        <!--div class="col">
                             <label class="form-label">Group</label>
                             <input type="text" id="lw_group" class="form-control" readonly />
-                        </div>
+                        </div-->
                         <div class="col">
                             <label class="form-label">Date / Time</label>
                             <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
@@ -585,10 +585,10 @@ $badge = getStateBadge($stopCause, $conn, $org_id);
                             <label class="form-label">Location</label>
                             <input type="text" id="si_location" class="form-control" readonly />
                         </div>
-                        <div class="col">
+                        <!--div class="col">
                             <label class="form-label">Group</label>
                             <input type="text" id="si_group" class="form-control" readonly />
-                        </div>
+                        </div-->
                         <div class="col">
                             <label class="form-label">Date / Time</label>
                             <input type="text" class="form-control" value="<?= htmlspecialchars($currentDateTime) ?>" readonly />
