@@ -165,17 +165,28 @@ function is_active($path, $current_page) {
 <body class="bg-white text-slate-900">
 
 <!-- HEADER -->
-<header class="sticky top-[3px] z-12 bg-white border-b border-slate-200 shadow-sm">
-    <nav class="navbar navbar-expand navbar-light bg-white border-bottom py-2">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold fs-4 text-primary" href="#">HubIT.online</a>
-            <div class="d-flex align-items-center gap-3">
-                <a href="/mes/hub_portal" class="text-decoration-none text-primary small">Hub Portal</a>
-                <a href="/mes/signout" class="text-decoration-none text-primary small">Log out</a>
-            </div>
-        </div>
-    </nav>
-</header>
+< <!-- Top Navigation Bar -->
+  <header class="bg-white dark:bg-gray-800 shadow-md py-4 px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div class="flex items-center gap-3">
+      <h1 class="text-xl font-bold text-blue-600 dark:text-blue-400">
+        <?= htmlspecialchars($tenant['org_alias'] ?? $tenant['org_name']) ?> MMS
+      </h1>
+      <span class="hidden sm:inline text-gray-600 dark:text-gray-300"></span>
+    </div>
+
+		<nav class="flex flex-wrap gap-2 sm:gap-4 space-y-1">
+		  <a href="/mes/hub_portal" class="flex items-center px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition group">
+			<i class="fas fa-th-large mr-3 text-gray-400 group-hover:text-blue-500"></i> 
+			<span class="font-medium">Hub Portal</span>
+		  </a>
+
+		  <a href="/mes/signout" class="flex items-center px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition group">
+			<i class="fas fa-power-off mr-3 opacity-80 group-hover:scale-110 transition-transform"></i> 
+			<span class="font-medium">Logout</span>
+		  </a>
+		</nav>
+		
+  </header>
 
 <!-- TOP PRODUCT BAR -->
 <div class="top-product-bar">
