@@ -268,7 +268,7 @@
 
                         <!-- Column 2: RS Info -->
                         <div>
-                            <h5 class="rs-info-title">RS No. <?= htmlspecialchars($part['part_id']) ?></h5>
+                            <h5 class="rs-info-title">Model No. <?= htmlspecialchars($part['part_id']) ?></h5>
                             <p class="rs-info-subtitle"><?= htmlspecialchars($part['part_name']) ?></p>
                             <div class="rs-meta">
                                 <span><strong>Entity:</strong> <?= htmlspecialchars($part['entity']) ?></span>
