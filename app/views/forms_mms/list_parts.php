@@ -2,150 +2,218 @@
 
 <style>
 /* ======================= */
-/* Modern Grid Design      */
+/* Desktop: Grid Layout */
 /* ======================= */
-:root {
-    --primary-blue: #3498db;
-    --border-color: #e0e6ed;
-    --bg-light: #f8f9fa;
-}
-
 .rs-card {
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
     background: #fff;
-    padding: 20px;
+    padding: 16px;
     display: grid;
-    grid-template-columns: 80px 1.2fr 2fr 130px; /* Image | Info | Description | Actions */
-    gap: 24px;
-    align-items: center;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    margin-bottom: 1rem;
+    grid-template-columns: 60px 1fr 2fr auto; /* Image | Info | Description | Actions */
+    gap: 16px;
+    align-items: start;
+    transition: box-shadow 0.2s;
 }
 
 .rs-card:hover {
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    border-color: var(--primary-blue);
-    transform: translateY(-2px);
-}
-
-/* ======================= */
-/* Enhanced Image Zoom     */
-/* ======================= */
-.rs-image-container {
-    position: relative;
-    width: 80px;
-    height: 80px;
-    z-index: 5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .rs-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
     border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #fff;
+    border-radius: 4px;
+    background: #f8f9fa;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
     color: #6c757d;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: zoom-in;
 }
 
-.rs-image-container:hover .rs-image {
-    transform: scale(2.5);
-    z-index: 50;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-/* ======================= */
-/* Content & Typography    */
-/* ======================= */
 .rs-info-title {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--primary-blue);
+    margin: 0 0 4px 0;
+    font-size: 1rem;
+    font-weight: bold;
 }
-
 .rs-info-subtitle {
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 8px;
-}
-
-.rs-meta span {
-    display: block;
-    font-size: 0.8rem;
-    color: #7f8c8d;
-    line-height: 1.5;
-}
-
-/* Inline Edit Area */
-.rs-description {
-    background: #fafafa;
-    border: 1px dashed #cbd5e0;
-    border-radius: 8px;
-    padding: 12px;
-    min-height: 90px;
+    margin: 0 0 8px 0;
     font-size: 0.875rem;
-    cursor: text;
-    position: relative;
-    transition: background 0.2s;
+    color: #6c757d;
 }
-
-.rs-description:hover {
-    background: #fffdf5;
-    border-style: solid;
-}
-
-.rs-description:hover::after {
-    content: "Edit Details ✎";
-    position: absolute;
-    bottom: 5px;
-    right: 10px;
+.rs-meta {
     font-size: 0.75rem;
-    color: var(--primary-blue);
+    color: #495057;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-/* Badges & Actions */
+.rs-description {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 12px;
+    min-height: 80px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    position: relative;
+}
+.rs-description:hover::after {
+    content: "✏️";
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 0.9em;
+    opacity: 0.6;
+}
+.rs-description.editing {
+    cursor: default;
+}
+.rs-description.editing::after {
+    display: none;
+}
+.rs-description-text {
+    white-space: pre-line;
+}
+.rs-description-input {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.875rem;
+}
+.rs-edit-controls {
+    margin-top: 8px;
+}
+
+/* Actions Column */
 .rs-actions {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+    align-items: flex-end;
 }
-
 .rs-badge {
-    font-size: 0.7rem;
-    font-weight: 800;
-    padding: 5px;
-    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
     text-align: center;
-    letter-spacing: 0.5px;
+    min-width: 70px;
 }
-.badge-high { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-.badge-medium { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
-.badge-low { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
-
-/* Mobile Adjustments */
-@media (max-width: 992px) {
-    .rs-card {
-        grid-template-columns: 80px 1fr 1fr;
-    }
-    .rs-actions { grid-column: span 3; flex-direction: row; }
+.badge-high { background: #dc3545; color: white; }
+.badge-medium { background: #ffc107; color: #212529; }
+.badge-low { background: #28a745; color: white; }
+.btn-action {
+    width: 80px;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 
+/* ======================= */
+/* Mobile Layout (≤576px) */
+/* ======================= */
 @media (max-width: 576px) {
-    .rs-card { display: flex; flex-direction: column; align-items: flex-start; }
-    .rs-image-container { align-self: center; width: 120px; height: 120px; }
-    .rs-actions { width: 100%; }
-    .rs-actions .btn { flex: 1; }
-}
-</style>
+    .rs-card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+    }
 
+    .rs-image {
+        width: 100%;
+        max-width: 100px;
+        margin: 0 auto;
+    }
+
+    .rs-description-section,
+    .rs-description,
+    .rs-description-input {
+        width: 100%;
+    }
+
+    .rs-edit-controls {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 8px;
+        width: 100%;
+    }
+
+    /* Actions: Badge + buttons in a row */
+    .rs-actions {
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .rs-badge {
+        flex-shrink: 0;
+    }
+
+    .btn-action,
+    .rs-actions form {
+        flex: 1 1 auto;
+        min-width: auto;
+    }
+}
+
+/* ... your existing CSS ... */
+
+/* Zoomable image container */
+.rs-image-container {
+    position: relative;
+    display: inline-block; /* or block, depending on layout */
+    cursor: zoom-in;
+}
+
+/* Zoom effect on hover/focus */
+.rs-image-container:hover .rs-image,
+.rs-image-container:focus .rs-image {
+    transform: scale(2.5); /* Adjust zoom level (e.g., 2.5x) */
+    z-index: 10;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+}
+
+/* Ensure the image can be transformed */
+.rs-image {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #6c757d;
+    /* Add transition for smooth zoom */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0.3s ease;
+    /* Ensure it can be layered above others */
+    position: relative;
+}
+
+/* Optional: Improve mobile touch experience */
+@media (hover: none) and (pointer: coarse) {
+    .rs-image-container {
+        cursor: pointer;
+    }
+    /* Use :active for immediate feedback on touch */
+    .rs-image-container:active .rs-image {
+        transform: scale(2.5);
+        z-index: 10;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        border-radius: 8px;
+    }
+}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
         <div>
