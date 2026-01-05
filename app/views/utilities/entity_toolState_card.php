@@ -815,7 +815,6 @@ $badge = getStateBadge($stopCause, $conn, $org_id);
 </div>
 
 <!-- JavaScript: Unified data flow for ALL modals -->
-<!-- JavaScript: Unified data flow for ALL modals -->
 <script>
 let currentEntityContext = null;
 
@@ -826,7 +825,7 @@ function captureContextFromButton(btn) {
         entity: btn.getAttribute('data-header'),
         groupCode: btn.getAttribute('data-group-code'),
         locationCode: btn.getAttribute('data-location-code'),
-        locationName: btn.getAttribute('data-location-name'),
+        locationName: btn.getAttribute('data-location-name'), // Use locationName for display
         dateTime: btn.getAttribute('data-date')
     };
 }
@@ -837,7 +836,7 @@ function captureContextFromButton(btn) {
     if (modal) {
         modal.addEventListener('show.bs.modal', function (event) {
             const btn = event.relatedTarget;
-            if (btn.hasAttribute('data-asset-id')) {
+            if (btn && btn.hasAttribute('data-asset-id')) {
                 currentEntityContext = captureContextFromButton(btn);
             }
         });
@@ -849,67 +848,89 @@ const actionModals = [
     'changeStateModal', 'standingIssueModal', 'associateAccessoriesModal',
     'associatePartsModal', 'LoadWorkModal'
 ];
-
 actionModals.forEach(modalId => {
     const modal = document.getElementById(modalId);
     if (!modal) return;
-
     modal.addEventListener('show.bs.modal', function (event) {
         const btn = event.relatedTarget;
+        let ctx = null;
 
         // Direct trigger
-        if (btn.hasAttribute('data-asset-id')) {
+        if (btn && btn.hasAttribute('data-asset-id')) {
             currentEntityContext = captureContextFromButton(btn);
+            ctx = currentEntityContext;
+        }
+        // From gateway modals
+        else if (btn && btn.hasAttribute('data-use-stored-context') && currentEntityContext) {
+            ctx = currentEntityContext;
         }
 
-        // From gateway modals
-        if (btn.hasAttribute('data-use-stored-context') && currentEntityContext) {
-            const ctx = currentEntityContext;
-            const prefixMap = {
-                'LoadWorkModal': 'lw',
-                'standingIssueModal': 'si',
-                'associateAccessoriesModal': 'acc',
-                'associatePartsModal': 'ap'
-            };
+        // Only proceed if we have valid context
+        if (!ctx) {
+            console.warn(`No context available for modal: ${modalId}`);
+            return;
+        }
 
-            // Handle simple modals
-            if (modalId === 'LoadWorkModal') {
-                document.getElementById('lw_asset_id').value = ctx.assetId;
-                document.getElementById('lw_entity').value = ctx.entity;
-                document.getElementById('lw_group_code').value = ctx.groupCode;
-                document.getElementById('lw_location_code').value = ctx.locationCode;
-            } else if (modalId === 'standingIssueModal') {
-                document.getElementById('si_asset_id').value = ctx.assetId;
-            } else if (modalId === 'associateAccessoriesModal') {
-                document.getElementById('acc_asset_id').value = ctx.assetId;
-                document.getElementById('acc_entity').value = ctx.entity;
-                document.getElementById('acc_entity_display').value = ctx.entity;
-            }
-            // Handle full-form modals
-            else if (modalId === 'associatePartsModal') {
-                document.getElementById('ap_ipt_entity').value = ctx.entity;
-                document.getElementById('ap_modal_asset_id').value = ctx.assetId;
-                document.getElementById('ap_modal_asset_id_display').value = ctx.assetId;
-                document.getElementById('ap_modal_group_code').value = ctx.groupCode;
-                document.getElementById('ap_modal_location_code').value = ctx.locationCode;
-                document.getElementById('ap_modal_location').value = ctx.locationName;
-                document.getElementById('ap_modal_date_time').value = ctx.dateTime;
-                document.getElementById('ap_modal_start_time').value = ctx.dateTime;
-                document.getElementById('ap_modal_asset_id_hidden').value = ctx.assetId;
-                document.getElementById('ap_modal_entity_hidden').value = ctx.entity;
-                document.getElementById('associatePartsModalLabel').textContent = 'Add Part to: ' + ctx.entity;
-            } else if (modalId === 'changeStateModal') {
-                document.getElementById('ts_ipt_entity').value = ctx.entity;
-                document.getElementById('ts_modal_asset_id').value = ctx.assetId;
-                document.getElementById('ts_modal_asset_id_display').value = ctx.assetId;
-                document.getElementById('ts_modal_group_code').value = ctx.groupCode;
-                document.getElementById('ts_modal_location_code').value = ctx.locationCode;
-                document.getElementById('ts_modal_location').value = ctx.locationName;
-                document.getElementById('ts_modal_group').value = ctx.groupCode;
-                document.getElementById('ts_modal_date_time').value = ctx.dateTime;
-                document.getElementById('ts_modal_start_time').value = ctx.dateTime;
-                document.getElementById('changeStateModalLabel').textContent = 'Change Mode: ' + ctx.entity;
-            }
+        // Handle simple modals
+        if (modalId === 'LoadWorkModal') {
+            document.getElementById('lw_asset_id').value = ctx.assetId;
+            document.getElementById('lw_entity').value = ctx.entity;
+            document.getElementById('lw_group_code').value = ctx.groupCode;
+            document.getElementById('lw_location_code').value = ctx.locationCode;
+            // Populate display fields
+            document.getElementById('lw_location').value = ctx.locationName; // Display Location Name
+            document.getElementById('lw_group').value = ctx.groupCode; // Display Group Code
+            document.getElementById('lw_asset_id_display').value = ctx.assetId;
+            document.getElementById('lw_entity_display').value = ctx.entity;
+        } else if (modalId === 'standingIssueModal') {
+            document.getElementById('si_asset_id').value = ctx.assetId;
+            document.getElementById('si_entity').value = ctx.entity;
+            document.getElementById('si_group_code').value = ctx.groupCode;
+            document.getElementById('si_location_code').value = ctx.locationCode;
+            // Populate display fields
+            document.getElementById('si_location').value = ctx.locationName; // Display Location Name
+            document.getElementById('si_group').value = ctx.groupCode; // Display Group Code
+            document.getElementById('si_asset_id_display').value = ctx.assetId;
+            document.getElementById('si_entity_display').value = ctx.entity;
+        } else if (modalId === 'associateAccessoriesModal') {
+            document.getElementById('acc_asset_id').value = ctx.assetId;
+            document.getElementById('acc_entity').value = ctx.entity;
+            document.getElementById('acc_entity_display').value = ctx.entity;
+            document.getElementById('acc_group_code').value = ctx.groupCode;
+            document.getElementById('acc_location_code').value = ctx.locationCode;
+            // Populate display fields
+            document.getElementById('acc_location').value = ctx.locationName; // Display Location Name
+            document.getElementById('acc_group').value = ctx.groupCode; // Display Group Code
+            document.getElementById('acc_asset_id_display').value = ctx.assetId;
+            // Set parent display
+            document.getElementById('acc_parent_display').value = ctx.entity;
+        }
+        // Handle full-form modals
+        else if (modalId === 'associatePartsModal') {
+            document.getElementById('ap_ipt_entity').value = ctx.entity;
+            document.getElementById('ap_modal_asset_id').value = ctx.assetId;
+            document.getElementById('ap_modal_asset_id_display').value = ctx.assetId;
+            document.getElementById('ap_modal_group_code').value = ctx.groupCode;
+            document.getElementById('ap_modal_location_code').value = ctx.locationCode;
+            document.getElementById('ap_modal_location').value = ctx.locationName; // Display Location Name
+            document.getElementById('ap_modal_date_time').value = ctx.dateTime;
+            document.getElementById('ap_modal_start_time').value = ctx.dateTime;
+            document.getElementById('ap_modal_asset_id_hidden').value = ctx.assetId;
+            document.getElementById('ap_modal_entity_hidden').value = ctx.entity;
+            document.getElementById('associatePartsModalLabel').textContent = 'Add Part to: ' + ctx.entity;
+            // Also populate ap_modal_entity for form submission
+            document.getElementById('ap_modal_entity').value = ctx.entity;
+        } else if (modalId === 'changeStateModal') {
+            document.getElementById('ts_ipt_entity').value = ctx.entity;
+            document.getElementById('ts_modal_asset_id').value = ctx.assetId;
+            document.getElementById('ts_modal_asset_id_display').value = ctx.assetId;
+            document.getElementById('ts_modal_group_code').value = ctx.groupCode; // Store Group Code
+            document.getElementById('ts_modal_location_code').value = ctx.locationCode;
+            document.getElementById('ts_modal_location').value = ctx.locationName; // Display Location Name
+            document.getElementById('ts_modal_group').value = ctx.locationName; // Display Location Name (as per your screenshot)
+            document.getElementById('ts_modal_date_time').value = ctx.dateTime;
+            document.getElementById('ts_modal_start_time').value = ctx.dateTime;
+            document.getElementById('changeStateModalLabel').textContent = 'Change Mode: ' + ctx.entity;
         }
     });
 });
