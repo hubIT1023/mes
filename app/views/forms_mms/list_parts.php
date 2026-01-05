@@ -1,21 +1,31 @@
+
+<?php
+// mms_admin.php — Maintenance Management System (Tenant Admin Dashboard)
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+
+// ✅ Check if tenant session exists
+if (!isset($_SESSION['tenant']) || empty($_SESSION['tenant'])) {
+    header("Location: /mes/signin?error=Please+log+in+first");
+    exit;
+}
+
+$tenant = $_SESSION['tenant'];
+?>
+
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="dark">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Machine Parts Inventory Management">
-  <meta name="author" content="HubIt.online">
-
-  <title>Machine Parts Inventory — HubIt.online</title>
-
-  <!-- Custom fonts -->
-  <link href="../assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap" rel="stylesheet">
-
-  <!-- SB Admin 2 core CSS -->
-  <link href="../assets/css/sb-admin-2.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><?= htmlspecialchars($tenant['org_name']) ?> — Maintenance Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+  
 
   <!-- Custom styles -->
   <style>
