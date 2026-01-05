@@ -42,8 +42,8 @@ $tenant = $_SESSION['tenant'];
     </div>
 
     <!-- Navigation Links -->
-    <nav class="flex flex-wrap gap-2 sm:gap-4">
-      <!--a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition">
+    <!--nav class="flex flex-wrap gap-2 sm:gap-4">
+      <a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition">
         <i class="fas fa-boxes mr-2 text-blue-600"></i> Assets
       </a>
       <a href="http://localhost/mes/app/views/forms_mms/config_maint_form.php" class="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition">
@@ -62,14 +62,18 @@ $tenant = $_SESSION['tenant'];
         <i class="fas fa-tools mr-2 text-gray-500"></i> Machine Parts
       </a-->
 
-		<a href="/mes/hub_portal" class="flex items-center px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition group">
-		<i class="fas fa-th-large mr-3 text-gray-400 group-hover:text-blue-500"></i> 
-		<span class="font-medium">Hub Portal</span>
-	  </a>
+		<nav class="space-y-1">
+		  <a href="/mes/hub_portal" class="flex items-center px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition group">
+			<i class="fas fa-th-large mr-3 text-gray-400 group-hover:text-blue-500"></i> 
+			<span class="font-medium">Hub Portal</span>
+		  </a>
 
-	  <a href="/mes/signout" class="flex items-center px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition group">
-		<i class="fas fa-power-off mr-3 opacity-80 group-hover:scale-110 transition-transform"></i> 
-		<span class="font-medium">Logout</span>
+		  <a href="/mes/signout" class="flex items-center px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition group">
+			<i class="fas fa-power-off mr-3 opacity-80 group-hover:scale-110 transition-transform"></i> 
+			<span class="font-medium">Logout</span>
+		  </a>
+		</nav>
+		
   </header>
 
   <!-- Dashboard Content -->
