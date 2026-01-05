@@ -1,35 +1,9 @@
 <?php
 
-// include __DIR__ . '/../layouts/html/header.php'; 
-// mms_admin.php — Maintenance Management System (Tenant Admin Dashboard)
+ include __DIR__ . '/../layouts/html/header.php'; 
+ 
+ ?>
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-
-// ✅ Check if tenant session exists
-if (!isset($_SESSION['tenant']) || empty($_SESSION['tenant'])) {
-    header("Location: /mes/signin?error=Please+log+in+first");
-    exit;
-}
-
-$tenant = $_SESSION['tenant'];
-?>
-
-<!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= htmlspecialchars($tenant['org_name']) ?> — Maintenance Management</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-  </style>
-</head>
 <style>
 /* ======================= */
 /* Desktop: Grid Layout */
