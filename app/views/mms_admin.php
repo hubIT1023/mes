@@ -43,7 +43,7 @@ $tenant = $_SESSION['tenant'];
 
     <!-- Navigation Links -->
     <nav class="flex flex-wrap gap-2 sm:gap-4">
-      <a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition">
+      <!--a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition">
         <i class="fas fa-boxes mr-2 text-blue-600"></i> Assets
       </a>
       <a href="http://localhost/mes/app/views/forms_mms/config_maint_form.php" class="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition">
@@ -60,7 +60,8 @@ $tenant = $_SESSION['tenant'];
       </a>
       <a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition">
         <i class="fas fa-tools mr-2 text-gray-500"></i> Machine Parts
-      </a>
+      </a-->
+	  <a href="/mes/hub_portal" class="text-decoration-none text-primary small">Hub Portal</a>
       <a href="/mes/signout" class="flex items-center px-3 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 text-red-600 transition">
         <i class="fas fa-sign-out-alt mr-2"></i> Logout
       </a>
