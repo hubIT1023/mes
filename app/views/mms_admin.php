@@ -38,7 +38,7 @@ $tenant = $_SESSION['tenant'];
       <h1 class="text-xl font-bold text-blue-600 dark:text-blue-400">
         <?= htmlspecialchars($tenant['org_alias'] ?? $tenant['org_name']) ?> MMS
       </h1>
-      <span class="hidden sm:inline text-gray-600 dark:text-gray-300">— Maintenance Management System</span>
+      <span class="hidden sm:inline text-gray-600 dark:text-gray-300"></span>
     </div>
 
     <!-- Navigation Links -->
@@ -62,7 +62,7 @@ $tenant = $_SESSION['tenant'];
         <i class="fas fa-tools mr-2 text-gray-500"></i> Machine Parts
       </a-->
 
-		<nav class="space-y-1">
+		<nav class="flex flex-wrap gap-2 sm:gap-4 space-y-1">
 		  <a href="/mes/hub_portal" class="flex items-center px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition group">
 			<i class="fas fa-th-large mr-3 text-gray-400 group-hover:text-blue-500"></i> 
 			<span class="font-medium">Hub Portal</span>
