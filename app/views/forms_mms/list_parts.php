@@ -291,7 +291,7 @@
                             <div class="rs-meta mt-2">
                                 <span><strong>Entity:</strong> <?= htmlspecialchars($part['entity']) ?></span>
                                 <span><strong>Vendor:</strong> <?= htmlspecialchars($part['vendor_id'] ?? '—') ?></span>
-                                <span class="text-primary fw-bold mt-1">Stock: <?= (int)$part['parts_available_on_hand'] ?> units</span>
+                                <!--span class="text-primary fw-bold mt-1">Stock: <?= (int)$part['parts_available_on_hand'] ?> units</span-->
                             </div>
                         </div>
 
