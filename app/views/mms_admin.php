@@ -61,11 +61,15 @@ $tenant = $_SESSION['tenant'];
       <a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition">
         <i class="fas fa-tools mr-2 text-gray-500"></i> Machine Parts
       </a-->
-	  <a href="/mes/hub_portal" class="text-decoration-none text-primary small">Hub Portal</a>
-      <a href="/mes/signout" class="flex items-center px-3 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 text-red-600 transition">
-        <i class="fas fa-sign-out-alt mr-2"></i> Logout
-      </a>
-    </nav>
+
+		<a href="/mes/hub_portal" class="flex items-center px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition group">
+		<i class="fas fa-th-large mr-3 text-gray-400 group-hover:text-blue-500"></i> 
+		<span class="font-medium">Hub Portal</span>
+	  </a>
+
+	  <a href="/mes/signout" class="flex items-center px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition group">
+		<i class="fas fa-power-off mr-3 opacity-80 group-hover:scale-110 transition-transform"></i> 
+		<span class="font-medium">Logout</span>
   </header>
 
   <!-- Dashboard Content -->
