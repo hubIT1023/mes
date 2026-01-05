@@ -199,7 +199,7 @@
 <div class="px-20 mt-4">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
         <div>
-            <h1 class="fw-bold mb-0">Machine Parts Inventory</h1>
+            <h1 class="fw-bold mb-2">Machine Parts Inventory</h1>
             <p class="text-muted small">Manage and track critical spare parts</p>
         </div>
 		
