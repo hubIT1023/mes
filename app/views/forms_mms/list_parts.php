@@ -258,14 +258,15 @@
                 <div class="col-12">
                     <div class="rs-card">
                         <!-- Column 1: Image -->
-                        <?php
-                        $imagePath = $part['image_path'] ?? '';
-                        if ($imagePath && file_exists($_SERVER['DOCUMENT_ROOT'] . $imagePath)): ?>
-                            <img src="<?= htmlspecialchars($imagePath) ?>" alt="Part Image" class="rs-image">
-                        <?php else: ?>
-                            <div class="rs-image"><i class="fas fa-cube"></i></div>
-                        <?php endif; ?>
-
+                        <div class="rs-image-container">
+							<?php
+							$imagePath = $part['image_path'] ?? '';
+							if ($imagePath && file_exists($_SERVER['DOCUMENT_ROOT'] . $imagePath)): ?>
+								<img src="<?= htmlspecialchars($imagePath) ?>" alt="Part Image" class="rs-image">
+							<?php else: ?>
+								<div class="rs-image"><i class="fas fa-cube"></i></div>
+							<?php endif; ?>
+						</div>
                         <!-- Column 2: RS Info -->
                         <div>
                             <h5 class="rs-info-title">Model No. <?= htmlspecialchars($part['part_id']) ?></h5>
@@ -533,6 +534,57 @@ document.getElementById('savePartBtn').addEventListener('click', async function(
         alert('Network error');
     }
 });
+
+/* ... your existing CSS ... */
+
+/* Zoomable image container */
+.rs-image-container {
+    position: relative;
+    display: inline-block; /* or block, depending on layout */
+    cursor: zoom-in;
+}
+
+/* Zoom effect on hover/focus */
+.rs-image-container:hover .rs-image,
+.rs-image-container:focus .rs-image {
+    transform: scale(2.5); /* Adjust zoom level (e.g., 2.5x) */
+    z-index: 10;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+}
+
+/* Ensure the image can be transformed */
+.rs-image {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #6c757d;
+    /* Add transition for smooth zoom */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0.3s ease;
+    /* Ensure it can be layered above others */
+    position: relative;
+}
+
+/* Optional: Improve mobile touch experience */
+@media (hover: none) and (pointer: coarse) {
+    .rs-image-container {
+        cursor: pointer;
+    }
+    /* Use :active for immediate feedback on touch */
+    .rs-image-container:active .rs-image {
+        transform: scale(2.5);
+        z-index: 10;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        border-radius: 8px;
+    }
+}
 </script>
 
 <?php include __DIR__ . '/../layouts/html/footer.php'; ?>
