@@ -39,26 +39,37 @@ class MachinePartModel
         return (bool) $stmt->execute($data);
     }
 
-    public function update(int $id, string $orgId, array $data): bool
-	{
-		$stmt = $this->conn->prepare("
-			UPDATE machine_parts_list SET
-				part_id = :part_id,
-				part_name = :part_name,
-				serial_no = :serial_no,
-				vendor_id = :vendor_id,
-				mfg_code = :mfg_code,
-				sap_code = :sap_code,
-				category = :category,
-				parts_available_on_hand = :parts_available_on_hand,
-				description = :description,
-				image_path = :image_path
-			WHERE id = :id AND org_id = :org_id
-		");
-		$data['id'] = $id;
-		$data['org_id'] = $orgId;
-		return (bool) $stmt->execute($data);
-	}
+    // ✅ FIXED: Safe, dynamic update that avoids HY093
+    public function update(int $id, string $orgId, array $inputData): bool
+    {
+        // Define allowed updatable columns (MUST match table)
+        $allowedFields = [
+            'asset_id', 'entity', 'part_id', 'part_name', 'serial_no',
+            'vendor_id', 'mfg_code', 'sap_code', 'category',
+            'parts_available_on_hand', 'description', 'image_path'
+        ];
+
+        // Filter input to only allowed fields that are actually provided
+        $data = array_intersect_key($inputData, array_flip($allowedFields));
+
+        // Must have at least one field to update
+        if (empty($data)) {
+            return false;
+        }
+
+        // Build SET clause: `col = :col`
+        $setClause = implode(', ', array_map(fn($col) => "$col = :$col", array_keys($data)));
+
+        $sql = "UPDATE machine_parts_list SET $setClause WHERE id = :id AND org_id = :org_id";
+        $stmt = $this->conn->prepare($sql);
+
+        // Merge data with required WHERE params
+        $params = $data;
+        $params['id'] = $id;
+        $params['org_id'] = $orgId;
+
+        return (bool) $stmt->execute($params);
+    }
 
     public function delete(int $id, string $orgId): bool
     {
@@ -81,75 +92,73 @@ class MachinePartModel
             $params[] = $excludeId;
         }
 
-        $sql .= " LIMIT 1"; // 🔒 Add for efficiency
+        $sql .= " LIMIT 1";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return (bool) $stmt->fetchColumn();
     }
 
-    // In app/models/MachinePartModel.php
-
-public function uploadImage($file): ?string {
-    if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
-        error_log("Upload error: " . $file['error']);
-        return null;
-    }
-
-    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!in_array($file['type'], $allowedTypes)) {
-        error_log("Invalid file type: " . $file['type']);
-        return null;
-    }
-
-    $uploadDir = __DIR__ . '/../parts_img/';
-    if (!is_dir($uploadDir)) {
-        if (!mkdir($uploadDir, 0755, true)) {
-            error_log("Failed to create upload directory: $uploadDir");
+    public function uploadImage($file): ?string
+    {
+        if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+            error_log("Upload error: " . $file['error']);
             return null;
         }
+
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!in_array($file['type'], $allowedTypes)) {
+            error_log("Invalid file type: " . $file['type']);
+            return null;
+        }
+
+        $uploadDir = __DIR__ . '/../parts_img/';
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create upload directory: $uploadDir");
+                return null;
+            }
+        }
+
+        $filename = 'part_' . uniqid() . '.jpg';
+        $targetPath = $uploadDir . $filename;
+
+        if (!$this->resizeAndCompressImage($file['tmp_name'], $targetPath, 800, 75)) {
+            error_log("Failed to process image");
+            return null;
+        }
+
+        return '/app/parts_img/' . $filename;
     }
 
-    $filename = 'part_' . uniqid() . '.jpg';
-    $targetPath = $uploadDir . $filename;
+    private function resizeAndCompressImage(string $source, string $dest, int $maxSize = 800, int $quality = 75): bool
+    {
+        $info = getimagesize($source);
+        if (!$info) return false;
 
-    // Compress and resize
-    if (!$this->resizeAndCompressImage($file['tmp_name'], $targetPath, 800, 75)) {
-        error_log("Failed to process image");
-        return null;
+        switch ($info[2]) {
+            case IMAGETYPE_JPEG: $image = imagecreatefromjpeg($source); break;
+            case IMAGETYPE_PNG:  $image = imagecreatefrompng($source); break;
+            case IMAGETYPE_GIF:  $image = imagecreatefromgif($source); break;
+            default: return false;
+        }
+
+        if (!$image) return false;
+
+        $origW = imagesx($image);
+        $origH = imagesy($image);
+        $scale = min($maxSize / $origW, $maxSize / $origH, 1);
+        $newW = (int)($origW * $scale);
+        $newH = (int)($origH * $scale);
+
+        $resized = imagecreatetruecolor($newW, $newH);
+        imagecopyresampled($resized, $image, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+        $result = imagejpeg($resized, $dest, $quality);
+
+        imagedestroy($image);
+        imagedestroy($resized);
+        return $result;
     }
-
-    // Return web-accessible path
-    return '/app/parts_img/' . $filename;
-}
-
-private function resizeAndCompressImage(string $source, string $dest, int $maxSize = 800, int $quality = 75): bool {
-    $info = getimagesize($source);
-    if (!$info) return false;
-
-    switch ($info[2]) {
-        case IMAGETYPE_JPEG: $image = imagecreatefromjpeg($source); break;
-        case IMAGETYPE_PNG:  $image = imagecreatefrompng($source); break;
-        case IMAGETYPE_GIF:  $image = imagecreatefromgif($source); break;
-        default: return false;
-    }
-
-    if (!$image) return false;
-
-    $origW = imagesx($image);
-    $origH = imagesy($image);
-    $scale = min($maxSize / $origW, $maxSize / $origH, 1);
-    $newW = (int)($origW * $scale);
-    $newH = (int)($origH * $scale);
-
-    $resized = imagecreatetruecolor($newW, $newH);
-    imagecopyresampled($resized, $image, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
-    $result = imagejpeg($resized, $dest, $quality);
-
-    imagedestroy($image);
-    imagedestroy($resized);
-    return $result;
-}
 
     public function getFilteredParts(string $orgId, array $filters): array
     {
@@ -194,26 +203,24 @@ private function resizeAndCompressImage(string $source, string $dest, int $maxSi
         $stmt->execute([$orgId]);
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
-	
-	public function getById(int $id, string $orgId): ?array
-{
-    $stmt = $this->conn->prepare("
-        SELECT * FROM machine_parts_list 
-        WHERE id = ? AND org_id = ?
-    ");
-    $stmt->execute([$id, $orgId]);
-    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-}
 
-// In app/models/MachinePartModel.php
+    public function getById(int $id, string $orgId): ?array
+    {
+        $stmt = $this->conn->prepare("
+            SELECT * FROM machine_parts_list 
+            WHERE id = ? AND org_id = ?
+        ");
+        $stmt->execute([$id, $orgId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
 
-public function updateDescription(int $id, string $orgId, string $description): bool
-{
-    $stmt = $this->conn->prepare("
-        UPDATE machine_parts_list 
-        SET description = ? 
-        WHERE id = ? AND org_id = ?
-    ");
-    return (bool) $stmt->execute([$description, $id, $orgId]);
-}
+    public function updateDescription(int $id, string $orgId, string $description): bool
+    {
+        $stmt = $this->conn->prepare("
+            UPDATE machine_parts_list 
+            SET description = ? 
+            WHERE id = ? AND org_id = ?
+        ");
+        return (bool) $stmt->execute([$description, $id, $orgId]);
+    }
 }
