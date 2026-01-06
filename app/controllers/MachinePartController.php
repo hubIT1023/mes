@@ -189,4 +189,83 @@ class MachinePartController
         foreach ($required as $field) {
             if (empty(trim($_POST[$field] ?? ''))) {
                 $_SESSION['error'] = ucfirst($field) . ' is required.';
-                header("Location: /
+                header("Location: /mes/parts-list");
+                exit;
+            }
+        }
+
+        // Prepare data
+        $data = [
+            'asset_id' => trim($_POST['asset_id']),
+            'entity' => trim($_POST['entity']),
+            'part_id' => trim($_POST['part_id']),
+            'part_name' => trim($_POST['part_name']),
+            'serial_no' => trim($_POST['serial_no'] ?? ''),
+            'vendor_id' => trim($_POST['vendor_id'] ?? ''),
+            'mfg_code' => trim($_POST['mfg_code'] ?? ''),
+            'sap_code' => trim($_POST['sap_code'] ?? ''),
+            'category' => trim($_POST['category'] ?? 'LOW'),
+            'parts_available_on_hand' => (int)($_POST['parts_available_on_hand'] ?? 0),
+            'description' => trim($_POST['description'] ?? ''),
+            // Note: image_path is not updated here (no file upload in modal)
+            // If you add file upload later, handle it like in store()
+            'image_path' => null // or omit if you don't want to touch it
+        ];
+
+        // ✅ CORRECT METHOD CALL: partExistsForEntity with exclude ID
+        if ($this->model->partExistsForEntity($orgId, $data['asset_id'], $data['entity'], $data['part_id'], $id)) {
+            $_SESSION['error'] = "This part ID already exists for the selected entity.";
+            header("Location: /mes/parts-list");
+            exit;
+        }
+
+        if ($this->model->update($id, $orgId, $data)) {
+            $_SESSION['success'] = "Part updated successfully!";
+        } else {
+            $_SESSION['error'] = "Failed to update part. Please try again.";
+        }
+
+        header("Location: /mes/parts-list");
+        exit;
+    }
+
+    // Keep this as JSON for inline description edit (optional but fine)
+    public function updateDescription()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            exit('Method not allowed');
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!$input) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Invalid JSON']);
+            exit;
+        }
+
+        $id = (int)($input['id'] ?? 0);
+        $description = trim($input['description'] ?? '');
+        $csrfToken = $input['csrf_token'] ?? '';
+
+        if (!$id || empty($_SESSION['tenant_id'])) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Missing required data']);
+            exit;
+        }
+
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Security check failed']);
+            exit;
+        }
+
+        if ($this->model->updateDescription($id, $_SESSION['tenant_id'], $description)) {
+            echo json_encode(['success' => true]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['message' => 'Failed to update description']);
+        }
+        exit;
+    }
+}
