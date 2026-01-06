@@ -40,25 +40,25 @@ class MachinePartModel
     }
 
     public function update(int $id, string $orgId, array $data): bool
-    {
-        $stmt = $this->conn->prepare("
-            UPDATE machine_parts_list SET
-                part_id = :part_id,
-                part_name = :part_name,
-                serial_no = :serial_no,
-                vendor_id = :vendor_id,
-                mfg_code = :mfg_code,
-                sap_code = :sap_code,
-                category = :category,
-                parts_available_on_hand = :parts_available_on_hand,
-                description = :description,
-                image_path = :image_path
-            WHERE id = :id AND org_id = :org_id
-        ");
-        $data['id'] = $id;
-        $data['org_id'] = $orgId;
-        return (bool) $stmt->execute($data);
-    }
+	{
+		$stmt = $this->conn->prepare("
+			UPDATE machine_parts_list SET
+				part_id = :part_id,
+				part_name = :part_name,
+				serial_no = :serial_no,
+				vendor_id = :vendor_id,
+				mfg_code = :mfg_code,
+				sap_code = :sap_code,
+				category = :category,
+				parts_available_on_hand = :parts_available_on_hand,
+				description = :description,
+				image_path = :image_path
+			WHERE id = :id AND org_id = :org_id
+		");
+		$data['id'] = $id;
+		$data['org_id'] = $orgId;
+		return (bool) $stmt->execute($data);
+	}
 
     public function delete(int $id, string $orgId): bool
     {
