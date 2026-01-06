@@ -289,10 +289,10 @@
                             <span class="badge bg-light text-dark border mb-1">model: <?= htmlspecialchars($part['part_id']) ?></span>
                             <h5 class="rs-info-title"><?= htmlspecialchars($part['part_name']) ?></h5>
                             <div class="rs-meta mt-2">
-								<span><strong>SAP:</strong> <?= htmlspecialchars($part['sap_code']) ?></span>
                                 <span><strong>Entity:</strong> <?= htmlspecialchars($part['entity']) ?></span>
                                 <span><strong>Vendor:</strong> <?= htmlspecialchars($part['vendor_id'] ?? '—') ?></span>
                                 <!--span class="text-primary fw-bold mt-1">Stock: <?= (int)$part['parts_available_on_hand'] ?> units</span-->
+								<span><strong>SAP Code:</strong> <?= htmlspecialchars($part['sap_code']) ?></span>
                             </div>
                         </div>
 
