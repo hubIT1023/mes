@@ -219,10 +219,10 @@ class MachinePartController
 
         // Optional: Prevent duplicate part_id for same entity
         if ($this->model->partExistsForEntityExcludingId($orgId, $data['asset_id'], $data['entity'], $data['part_id'], $id)) {
-            $_SESSION['error'] = "This part ID already exists for the selected entity.";
-            header("Location: /mes/edit-part?id=" . $id);
-            exit;
-        }
+			$_SESSION['error'] = "This part ID already exists for the selected entity.";
+			header("Location: /mes/edit-part?id=" . $id);
+			exit;
+		}
 
         if ($this->model->update($id, $orgId, $data)) {
             $_SESSION['success'] = "Part updated successfully!";
