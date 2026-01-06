@@ -104,7 +104,7 @@ class MachinePartController
         $id = (int)($_POST['id'] ?? 0);
         if ($id <= 0) {
             $_SESSION['error'] = "Invalid part ID.";
-            header("Location: /mes/dashboard_admin");
+            header("Location: /mes/parts-list");
             exit;
         }
 
@@ -114,21 +114,13 @@ class MachinePartController
             $_SESSION['error'] = "Failed to delete part.";
         }
 
-        header("Location: /mes/dashboard_admin");
+        header("Location: /mes/parts-list");
         exit;
     }
 
     // List parts with filters
     public function list()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        if (!isset($_SESSION['tenant_id'])) {
-            header("Location: /mes/signin?error=" . urlencode("Please log in first"));
-            exit;
-        }
-
         $orgId = $_SESSION['tenant_id'];
 
         $filters = [
@@ -138,140 +130,157 @@ class MachinePartController
             'part_id' => trim($_GET['part_id'] ?? '')
         ];
 
-        // ✅ Use model methods (correct)
         $parts = $this->model->getFilteredParts($orgId, $filters);
         $entities = $this->model->getUniqueEntities($orgId);
 
         require_once __DIR__ . '/../views/forms_mms/list_parts.php';
     }
-	
-	public function edit()
-{
-    if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-        http_response_code(400);
-        exit('Invalid part ID');
+
+    public function edit()
+    {
+        if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+            http_response_code(400);
+            exit('Invalid part ID');
+        }
+
+        $id = (int)$_GET['id'];
+        $orgId = $_SESSION['tenant_id'];
+
+        $part = $this->model->getById($id, $orgId);
+        if (!$part) {
+            $_SESSION['error'] = "Part not found.";
+            header("Location: /mes/parts-list");
+            exit;
+        }
+
+        require_once __DIR__ . '/../views/forms_mms/edit_part.php';
     }
 
-    $id = (int)$_GET['id'];
-    $orgId = $_SESSION['tenant_id'];
-
-    $part = $this->model->getById($id, $orgId);
-    if (!$part) {
-        $_SESSION['error'] = "Part not found.";
-        header("Location: /mes/parts-list");
-        exit;
-    }
-
-    require_once __DIR__ . '/../views/forms_mms/edit_part.php';
-}
-
-// In app/controllers/MachinePartController.php
-
-public function updateDescription()
+    // ✅ CORRECTED: Full update via POST + session flash messages
+    public function update()
 {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         exit('Method not allowed');
     }
 
-    // Read JSON input
-    $input = json_decode(file_get_contents('php://input'), true);
-    if (!$input) {
-        http_response_code(400);
-        echo json_encode(['message' => 'Invalid JSON']);
+    $orgId = $_SESSION['tenant_id'] ?? null;
+    if (!$orgId) {
+        $_SESSION['error'] = "Please log in first.";
+        header("Location: /mes/signin");
         exit;
     }
 
-    $id = (int)($input['id'] ?? 0);
-    $description = trim($input['description'] ?? '');
-    $csrfToken = $input['csrf_token'] ?? '';
-
-    // Validate
-    if (!$id || empty($_SESSION['tenant_id'])) {
-        http_response_code(400);
-        echo json_encode(['message' => 'Missing required data']);
+    $id = (int)($_POST['id'] ?? 0);
+    if ($id <= 0) {
+        $_SESSION['error'] = "Invalid part ID.";
+        header("Location: /mes/parts-list");
         exit;
     }
 
-    if (!hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
-        http_response_code(403);
-        echo json_encode(['message' => 'Security check failed']);
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+        $_SESSION['error'] = "Security check failed.";
+        header("Location: /mes/parts-list");
         exit;
     }
 
-    // Update
-    if ($this->model->updateDescription($id, $_SESSION['tenant_id'], $description)) {
-        echo json_encode(['success' => true]);
+    // Validate required fields
+    $required = ['asset_id', 'entity', 'part_id', 'part_name'];
+    foreach ($required as $field) {
+        if (empty(trim($_POST[$field] ?? ''))) {
+            $_SESSION['error'] = ucfirst($field) . ' is required.';
+            header("Location: /mes/parts-list");
+            exit;
+        }
+    }
+
+    // Prepare data
+    $data = [
+        'asset_id' => trim($_POST['asset_id']),
+        'entity' => trim($_POST['entity']),
+        'part_id' => trim($_POST['part_id']),
+        'part_name' => trim($_POST['part_name']),
+        'serial_no' => trim($_POST['serial_no'] ?? ''),
+        'vendor_id' => trim($_POST['vendor_id'] ?? ''),
+        'mfg_code' => trim($_POST['mfg_code'] ?? ''),
+        'sap_code' => trim($_POST['sap_code'] ?? ''),
+        'category' => trim($_POST['category'] ?? 'LOW'),
+        'parts_available_on_hand' => (int)($_POST['parts_available_on_hand'] ?? 0),
+        'description' => trim($_POST['description'] ?? ''),
+        // 🚫 DO NOT SET image_path TO NULL HERE
+        // We'll handle it below
+    ];
+
+    // ✅ Handle image upload only if new file is provided
+    if (!empty($_FILES['part_image']['name'])) {
+        $newImagePath = $this->model->uploadImage($_FILES['part_image']);
+        if ($newImagePath === null) {
+            $_SESSION['error'] = "Image upload failed. Changes not saved.";
+            header("Location: /mes/parts-list");
+            exit;
+        }
+        $data['image_path'] = $newImagePath;
     } else {
-        http_response_code(500);
-        echo json_encode(['message' => 'Failed to update description']);
+        // ✅ Preserve existing image path from database
+        $currentPart = $this->model->getById($id, $orgId);
+        if ($currentPart) {
+            $data['image_path'] = $currentPart['image_path'] ?? null;
+        }
     }
+
+    // ✅ Check for duplicate (excluding current ID)
+    if ($this->model->partExistsForEntity($orgId, $data['asset_id'], $data['entity'], $data['part_id'], $id)) {
+        $_SESSION['error'] = "This part ID already exists for the selected entity.";
+        header("Location: /mes/parts-list");
+        exit;
+    }
+
+    if ($this->model->update($id, $orgId, $data)) {
+        $_SESSION['success'] = "Part updated successfully!";
+    } else {
+        $_SESSION['error'] = "Failed to update part. Please try again.";
+    }
+
+    header("Location: /mes/parts-list");
     exit;
 }
+    // Keep this as JSON for inline description edit (optional but fine)
+    public function updateDescription()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            exit('Method not allowed');
+        }
 
-	// In MachinePartController.php
-	public function update()
-	{
-		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-			http_response_code(405);
-			exit('Method not allowed');
-		}
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!$input) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Invalid JSON']);
+            exit;
+        }
 
-		// Read JSON input
-		$input = json_decode(file_get_contents('php://input'), true);
-		if (!$input || !isset($input['id'])) {
-			http_response_code(400);
-			echo json_encode(['message' => 'Invalid data']);
-			exit;
-		}
+        $id = (int)($input['id'] ?? 0);
+        $description = trim($input['description'] ?? '');
+        $csrfToken = $input['csrf_token'] ?? '';
 
-		$id = (int)$input['id'];
-		$orgId = $_SESSION['tenant_id'] ?? null;
+        if (!$id || empty($_SESSION['tenant_id'])) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Missing required data']);
+            exit;
+        }
 
-		if (!$orgId) {
-			http_response_code(403);
-			echo json_encode(['message' => 'Not logged in']);
-			exit;
-		}
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Security check failed']);
+            exit;
+        }
 
-		if (!hash_equals($_SESSION['csrf_token'] ?? '', $input['csrf_token'] ?? '')) {
-			http_response_code(403);
-			echo json_encode(['message' => 'Security check failed']);
-			exit;
-		}
-
-		// Validate required fields
-		$required = ['asset_id', 'entity', 'part_id', 'part_name'];
-		foreach ($required as $field) {
-			if (empty(trim($input[$field] ?? ''))) {
-				http_response_code(400);
-				echo json_encode(['message' => ucfirst($field) . ' is required']);
-				exit;
-			}
-		}
-
-		$data = [
-			'asset_id' => trim($input['asset_id']),
-			'entity' => trim($input['entity']),
-			'part_id' => trim($input['part_id']),
-			'part_name' => trim($input['part_name']),
-			'serial_no' => trim($input['serial_no'] ?? ''),
-			'vendor_id' => trim($input['vendor_id'] ?? ''),
-			'mfg_code' => trim($input['mfg_code'] ?? ''),
-			'sap_code' => trim($input['sap_code'] ?? ''),
-			'category' => trim($input['category'] ?? 'LOW'),
-			'parts_available_on_hand' => (int)($input['parts_available_on_hand'] ?? 0),
-			'description' => trim($input['description'] ?? ''),
-			'image_path' => $input['image_path'] ?? null, // Note: image update not handled here
-		];
-
-		if ($this->model->update($id, $orgId, $data)) {
-			echo json_encode(['success' => true]);
-		} else {
-			http_response_code(500);
-			echo json_encode(['message' => 'Failed to update part']);
-		}
-		exit;
-	}
-
+        if ($this->model->updateDescription($id, $_SESSION['tenant_id'], $description)) {
+            echo json_encode(['success' => true]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['message' => 'Failed to update description']);
+        }
+        exit;
+    }
 }
