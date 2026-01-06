@@ -289,6 +289,7 @@
                             <span class="badge bg-light text-dark border mb-1">model: <?= htmlspecialchars($part['part_id']) ?></span>
                             <h5 class="rs-info-title"><?= htmlspecialchars($part['part_name']) ?></h5>
                             <div class="rs-meta mt-2">
+								<span><strong>SAP:</strong> <?= htmlspecialchars($part['sap_code']) ?></span>
                                 <span><strong>Entity:</strong> <?= htmlspecialchars($part['entity']) ?></span>
                                 <span><strong>Vendor:</strong> <?= htmlspecialchars($part['vendor_id'] ?? '—') ?></span>
                                 <!--span class="text-primary fw-bold mt-1">Stock: <?= (int)$part['parts_available_on_hand'] ?> units</span-->
@@ -296,6 +297,7 @@
                         </div>
 
                         <div class="rs-description-section">
+							<label class="form-label fw-bold mb-2">Details</label>
                             <div class="rs-description shadow-sm" data-part-id="<?= (int)$part['id'] ?>">
                                 <div class="rs-description-text text-muted">
                                     <?= nl2br(htmlspecialchars($part['description'] ?? 'No description provided.')) ?>
