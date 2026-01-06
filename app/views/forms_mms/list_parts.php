@@ -220,16 +220,24 @@
 		</nav>
     </div>
 
-    <?php foreach (['success' => 'alert-success', 'error' => 'alert-danger'] as $key => $class): ?>
-        <?php if (isset($_SESSION[$key])): ?>
-            <div class="alert <?= $class ?> alert-dismissible fade show shadow-sm" role="alert">
-                <i class="fas <?= $key === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle' ?> me-2"></i>
-                <?= htmlspecialchars($_SESSION[$key]) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <?php unset($_SESSION[$key]); ?>
-        <?php endif; ?>
-    <?php endforeach; ?>
+    <!-- ✅ FLASH MESSAGES (now will appear after update) -->
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <?= htmlspecialchars($_SESSION['error']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <?= htmlspecialchars($_SESSION['success']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
     <div class="card border-0 shadow-sm mb-5 bg-light">
         <div class="card-body">
@@ -291,13 +299,12 @@
                             <div class="rs-meta mt-2">
                                 <span><strong>Entity:</strong> <?= htmlspecialchars($part['entity']) ?></span>
                                 <span><strong>Vendor:</strong> <?= htmlspecialchars($part['vendor_id'] ?? '—') ?></span>
-                                <!--span class="text-primary fw-bold mt-1">Stock: <?= (int)$part['parts_available_on_hand'] ?> units</span-->
-								<span><strong>SAP Code:</strong> <?= htmlspecialchars($part['sap_code']) ?></span>
+                                <span><strong>SAP Code:</strong> <?= htmlspecialchars($part['sap_code']) ?></span>
                             </div>
                         </div>
 
                         <div class="rs-description-section">
-							<label class="form-label fw-bold mb-2">Details</label>
+                            <label class="form-label fw-bold mb-2">Details</label>
                             <div class="rs-description shadow-sm" data-part-id="<?= (int)$part['id'] ?>">
                                 <div class="rs-description-text text-muted">
                                     <?= nl2br(htmlspecialchars($part['description'] ?? 'No description provided.')) ?>
@@ -315,6 +322,7 @@
                             <div class="rs-badge <?= $part['category'] === 'HIGH' ? 'badge-high' : ($part['category'] === 'MEDIUM' ? 'badge-medium' : 'badge-low') ?>">
                                 <?= htmlspecialchars($part['category'] ?? 'LOW') ?> PRIORITY
                             </div>
+                            <!-- Trigger modal -->
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editPartModal"
                                     data-part-json='<?= json_encode($part, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
                                 <i class="fas fa-edit me-1"></i> Full Edit
@@ -334,7 +342,7 @@
     <?php endif; ?>
 </div>
 
-<!-- Edit Modal (unchanged, but works better with wider layout) -->
+<!-- ✅ EDIT MODAL: REAL FORM (no AJAX) -->
 <div class="modal fade" id="editPartModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -343,9 +351,12 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
-                <form id="editPartForm">
-                    <input type="hidden" id="edit-id" name="id">
+                <!-- REAL POST FORM -->
+                <form id="editPartForm" method="POST" action="/mes/machine-parts/update">
+                    <input type="hidden" name="id" id="edit-id">
+                    <input type="hidden" name="asset_id" id="edit-asset_id">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                    
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Part ID / Model No</label>
@@ -357,7 +368,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Entity</label>
-                            <input type="text" class="form-control" name="entity" id="edit-entity">
+                            <input type="text" class="form-control" name="entity" id="edit-entity" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Category Priority</label>
@@ -366,6 +377,22 @@
                                 <option value="MEDIUM">Medium</option>
                                 <option value="HIGH">High</option>
                             </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Serial No</label>
+                            <input type="text" class="form-control" name="serial_no" id="edit-serial_no">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Vendor ID</label>
+                            <input type="text" class="form-control" name="vendor_id" id="edit-vendor_id">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">MFG Code</label>
+                            <input type="text" class="form-control" name="mfg_code" id="edit-mfg_code">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">SAP Code</label>
+                            <input type="text" class="form-control" name="sap_code" id="edit-sap_code">
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-bold">Full Description</label>
@@ -376,15 +403,17 @@
             </div>
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="savePartBtn">Update Part</button>
+                <!-- Submit the real form -->
+                <button type="submit" form="editPartForm" class="btn btn-primary">Update Part</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ✅ Keep inline description editing (uses AJAX, but that's OK) -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Inline editing logic (unchanged)
+    // Inline description editing (AJAX - fine for single field)
     document.querySelectorAll('.rs-description').forEach(desc => {
         desc.addEventListener('click', function(e) {
             if (e.target.closest('textarea, .btn')) return;
@@ -418,8 +447,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     desc.querySelector('.rs-description-text').innerHTML = newText.replace(/\n/g, '<br>') || 'No description.';
                     textarea.dataset.original = newText;
                     closeInline(desc);
+                } else {
+                    alert('Failed to save description');
                 }
-            } catch (e) { alert('Save failed'); }
+            } catch (e) { 
+                alert('Network error while saving description'); 
+            }
         });
     });
 
@@ -434,30 +467,19 @@ document.addEventListener('DOMContentLoaded', function () {
         container.querySelector('.rs-edit-controls').classList.add('d-none');
     }
 
-    // Modal population
+    // ✅ Modal population (no AJAX save anymore)
     const editModal = document.getElementById('editPartModal');
     editModal.addEventListener('show.bs.modal', function (event) {
         const data = JSON.parse(event.relatedTarget.getAttribute('data-part-json'));
-        Object.keys(data).forEach(key => {
+        // Populate all editable fields
+        const fieldNames = ['id', 'asset_id', 'part_id', 'part_name', 'entity', 'category', 
+                           'serial_no', 'vendor_id', 'mfg_code', 'sap_code', 'description'];
+        fieldNames.forEach(key => {
             const field = document.getElementById('edit-' + key);
-            if (field) field.value = data[key] ?? '';
+            if (field) {
+                field.value = data[key] || '';
+            }
         });
-    });
-
-    // Modal save
-    document.getElementById('savePartBtn').addEventListener('click', async function() {
-        const formData = new FormData(document.getElementById('editPartForm'));
-        const payload = Object.fromEntries(formData.entries());
-
-        try {
-            const res = await fetch('/mes/machine-parts/update', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (res.ok) location.reload();
-            else alert('Update failed');
-        } catch (e) { alert('Network error'); }
     });
 });
 </script>
