@@ -158,77 +158,92 @@ class MachinePartController
 
     // ✅ CORRECTED: Full update via POST + session flash messages
     public function update()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            exit('Method not allowed');
-        }
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        exit('Method not allowed');
+    }
 
-        $orgId = $_SESSION['tenant_id'] ?? null;
-        if (!$orgId) {
-            $_SESSION['error'] = "Please log in first.";
-            header("Location: /mes/signin");
-            exit;
-        }
+    $orgId = $_SESSION['tenant_id'] ?? null;
+    if (!$orgId) {
+        $_SESSION['error'] = "Please log in first.";
+        header("Location: /mes/signin");
+        exit;
+    }
 
-        $id = (int)($_POST['id'] ?? 0);
-        if ($id <= 0) {
-            $_SESSION['error'] = "Invalid part ID.";
-            header("Location: /mes/parts-list");
-            exit;
-        }
-
-        if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
-            $_SESSION['error'] = "Security check failed.";
-            header("Location: /mes/parts-list");
-            exit;
-        }
-
-        // Validate required fields
-        $required = ['asset_id', 'entity', 'part_id', 'part_name'];
-        foreach ($required as $field) {
-            if (empty(trim($_POST[$field] ?? ''))) {
-                $_SESSION['error'] = ucfirst($field) . ' is required.';
-                header("Location: /mes/parts-list");
-                exit;
-            }
-        }
-
-        // Prepare data
-        $data = [
-            'asset_id' => trim($_POST['asset_id']),
-            'entity' => trim($_POST['entity']),
-            'part_id' => trim($_POST['part_id']),
-            'part_name' => trim($_POST['part_name']),
-            'serial_no' => trim($_POST['serial_no'] ?? ''),
-            'vendor_id' => trim($_POST['vendor_id'] ?? ''),
-            'mfg_code' => trim($_POST['mfg_code'] ?? ''),
-            'sap_code' => trim($_POST['sap_code'] ?? ''),
-            'category' => trim($_POST['category'] ?? 'LOW'),
-            'parts_available_on_hand' => (int)($_POST['parts_available_on_hand'] ?? 0),
-            'description' => trim($_POST['description'] ?? ''),
-            // Note: image_path is not updated here (no file upload in modal)
-            // If you add file upload later, handle it like in store()
-            'image_path' => null // or omit if you don't want to touch it
-        ];
-
-        // ✅ CORRECT METHOD CALL: partExistsForEntity with exclude ID
-        if ($this->model->partExistsForEntity($orgId, $data['asset_id'], $data['entity'], $data['part_id'], $id)) {
-            $_SESSION['error'] = "This part ID already exists for the selected entity.";
-            header("Location: /mes/parts-list");
-            exit;
-        }
-
-        if ($this->model->update($id, $orgId, $data)) {
-            $_SESSION['success'] = "Part updated successfully!";
-        } else {
-            $_SESSION['error'] = "Failed to update part. Please try again.";
-        }
-
+    $id = (int)($_POST['id'] ?? 0);
+    if ($id <= 0) {
+        $_SESSION['error'] = "Invalid part ID.";
         header("Location: /mes/parts-list");
         exit;
     }
 
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+        $_SESSION['error'] = "Security check failed.";
+        header("Location: /mes/parts-list");
+        exit;
+    }
+
+    // Validate required fields
+    $required = ['asset_id', 'entity', 'part_id', 'part_name'];
+    foreach ($required as $field) {
+        if (empty(trim($_POST[$field] ?? ''))) {
+            $_SESSION['error'] = ucfirst($field) . ' is required.';
+            header("Location: /mes/parts-list");
+            exit;
+        }
+    }
+
+    // Prepare data
+    $data = [
+        'asset_id' => trim($_POST['asset_id']),
+        'entity' => trim($_POST['entity']),
+        'part_id' => trim($_POST['part_id']),
+        'part_name' => trim($_POST['part_name']),
+        'serial_no' => trim($_POST['serial_no'] ?? ''),
+        'vendor_id' => trim($_POST['vendor_id'] ?? ''),
+        'mfg_code' => trim($_POST['mfg_code'] ?? ''),
+        'sap_code' => trim($_POST['sap_code'] ?? ''),
+        'category' => trim($_POST['category'] ?? 'LOW'),
+        'parts_available_on_hand' => (int)($_POST['parts_available_on_hand'] ?? 0),
+        'description' => trim($_POST['description'] ?? ''),
+        // 🚫 DO NOT SET image_path TO NULL HERE
+        // We'll handle it below
+    ];
+
+    // ✅ Handle image upload only if new file is provided
+    if (!empty($_FILES['part_image']['name'])) {
+        $newImagePath = $this->model->uploadImage($_FILES['part_image']);
+        if ($newImagePath === null) {
+            $_SESSION['error'] = "Image upload failed. Changes not saved.";
+            header("Location: /mes/parts-list");
+            exit;
+        }
+        $data['image_path'] = $newImagePath;
+    } else {
+        // ✅ Preserve existing image path from database
+        $currentPart = $this->model->getById($id, $orgId);
+        if ($currentPart) {
+            $data['image_path'] = $currentPart['image_path'] ?? null;
+        }
+    }
+
+    // ✅ Check for duplicate (excluding current ID)
+    if ($this->model->partExistsForEntity($orgId, $data['asset_id'], $data['entity'], $data['part_id'], $id)) {
+        $_SESSION['error'] = "This part ID already exists for the selected entity.";
+        header("Location: /mes/parts-list");
+        exit;
+    }
+
+    if ($this->model->update($id, $orgId, $data)) {
+        $_SESSION['success'] = "Part updated successfully!";
+    } else {
+        $_SESSION['error'] = "Failed to update part. Please try again.";
+    }
+
+    header("Location: /mes/parts-list");
+    exit;
+}
     // Keep this as JSON for inline description edit (optional but fine)
     public function updateDescription()
     {
