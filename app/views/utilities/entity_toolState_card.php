@@ -167,8 +167,11 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
                             aria-label="Edit position"
                         >
-                            <i class="fas fa-edit text-sm"></i>
+                            <i class="fas fa-pin-map text-sm"></i>
                         </button>
+						 <div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;">
+							<div class="pulse-dot bg-primary"></div>
+						</div>
                     </div>
 
                     <!-- Body -->
