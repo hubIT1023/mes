@@ -135,17 +135,17 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 ?>
 
 <!-- Tool State Cards Grid -->
-<div class="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-5 gap-4">
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-4">
     <?php for ($row = 1; $row <= $maxRow; $row++): ?>
         <?php for ($col = 1; $col <= 5; $col++): ?>
             <?php if (isset($grid[$row][$col])): ?>
                 <?php
-                $entity = $grid[$row][$col];
-                $assetId = $entity['asset_id'];
-                $entityName = $entity['entity'];
-                $currentDateTime = date('Y-m-d H:i:s');
-                $stopCause = $states[$entityName] ?? 'IDLE';
-                $badge = getStateBadge($stopCause, $conn, $org_id);
+					$entity = $grid[$row][$col];
+					$assetId = $entity['asset_id'];
+					$entityName = $entity['entity'];
+					$currentDateTime = date('Y-m-d H:i:s');
+					$stopCause = $states[$entityName] ?? 'IDLE';
+					$badge = getStateBadge($stopCause, $conn, $org_id);
                 ?>
 
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -159,7 +159,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 							<i class="fas fa-list text-secondary small"></i>
 							<button
 								class="text-start text-sm fw-semibold text-primary bg-transparent border-0 p-0"
-								style="font-size: 1.5rem;
+								style="font-size: 1.5rem;"
 								data-bs-toggle="modal"
 								data-bs-target="#associateAcc-PartsModal"
 								<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
