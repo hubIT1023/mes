@@ -150,29 +150,37 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <!-- Header -->
-                    <div class="flex justify-between items-start p-2 border-b border-gray-100">
-                        <button
-                            class="flex-grow text-left text-sm font-semibold text-blue-700 hover:underline focus:outline-none"
-                            data-bs-toggle="modal"
-                            data-bs-target="#associateAcc-PartsModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="View details for <?= htmlspecialchars($entityName) ?>"
-                        >
-                            <?= htmlspecialchars($entityName) ?>
-                            <!-- <div class="text-xs text-gray-500 mt-1">Pos: (<?= (int)$row ?>, <?= (int)$col ?>)</div> -->
-                        </button>
-                        <button
-                            class="btn btn-sm btn-light text-primary flex-shrink-0 p-1"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
-                            aria-label="Edit position"
-                        >
-                            <i class="fas fa-pin-map text-sm"></i>
-                        </button>
-						 <div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;">
+				 <div class="d-flex justify-content-between align-items-start p-2 border-bottom border-gray-100">
+					<!-- LEFT GROUP: Entity Name + WIP Badge -->
+					<div class="d-flex flex-column align-items-start gap-2">
+						<!-- Entity Name -->
+						<button
+							class="text-start text-sm fw-semibold text-primary text-decoration-underline bg-transparent border-0 p-0"
+							data-bs-toggle="modal"
+							data-bs-target="#associateAcc-PartsModal"
+							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+							aria-label="View details for <?= htmlspecialchars($entityName) ?>"
+						>
+							<?= htmlspecialchars($entityName) ?>
+						</button>
+
+						<!-- WIP Badge -->
+						<div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;">
 							<div class="pulse-dot bg-primary"></div>
+							WIP
 						</div>
-                    </div>
+					</div>
+
+					<!-- Pin Map (Right) -->
+					<button
+						class="btn btn-sm btn-light text-primary flex-shrink-0 p-1"
+						data-bs-toggle="modal"
+						data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
+						aria-label="Edit position"
+					>
+						<i class="fas fa-map-pin text-sm"></i> <!-- Note: fixed icon name -->
+					</button>
+				</div>
 
                     <!-- Body -->
                     <div class="p-2 space-y-2">
