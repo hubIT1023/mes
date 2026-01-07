@@ -277,31 +277,34 @@ function is_active($path, $current_page) {
                         <div class="col-12">
                             <div class="card shadow-sm border-0">
                                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-                                    <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> <small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
-                                            <i class="fas fa-plus me-1"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-warning" onclick="openUpdateGroupModal(
-                                            <?= (int)$g['id'] ?>,
-                                            <?= (int)$g['page_id'] ?>,
-                                            '<?= addslashes($g['group_name']) ?>',
-                                            '<?= addslashes($g['location_name']) ?>',
-                                            <?= (int)($g['seq_id'] ?? 1) ?>
-                                        )">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" onclick="openDeleteGroupModal(
-                                            <?= (int)$g['id'] ?>,
-                                            <?= (int)$g['page_id'] ?>,
-                                            '<?= addslashes($g['group_name']) ?>'
-                                        )">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-success">
-                                            <small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
-                                        </button>
-                                    </div>
+                                    <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> 
+										<small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
+											<div class="d-flex gap-2">
+												<button class="btn btn-sm btn-light" 
+												data-bs-toggle="modal" 
+												data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
+												<i class="fas fa-plus me-1"></i>
+												</button>
+												<button class="btn btn-sm btn-warning" onclick="openUpdateGroupModal(
+													<?= (int)$g['id'] ?>,
+													<?= (int)$g['page_id'] ?>,
+													'<?= addslashes($g['group_name']) ?>',
+													'<?= addslashes($g['location_name']) ?>',
+													<?= (int)($g['seq_id'] ?? 1) ?>
+												)">
+													<i class="fas fa-edit"></i>
+												</button>
+												<button class="btn btn-sm btn-danger" onclick="openDeleteGroupModal(
+													<?= (int)$g['id'] ?>,
+													<?= (int)$g['page_id'] ?>,
+													'<?= addslashes($g['group_name']) ?>'
+												)">
+													<i class="fas fa-trash"></i>
+												</button>
+												<button class="btn btn-sm btn-success">
+													<small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
+												</button>
+											</div>
                                 </div>
                                 <div class="card-body bg-slate-50">
                                     <?php 

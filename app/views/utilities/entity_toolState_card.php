@@ -155,20 +155,20 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 					<div class="d-flex flex-column align-items-start gap-2">
 						<!-- Entity Name -->
 						<div>
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <i class="fas fa-list text-secondary small"></i>
-						<button
-							class="text-start text-sm fw-semibold text-primary bg-transparent border-0 p-0"
-							style="font-size: 1.5rem;
-							data-bs-toggle="modal"
-							data-bs-target="#associateAcc-PartsModal"
-							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-							aria-label="View details for <?= htmlspecialchars($entityName) ?>"
-						>
-							<?= htmlspecialchars($entityName) ?>
-						</button>
-					 </div>
-				</div>
+						<div class="d-flex align-items-center gap-2 mb-1">
+							<i class="fas fa-list text-secondary small"></i>
+							<button
+								class="text-start text-sm fw-semibold text-primary bg-transparent border-0 p-0"
+								style="font-size: 1.5rem;
+								data-bs-toggle="modal"
+								data-bs-target="#associateAcc-PartsModal"
+								<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+								aria-label="View details for <?= htmlspecialchars($entityName) ?>"
+							>
+								<?= htmlspecialchars($entityName) ?>
+							</button>
+						</div>
+						</div>
 
 						<!-- WIP Badge -->
 						<div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;"
@@ -255,7 +255,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
                         <!-- State Badge -->
                         <button
-                            class="w-full py-2 text-white font-bold rounded transition-all hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 <?= htmlspecialchars($badge['class']) ?>"
+                            class="w-full py-2 text-white font-bold rounded transition-all hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 
+							<?= htmlspecialchars($badge['class']) ?>"
                             data-bs-toggle="modal"
                             data-bs-target="#setMaintModal"
                             <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
@@ -314,7 +315,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 							</div>
 						</div>
 						<div class="mt-3">
-							<small class="text-muted">Columns 1–9 per row</small>
+							<small class="text-muted">Columns 1–5 per row</small>
 						</div>
 					</div>
 					<div class="modal-footer">
