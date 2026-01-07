@@ -165,20 +165,22 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 						</button>
 
 						<!-- WIP Badge -->
-						<div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;"
-						 data-bs-toggle="modal"
-                            data-bs-target="#LoadWorkModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Load work"
-							>
+						<div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;">
 							<div class="pulse-dot bg-primary"></div>
-							WIP
-						</div>
+							<div 
+								 data-bs-toggle="modal"
+									data-bs-target="#LoadWorkModal"
+									<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+									aria-label="Load work"
+									>
+									
+									WIP
+								</div>
 						
 						<!-- Load Work -->
                         
 						
-					</div>
+					  </div>
 
 					<!-- Pin Map (Right) -->
 					<button
@@ -262,7 +264,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <?= htmlspecialchars($badge['label']) ?>
                         </button>
 						
-						<hr>
+						
 						
 						<div class="border-top pt-3">
 							<div class="d-flex justify-content-between align-items-center mb-2">
