@@ -256,10 +256,31 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         >
                             <?= htmlspecialchars($badge['label']) ?>
                         </button>
+						
+						<div class="border-top pt-3">
+							<div class="d-flex justify-content-between align-items-center mb-2">
+								<span class="small fw-bold">5-Day Downtime</span>
+								<span class="small text-muted">Total: 4.2h</span>
+							</div>
+							<div class="d-flex align-items-end gap-1" style="height: 40px;">
+								<div class="bg-light flex-grow-1 rounded-top" style="height: 40%;"></div>
+								<div class="bg-light flex-grow-1 rounded-top" style="height: 70%;"></div>
+								<div class="bg-light flex-grow-1 rounded-top" style="height: 30%;"></div>
+								<div class="bg-danger flex-grow-1 rounded-top" style="height: 90%;"></div>
+								<div class="bg-light flex-grow-1 rounded-top" style="height: 50%;"></div>
+							</div>
+						</div>
+										
+						
                     </div>
                 </div>
+				
+				
+	<!-- =============================== -->
+	<!-- GRIRD --Edit Position Modal -->
+	<!-- =============================== -->			
 
-	<!-- Edit Position Modal -->
+	
 	<div class="modal fade" id="editPositionModal_<?= (int)$entity['id'] ?>" tabindex="-1">
 		<div class="modal-dialog">
 			<form action="/mes/update-entity-position" method="POST">
