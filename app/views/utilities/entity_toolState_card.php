@@ -196,17 +196,17 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         <!-- WOF Due -->
 						 <div>  
 							<div
-								< div class="d-flex justify-content-between small fw-bold text-success mb-1" style="font-size: 11px;"
+								< div class="d-flex justify-content-between small fw-bold text-primary mb-1" style="font-size: 11px;"
 									data-bs-toggle="modal"
 									data-bs-target="#CalDueModal"
 									<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
 									aria-label="Calibration Due"
 								>
-                            <span>WOF</span>
+									<span>WOF</span>
 									<span class="text-primary">Due: 14 Oct</span>
 							</div>
 							<div class="progress" style="height: 6px;">
-								<div class="progress-bar bg-success" style="width: 45%"></div>
+								<div class="progress-bar bg-success" style="width: 85%"></div>
 							</div>
 						</div>
                         <!-- Cal Due -->
@@ -231,7 +231,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 									<span class="text-primary">Due: 14 Oct</span>
 								</div>
 							<div class="progress" style="height: 6px;">
-								<div class="progress-bar bg-primary" style="width: 45%"></div>
+								<div class="progress-bar bg-warning" style="width: 65%"></div>
 							</div>
 						</div>
 						
