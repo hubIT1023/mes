@@ -347,7 +347,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Edit Machine Part</h5>
+                <h5 class="modal-title">Part Info</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
@@ -370,14 +370,14 @@
                             <label class="form-label small fw-bold">Entity</label>
                             <input type="text" class="form-control" name="entity" id="edit-entity" required>
                         </div>
-                        <div class="col-md-6">
+                        <!--div class="col-md-6">
                             <label class="form-label small fw-bold">Category Priority</label>
                             <select class="form-select" name="category" id="edit-category">
                                 <option value="LOW">Low</option>
                                 <option value="MEDIUM">Medium</option>
                                 <option value="HIGH">High</option>
                             </select>
-                        </div>
+                        </div-->
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Serial No</label>
                             <input type="text" class="form-control" name="serial_no" id="edit-serial_no">
@@ -394,10 +394,10 @@
                             <label class="form-label small fw-bold">SAP Code</label>
                             <input type="text" class="form-control" name="sap_code" id="edit-sap_code">
                         </div>
-                        <div class="col-12">
+                        <!--div class="col-12">
                             <label class="form-label small fw-bold">Full Description</label>
                             <textarea class="form-control" name="description" id="edit-description" rows="3"></textarea>
-                        </div>
+                        </div-->
                     </div>
                 </form>
             </div>
