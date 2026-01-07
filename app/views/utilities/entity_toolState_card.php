@@ -154,6 +154,9 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 					<!-- LEFT GROUP: Entity Name + WIP Badge -->
 					<div class="d-flex flex-column align-items-start gap-2">
 						<!-- Entity Name -->
+						<div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="fas fa-list text-secondary small"></i>
 						<button
 							class="text-start text-sm fw-semibold text-primary text-decoration-underline bg-transparent border-0 p-0"
 							data-bs-toggle="modal"
@@ -163,6 +166,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 						>
 							<?= htmlspecialchars($entityName) ?>
 						</button>
+					 </div>
+				</div>
 
 						<!-- WIP Badge -->
 						<div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;"
