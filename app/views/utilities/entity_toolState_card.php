@@ -158,8 +158,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                 <div class="d-flex align-items-center gap-2 mb-1">
                     <i class="fas fa-list text-secondary small"></i>
 						<button
-							class="text-start text-sm fw-semibold text-primary text-decoration-underline bg-transparent border-0 p-0"
-							style="font-size: 2rem;
+							class="text-start text-sm fw-semibold text-primary bg-transparent border-0 p-0"
+							style="font-size: 1.5rem;
 							data-bs-toggle="modal"
 							data-bs-target="#associateAcc-PartsModal"
 							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
