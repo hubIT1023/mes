@@ -263,11 +263,11 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 								<span class="small text-muted">Total: 4.2h</span>
 							</div>
 							<div class="d-flex align-items-end gap-1" style="height: 40px;">
-								<div class="bg-warning flex-grow-1 rounded-top" style="height: 40%;"></div>
-								<div class="bg-success flex-grow-1 rounded-top" style="height: 70%;"></div>
-								<div class="bg-danger flex-grow-1 rounded-top" style="height: 30%;"></div>
-								<div class="bg-success flex-grow-1 rounded-top" style="height: 90%;"></div>
-								<div class="bg-success flex-grow-1 rounded-top" style="height: 50%;"></div>
+								<div class="bg-success flex-grow-1 rounded-top" style="height: 40%;"></div>
+								<div class="bg-danger flex-grow-1 rounded-top" style="height: 70%;"></div>
+								<div class="bg-success flex-grow-1 rounded-top" style="height: 30%;"></div>
+								<div class="bg-danger flex-grow-1 rounded-top" style="height: 90%;"></div>
+								<div class="bg-warning flex-grow-1 rounded-top" style="height: 50%;"></div>
 							</div>
 						</div>
 										
