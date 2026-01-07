@@ -124,7 +124,8 @@ foreach ($entities as $entity) {
     $r = (int)$entity['row_pos'];
     $c = (int)$entity['col_pos'];
     $maxRow = max($maxRow, $r);
-    if ($c >= 1 && $c <= 9) {
+    if ($c >= 1 && $c <= 5) {
+	//if ($c >= 1 && $c <= 5) {	
         $grid[$r][$c] = $entity;
     }
 }
@@ -136,7 +137,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- Tool State Cards Grid -->
 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-4">
     <?php for ($row = 1; $row <= $maxRow; $row++): ?>
-        <?php for ($col = 1; $col <= 9; $col++): ?>
+        <?php for ($col = 1; $col <= 5; $col++): ?>
             <?php if (isset($grid[$row][$col])): ?>
                 <?php
                 $entity = $grid[$row][$col];
@@ -270,7 +271,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <div class="modal fade" id="associateAcc-PartsModal" tabindex="-1" aria-labelledby="associateAccPartsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-info text-white">
                 <h6 class="modal-title" id="associateAccPartsModalLabel">ASSOCIATE PARTS/ACCESSORIES</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -290,13 +291,13 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             data-use-stored-context="true">
                         ASSOCIATE PARTS
                     </button>
-                    <button type="button" class="list-group-item list-group-item-action"
+                    <!--button type="button" class="list-group-item list-group-item-action"
                             data-bs-dismiss="modal"
                             data-bs-toggle="modal"
                             data-bs-target="#listAccessoriesModal"
                             data-use-stored-context="true">
                         Associated Accessories
-                    </button>
+                    </button-->
                 </div>
             </div>
         </div>
@@ -359,8 +360,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </div>
             <form>
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="csrf_token" value="<? //= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" value="<? //= htmlspecialchars($org_id) ?>">
                     <input type="hidden" name="asset_id" id="acc_asset_id">
                     <input type="hidden" name="entity" id="acc_entity">
                     <input class="form-control mb-2" type="text" name="entity_display" id="acc_entity_display" readonly>
@@ -434,7 +435,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     <div class="modal-dialog modal-md">
         <form id="AddPartsForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-info text-white">
                     <h5 class="modal-title" id="associatePartsModalLabel">Associate Machine Parts</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -549,7 +550,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     <div class="modal-dialog modal-md">
         <form id="toolStateForm" method="POST" action="/mes/change-tool-state">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-info text-white">
                     <h5 class="modal-title" id="changeStateModalLabel">Change Entity Mode</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
