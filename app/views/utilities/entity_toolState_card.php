@@ -401,7 +401,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div-->
 
 <!-- LOAD WORK MODAL -->
-<!--div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
@@ -424,7 +424,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </form>
         </div>
     </div>
-</div-->
+</div>
 
 
 
