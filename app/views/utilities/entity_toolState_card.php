@@ -165,10 +165,27 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 						</button>
 
 						<!-- WIP Badge -->
-						<div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;">
+						<div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;"
+						 data-bs-toggle="modal"
+                            data-bs-target="#LoadWorkModal"
+                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+                            aria-label="Load work"
+							>
 							<div class="pulse-dot bg-primary"></div>
 							WIP
 						</div>
+						
+						<!-- Load Work -->
+                        <!--div
+                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+                            data-bs-toggle="modal"
+                            data-bs-target="#LoadWorkModal"
+                            <?php// renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+                            aria-label="Load work"
+                        >
+                            Load Work to Process
+                        </div-->
+						
 					</div>
 
 					<!-- Pin Map (Right) -->
@@ -220,16 +237,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 								<div class="progress-bar bg-primary" style="width: 45%"></div>
 							</div>
 						</div>
-                        <!-- Load Work -->
-                        <div
-                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
-                            data-bs-toggle="modal"
-                            data-bs-target="#LoadWorkModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Load work"
-                        >
-                            Load Work to Process
-                        </div>
+                        
 
                         <!-- State Badge -->
                         <button
