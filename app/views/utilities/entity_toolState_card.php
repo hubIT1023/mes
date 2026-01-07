@@ -276,25 +276,26 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </div>
             <div class="modal-body p-0">
                 <div class="list-group list-group-flush">
-                    <button
-                        type="button"
-                        class="list-group-item list-group-item-action"
-                        data-bs-dismiss="modal"
-                        data-bs-toggle="modal"
-                        data-bs-target="#associateAccessoriesModal"
-                        data-use-stored-context="true"
-                    >
+                    <button type="button" class="list-group-item list-group-item-action"
+                            data-bs-dismiss="modal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#associateAccessoriesModal"
+                            data-use-stored-context="true">
                         ASSOCIATE ACCESSORIES
                     </button>
-                    <button
-                        type="button"
-                        class="list-group-item list-group-item-action"
-                        data-bs-dismiss="modal"
-                        data-bs-toggle="modal"
-                        data-bs-target="#associatePartsModal"
-                        data-use-stored-context="true"
-                    >
+                    <button type="button" class="list-group-item list-group-item-action"
+                            data-bs-dismiss="modal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#associatePartsModal"
+                            data-use-stored-context="true">
                         ASSOCIATE PARTS
+                    </button>
+                    <button type="button" class="list-group-item list-group-item-action"
+                            data-bs-dismiss="modal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#listAccessoriesModal"
+                            data-use-stored-context="true">
+                        Associated Accessories
                     </button>
                 </div>
             </div>
