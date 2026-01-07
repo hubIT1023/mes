@@ -150,46 +150,37 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <!-- Header -->
-				 <div class="d-flex justify-content-between align-items-start p-2 border-bottom border-gray-100">
-					<!-- LEFT GROUP: Entity Name + WIP Badge -->
-					<div class="d-flex flex-column align-items-start gap-2">
-						<!-- Entity Name -->
-						<button
-							class="text-start text-sm fw-semibold text-primary text-decoration-underline bg-transparent border-0 p-0"
-							data-bs-toggle="modal"
-							data-bs-target="#associateAcc-PartsModal"
-							<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-							aria-label="View details for <?= htmlspecialchars($entityName) ?>"
-						>
-							<?= htmlspecialchars($entityName) ?>
-						</button>
-
-						<!-- WIP Badge -->
-						<div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;"
-						 data-bs-toggle="modal"
-                            data-bs-target="#LoadWorkModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Load work"
-							>
-							<div class="pulse-dot bg-primary"></div>
-							WIP
-						</div>
-						
-						<!-- Load Work -->
-                        
-						
-					</div>
-
-					<!-- Pin Map (Right) -->
+			 <div class="d-flex justify-content-between align-items-start p-2 border-bottom border-gray-100">
+				<!-- LEFT GROUP: Entity Name + WIP Badge -->
+				<div class="d-flex flex-column align-items-start gap-2">
+					<!-- Entity Name -->
 					<button
-						class="btn btn-sm btn-light text-primary flex-shrink-0 p-1"
+						class="text-start text-sm fw-semibold text-primary text-decoration-underline bg-transparent border-0 p-0"
 						data-bs-toggle="modal"
-						data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
-						aria-label="Edit position"
+						data-bs-target="#associateAcc-PartsModal"
+						<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+						aria-label="View details for <?= htmlspecialchars($entityName) ?>"
 					>
-						<i class="fas fa-map-pin text-sm"></i> <!-- Note: fixed icon name -->
+						<?= htmlspecialchars($entityName) ?>
 					</button>
+
+					<!-- WIP Badge -->
+					<div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;">
+						<div class="pulse-dot bg-primary"></div>
+						WIP
+					</div>
 				</div>
+
+				<!-- Pin Map (Right) -->
+				<button
+					class="btn btn-sm btn-light text-primary flex-shrink-0 p-1"
+					data-bs-toggle="modal"
+					data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
+					aria-label="Edit position"
+				>
+					<i class="fas fa-map-pin text-sm"></i> <!-- Note: fixed icon name -->
+				</button>
+			</div>
 
                     <!-- Body -->
                     <div class="p-2 space-y-2">
@@ -229,7 +220,16 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 								<div class="progress-bar bg-primary" style="width: 45%"></div>
 							</div>
 						</div>
-                        
+                        <!-- Load Work -->
+                        <div
+                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+                            data-bs-toggle="modal"
+                            data-bs-target="#LoadWorkModal"
+                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+                            aria-label="Load work"
+                        >
+                            Load Work to Process
+                        </div>
 
                         <!-- State Badge -->
                         <button
