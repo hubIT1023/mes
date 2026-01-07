@@ -194,16 +194,21 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     <!-- Body -->
                     <div class="p-2 space-y-2">
                         <!-- WOF Due -->
-                        <div
-                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-yellow-50 rounded hover:bg-yellow-100 cursor-pointer"
-                            data-bs-toggle="modal"
-                            data-bs-target="#LoadWorkModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="WOF Due for <?= htmlspecialchars($entityName) ?>"
-                        >
-                            WOF Due
-                        </div>
-
+						 <div>  
+							<div
+								< div class="d-flex justify-content-between small fw-bold text-success mb-1" style="font-size: 11px;"
+									data-bs-toggle="modal"
+									data-bs-target="#CalDueModal"
+									<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+									aria-label="Calibration Due"
+								>
+                            <span>WOF</span>
+									<span class="text-primary">Due: 14 Oct</span>
+							</div>
+							<div class="progress" style="height: 6px;">
+								<div class="progress-bar bg-success" style="width: 45%"></div>
+							</div>
+						</div>
                         <!-- Cal Due -->
                         <!--div
                             class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-blue-100 cursor-pointer"
@@ -256,6 +261,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         >
                             <?= htmlspecialchars($badge['label']) ?>
                         </button>
+						
+						<hr>
 						
 						<div class="border-top pt-3">
 							<div class="d-flex justify-content-between align-items-center mb-2">
