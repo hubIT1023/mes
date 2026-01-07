@@ -84,7 +84,7 @@ class ToolStateController {
         }
 
         $_SESSION['error'] = "Required fields missing.";
-        header("Location: /dashboard_admin");
+        header("Location: /mes/dashboard_admin");
         exit;
     }
 
