@@ -176,15 +176,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 						</div>
 						
 						<!-- Load Work -->
-                        <!--div
-                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
-                            data-bs-toggle="modal"
-                            data-bs-target="#LoadWorkModal"
-                            <?php// renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Load work"
-                        >
-                            Load Work to Process
-                        </div-->
+                        
 						
 					</div>
 
