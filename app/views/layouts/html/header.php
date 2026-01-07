@@ -20,6 +20,26 @@
   <link href="../Assets/css/custom-style.css" rel="stylesheet"  />
   <link href="../Assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet" />
+  <style>
+        /* Keeping only custom specific logic that Bootstrap doesn't have */
+        body { background-color: #f8fafc; padding: 40px; }
+        .custom-card { width: 400px; border-radius: 20px; transition: transform 0.2s; }
+        .custom-card:hover { transform: translateY(-5px); }
+        
+        /* Pulse animation logic */
+        .pulse-dot {
+            width: 8px; height: 8px; border-radius: 50%; position: relative;
+        }
+        .pulse-dot::after {
+            content: ''; position: absolute; width: 100%; height: 100%;
+            background: inherit; border-radius: 50%; animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            70% { transform: scale(2.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+    </style>
 </head>
 <body id="page-top bg-white">
 
