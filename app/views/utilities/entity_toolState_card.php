@@ -185,7 +185,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         </div>
 
                         <!-- Cal Due -->
-                        <div
+                        <!--div
                             class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-blue-100 cursor-pointer"
                             data-bs-toggle="modal"
                             data-bs-target="#CalDueModal"
@@ -193,7 +193,20 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             aria-label="Calibration Due"
                         >
                             Cal Due
-                        </div>
+                        </div-->
+						
+						<div  class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-blue-100 cursor-pointer"
+                            data-bs-toggle="modal"
+                            data-bs-target="#CalDueModal"
+                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
+                            aria-label="Calibration Due"
+						>
+							<span>CALIBRATION</span>
+							<span class="text-primary">Due: 14 Oct</span>
+						</div>
+						<div class="progress" style="height: 6px;">
+							<div class="progress-bar bg-primary" style="width: 45%"></div>
+						</div>
 
                         <!-- Load Work -->
                         <div
