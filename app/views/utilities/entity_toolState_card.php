@@ -350,7 +350,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div>
 
 <!-- ASSOCIATE ACCESSORIES (Simple version) -->
-<div class="modal fade" id="associateAccessoriesModal" tabindex="-1" aria-hidden="true">
+<!--div class="modal fade" id="associateAccessoriesModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
@@ -372,10 +372,10 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </form>
         </div>
     </div>
-</div>
+</div-->
 
 <!-- LOAD WORK MODAL -->
-<div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-hidden="true">
+<!--div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
@@ -384,8 +384,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </div>
             <form>
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="csrf_token" value="<?//= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" value="<?//= htmlspecialchars($org_id) ?>">
                     <input type="hidden" name="asset_id" id="lw_asset_id">
                     <input type="hidden" name="entity" id="lw_entity">
                     <input type="hidden" name="group_code" id="lw_group_code">
@@ -398,26 +398,12 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </form>
         </div>
     </div>
-</div>
+</div-->
 
-<!-- CAL DUE MODAL -->
-<div class="modal fade" id="CalDueModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-blue-600 text-white">
-                <h6 class="modal-title">CALIBRATION DUE</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center py-3">
-                <p>Calibration is due soon.</p>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Acknowledge</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- STANDING ISSUE MODAL -->
-<div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
+<!--div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -441,7 +427,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </form>
         </div>
     </div>
-</div>
+</div-->
 
 <!-- ASSOCIATE PARTS MODAL (Full Form) -->
 <div class="modal fade" id="associatePartsModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
