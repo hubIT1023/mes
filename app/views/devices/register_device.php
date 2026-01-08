@@ -4,7 +4,7 @@
     <div class="row justify-content-center">
         <div class="col-md-9 col-lg-7 col-xl-6">
             
-            <nav class="d-flex justify-content-between align-items-center bg-info border p-3 rounded-3 shadow-sm mb-4">
+            <nav class="d-flex justify-content-between align-items-center bg-body-secondary border p-3 rounded-3 shadow-sm mb-4">
                 <div>
                     <h4 class="fw-bold mb-0">Register Device</h4>
                     <p class="text-muted small mb-0">New hardware setup</p>
@@ -16,7 +16,7 @@
             
             <div class="card border-0 shadow-sm overflow-hidden rounded-4">
                 <div class="card-body p-0">
-                    <form method="POST" action="/device/register" class="bg-body-secondary p-4 p-md-5">
+                    <form method="POST" action="/device/register" class="bg-body-white p-4 p-md-5">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
 
                         <div class="mb-4">
