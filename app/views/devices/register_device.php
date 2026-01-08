@@ -1,27 +1,45 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
-<div class="container-lg mt-4 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-0">
-		
-		<nav class="page-header shadow-sm">
-			<div>
-				<h2 class="fw-bold mb-1">Registered Devices</h2>
-				<p class="text-white-50 mb-0">Manage your connected devices</p>
-			</div>
-			<div class="d-flex gap-2">
-				<a href="/hub_portal" class="btn btn-light border">
-					<i class="fas fa-desktop me-1"></i> Hub Portal
-				</a>
-				<?php if (!empty($devices)): ?>
-					 <a href="/device" class="btn btn-outline-secondary btn-sm shadow-sm">
-						<i class="fas fa-arrow-left me-1"></i> Back to Devices
-					</a>
-				<?php endif; ?>
-			</div>
-		</nav>
-            
 
+<style>
+    .page-header {
+        background-color: #ffffff;
+        border: 1px solid #e9ecef;
+        padding: 1.25rem 1.5rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+    }
+    /* Makes the back button feel more like a navigation element */
+    .btn-back {
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.4rem 0.8rem;
+    }
+</style>
+
+<div class="container-sm mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+        
+            <nav class="page-header shadow-sm d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1" style="letter-spacing: -0.5px;">Register New Device</h2>
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-plus-circle me-1 text-primary"></i> 
+                        Connect a new hardware asset to your hub.
+                    </p>
+                </div>
+                <div>
+                    <a href="/device" class="btn btn-outline-secondary btn-back shadow-sm">
+                        <i class="fas fa-chevron-left me-1"></i> Back
+                    </a>
+                </div>
+            </nav>
+            
+			<!-- existing code.... -->
+			
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert">
                     <i class="fas fa-exclamation-circle me-2"></i>
