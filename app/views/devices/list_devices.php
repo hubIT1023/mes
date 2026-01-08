@@ -1,20 +1,28 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
 <style>
-    /* Hover effect for the empty state icon/link */
-    .empty-state-link {
-        text-decoration: none !important;
-        transition: all 0.3s ease;
-        display: inline-block;
-    }
-    .empty-state-link:hover {
-        transform: translateY(-5px);
-    }
-    .empty-state-link:hover i {
-        color: #0d6efd !important; /* Bootstrap Primary Color */
-    }
-    .editable-cell { cursor: pointer; }
-    .editable-cell:hover { background-color: #f8f9fa; }
+  .empty-state-link {
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+    display: inline-block;
+    
+    /* The dashed border styling */
+    border: 2px dashed #dee2e6; /* Light gray border */
+    padding: 40px 60px;         /* Space between text and border */
+    border-radius: 12px;        /* Optional: slightly rounded corners */
+    background-color: #f8f9fa;  /* Light background to make it pop */
+}
+
+.empty-state-link:hover {
+    transform: translateY(-5px);
+    border-color: #0d6efd;      /* Changes to blue on hover */
+    background-color: #ffffff;  /* Brightens on hover */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.empty-state-link:hover i {
+    color: #0d6efd !important;
+}
 </style>
 
 <div class="container-lg mt-4">
