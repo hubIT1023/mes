@@ -128,6 +128,6 @@ return array_merge(
     $maintenanceChecklistRoutes,
     $machinePartsRoutes,
     $apiRoutes,
-	$schedulerRoutes
+	$schedulerRoutes,
 	$deviceRoutes
 );
