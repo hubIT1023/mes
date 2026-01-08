@@ -1,100 +1,9 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
-<style>
-  .empty-state-link {
-    text-decoration: none !important;
-    transition: all 0.3s ease;
-    display: inline-block;
+<div class="container-lg mt-4 mb-5">
     
-    /* The dashed border styling */
-    border: 2px dashed #dee2e6; /* Light gray border */
-    padding: 40px 60px;         /* Space between text and border */
-    border-radius: 12px;        /* Optional: slightly rounded corners */
-    background-color: #f8f9fa;  /* Light background to make it pop */
-}
-
-.empty-state-link:hover {
-    transform: translateY(-5px);
-    border-color: #0d6efd;      /* Changes to blue on hover */
-    background-color: #ffffff;  /* Brightens on hover */
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-}
-
-.empty-state-link:hover i {
-    color: #0d6efd !important;
-}
-
-    .empty-state-link {
-        text-decoration: none !important;
-        transition: all 0.3s ease-in-out;
-        display: inline-block;
-        
-        /* Dashed Border Styling */
-        border: 2px dashed #ced4da; /* Subtle gray dash */
-        padding: 3rem;              /* Large internal spacing */
-        border-radius: 15px;        /* Smooth corners */
-        background-color: #f8f9fa;  /* Very light gray background */
-        max-width: 450px;           /* Prevents it from getting too wide */
-    }
-
-    .empty-state-link:hover {
-        transform: translateY(-5px);
-        border-color: #0d6efd;      /* Primary blue on hover */
-        background-color: #ffffff;  /* Cleans up to white on hover */
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    }
-
-    .empty-state-link:hover i {
-        color: #0d6efd !important;  /* Icon turns blue */
-    }
-
-    .empty-state-link:hover h4 {
-        color: #0d6efd !important;  /* Text turns blue */
-    }
-
-    /* Consistent Header Styling */
-    .page-header {
-        background-color: #6c757d; /* bg-secondary */
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        margin-bottom: 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: white;
-    }
-
-    /* Dashed Registration Box */
-    .empty-state-link {
-        text-decoration: none !important;
-        transition: all 0.3s ease;
-        display: inline-block;
-        border: 3px dashed #dee2e6;
-        padding: 4rem 2rem;
-        border-radius: 1.5rem;
-        background-color: #f8f9fa;
-        max-width: 500px;
-        width: 100%;
-    }
-
-    .empty-state-link:hover {
-        border-color: #0d6efd;
-        background-color: #fff;
-        transform: translateY(-5px);
-        box-shadow: 0 1rem 3rem rgba(0,0,0,0.1);
-    }
-
-    .empty-state-link:hover i {
-        color: #0d6efd !important;
-        transform: scale(1.1);
-        transition: transform 0.3s ease;
-    }
-</style>
-
-<div class="container-lg mt-4">
-  
     <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
             <i class="fas fa-check-circle me-2"></i>
             <?= htmlspecialchars($_SESSION['success']) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -102,105 +11,98 @@
         <?php unset($_SESSION['success']); ?>
     <?php endif; ?>
 
-    <nav class="page-header shadow-sm">
+    <nav class="d-flex justify-content-between align-items-center bg-secondary text-white p-4 rounded-3 shadow-sm mb-4">
         <div>
             <h2 class="fw-bold mb-1">Registered Devices</h2>
-            <p class="text-white-50 mb-0">Manage your connected devices</p>
+            <p class="text-white-50 mb-0 small">Manage your connected hardware assets</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="/hub_portal" class="btn btn-light border">
+            <a href="/hub_portal" class="btn btn-light btn-sm px-3 fw-medium">
                 <i class="fas fa-desktop me-1"></i> Hub Portal
             </a>
             <?php if (!empty($devices)): ?>
-                <a href="/device/register" class="btn btn-primary">
-                    <i class="fas fa-plus me-1"></i> Register New Device
+                <a href="/device/register" class="btn btn-primary btn-sm px-3 fw-bold shadow-sm">
+                    <i class="fas fa-plus me-1"></i> Register New
                 </a>
             <?php endif; ?>
         </div>
     </nav>
 
     <?php if (empty($devices)): ?>
-        <div class="d-flex align-items-center justify-content-center mt-5" style="min-height: 40vh;">
-            <a href="/device/register" class="empty-state-link text-center">
-                <div class="mb-4">
-                    <i class="fas fa-microchip fa-4x text-muted"></i>
+        <div class="d-flex align-items-center justify-content-center mt-5" style="min-height: 50vh;">
+            <a href="/device/register" 
+               class="text-center text-decoration-none border border-3 border-dashed bg-body-tertiary p-5 rounded-5" 
+               style="max-width: 500px; transition: all 0.2s ease-in-out;">
+                
+                <div class="mb-4 text-secondary opacity-50">
+                    <i class="fas fa-microchip fa-4x"></i>
                 </div>
+                
                 <h4 class="text-dark fw-bold">No devices registered yet</h4>
-                <p class="text-muted mb-4">Set up your first device to start monitoring parameters.</p>
-                <span class="btn btn-outline-primary px-4">
-                    <i class="fas fa-plus me-1"></i> Register Now
+                <p class="text-muted mb-4">Set up your first device to start monitoring parameters in real-time.</p>
+                
+                <span class="btn btn-primary px-4 fw-bold shadow-sm">
+                    <i class="fas fa-plus me-1"></i> Register First Device
                 </span>
             </a>
         </div>
-    
-	<!-- existing code -->
-	
-        <div class="card shadow-sm border-0">
+
+    <?php else: ?>
+        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
-                            <tr>
-                                <th>Device Name</th>
+                            <tr class="small text-uppercase text-muted">
+                                <th class="ps-4">Device Name</th>
                                 <th>Description</th>
                                 <th>Parameters</th>
                                 <th class="text-end">Hi Limit</th>
                                 <th class="text-end">Lo Limit</th>
                                 <th>Trigger</th>
                                 <th>Action</th>
-                                <th class="text-center">Key</th>
+                                <th class="text-center pe-4">Key</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($devices as $device): ?>
                                 <tr>
-                                    <td>
-                                        <strong><?= htmlspecialchars($device['device_name']) ?></strong>
-                                        <div class="small text-muted mt-1">
-                                            <?php if (!empty($device['location_level_1'])): ?>
-                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark"><?= htmlspecialchars($device['device_name']) ?></div>
+                                        <?php if (!empty($device['location_level_1'])): ?>
+                                            <div class="small text-muted mt-1">
+                                                <i class="fas fa-map-marker-alt me-1 text-primary shadow-sm"></i>
                                                 <?= htmlspecialchars($device['location_level_1']) ?>
-                                                <?php if (!empty($device['location_level_2'])): ?> / <?= htmlspecialchars($device['location_level_2']) ?><?php endif; ?>
-                                            <?php endif; ?>
-                                        </div>
+                                                <?= !empty($device['location_level_2']) ? ' / ' . htmlspecialchars($device['location_level_2']) : '' ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </td>
 
-                                    <td class="editable-cell" data-device-id="<?= (int)$device['id'] ?>" data-field="description" data-value="<?= htmlspecialchars($device['description'] ?? '') ?>">
-                                        <span class="cell-text"><?= !empty($device['description']) ? htmlspecialchars($device['description']) : '<span class="text-muted">—</span>' ?></span>
-                                        <input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['description'] ?? '') ?>">
+                                    <td class="text-muted small">
+                                        <?= !empty($device['description']) ? htmlspecialchars($device['description']) : '—' ?>
                                     </td>
 
                                     <td>
                                         <?php if (!empty($device['parameter_name'])): ?>
-                                            <code><?= htmlspecialchars($device['parameter_name']) ?></code>
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-medium">
+                                                <?= htmlspecialchars($device['parameter_name']) ?>
+                                            </span>
                                         <?php else: ?>
                                             <span class="text-muted">—</span>
                                         <?php endif; ?>
                                     </td>
 
-                                    <td class="text-end editable-cell" data-device-id="<?= (int)$device['id'] ?>" data-field="hi_limit" data-value="<?= $device['hi_limit'] ?>">
-                                        <span class="cell-text"><?= $device['hi_limit'] !== null ? number_format((float)$device['hi_limit'], 2) : '<span class="text-muted">—</span>' ?></span>
-                                        <input type="number" step="any" class="form-control d-none cell-input text-end" value="<?= $device['hi_limit'] ?? '' ?>">
-                                    </td>
+                                    <td class="text-end font-monospace"><?= $device['hi_limit'] ?? '—' ?></td>
+                                    <td class="text-end font-monospace"><?= $device['lo_limit'] ?? '—' ?></td>
+                                    
+                                    <td><span class="small"><?= htmlspecialchars($device['trigger_condition'] ?? '—') ?></span></td>
+                                    <td><span class="badge bg-light text-dark border"><?= htmlspecialchars($device['action'] ?? '—') ?></span></td>
 
-                                    <td class="text-end editable-cell" data-device-id="<?= (int)$device['id'] ?>" data-field="lo_limit" data-value="<?= $device['lo_limit'] ?>">
-                                        <span class="cell-text"><?= $device['lo_limit'] !== null ? number_format((float)$device['lo_limit'], 2) : '<span class="text-muted">—</span>' ?></span>
-                                        <input type="number" step="any" class="form-control d-none cell-input text-end" value="<?= $device['lo_limit'] ?? '' ?>">
-                                    </td>
-
-                                    <td class="editable-cell" data-device-id="<?= (int)$device['id'] ?>" data-field="trigger_condition" data-value="<?= htmlspecialchars($device['trigger_condition'] ?? '') ?>">
-                                        <span class="cell-text"><?= !empty($device['trigger_condition']) ? htmlspecialchars($device['trigger_condition']) : '<span class="text-muted">—</span>' ?></span>
-                                        <input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['trigger_condition'] ?? '') ?>">
-                                    </td>
-
-                                    <td class="editable-cell" data-device-id="<?= (int)$device['id'] ?>" data-field="action" data-value="<?= htmlspecialchars($device['action'] ?? '') ?>">
-                                        <span class="cell-text"><?= !empty($device['action']) ? htmlspecialchars($device['action']) : '<span class="text-muted">—</span>' ?></span>
-                                        <input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['action'] ?? '') ?>">
-                                    </td>
-
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-secondary copy-key" data-key="<?= htmlspecialchars($device['device_key']) ?>" title="Copy Key">
-                                            <i class="fas fa-key"></i>
+                                    <td class="text-center pe-4">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-circle shadow-sm copy-key" 
+                                                data-key="<?= htmlspecialchars($device['device_key']) ?>" 
+                                                title="Copy Key">
+                                            <i class="fas fa-key small"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -212,6 +114,8 @@
         </div>
     <?php endif; ?>
 </div>
+
+
 
 <script>
 document.querySelectorAll('.copy-key').forEach(btn => {
