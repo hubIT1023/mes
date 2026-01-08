@@ -64,15 +64,15 @@
     <?php endif; ?>
 
     <?php if (empty($devices)): ?>
-        <nav class="d-flex justify-content-between align-items-center bg-secondary mb-4">
-            <div>
-                <h2 class="fw-bold mb-1">Registered Devices</h2>
-                <p class="text-muted mb-0">Manage your connected devices</p>
-            </div>
-            <a href="/hub_portal" class="btn btn-light border">
-                <i class="fas fa-desktop me-1"></i> Hub Portal
-            </a>
-        </nav>
+        <nav class="d-flex justify-content-between align-items-center bg-secondary p-3 rounded mb-4">
+			<div>
+				<h2 class="fw-bold mb-1 text-white">Registered Devices</h2>
+				<p class="text-white-50 mb-0">Manage your connected devices</p>
+			</div>
+			<a href="/hub_portal" class="btn btn-light border">
+				<i class="fas fa-desktop me-1"></i> Hub Portal
+			</a>
+		</nav>
     
         <div class="d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 60vh;">
             <a href="/device/register" class="empty-state-link">
