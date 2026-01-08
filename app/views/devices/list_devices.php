@@ -11,9 +11,7 @@
 			<a href="/hub_portal" class="btn btn-light border">
 				<i class="fas fa-desktop me-1"></i> Hub Portal
 			</a>
-			<a href="/device/register" class="btn btn-primary">
-				<i class="fas fa-plus me-1"></i> Register New Device
-			</a>
+		
 		</div>
 	</div>
     <?php if (isset($_SESSION['success'])): ?>
@@ -28,9 +26,26 @@
         <div class="text-center py-5">
             <i class="fas fa-microchip fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">No devices registered yet</h5>
+			<a href="/device/register" class="btn btn-primary">
             <p class="text-muted">Click "Register New Device" to get started.</p>
         </div>
     <?php else: ?>
+	<div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+		<div>
+			<h2 class="fw-bold mb-1">Registered Devices</h2>
+			<p class="text-muted mb-0">Manage your connected devices</p>
+		</div>
+
+		<div class="d-flex gap-2">
+			<a href="/hub_portal" class="btn btn-light border">
+				<i class="fas fa-desktop me-1"></i> Hub Portal
+			</a>
+			<a href="/device/register" class="btn btn-primary">
+				<i class="fas fa-plus me-1"></i> Register New Device
+			</a>
+		</div>
+	</div>
+	
         <div class="card shadow-sm border-0">
             <div class="card-body p-0">
                 <div class="table-responsive">
