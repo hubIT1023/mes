@@ -41,9 +41,9 @@
                 <h4 class="text-dark fw-bold">No devices registered yet</h4>
                 <p class="text-muted mb-4">Set up your first device to start monitoring parameters in real-time.</p>
                 
-                <span class="btn btn-primary px-4 fw-bold shadow-sm">
+                <!--span class="btn btn-primary px-4 fw-bold shadow-sm">
                     <i class="fas fa-plus me-1"></i> Register First Device
-                </span>
+                </span-->
             </a>
         </div>
 
