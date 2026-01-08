@@ -1,6 +1,6 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
-<div class="container-lg mt-4 mb-5">
+<div class="container-sm mt-4 mb-5">
     <div class="row justify-content-center">
         <div class="col-lg-9">
             <div class="d-flex justify-content-between align-items-center mb-4">
