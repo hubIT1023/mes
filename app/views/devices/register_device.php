@@ -1,6 +1,6 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
-<div class="container-lg mt-4">
+<div class="container mt-4" style="width: 100rem >
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Register New Device</h2>
         <a href="/device" class="btn btn-outline-secondary btn-sm">← Back to Devices</a>
