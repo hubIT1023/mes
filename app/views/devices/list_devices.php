@@ -1,5 +1,22 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
+<style>
+    /* Hover effect for the empty state icon/link */
+    .empty-state-link {
+        text-decoration: none !important;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+    .empty-state-link:hover {
+        transform: translateY(-5px);
+    }
+    .empty-state-link:hover i {
+        color: #0d6efd !important; /* Bootstrap Primary Color */
+    }
+    .editable-cell { cursor: pointer; }
+    .editable-cell:hover { background-color: #f8f9fa; }
+</style>
+
 <div class="container-lg mt-4">
   
     <?php if (isset($_SESSION['success'])): ?>
@@ -11,45 +28,34 @@
     <?php endif; ?>
 
     <?php if (empty($devices)): ?>
-	<!-- if Empty -->
-	  <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
-		<div>
-			<h2 class="fw-bold mb-1">Registered Devices</h2>
-			<p class="text-muted mb-0">Manage your connected devices</p>
-		</div>
-
-		<div class="d-flex gap-2">
-			<a href="/hub_portal" class="btn btn-light border">
-				<i class="fas fa-desktop me-1"></i> Hub Portal
-			</a>
-		
-		</div>
-	</div>
-	
-        <div class="text-center py-5">
-            <i class="fas fa-microchip fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No devices registered yet</h5>
-			<a href="/device/register" class="btn btn-primary">
-            <p class="text-muted">Click "Register New Device" to get started.</p>
+        <div class="d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 60vh;">
+            <a href="/device/register" class="empty-state-link">
+                <i class="fas fa-microchip fa-4x text-muted mb-3"></i>
+                <h4 class="text-dark fw-bold">No devices registered yet</h4>
+                <p class="text-muted">Click here to register your first device and get started.</p>
+                <span class="btn btn-primary mt-2">
+                    <i class="fas fa-plus me-1"></i> Register New Device
+                </span>
+            </a>
         </div>
-		
+        
     <?php else: ?>
-	<div class="d-flex justify-content-between align-items-center gap-3 mb-4">
-		<div>
-			<h2 class="fw-bold mb-1">Registered Devices</h2>
-			<p class="text-muted mb-0">Manage your connected devices</p>
-		</div>
+        <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Registered Devices</h2>
+                <p class="text-muted mb-0">Manage your connected devices</p>
+            </div>
 
-		<div class="d-flex gap-2">
-			<a href="/hub_portal" class="btn btn-light border">
-				<i class="fas fa-desktop me-1"></i> Hub Portal
-			</a>
-			<a href="/device/register" class="btn btn-primary">
-				<i class="fas fa-plus me-1"></i> Register New Device
-			</a>
-		</div>
-	</div>
-	
+            <div class="d-flex gap-2">
+                <a href="/hub_portal" class="btn btn-light border">
+                    <i class="fas fa-desktop me-1"></i> Hub Portal
+                </a>
+                <a href="/device/register" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Register New Device
+                </a>
+            </div>
+        </div>
+    
         <div class="card shadow-sm border-0">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -61,7 +67,7 @@
                                 <th>Parameters</th>
                                 <th class="text-end">Hi Limit</th>
                                 <th class="text-end">Lo Limit</th>
-                                <th>Trigger Condition</th>
+                                <th>Trigger</th>
                                 <th>Action</th>
                                 <th class="text-center">Key</th>
                             </tr>
@@ -69,7 +75,6 @@
                         <tbody>
                             <?php foreach ($devices as $device): ?>
                                 <tr>
-                                    <!-- Device Name + Location -->
                                     <td>
                                         <strong><?= htmlspecialchars($device['device_name']) ?></strong>
                                         <div class="small text-muted mt-1">
@@ -77,75 +82,45 @@
                                                 <i class="fas fa-map-marker-alt me-1"></i>
                                                 <?= htmlspecialchars($device['location_level_1']) ?>
                                                 <?php if (!empty($device['location_level_2'])): ?> / <?= htmlspecialchars($device['location_level_2']) ?><?php endif; ?>
-                                                <?php if (!empty($device['location_level_3'])): ?> / <?= htmlspecialchars($device['location_level_3']) ?><?php endif; ?>
                                             <?php endif; ?>
                                         </div>
                                     </td>
 
-                                    <!-- Description -->
-                                    <td class="editable-cell" 
-										data-device-id="<?= (int)$device['id'] ?>" 
-										data-field="description"
-										data-value="<?= htmlspecialchars($device['description'] ?? '') ?>">
-										<span class="cell-text"><?= !empty($device['description']) ? htmlspecialchars($device['description']) : '<span class="text-muted">—</span>' ?></span>
-										<input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['description'] ?? '') ?>">
-									</td>
+                                    <td class="editable-cell" data-device-id="<?= (int)$device['id'] ?>" data-field="description" data-value="<?= htmlspecialchars($device['description'] ?? '') ?>">
+                                        <span class="cell-text"><?= !empty($device['description']) ? htmlspecialchars($device['description']) : '<span class="text-muted">—</span>' ?></span>
+                                        <input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['description'] ?? '') ?>">
+                                    </td>
 
-                                    <!-- Parameters -->
                                     <td>
                                         <?php if (!empty($device['parameter_name'])): ?>
                                             <code><?= htmlspecialchars($device['parameter_name']) ?></code>
-                                            <?php if (!empty($device['parameter_value'])): ?>
-                                                = <?= htmlspecialchars($device['parameter_value']) ?>
-                                            <?php endif; ?>
                                         <?php else: ?>
                                             <span class="text-muted">—</span>
                                         <?php endif; ?>
                                     </td>
 
-									<!-- Hi Limit -->
-									<td class="text-end editable-cell" 
-										data-device-id="<?= (int)$device['id'] ?>" 
-										data-field="hi_limit"
-										data-value="<?= $device['hi_limit'] ?>">
-										<span class="cell-text"><?= $device['hi_limit'] !== null ? number_format((float)$device['hi_limit'], 2) : '<span class="text-muted">—</span>' ?></span>
-										<input type="number" step="any" class="form-control d-none cell-input text-end" value="<?= $device['hi_limit'] ?? '' ?>">
-									</td>
+                                    <td class="text-end editable-cell" data-device-id="<?= (int)$device['id'] ?>" data-field="hi_limit" data-value="<?= $device['hi_limit'] ?>">
+                                        <span class="cell-text"><?= $device['hi_limit'] !== null ? number_format((float)$device['hi_limit'], 2) : '<span class="text-muted">—</span>' ?></span>
+                                        <input type="number" step="any" class="form-control d-none cell-input text-end" value="<?= $device['hi_limit'] ?? '' ?>">
+                                    </td>
 
-									<!-- Lo Limit -->
-									<td class="text-end editable-cell" 
-										data-device-id="<?= (int)$device['id'] ?>" 
-										data-field="lo_limit"
-										data-value="<?= $device['lo_limit'] ?>">
-										<span class="cell-text"><?= $device['lo_limit'] !== null ? number_format((float)$device['lo_limit'], 2) : '<span class="text-muted">—</span>' ?></span>
-										<input type="number" step="any" class="form-control d-none cell-input text-end" value="<?= $device['lo_limit'] ?? '' ?>">
-									</td>
+                                    <td class="text-end editable-cell" data-device-id="<?= (int)$device['id'] ?>" data-field="lo_limit" data-value="<?= $device['lo_limit'] ?>">
+                                        <span class="cell-text"><?= $device['lo_limit'] !== null ? number_format((float)$device['lo_limit'], 2) : '<span class="text-muted">—</span>' ?></span>
+                                        <input type="number" step="any" class="form-control d-none cell-input text-end" value="<?= $device['lo_limit'] ?? '' ?>">
+                                    </td>
 
-									<!-- Trigger Condition -->
-									<td class="editable-cell" 
-										data-device-id="<?= (int)$device['id'] ?>" 
-										data-field="trigger_condition"
-										data-value="<?= htmlspecialchars($device['trigger_condition'] ?? '') ?>">
-										<span class="cell-text"><?= !empty($device['trigger_condition']) ? htmlspecialchars($device['trigger_condition']) : '<span class="text-muted">—</span>' ?></span>
-										<input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['trigger_condition'] ?? '') ?>">
-									</td>
+                                    <td class="editable-cell" data-device-id="<?= (int)$device['id'] ?>" data-field="trigger_condition" data-value="<?= htmlspecialchars($device['trigger_condition'] ?? '') ?>">
+                                        <span class="cell-text"><?= !empty($device['trigger_condition']) ? htmlspecialchars($device['trigger_condition']) : '<span class="text-muted">—</span>' ?></span>
+                                        <input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['trigger_condition'] ?? '') ?>">
+                                    </td>
 
-									<!-- Action -->
-									<td class="editable-cell" 
-										data-device-id="<?= (int)$device['id'] ?>" 
-										data-field="action"
-										data-value="<?= htmlspecialchars($device['action'] ?? '') ?>">
-										<span class="cell-text"><?= !empty($device['action']) ? htmlspecialchars($device['action']) : '<span class="text-muted">—</span>' ?></span>
-										<input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['action'] ?? '') ?>">
-									</td>
+                                    <td class="editable-cell" data-device-id="<?= (int)$device['id'] ?>" data-field="action" data-value="<?= htmlspecialchars($device['action'] ?? '') ?>">
+                                        <span class="cell-text"><?= !empty($device['action']) ? htmlspecialchars($device['action']) : '<span class="text-muted">—</span>' ?></span>
+                                        <input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['action'] ?? '') ?>">
+                                    </td>
 
-                                    <!-- Copy Key Button -->
                                     <td class="text-center">
-                                        <button 
-                                            class="btn btn-sm btn-outline-secondary copy-key"
-                                            data-key="<?= htmlspecialchars($device['device_key']) ?>"
-                                            title="Copy full device key"
-                                        >
+                                        <button class="btn btn-sm btn-outline-secondary copy-key" data-key="<?= htmlspecialchars($device['device_key']) ?>" title="Copy Key">
                                             <i class="fas fa-key"></i>
                                         </button>
                                     </td>
