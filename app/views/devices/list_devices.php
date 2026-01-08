@@ -9,6 +9,9 @@
         <a href="/device/register" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i> Register New Device
         </a>
+		<a href="/hub_portal" class="btn btn-ligth">
+            <i class="fas fa-plus me-1"></i> Register New Device
+        </a>
     </div>
 
     <?php if (isset($_SESSION['success'])): ?>
