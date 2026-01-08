@@ -64,7 +64,7 @@
     <?php endif; ?>
 
     <?php if (empty($devices)): ?>
-        <nav class="d-flex justify-content-between align-items-center mb-4">
+        <nav class="d-flex justify-content-between align-items-center bg-secondary mb-4">
             <div>
                 <h2 class="fw-bold mb-1">Registered Devices</h2>
                 <p class="text-muted mb-0">Manage your connected devices</p>
