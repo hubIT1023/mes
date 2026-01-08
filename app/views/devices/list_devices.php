@@ -51,55 +51,90 @@
     .empty-state-link:hover h4 {
         color: #0d6efd !important;  /* Text turns blue */
     }
+
+    /* Consistent Header Styling */
+    .page-header {
+        background-color: #6c757d; /* bg-secondary */
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+    }
+
+    /* Dashed Registration Box */
+    .empty-state-link {
+        text-decoration: none !important;
+        transition: all 0.3s ease;
+        display: inline-block;
+        border: 3px dashed #dee2e6;
+        padding: 4rem 2rem;
+        border-radius: 1.5rem;
+        background-color: #f8f9fa;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .empty-state-link:hover {
+        border-color: #0d6efd;
+        background-color: #fff;
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,0.1);
+    }
+
+    .empty-state-link:hover i {
+        color: #0d6efd !important;
+        transform: scale(1.1);
+        transition: transform 0.3s ease;
+    }
 </style>
 
 <div class="container-lg mt-4">
   
     <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
             <?= htmlspecialchars($_SESSION['success']) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         <?php unset($_SESSION['success']); ?>
     <?php endif; ?>
 
-    <?php if (empty($devices)): ?>
-        <nav class="d-flex justify-content-between align-items-center bg-secondary p-3 rounded mb-4">
-			<div>
-				<h2 class="fw-bold mb-1 text-white">Registered Devices</h2>
-				<p class="text-white-50 mb-0">Manage your connected devices</p>
-			</div>
-			<a href="/hub_portal" class="btn btn-light border">
-				<i class="fas fa-desktop me-1"></i> Hub Portal
-			</a>
-		</nav>
-    
-        <div class="d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 60vh;">
-            <a href="/device/register" class="empty-state-link">
-                <i class="fas fa-microchip fa-4x text-muted mb-3"></i>
-                <h4 class="text-dark fw-bold">No devices registered yet</h4>
-                <p class="text-muted mb-0">Click here to register your first device and get started.</p>
-                </a>
+    <nav class="page-header shadow-sm">
+        <div>
+            <h2 class="fw-bold mb-1">Registered Devices</h2>
+            <p class="text-white-50 mb-0">Manage your connected devices</p>
         </div>
-        
-
-    <?php else: ?>
-        <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
-            <div>
-                <h2 class="fw-bold mb-1">Registered Devices</h2>
-                <p class="text-muted mb-0">Manage your connected devices</p>
-            </div>
-
-            <div class="d-flex gap-2">
-                <a href="/hub_portal" class="btn btn-light border">
-                    <i class="fas fa-desktop me-1"></i> Hub Portal
-                </a>
+        <div class="d-flex gap-2">
+            <a href="/hub_portal" class="btn btn-light border">
+                <i class="fas fa-desktop me-1"></i> Hub Portal
+            </a>
+            <?php if (!empty($devices)): ?>
                 <a href="/device/register" class="btn btn-primary">
                     <i class="fas fa-plus me-1"></i> Register New Device
                 </a>
-            </div>
+            <?php endif; ?>
+        </div>
+    </nav>
+
+    <?php if (empty($devices)): ?>
+        <div class="d-flex align-items-center justify-content-center mt-5" style="min-height: 40vh;">
+            <a href="/device/register" class="empty-state-link text-center">
+                <div class="mb-4">
+                    <i class="fas fa-microchip fa-4x text-muted"></i>
+                </div>
+                <h4 class="text-dark fw-bold">No devices registered yet</h4>
+                <p class="text-muted mb-4">Set up your first device to start monitoring parameters.</p>
+                <span class="btn btn-outline-primary px-4">
+                    <i class="fas fa-plus me-1"></i> Register Now
+                </span>
+            </a>
         </div>
     
+	<!-- existing code -->
+	
         <div class="card shadow-sm border-0">
             <div class="card-body p-0">
                 <div class="table-responsive">
