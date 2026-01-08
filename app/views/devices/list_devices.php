@@ -1,7 +1,18 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
 <div class="container-lg mt-4">
-    <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+  
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?= htmlspecialchars($_SESSION['success']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
+    <?php if (empty($devices)): ?>
+	<!-- if Empty -->
+	  <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
 		<div>
 			<h2 class="fw-bold mb-1">Registered Devices</h2>
 			<p class="text-muted mb-0">Manage your connected devices</p>
@@ -14,21 +25,14 @@
 		
 		</div>
 	</div>
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?= htmlspecialchars($_SESSION['success']) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        <?php unset($_SESSION['success']); ?>
-    <?php endif; ?>
-
-    <?php if (empty($devices)): ?>
+	
         <div class="text-center py-5">
             <i class="fas fa-microchip fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">No devices registered yet</h5>
 			<a href="/device/register" class="btn btn-primary">
             <p class="text-muted">Click "Register New Device" to get started.</p>
         </div>
+		
     <?php else: ?>
 	<div class="d-flex justify-content-between align-items-center gap-3 mb-4">
 		<div>
