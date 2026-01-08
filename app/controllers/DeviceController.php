@@ -122,67 +122,70 @@ class DeviceController
     }
 
     // --- 🆕 Data Ingestion (No session needed) ---
-    public function receiveData()
-    {
-        // Allow CORS for testing (remove in production!)
-		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			http_response_code(204);
-			exit;
-		}
-		header("Access-Control-Allow-Origin: *");
-		header("Access-Control-Allow-Methods: POST, OPTIONS");
-		header("Access-Control-Allow-Headers: Content-Type");
-		
-		//------------------------------
-		
-		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            echo json_encode(['error' => 'Method not allowed']);
-            exit;
-        }
+    // In app/controllers/DeviceController.php
 
-        $input = json_decode(file_get_contents('php://input'), true);
-        if (!$input || !isset($input['device_key'], $input['parameter_name'], $input['parameter_value'])) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Missing required fields']);
-            exit;
-        }
-
-        $deviceKey = trim($input['device_key']);
-        $paramName = trim($input['parameter_name']);
-        $paramValue = $input['parameter_value'];
-        $unit = trim($input['unit'] ?? '');
-
-        if (!is_numeric($paramValue) || strlen($deviceKey) !== 32 || strlen($paramName) > 100) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Invalid format']);
-            exit;
-        }
-
-        // 🔒 TENANT ISOLATION: Resolve org_id from device_key
-        $device = $this->model->getByDeviceKey($deviceKey);
-        if (!$device) {
-            http_response_code(403);
-            echo json_encode(['error' => 'Invalid device key']);
-            exit;
-        }
-
-        $data = [
-            'device_key' => $deviceKey,
-            'parameter_name' => $paramName,
-            'parameter_value' => (float)$paramValue,
-            'unit' => $unit,
-            'org_id' => $device['org_id'] // 👈 Critical: bind to tenant
-        ];
-
-        if ($this->model->insertDeviceData($data)) {
-            echo json_encode(['status' => 'success']);
-        } else {
-            http_response_code(500);
-            echo json_encode(['error' => 'Failed to store data']);
-        }
+public function receiveData()
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['error' => 'Method not allowed']);
         exit;
     }
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input || !isset($input['device_key'], $input['parameter_name'], $input['parameter_value'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Missing required fields']);
+        exit;
+    }
+
+    $deviceKey = trim($input['device_key']);
+    $paramName = trim($input['parameter_name']);
+    $paramValue = $input['parameter_value'];
+    $unit = trim($input['unit'] ?? '');
+
+    // Validate value is numeric
+    if (!is_numeric($paramValue)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'parameter_value must be a number']);
+        exit;
+    }
+
+    // Validate length
+    if (strlen($deviceKey) !== 32 || strlen($paramName) > 100) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid format']);
+        exit;
+    }
+
+    // 👇 CRITICAL: Do NOT require session for device data!
+    // Devices don't log in — they authenticate via device_key only.
+    
+    // Get org_id from device_key
+    $device = $this->model->getByDeviceKey($deviceKey);
+    if (!$device) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Invalid device key']);
+        exit;
+    }
+
+    // Insert data
+    $data = [
+        'device_key' => $deviceKey,
+        'parameter_name' => $paramName,
+        'parameter_value' => (float)$paramValue,
+        'unit' => $unit,
+        'org_id' => $device['org_id']
+    ];
+
+    if ($this->model->insertDeviceData($data)) {
+        echo json_encode(['status' => 'success']);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to store data']);
+    }
+    exit;
+}
 
     // --- 🆕 View Device Data (with tenant check) ---
     public function viewData()
