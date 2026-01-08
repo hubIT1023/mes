@@ -358,20 +358,24 @@ CREATE TABLE tool_state (
     location_code VARCHAR(100) NOT NULL,
     col_1 VARCHAR(255),  -- asset_id
     col_2 VARCHAR(255),  -- entity name
-    col_3 VARCHAR(100),  -- status 
-    col_4 VARCHAR(100),  -- machine state
-    col_5 VARCHAR(100),  -- sub-state
-    col_6 VARCHAR(50),   -- timestamp (ISO8601 string)
-    col_7 VARCHAR(100),  -- operator
-    col_8 VARCHAR(100),  -- posted_by
-    col_9 TEXT,
-    col_10 TEXT,
-    col_11 TEXT,
-    col_12 TEXT,
-    col_13 TEXT,
-    col_14 TEXT,
-    col_15 TEXT,
-    col_16 TEXT,
+    col_3 VARCHAR(100),  -- stopcause(IDLE, PROD..) 
+    col_4 VARCHAR(100),  -- reason
+    col_5 VARCHAR(100),  -- action
+    col_6 VARCHAR(50),   -- timestamp started
+    col_7 VARCHAR(100),  -- timestamp completed
+    col_8 VARCHAR(100),  -- person_reported
+	col_9 VARCHAR(100),  -- person_completed
+	col_10 VARCHAR(100),  -- stopcause_start
+	col_11 VARCHAR(100),  -- tech_time
+	----------------------------------------------
+    col_12 VARCHAR(100), -- standing_issue
+    col_13 VARCHAR(100), -- status(active, completed)
+    col_14 VARCHAR(100), -- si_issue
+    col_15 VARCHAR(100), -- si_action
+    col_16 VARCHAR(100), -- si_timestamp_start
+    col_17 VARCHAR(100), -- si_timestamp_end
+    col_18 VARCHAR(100), -- si_person_posted
+    col_19 VARCHAR(100)  -- si_pesron_ended
 
     CONSTRAINT UQ_tool_state_org_asset UNIQUE (org_id, col_1)
 );
@@ -393,6 +397,42 @@ CREATE TABLE tool_state_metadata (
 
     CONSTRAINT CHK_col_number 
         CHECK (col_number ~ '^col_([1-9]|1[0-6])$')
+);
+
+
+/* =====================================================
+   TOOL STATE
+===================================================== */
+CREATE TABLE machine_log (
+    id SERIAL PRIMARY key,
+    org_id UUID NOT NULL
+        CONSTRAINT fk_machine_log_org 
+        REFERENCES organizations(org_id) 
+        ON DELETE CASCADE,
+    group_code VARCHAR(100),
+    location_code VARCHAR(100),
+    col_1 VARCHAR(255),  -- asset_id
+    col_2 VARCHAR(255),  -- entity name
+    col_3 VARCHAR(100),  -- stopcause (IDLE, PROD, etc.)
+    col_4 VARCHAR(100),  -- reason
+    col_5 VARCHAR(100),  -- action
+    col_6 VARCHAR(50),   -- timestamp started
+    col_7 VARCHAR(100),  -- timestamp completed
+    col_8 VARCHAR(100),  -- person_reported
+    col_9 VARCHAR(100),  -- person_completed
+    col_10 VARCHAR(100), -- stopcause_start
+    col_11 VARCHAR(100), -- tech_time
+    ----------------------------------------------
+    col_12 VARCHAR(100), -- standing_issue
+    col_13 VARCHAR(100), -- status (active, completed)
+    col_14 VARCHAR(100), -- si_issue
+    col_15 VARCHAR(100), -- si_action
+    col_16 VARCHAR(100), -- si_timestamp_start
+    col_17 VARCHAR(100), -- si_timestamp_end
+    col_18 VARCHAR(100), -- si_person_posted
+    col_19 VARCHAR(100), -- si_person_ended  -- corrected typo
+
+    CONSTRAINT uq_machine_log_org_asset UNIQUE (org_id, col_1)
 );
 
 
@@ -457,3 +497,29 @@ CREATE TABLE tbpm_schedule_config (
     
     CONSTRAINT FK_tbpm_tenant FOREIGN KEY (tenant_id) REFERENCES organizations(org_id)
 );
+
+CREATE TABLE registered_device (
+    id SERIAL PRIMARY KEY,
+    org_id UUID NOT NULL
+        CONSTRAINT fk_registered_device_organization
+        REFERENCES organizations(org_id)
+        ON DELETE CASCADE,
+
+    device_key        VARCHAR(255) NOT NULL,
+    device_name       VARCHAR(255),
+    parameter_name    VARCHAR(100),
+    parameter_value   VARCHAR(100),
+    action            VARCHAR(100),
+    hi_limit          NUMERIC(12,4),
+    lo_limit          NUMERIC(12,4),
+    trigger_condition VARCHAR(100),
+    description       VARCHAR(100),  -- New column
+    location_level_1  VARCHAR(100),
+    location_level_2  VARCHAR(100),
+    location_level_3  VARCHAR(100),
+
+    CONSTRAINT uq_registered_device_org_key UNIQUE (org_id, device_key)
+);
+
+
+
