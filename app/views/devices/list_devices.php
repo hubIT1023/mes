@@ -1,7 +1,7 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
 <div class="container-lg mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between gap-2 align-items-center mb-4">
         <div>
             <h2 class="fw-bold">Registered Devices</h2>
             <p class="text-muted mb-0">Manage your connected devices</p>
@@ -10,7 +10,7 @@
             <i class="fas fa-plus me-1"></i> Register New Device
         </a>
 		<a href="/hub_portal" class="btn btn-ligth">
-            <i class="fas fa-plus me-1"></i> Register New Device
+            <i class="fas fa-plus me-1"></i> Hub Portal
         </a>
     </div>
 
