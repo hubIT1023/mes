@@ -33,9 +33,9 @@
                 <i class="fas fa-microchip fa-4x text-muted mb-3"></i>
                 <h4 class="text-dark fw-bold">No devices registered yet</h4>
                 <p class="text-muted">Click here to register your first device and get started.</p>
-                <span class="btn btn-primary mt-2">
+                <!--span class="btn btn-primary mt-2">
                     <i class="fas fa-plus me-1"></i> Register New Device
-                </span>
+                </span-->
             </a>
         </div>
         
