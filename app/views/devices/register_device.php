@@ -1,17 +1,26 @@
 <?php include __DIR__ . '/../layouts/html/header.php'; ?>
 
-<div class="container-sm mt-4 mb-5">
+<div class="container-lg mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-lg-9">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="fw-bold mb-0">Register New Device</h2>
-                    <p class="text-muted">Connect a new hardware asset to your hub.</p>
-                </div>
-                <a href="/device" class="btn btn-outline-secondary btn-sm shadow-sm">
-                    <i class="fas fa-arrow-left me-1"></i> Back to Devices
-                </a>
-            </div>
+        <div class="col-lg-0">
+		
+		<nav class="page-header shadow-sm">
+			<div>
+				<h2 class="fw-bold mb-1">Registered Devices</h2>
+				<p class="text-white-50 mb-0">Manage your connected devices</p>
+			</div>
+			<div class="d-flex gap-2">
+				<a href="/hub_portal" class="btn btn-light border">
+					<i class="fas fa-desktop me-1"></i> Hub Portal
+				</a>
+				<?php if (!empty($devices)): ?>
+					 <a href="/device" class="btn btn-outline-secondary btn-sm shadow-sm">
+						<i class="fas fa-arrow-left me-1"></i> Back to Devices
+					</a>
+				<?php endif; ?>
+			</div>
+		</nav>
+            
 
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert">
