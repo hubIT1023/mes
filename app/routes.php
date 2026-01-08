@@ -113,6 +113,7 @@ $deviceRoutes = [
     'POST /device/register'        => ['DeviceController', 'store'],
     'GET /device/register-success' => ['DeviceController', 'registerSuccess'],
     'GET /device'                  => ['DeviceController', 'index'],
+	'POST /device/update-field'    => ['DeviceController', 'updateField'],
 ];
 
 // --- Merge all routes ---
