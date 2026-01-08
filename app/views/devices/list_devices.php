@@ -23,6 +23,34 @@
 .empty-state-link:hover i {
     color: #0d6efd !important;
 }
+
+    .empty-state-link {
+        text-decoration: none !important;
+        transition: all 0.3s ease-in-out;
+        display: inline-block;
+        
+        /* Dashed Border Styling */
+        border: 2px dashed #ced4da; /* Subtle gray dash */
+        padding: 3rem;              /* Large internal spacing */
+        border-radius: 15px;        /* Smooth corners */
+        background-color: #f8f9fa;  /* Very light gray background */
+        max-width: 450px;           /* Prevents it from getting too wide */
+    }
+
+    .empty-state-link:hover {
+        transform: translateY(-5px);
+        border-color: #0d6efd;      /* Primary blue on hover */
+        background-color: #ffffff;  /* Cleans up to white on hover */
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-state-link:hover i {
+        color: #0d6efd !important;  /* Icon turns blue */
+    }
+
+    .empty-state-link:hover h4 {
+        color: #0d6efd !important;  /* Text turns blue */
+    }
 </style>
 
 <div class="container-lg mt-4">
@@ -36,17 +64,25 @@
     <?php endif; ?>
 
     <?php if (empty($devices)): ?>
+        <nav class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Registered Devices</h2>
+                <p class="text-muted mb-0">Manage your connected devices</p>
+            </div>
+            <a href="/hub_portal" class="btn btn-light border">
+                <i class="fas fa-desktop me-1"></i> Hub Portal
+            </a>
+        </nav>
+    
         <div class="d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 60vh;">
             <a href="/device/register" class="empty-state-link">
                 <i class="fas fa-microchip fa-4x text-muted mb-3"></i>
                 <h4 class="text-dark fw-bold">No devices registered yet</h4>
-                <p class="text-muted">Click here to register your first device and get started.</p>
-                <!--span class="btn btn-primary mt-2">
-                    <i class="fas fa-plus me-1"></i> Register New Device
-                </span-->
-            </a>
+                <p class="text-muted mb-0">Click here to register your first device and get started.</p>
+                </a>
         </div>
         
+
     <?php else: ?>
         <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
             <div>
