@@ -116,32 +116,29 @@ function is_active($path, $current_page) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HubIT Dashboard</title>
-<link rel="icon" type="image/png" href="/app/Assets/img/favicon.png">
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HubIT Dashboard</title>
+    <link rel="icon" type="image/png" href="/app/Assets/img/favicon.png">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
 
 <body class="bg-light text-dark">
 
-<header class="navbar navbar-expand-sm bg-white border-bottom shadow-sm py-3 px-4">
-    <div class="container-fluid d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
-        <h1 class="navbar-brand fw-bold text-primary mb-0 fs-4">
-            <?= htmlspecialchars($_SESSION['org_alias'] ?? $_SESSION['org_name'] ?? $tenant_name) ?>
-        </h1>
+<header class="navbar navbar-expand-sm bg-white border-bottom shadow-sm py-2 px-4">
+    <div class="container-fluid d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+        <a class="navbar-brand fw-bold text-primary mb-0 fs-4" href="#">
+            <i class="fas fa-industry me-2"></i><?= htmlspecialchars($_SESSION['org_alias'] ?? $_SESSION['org_name'] ?? $tenant_name) ?>
+        </a>
 
-        <nav class="d-flex gap-3">
-            <a href="/mes/hub_portal" class="nav-link d-flex align-items-center px-3 py-2 rounded-3 text-secondary bg-hover-light transition">
+        <nav class="nav">
+            <a href="/mes/hub_portal" class="nav-link d-flex align-items-center px-3 py-2 rounded text-secondary link-primary">
                 <i class="fas fa-th-large me-2"></i>
                 <span class="fw-medium">Hub Portal</span>
             </a>
-
-            <a href="/mes/signout" class="nav-link d-flex align-items-center px-3 py-2 rounded-3 text-danger bg-hover-danger-subtle transition">
+            <a href="/mes/signout" class="nav-link d-flex align-items-center px-3 py-2 rounded text-danger link-danger">
                 <i class="fas fa-power-off me-2"></i>
                 <span class="fw-medium">Logout</span>
             </a>
@@ -149,44 +146,48 @@ function is_active($path, $current_page) {
     </div>
 </header>
 
-<div class="bg-body-tertiary border-bottom py-2 sticky-top">
+<div class="bg-white border-bottom py-2 sticky-top shadow-sm">
     <div class="container-fluid">
-        <div class="d-flex overflow-x-auto gap-4 pb-1 no-scrollbar">
+        <div class="d-flex overflow-x-auto gap-4 pb-1 align-items-center" style="scrollbar-width: none; -ms-overflow-style: none;">
             
-            <a href="/mes/mode-color" class="text-center text-decoration-none group <?= is_active('/mes/mode-color', $current_page) ? 'text-primary' : 'text-secondary' ?>" style="min-width: 80px;">
-                <div class="mx-auto mb-1 border rounded-3 bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; transition: 0.2s;">
-                    <i class="fas fa-palette"></i>
+            <a href="/mes/mode-color" class="text-center text-decoration-none <?= is_active('/mes/mode-color', $current_page) ? 'text-primary' : 'text-secondary' ?>" style="min-width: 70px;">
+                <div class="mx-auto mb-1 border rounded-3 bg-light d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <i class="fas fa-palette fa-sm"></i>
                 </div>
-                <div style="font-size: 0.75rem;" class="fw-medium">Mode Colors</div>
+                <div style="font-size: 0.7rem;" class="fw-bold text-uppercase">Modes</div>
             </a>
 
-            <a href="/mes/parts-list" class="text-center text-decoration-none text-secondary group" style="min-width: 80px;">
-                <div class="mx-auto mb-1 border rounded-3 bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
-                    <i class="fas fa-gears"></i>
+            <a href="/mes/parts-list" class="text-center text-decoration-none text-secondary" style="min-width: 70px;">
+                <div class="mx-auto mb-1 border rounded-3 bg-light d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <i class="fas fa-gears fa-sm"></i>
                 </div>
-                <div style="font-size: 0.75rem;" class="fw-medium">Machine Parts</div>
+                <div style="font-size: 0.7rem;" class="fw-bold text-uppercase">Parts</div>
             </a>
 
-            <a href="#" class="text-center text-decoration-none text-primary group" style="min-width: 80px;" onclick="openDashboardPageModal(<?= json_encode($selectedPageId) ?>)">
-                <div class="mx-auto mb-1 border border-primary-subtle rounded-3 bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
-                    <i class="fas fa-plus-circle"></i>
-                </div>
-                <div style="font-size: 0.75rem;" class="fw-medium">Dashboard Pages</div>
-            </a>
+            <div class="vr mx-2 text-black-50" style="height: 25px;"></div>
 
+            <a href="#" class="text-center text-decoration-none text-primary" style="min-width: 70px;" onclick="openDashboardPageModal(<?= json_encode($selectedPageId) ?>)">
+                <div class="mx-auto mb-1 border border-primary-subtle rounded-3 bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <i class="fas fa-plus-circle fa-sm"></i>
+                </div>
+                <div style="font-size: 0.7rem;" class="fw-bold text-uppercase">Pages</div>
+            </a>
         </div>
     </div>
 </div>
 
 <main class="container-fluid p-4">
     
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <h2 class="h4 fw-bold mb-0">
-            Machine Status Board <span class="text-secondary fw-normal">| <?= htmlspecialchars($selectedPageName) ?></span>
-        </h2>
+    <div class="row align-items-center mb-4 g-3">
+        <div class="col-12 col-md-auto">
+            <h2 class="h4 fw-bold mb-0">
+                Machine Status Board 
+                <span class="text-secondary fw-normal ms-1 fs-5">| <?= htmlspecialchars($selectedPageName) ?></span>
+            </h2>
+        </div>
 
-        <?php if (!empty($pages)): ?>
-            <div class="d-flex gap-2">
+        <div class="col-12 col-md d-flex justify-content-md-end gap-2">
+            <?php if (!empty($pages)): ?>
                 <select class="form-select form-select-sm w-auto shadow-sm" onchange="location.href='?page_id='+this.value">
                     <?php foreach ($pages as $p): ?>
                         <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
@@ -194,32 +195,35 @@ function is_active($path, $current_page) {
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <button class="btn btn-primary btn-sm px-3 fw-bold shadow-sm" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
+                <button class="btn btn-primary btn-sm px-3 shadow-sm" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
                     <i class="fas fa-plus me-1"></i> New Group
                 </button>
-            </div>
-        <?php endif; ?>
+            <?php endif; ?>
+        </div>
     </div>
 
     <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4">
-            <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($_SESSION['success']) ?>
-            <button class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-2"></i> <?= htmlspecialchars($_SESSION['success']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <?php unset($_SESSION['success']); ?>
     <?php endif; ?>
 
     <?php if ($showBlankCanvas): ?>
-        <div class="d-flex align-items-center justify-content-center border border-2 border-dashed rounded-4 bg-body-tertiary" style="min-height: 400px;">
+        <div class="d-flex align-items-center justify-content-center border border-2 border-dashed rounded-4 bg-white shadow-sm" 
+             style="min-height: 50vh; border-color: #dee2e6 !important;">
             <div class="text-center p-5" style="max-width: 400px; cursor: pointer;" 
                  onclick="<?= empty($pages) ? 'openDashboardPageModal(null)' : 'openCreateGroupModal(' . (int)$selectedPageId . ')' ?>">
                 
-                <div class="mb-3 text-secondary opacity-25">
-                    <i class="fas <?= empty($pages) ? 'fa-file-circle-plus' : 'fa-layer-group' ?> fa-5x"></i>
+                <div class="mb-4 text-body-tertiary">
+                    <i class="fas <?= empty($pages) ? 'fa-file-circle-plus' : 'fa-layer-group' ?> fa-5xl" style="font-size: 5rem;"></i>
                 </div>
-                <h5 class="fw-bold"><?= empty($pages) ? 'Create First Page' : 'Add Group to ' . htmlspecialchars($selectedPageName) ?></h5>
-                <p class="text-muted small">Organize your factory floor by grouping machines into logical areas or lines.</p>
-                <button class="btn btn-outline-primary btn-sm mt-2 px-4">Get Started</button>
+                <h4 class="fw-bold"><?= empty($pages) ? 'Create First Page' : 'Add Group to ' . htmlspecialchars($selectedPageName) ?></h4>
+                <p class="text-muted mb-4 small">Group your equipment by location or production line to visualize real-time status.</p>
+                <button class="btn btn-primary px-4 py-2 fw-bold shadow-sm">
+                    <i class="fas fa-plus me-2"></i>Get Started
+                </button>
             </div>
         </div>
     <?php else: ?>
@@ -229,23 +233,21 @@ function is_active($path, $current_page) {
                 <div class="col-12">
                     <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
                         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3 border-0">
-                            <h5 class="mb-0 fw-bold">
+                            <h5 class="mb-0 fw-bold d-flex align-items-center">
+                                <i class="fas fa-folder me-2 opacity-75"></i>
                                 <?= htmlspecialchars($g['group_name']) ?> 
-                                <span class="badge bg-white bg-opacity-25 ms-2 fw-normal fs-6"><?= htmlspecialchars($g['location_name']) ?></span>
+                                <span class="badge bg-white bg-opacity-25 ms-3 fw-normal fs-6 text-uppercase"><?= htmlspecialchars($g['location_name']) ?></span>
                             </h5>
-                            <div class="btn-group shadow-sm">
-                                <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
-                                    <i class="fas fa-plus text-primary"></i>
+                            <div class="btn-group bg-white rounded shadow-sm">
+                                <button class="btn btn-outline-light text-primary border-0 btn-sm px-3" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
+                                    <i class="fas fa-plus"></i>
                                 </button>
-                                <button class="btn btn-light btn-sm" onclick="openUpdateGroupModal(<?= (int)$g['id'] ?>, <?= (int)$g['page_id'] ?>, '<?= addslashes($g['group_name']) ?>', '<?= addslashes($g['location_name']) ?>', <?= (int)($g['seq_id'] ?? 1) ?>)">
-                                    <i class="fas fa-edit text-warning"></i>
+                                <button class="btn btn-outline-light text-warning border-0 btn-sm px-3" onclick="openUpdateGroupModal(<?= (int)$g['id'] ?>, <?= (int)$g['page_id'] ?>, '<?= addslashes($g['group_name']) ?>', '<?= addslashes($g['location_name']) ?>', <?= (int)($g['seq_id'] ?? 1) ?>)">
+                                    <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-light btn-sm" onclick="openDeleteGroupModal(<?= (int)$g['id'] ?>, <?= (int)$g['page_id'] ?>, '<?= addslashes($g['group_name']) ?>')">
-                                    <i class="fas fa-trash text-danger"></i>
+                                <button class="btn btn-outline-light text-danger border-0 btn-sm px-3" onclick="openDeleteGroupModal(<?= (int)$g['id'] ?>, <?= (int)$g['page_id'] ?>, '<?= addslashes($g['group_name']) ?>')">
+                                    <i class="fas fa-trash"></i>
                                 </button>
-                                <span class="btn btn-light btn-sm disabled fw-bold border-start border-secondary-subtle">
-                                    #<?= (int)($g['seq_id'] ?? 1) ?>
-                                </span>
                             </div>
                         </div>
                         <div class="card-body bg-white p-4">
@@ -261,6 +263,7 @@ function is_active($path, $current_page) {
         </div>
     <?php endif; ?>
 </main>
+
 
 <!-- MODALS -->
 <!-- CREATE GROUP MODAL -->
@@ -453,6 +456,7 @@ function is_active($path, $current_page) {
 <?php endforeach; ?>
 
 <!-- JS -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function openDashboardPageModal(currentPageId) {
