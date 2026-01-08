@@ -4,7 +4,7 @@
     <div class="row justify-content-center">
         <div class="col-md-9 col-lg-7 col-xl-6">
             
-            <nav class="d-flex justify-content-between align-items-center bg-white border p-3 rounded-3 shadow-sm mb-4">
+            <nav class="d-flex justify-content-between align-items-center bg-info border p-3 rounded-3 shadow-sm mb-4">
                 <div>
                     <h4 class="fw-bold mb-0">Register Device</h4>
                     <p class="text-muted small mb-0">New hardware setup</p>
