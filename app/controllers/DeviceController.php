@@ -124,7 +124,18 @@ class DeviceController
     // --- 🆕 Data Ingestion (No session needed) ---
     public function receiveData()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        // Allow CORS for testing (remove in production!)
+		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			http_response_code(204);
+			exit;
+		}
+		header("Access-Control-Allow-Origin: *");
+		header("Access-Control-Allow-Methods: POST, OPTIONS");
+		header("Access-Control-Allow-Headers: Content-Type");
+		
+		//------------------------------
+		
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
             exit;
@@ -198,4 +209,55 @@ class DeviceController
 
         require_once __DIR__ . '/../views/devices/view_device_data.php';
     }
+	
+	// In DeviceController.php
+
+	public function streamDeviceData()
+	{
+		    // 🔥 Add these TWO lines right at the top
+		set_time_limit(300);        // Allow script to run for 5 minutes
+		ignore_user_abort(true);    // Keep running even if browser disconnects
+		
+		// Prevent caching
+		header('Content-Type: text/event-stream');
+		header('Cache-Control: no-cache');
+		header('Connection: keep-alive');
+		header('Access-Control-Allow-Origin: *'); // Optional: if needed
+
+		$deviceKey = $_GET['device_key'] ?? '';
+		$orgId = $_SESSION['tenant_id'] ?? '';
+
+		// Validate device ownership
+		if (!$deviceKey || !$orgId) {
+			exit;
+		}
+
+		$device = $this->model->getDeviceByOrgAndKey($orgId, $deviceKey);
+		if (!$device) {
+			exit;
+		}
+
+		// Keep connection alive
+		while (true) {
+			// Get the latest data point (only the newest)
+			$recent = $this->model->getRecentDeviceData($deviceKey, $orgId, 1);
+			
+			if (!empty($recent)) {
+				$last = $recent[0];
+				// Send SSE message
+				echo "data: " . json_encode($last) . "\n\n";
+			}
+
+			// Flush output to client
+			if (ob_get_level()) {
+				ob_flush();
+			}
+			flush();
+
+			// Wait 2 seconds before next check
+			sleep(2);
+
+			// Optional: break if client disconnects (hard to detect in PHP)
+		}
+	}
 }

@@ -114,6 +114,13 @@ $deviceRoutes = [
     'GET /device/register-success' => ['DeviceController', 'registerSuccess'],
     'GET /device'                  => ['DeviceController', 'index'],
 	'POST /device/update-field'    => ['DeviceController', 'updateField'],
+	
+	 // 🆕 Data endpoints
+    'POST /api/v1/device/data'     => ['DeviceController', 'receiveData'],
+    'GET /device/view-data'        => ['DeviceController', 'viewData'],
+	
+	// In $deviceRoutes
+	'GET /device/stream' => ['DeviceController', 'streamDeviceData'],
 ];
 
 // --- Merge all routes ---
