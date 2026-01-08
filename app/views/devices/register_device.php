@@ -19,7 +19,7 @@
             <form method="POST" action="/device/register">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
 
-                <div class="row-sm g-3">
+                <div class="row g-3">
                     <!-- Device Name (Required) -->
                     <div class="col-md-12">
                         <label class="form-label fw-bold">Device Name <span class="text-danger">*</span></label>
