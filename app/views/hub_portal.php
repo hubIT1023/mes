@@ -80,7 +80,7 @@ $tenant = $_SESSION['tenant'];
           </a>
 
           <!-- HubIT Sense -->
-          <a href="/mes/device/register" class="block">
+          <a href="/mes/device" class="block">
             <div class="system-card bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 w-80 text-center border-4 border-transparent hover:border-yellow-500 dark:hover:border-yellow-300">
               <i class="fas fa-microchip text-6xl text-yellow-500 dark:text-yellow-300 mb-6"></i>
               <h3 class="text-2xl font-bold mb-3 text-slate-800 dark:text-white">HubIT Sense</h3>
