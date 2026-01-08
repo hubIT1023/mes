@@ -59,9 +59,13 @@
                                     </td>
 
                                     <!-- Description -->
-                                    <td>
-                                        <?= !empty($device['description']) ? htmlspecialchars($device['description']) : '<span class="text-muted">—</span>' ?>
-                                    </td>
+                                    <td class="editable-cell" 
+										data-device-id="<?= (int)$device['id'] ?>" 
+										data-field="description"
+										data-value="<?= htmlspecialchars($device['description'] ?? '') ?>">
+										<span class="cell-text"><?= !empty($device['description']) ? htmlspecialchars($device['description']) : '<span class="text-muted">—</span>' ?></span>
+										<input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['description'] ?? '') ?>">
+									</td>
 
                                     <!-- Parameters -->
                                     <td>
@@ -75,25 +79,41 @@
                                         <?php endif; ?>
                                     </td>
 
-                                    <!-- Hi Limit -->
-                                    <td class="text-end">
-                                        <?= $device['hi_limit'] !== null ? number_format((float)$device['hi_limit'], 2) : '<span class="text-muted">—</span>' ?>
-                                    </td>
+									<!-- Hi Limit -->
+									<td class="text-end editable-cell" 
+										data-device-id="<?= (int)$device['id'] ?>" 
+										data-field="hi_limit"
+										data-value="<?= $device['hi_limit'] ?>">
+										<span class="cell-text"><?= $device['hi_limit'] !== null ? number_format((float)$device['hi_limit'], 2) : '<span class="text-muted">—</span>' ?></span>
+										<input type="number" step="any" class="form-control d-none cell-input text-end" value="<?= $device['hi_limit'] ?? '' ?>">
+									</td>
 
-                                    <!-- Lo Limit -->
-                                    <td class="text-end">
-                                        <?= $device['lo_limit'] !== null ? number_format((float)$device['lo_limit'], 2) : '<span class="text-muted">—</span>' ?>
-                                    </td>
+									<!-- Lo Limit -->
+									<td class="text-end editable-cell" 
+										data-device-id="<?= (int)$device['id'] ?>" 
+										data-field="lo_limit"
+										data-value="<?= $device['lo_limit'] ?>">
+										<span class="cell-text"><?= $device['lo_limit'] !== null ? number_format((float)$device['lo_limit'], 2) : '<span class="text-muted">—</span>' ?></span>
+										<input type="number" step="any" class="form-control d-none cell-input text-end" value="<?= $device['lo_limit'] ?? '' ?>">
+									</td>
 
-                                    <!-- Trigger Condition -->
-                                    <td>
-                                        <?= !empty($device['trigger_condition']) ? htmlspecialchars($device['trigger_condition']) : '<span class="text-muted">—</span>' ?>
-                                    </td>
+									<!-- Trigger Condition -->
+									<td class="editable-cell" 
+										data-device-id="<?= (int)$device['id'] ?>" 
+										data-field="trigger_condition"
+										data-value="<?= htmlspecialchars($device['trigger_condition'] ?? '') ?>">
+										<span class="cell-text"><?= !empty($device['trigger_condition']) ? htmlspecialchars($device['trigger_condition']) : '<span class="text-muted">—</span>' ?></span>
+										<input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['trigger_condition'] ?? '') ?>">
+									</td>
 
-                                    <!-- Action -->
-                                    <td>
-                                        <?= !empty($device['action']) ? htmlspecialchars($device['action']) : '<span class="text-muted">—</span>' ?>
-                                    </td>
+									<!-- Action -->
+									<td class="editable-cell" 
+										data-device-id="<?= (int)$device['id'] ?>" 
+										data-field="action"
+										data-value="<?= htmlspecialchars($device['action'] ?? '') ?>">
+										<span class="cell-text"><?= !empty($device['action']) ? htmlspecialchars($device['action']) : '<span class="text-muted">—</span>' ?></span>
+										<input type="text" class="form-control d-none cell-input" value="<?= htmlspecialchars($device['action'] ?? '') ?>">
+									</td>
 
                                     <!-- Copy Key Button -->
                                     <td class="text-center">
@@ -127,6 +147,126 @@ document.querySelectorAll('.copy-key').forEach(btn => {
             }, 2000);
         }).catch(() => {
             alert('Failed to copy device key');
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Make cells editable on click
+    document.querySelectorAll('.editable-cell').forEach(cell => {
+        cell.addEventListener('click', function(e) {
+            if (e.target.closest('input, .btn')) return;
+            startEdit(cell);
+        });
+    });
+
+    // Handle Enter = save, Esc = cancel
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.editing').forEach(cell => cancelEdit(cell));
+        } else if (e.key === 'Enter') {
+            const editingCell = document.querySelector('.editing');
+            if (editingCell) {
+                e.preventDefault();
+                saveEdit(editingCell);
+            }
+        }
+    });
+
+    function startEdit(cell) {
+        cell.classList.add('editing', 'position-relative');
+        cell.querySelector('.cell-text').classList.add('d-none');
+        const input = cell.querySelector('.cell-input');
+        input.classList.remove('d-none');
+        input.focus();
+        input.select();
+    }
+
+    function cancelEdit(cell) {
+        const input = cell.querySelector('.cell-input');
+        const originalValue = cell.dataset.value;
+        
+        // Restore original display
+        if (cell.dataset.field === 'hi_limit' || cell.dataset.field === 'lo_limit') {
+            cell.querySelector('.cell-text').innerHTML = 
+                originalValue !== '' && originalValue !== null ? 
+                parseFloat(originalValue).toFixed(2) : '<span class="text-muted">—</span>';
+        } else {
+            cell.querySelector('.cell-text').textContent = originalValue || '';
+            if (!originalValue) cell.querySelector('.cell-text').innerHTML = '<span class="text-muted">—</span>';
+        }
+        
+        input.value = originalValue;
+        cell.classList.remove('editing');
+        cell.querySelector('.cell-text').classList.remove('d-none');
+        input.classList.add('d-none');
+    }
+
+    async function saveEdit(cell) {
+        const deviceId = cell.dataset.deviceId;
+        const field = cell.dataset.field;
+        const input = cell.querySelector('.cell-input');
+        let newValue = input.value.trim();
+
+        // Handle numeric fields
+        if (field === 'hi_limit' || field === 'lo_limit') {
+            newValue = newValue === '' ? null : parseFloat(newValue);
+            if (isNaN(newValue) && newValue !== null) {
+                alert('Please enter a valid number');
+                return;
+            }
+        }
+
+        // No change? Cancel
+        const oldValue = cell.dataset.value;
+        if ((newValue === null && oldValue === '') || newValue == oldValue) {
+            cancelEdit(cell);
+            return;
+        }
+
+        try {
+            const res = await fetch('/device/update-field', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: deviceId,
+                    field: field,
+                    value: newValue,
+                    csrf_token: '<?= $_SESSION['csrf_token'] ?? "" ?>'
+                })
+            });
+
+            if (res.ok) {
+                // Update display
+                cell.dataset.value = newValue ?? '';
+                if (field === 'hi_limit' || field === 'lo_limit') {
+                    cell.querySelector('.cell-text').innerHTML = 
+                        newValue !== null ? parseFloat(newValue).toFixed(2) : '<span class="text-muted">—</span>';
+                } else {
+                    cell.querySelector('.cell-text').textContent = newValue || '';
+                    if (!newValue) cell.querySelector('.cell-text').innerHTML = '<span class="text-muted">—</span>';
+                }
+                cell.classList.remove('editing');
+                cell.querySelector('.cell-text').classList.remove('d-none');
+                input.classList.add('d-none');
+            } else {
+                const err = await res.json().catch(() => ({}));
+                alert('Save failed: ' + (err.message || 'Unknown error'));
+                cancelEdit(cell);
+            }
+        } catch (e) {
+            alert('Network error');
+            cancelEdit(cell);
+        }
+    }
+
+    // Save on blur (optional)
+    document.querySelectorAll('.cell-input').forEach(input => {
+        input.addEventListener('blur', function() {
+            const cell = this.closest('.editable-cell');
+            if (cell.classList.contains('editing')) {
+                saveEdit(cell);
+            }
         });
     });
 });
