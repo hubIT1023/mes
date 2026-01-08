@@ -243,14 +243,17 @@ function is_active($path, $current_page) {
                     </div>
                 <?php endif; ?>
             </div>
-
+			
+			<!-- ALERT -->
             <?php if (isset($_SESSION['success'])): ?>
-                <div class="alert alert-success alert-dismissible fade show"><?= htmlspecialchars($_SESSION['success']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
+                <div class="alert alert-success alert-dismissible fade show">
+				<?= htmlspecialchars($_SESSION['success']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
                 <?php unset($_SESSION['success']); ?>
             <?php endif; ?>
 
             <?php if (isset($_SESSION['error'])): ?>
-                <div class="alert alert-danger alert-dismissible fade show"><?= htmlspecialchars($_SESSION['error']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
+                <div class="alert alert-danger alert-dismissible fade show">
+				<?= htmlspecialchars($_SESSION['error']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
 
@@ -259,12 +262,14 @@ function is_active($path, $current_page) {
             <?php if ($showBlankCanvas): ?>
                 <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh;">
                     <?php if (empty($pages)): ?>
-                        <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openDashboardPageModal(null)" style="width: 300px; cursor: pointer;">
+                        <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openDashboardPageModal(null)" 
+							 style="width: 300px; cursor: pointer;">
                             <i class="fas fa-file-circle-plus text-slate-300 fa-4x mb-3"></i>
                             <h5 class="text-slate-600">Create First Page</h5>
                         </div>
                     <?php else: ?>
-                        <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" style="width: 300px; cursor: pointer;">
+                        <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" 
+							 style="width: 300px; cursor: pointer;">
                             <i class="fas fa-layer-group text-slate-300 fa-4x mb-3"></i>
                             <h5 class="text-slate-600">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
                             <p class="small text-slate-400">Click to configure your first group for this page.</p>
@@ -278,7 +283,7 @@ function is_active($path, $current_page) {
                             <div class="card shadow-sm border-0">
                                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
                                     <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> 
-										<small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
+											<small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
 											<div class="d-flex gap-2">
 												<button class="btn btn-sm btn-light" 
 												data-bs-toggle="modal" 
@@ -305,7 +310,7 @@ function is_active($path, $current_page) {
 													<small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
 												</button>
 											</div>
-                                </div>
+                                 </div>
                                 <div class="card-body bg-slate-50">
                                     <?php 
                                         $group = $g;

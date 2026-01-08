@@ -107,6 +107,14 @@ $schedulerRoutes = [
     'POST /form_mms/scheduler_config_update'=> ['SchedulerConfigController', 'update'],
 ];
 
+// --- 🔌 Device Registration ---
+$deviceRoutes = [
+    'GET /device/register'         => ['DeviceController', 'create'],
+    'POST /device/register'        => ['DeviceController', 'store'],
+    'GET /device/register-success' => ['DeviceController', 'registerSuccess'],
+    'GET /device'                  => ['DeviceController', 'index'],
+];
+
 // --- Merge all routes ---
 return array_merge(
     $authRoutes,
@@ -121,4 +129,5 @@ return array_merge(
     $machinePartsRoutes,
     $apiRoutes,
 	$schedulerRoutes
+	$deviceRoutes
 );
