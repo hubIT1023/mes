@@ -108,6 +108,9 @@ $current_page = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 function is_active($path, $current_page) {
     return $path === $current_page ? 'active' : '';
 }
+
+ //include __DIR__ . '/../layouts/html/header.php'; 
+
 ?>
 
 <!DOCTYPE html>
@@ -121,211 +124,143 @@ function is_active($path, $current_page) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-<style>
-.top-product-bar {
-    background:#f8f9fa;
-    border-bottom:1px solid #dee2e6;
-    padding:.4rem 0;
-    position:sticky;
-    top:0;
-    z-index:1050;
-}
-.product-list {
-    display:flex;
-    gap:1rem;
-    overflow-x:auto;
-}
-.product-item {
-    min-width:64px;
-    font-size:.7rem;
-    text-decoration:none;
-    color:#495057;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-.product-icon {
-    width:38px;height:38px;
-    border:1px solid #adb5bd;
-    border-radius:.5rem;
-    background:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-.product-item:hover,
-.product-item:hover .product-icon {
-    color:#0d6efd;
-    border-color:#0d6efd;
-}
-@media(max-width:576px){ .product-item span{display:none;} }
-</style>
-</head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-<body class="bg-white text-slate-900">
+<body class="bg-light text-dark">
 
-<!-- HEADER -->
-<!-- Top Navigation Bar -->
-<header class="bg-white dark:bg-gray-800 shadow-md py-4 px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-  <div class="flex items-center gap-3">
-    <h1 class="text-xl font-bold text-blue-600 dark:text-blue-400">
-      <?= htmlspecialchars($_SESSION['org_alias'] ?? $_SESSION['org_name'] ?? $tenant_name) ?>
-    </h1>
-  </div>
+<header class="navbar navbar-expand-sm bg-white border-bottom shadow-sm py-3 px-4">
+    <div class="container-fluid d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+        <h1 class="navbar-brand fw-bold text-primary mb-0 fs-4">
+            <?= htmlspecialchars($_SESSION['org_alias'] ?? $_SESSION['org_name'] ?? $tenant_name) ?>
+        </h1>
 
-  <nav class="flex flex-wrap gap-2 sm:gap-4 space-y-1">
-    <a href="/mes/hub_portal" class="flex items-center px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition group">
-      <i class="fas fa-th-large mr-3 text-gray-400 group-hover:text-blue-500"></i> 
-      <span class="font-medium">Hub Portal</span>
-    </a>
+        <nav class="d-flex gap-3">
+            <a href="/mes/hub_portal" class="nav-link d-flex align-items-center px-3 py-2 rounded-3 text-secondary bg-hover-light transition">
+                <i class="fas fa-th-large me-2"></i>
+                <span class="fw-medium">Hub Portal</span>
+            </a>
 
-    <a href="/mes/signout" class="flex items-center px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition group">
-      <i class="fas fa-power-off mr-3 opacity-80 group-hover:scale-110 transition-transform"></i> 
-      <span class="font-medium">Logout</span>
-    </a>
-  </nav>
+            <a href="/mes/signout" class="nav-link d-flex align-items-center px-3 py-2 rounded-3 text-danger bg-hover-danger-subtle transition">
+                <i class="fas fa-power-off me-2"></i>
+                <span class="fw-medium">Logout</span>
+            </a>
+        </nav>
+    </div>
 </header>
-<!-- TOP PRODUCT BAR -->
-<div class="top-product-bar">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-        <div class="product-list">
-            <a href="/mes/mode-color" class="product-item d-flex flex-column align-items-center 
-				text-decoration-none <?= is_active('/mes/mode-color', $current_page) ? 'text-primary' : 'text-secondary' ?>">
-                <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
-                    <i class="fas fa-palette fa-lg"></i>
+
+<div class="bg-body-tertiary border-bottom py-2 sticky-top">
+    <div class="container-fluid">
+        <div class="d-flex overflow-x-auto gap-4 pb-1 no-scrollbar">
+            
+            <a href="/mes/mode-color" class="text-center text-decoration-none group <?= is_active('/mes/mode-color', $current_page) ? 'text-primary' : 'text-secondary' ?>" style="min-width: 80px;">
+                <div class="mx-auto mb-1 border rounded-3 bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; transition: 0.2s;">
+                    <i class="fas fa-palette"></i>
                 </div>
-                <span class="small">Mode Colors</span>
+                <div style="font-size: 0.75rem;" class="fw-medium">Mode Colors</div>
             </a>
-            <a href="/mes/parts-list" class="product-item d-flex flex-column align-items-center 
-				text-decoration-none <?= is_active('/mes/parts-list', $current_page) ? 'text-primary' : 'text-secondary' ?>">
-                <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
-                    <i class="fas fa-fw fa-gears"></i>
+
+            <a href="/mes/parts-list" class="text-center text-decoration-none text-secondary group" style="min-width: 80px;">
+                <div class="mx-auto mb-1 border rounded-3 bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
+                    <i class="fas fa-gears"></i>
                 </div>
-                <span class="small">Machine Parts</span>
+                <div style="font-size: 0.75rem;" class="fw-medium">Machine Parts</div>
             </a>
-            <a href="#" class="product-item d-flex flex-column align-items-center text-decoration-none text-primary" 
-               onclick="openDashboardPageModal(<?= json_encode($selectedPageId) ?>)">
-                <div class="product-icon d-flex align-items-center justify-content-center mb-1 border rounded p-2">
-                    <i class="fas fa-fw fa-plus-circle"></i>
+
+            <a href="#" class="text-center text-decoration-none text-primary group" style="min-width: 80px;" onclick="openDashboardPageModal(<?= json_encode($selectedPageId) ?>)">
+                <div class="mx-auto mb-1 border border-primary-subtle rounded-3 bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
+                    <i class="fas fa-plus-circle"></i>
                 </div>
-                <span class="small">Dashboard Pages</span>
+                <div style="font-size: 0.75rem;" class="fw-medium">Dashboard Pages</div>
             </a>
+
         </div>
     </div>
 </div>
 
-<div class="container-fluid">
-    <div class="row">
-        <main class="col-12 col-fluid p-4"> 
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <h2 class="text-2xl font-bold">
-                    Machine Status Board - <?= htmlspecialchars($selectedPageName) ?>
-                </h2>
+<main class="container-fluid p-4">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <h2 class="h4 fw-bold mb-0">
+            Machine Status Board <span class="text-secondary fw-normal">| <?= htmlspecialchars($selectedPageName) ?></span>
+        </h2>
 
-                <?php if (!empty($pages)): ?>
-                    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                        <select 
-                            class="border border-gray-300 rounded px-3 py-2 text-sm w-full sm:w-auto"
-                            onchange="location.href='?page_id='+this.value"
-                        >
-                            <?php foreach ($pages as $p): ?>
-                                <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($p['page_name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button 
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium text-sm w-full sm:w-auto flex items-center justify-center gap-1"
-                            onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)"
-                        >
-                            <i class="fas fa-plus text-xs"></i> New Group
-                        </button>
-                    </div>
-                <?php endif; ?>
+        <?php if (!empty($pages)): ?>
+            <div class="d-flex gap-2">
+                <select class="form-select form-select-sm w-auto shadow-sm" onchange="location.href='?page_id='+this.value">
+                    <?php foreach ($pages as $p): ?>
+                        <option value="<?= (int)$p['page_id'] ?>" <?= (int)$p['page_id'] == $selectedPageId ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($p['page_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <button class="btn btn-primary btn-sm px-3 fw-bold shadow-sm" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)">
+                    <i class="fas fa-plus me-1"></i> New Group
+                </button>
             </div>
-			
-			<!-- ALERT -->
-            <?php if (isset($_SESSION['success'])): ?>
-                <div class="alert alert-success alert-dismissible fade show">
-				<?= htmlspecialchars($_SESSION['success']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
-                <?php unset($_SESSION['success']); ?>
-            <?php endif; ?>
+        <?php endif; ?>
+    </div>
 
-            <?php if (isset($_SESSION['error'])): ?>
-                <div class="alert alert-danger alert-dismissible fade show">
-				<?= htmlspecialchars($_SESSION['error']) ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
-                <?php unset($_SESSION['error']); ?>
-            <?php endif; ?>
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4">
+            <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($_SESSION['success']) ?>
+            <button class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
-            <hr class="mb-4">
-
-            <?php if ($showBlankCanvas): ?>
-                <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 50vh;">
-                    <?php if (empty($pages)): ?>
-                        <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openDashboardPageModal(null)" 
-							 style="width: 300px; cursor: pointer;">
-                            <i class="fas fa-file-circle-plus text-slate-300 fa-4x mb-3"></i>
-                            <h5 class="text-slate-600">Create First Page</h5>
-                        </div>
-                    <?php else: ?>
-                        <div class="blank-canvas-card p-5 text-center rounded-lg" onclick="openCreateGroupModal(<?= (int)$selectedPageId ?>)" 
-							 style="width: 300px; cursor: pointer;">
-                            <i class="fas fa-layer-group text-slate-300 fa-4x mb-3"></i>
-                            <h5 class="text-slate-600">Add Group to <?= htmlspecialchars($selectedPageName) ?></h5>
-                            <p class="small text-slate-400">Click to configure your first group for this page.</p>
-                        </div>
-                    <?php endif; ?>
+    <?php if ($showBlankCanvas): ?>
+        <div class="d-flex align-items-center justify-content-center border border-2 border-dashed rounded-4 bg-body-tertiary" style="min-height: 400px;">
+            <div class="text-center p-5" style="max-width: 400px; cursor: pointer;" 
+                 onclick="<?= empty($pages) ? 'openDashboardPageModal(null)' : 'openCreateGroupModal(' . (int)$selectedPageId . ')' ?>">
+                
+                <div class="mb-3 text-secondary opacity-25">
+                    <i class="fas <?= empty($pages) ? 'fa-file-circle-plus' : 'fa-layer-group' ?> fa-5x"></i>
                 </div>
-            <?php else: ?>
-                <div class="row g-4">
-                    <?php foreach ($selectedPageGroups as $g): ?>
-                        <div class="col-12">
-                            <div class="card shadow-sm border-0">
-                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-                                    <h5 class="mb-0"><?= htmlspecialchars($g['group_name']) ?> 
-											<small class="opacity-75 ms-2">| <?= htmlspecialchars($g['location_name']) ?></small></h5>
-											<div class="d-flex gap-2">
-												<button class="btn btn-sm btn-light" 
-												data-bs-toggle="modal" 
-												data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
-												<i class="fas fa-plus me-1"></i>
-												</button>
-												<button class="btn btn-sm btn-warning" onclick="openUpdateGroupModal(
-													<?= (int)$g['id'] ?>,
-													<?= (int)$g['page_id'] ?>,
-													'<?= addslashes($g['group_name']) ?>',
-													'<?= addslashes($g['location_name']) ?>',
-													<?= (int)($g['seq_id'] ?? 1) ?>
-												)">
-													<i class="fas fa-edit"></i>
-												</button>
-												<button class="btn btn-sm btn-danger" onclick="openDeleteGroupModal(
-													<?= (int)$g['id'] ?>,
-													<?= (int)$g['page_id'] ?>,
-													'<?= addslashes($g['group_name']) ?>'
-												)">
-													<i class="fas fa-trash"></i>
-												</button>
-												<button class="btn btn-sm btn-success">
-													<small class="ms-2"><?= (int)($g['seq_id'] ?? 1) ?></small>
-												</button>
-											</div>
-                                 </div>
-                                <div class="card-body bg-slate-50">
-                                    <?php 
-                                        $group = $g;
-                                        $org_id = $tenant_id;
-                                        include __DIR__ . '/utilities/entity_toolState_card.php'; 
-                                    ?>
-                                </div>
+                <h5 class="fw-bold"><?= empty($pages) ? 'Create First Page' : 'Add Group to ' . htmlspecialchars($selectedPageName) ?></h5>
+                <p class="text-muted small">Organize your factory floor by grouping machines into logical areas or lines.</p>
+                <button class="btn btn-outline-primary btn-sm mt-2 px-4">Get Started</button>
+            </div>
+        </div>
+    <?php else: ?>
+        
+        <div class="row g-4">
+            <?php foreach ($selectedPageGroups as $g): ?>
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3 border-0">
+                            <h5 class="mb-0 fw-bold">
+                                <?= htmlspecialchars($g['group_name']) ?> 
+                                <span class="badge bg-white bg-opacity-25 ms-2 fw-normal fs-6"><?= htmlspecialchars($g['location_name']) ?></span>
+                            </h5>
+                            <div class="btn-group shadow-sm">
+                                <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addEntityModal_<?= (int)$g['group_code'] ?>">
+                                    <i class="fas fa-plus text-primary"></i>
+                                </button>
+                                <button class="btn btn-light btn-sm" onclick="openUpdateGroupModal(<?= (int)$g['id'] ?>, <?= (int)$g['page_id'] ?>, '<?= addslashes($g['group_name']) ?>', '<?= addslashes($g['location_name']) ?>', <?= (int)($g['seq_id'] ?? 1) ?>)">
+                                    <i class="fas fa-edit text-warning"></i>
+                                </button>
+                                <button class="btn btn-light btn-sm" onclick="openDeleteGroupModal(<?= (int)$g['id'] ?>, <?= (int)$g['page_id'] ?>, '<?= addslashes($g['group_name']) ?>')">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </button>
+                                <span class="btn btn-light btn-sm disabled fw-bold border-start border-secondary-subtle">
+                                    #<?= (int)($g['seq_id'] ?? 1) ?>
+                                </span>
                             </div>
                         </div>
-                    <?php endforeach; ?>
+                        <div class="card-body bg-white p-4">
+                            <?php 
+                                $group = $g;
+                                $org_id = $tenant_id;
+                                include __DIR__ . '/utilities/entity_toolState_card.php'; 
+                            ?>
+                        </div>
+                    </div>
                 </div>
-            <?php endif; ?>
-        </main>
-    </div>
-</div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</main>
 
 <!-- MODALS -->
 <!-- CREATE GROUP MODAL -->
