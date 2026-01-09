@@ -799,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function () {
 							cornerRadius: 8,
 							displayColors: false,  // Removes the small color box to save space
 							yAlign: 'bottom',      // This forces the tooltip to sit ABOVE the bar
-							margin: 10,            // Distance from the bar
+							margin: -10,            // Distance from the bar
 							callbacks: {
 								title: function(context) {
 									return '📅 ' + context[0].label;
