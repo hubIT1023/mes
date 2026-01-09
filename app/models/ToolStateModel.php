@@ -67,12 +67,12 @@ class ToolStateModel {
                     throw new Exception("No active state found for asset: $assetId");
                 }
 
-                // 2. Insert into maintWorkLog
-                // Columns in maintWorkLog (match your spec):
+                // 2. Insert into machine_log
+                // Columns in machine_log (match your spec):
                 // col_2, col_4, col_5, col_11, dateStamp, 
                 // col_6, col_7, location, col_10, col_8, col_9
                 $insert = "
-                    INSERT INTO maintWorkLog (
+                    INSERT INTO machine_log (
                         col_2, col_4, col_5, col_11, dateStamp,
                         col_6, col_7, location, col_10, col_8, col_9
                     )
