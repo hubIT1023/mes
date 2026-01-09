@@ -200,7 +200,21 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             </div>
                             
                             <div class="row g-2 mb-3 text-center">
+							
+							 <div class="col-6">
+                                    <div class="p-2 border rounded-3 bg-body-tertiary">
+                                        <div class="text-muted fw-bold mb-1" style="font-size: 9px;"> Actual OPT</div>
+                                        <div class="h6 fw-bold m-0">1200<small class="fw-normal">cnts</small></div>
+                                    </div>
+                                </div>
                                 <div class="col-6">
+                                    <div class="p-2 border rounded-3 bg-body-tertiary">
+                                        <div class="text-muted fw-bold mb-1" style="font-size: 9px;">Target OPT</div>
+                                        <div class="h6 fw-bold m-0">3000<small class="fw-normal text-muted">cnts</small></div>
+                                    </div>
+                                </div>
+							
+                                <!--div class="col-6">
                                     <div class="p-2 border rounded-3 bg-body-tertiary">
                                         <div class="text-muted fw-bold mb-1" style="font-size: 9px;">TEMP</div>
                                         <div class="h6 fw-bold m-0">84<small class="fw-normal">°C</small></div>
@@ -211,7 +225,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                                         <div class="text-muted fw-bold mb-1" style="font-size: 9px;">PRESSURE</div>
                                         <div class="h6 fw-bold m-0">107<small class="fw-normal text-muted">b</small></div>
                                     </div>
-                                </div>
+                                </div-->
                             </div>
 
                             <button class="btn <?= htmlspecialchars($badge['class']) ?> w-100 fw-bold py-2 mb-3 shadow-sm"
