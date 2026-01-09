@@ -53,6 +53,75 @@ class ToolStateModel {
                     $dateTimeNow
                 ]);
             }
+			
+			// --- STEP 3: If PROD, log to machine_log ---
+if ($data['col_3'] === 'PROD') {
+    // 🔍 DEBUG: Fetch the exact row that will be logged
+    $debugStmt = $this->conn->prepare("
+        SELECT 
+            org_id, group_code, location_code,
+            col_1, col_2, col_3, col_4, col_5,
+            col_6, col_7, col_8, col_9,
+            col_10
+        FROM tool_state
+        WHERE org_id = ? AND col_1 = ?
+    ");
+    $debugStmt->execute([$orgId, $assetId]);
+    $debugRow = $debugStmt->fetch(PDO::FETCH_ASSOC);
+
+    // Prepare debug info
+    $debugInfo = [
+        'timestamp' => $dateTimeNow,
+        'input_data' => $data,
+        'fetched_row_from_tool_state' => $debugRow,
+        'will_insert_to_machine_log' => $debugRow !== false,
+        'org_id' => $orgId,
+        'asset_id' => $assetId
+    ];
+
+    // 💡 Log as JSON (visible in PHP error log)
+    error_log("PROD LOG DEBUG: " . json_encode($debugInfo, JSON_PRETTY_PRINT));
+
+    if (!$debugRow) {
+        throw new Exception("No row in tool_state to log for PROD mode. org_id=$orgId, asset_id=$assetId");
+    }
+
+    // Now insert into machine_log
+    $insertLog = "
+        INSERT INTO machine_log (
+            org_id, group_code, location_code,
+            col_1, col_2, col_3, col_4, col_5,
+            col_6, col_7, col_8, col_9,
+            col_10, col_11, dateStamp
+        ) VALUES (
+            :org_id, :group_code, :location_code,
+            :col_1, :col_2, :col_3, :col_4, :col_5,
+            :col_6, :col_7, :col_8, :col_9,
+            :col_10, 'Completed', :dateStamp
+        )
+    ";
+    $logStmt = $this->conn->prepare($insertLog);
+    $logged = $logStmt->execute([
+        'org_id' => $debugRow['org_id'],
+        'group_code' => $debugRow['group_code'],
+        'location_code' => $debugRow['location_code'],
+        'col_1' => $debugRow['col_1'],
+        'col_2' => $debugRow['col_2'],
+        'col_3' => $debugRow['col_3'],
+        'col_4' => $debugRow['col_4'],
+        'col_5' => $debugRow['col_5'],
+        'col_6' => $debugRow['col_6'],
+        'col_7' => $debugRow['col_7'],
+        'col_8' => $debugRow['col_8'],
+        'col_9' => $debugRow['col_9'],
+        'col_10' => $debugRow['col_10'],
+        'dateStamp' => $dateTimeNow
+    ]);
+
+    if (!$logged) {
+        throw new Exception("Failed to insert into machine_log");
+    }
+}
 
             // --- STEP 2: Update the row with new data ---
             if ($data['col_3'] !== 'PROD') {
@@ -175,4 +244,6 @@ class ToolStateModel {
             return [];
         }
     }
+	
+	
 }
