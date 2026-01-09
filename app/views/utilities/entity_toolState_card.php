@@ -760,18 +760,18 @@ document.addEventListener('DOMContentLoaded', function () {
     
     charts.forEach(canvas => {
         try {
-            // 1. Parse all data attributes at once
+            // Parse data attributes
             const values = JSON.parse(canvas.dataset.chartValues || '[]');
             const labels = JSON.parse(canvas.dataset.chartLabels || '[]');
             const notes  = JSON.parse(canvas.dataset.chartNotes  || '[]');
             const colors = JSON.parse(canvas.dataset.chartColors || '[]');
             const borders = JSON.parse(canvas.dataset.chartBorders || '[]');
 
-            // 2. Initialize the Chart
+            // Initialize Chart
             new Chart(canvas, {
                 type: 'bar',
                 data: {
-                    labels: labels, 
+                    labels: labels,
                     datasets: [{
                         data: values,
                         backgroundColor: colors,
@@ -797,29 +797,36 @@ document.addEventListener('DOMContentLoaded', function () {
                             bodyFont: { size: 13 },
                             padding: 12,
                             displayColors: false,
-                            caretPadding: 8, // Optional: small padding for visual balance
+                            caretPadding: 8,
 
-                            // ✅ CRITICAL: Custom positioning to place tooltip ABOVE the bar
-                            position: function(context) {
-                                const tooltip = context.tooltip;
-                                const activeElements = tooltip.getActiveElements();
-                                
-                                if (activeElements.length === 0) {
-                                    return { x: 0, y: 0 };
-                                }
+                            // ✅ Safe position function with error handling
+                            position: (function(notesRef) {
+                                return function(context) {
+                                    try {
+                                        const tooltip = context.tooltip;
+                                        const activeElements = tooltip.getActiveElements();
+                                        
+                                        if (!activeElements || activeElements.length === 0) {
+                                            return { x: 0, y: 0 };
+                                        }
 
-                                const active = activeElements[0];
-                                const chart = context.chart;
-                                const meta = chart.getDatasetMeta(active.datasetIndex);
-                                const bar = meta.data[active.index];
+                                        const active = activeElements[0];
+                                        const chart = context.chart;
+                                        const meta = chart.getDatasetMeta(active.datasetIndex);
+                                        const bar = meta.data[active.index];
 
-                                // Position at the top-center of the bar
-                                // Subtract a few pixels so tooltip doesn't touch the bar
-                                return {
-                                    x: bar.x,
-                                    y: bar.y - 1 // 10px above the top of the bar
+                                        if (!bar) return { x: 0, y: 0 };
+
+                                        return {
+                                            x: bar.x,
+                                            y: bar.y - 10
+                                        };
+                                    } catch (e) {
+                                        console.error("Tooltip position failed:", e);
+                                        return { x: 0, y: 0 };
+                                    }
                                 };
-                            },
+                            })(notes),
 
                             callbacks: {
                                 title: function(context) {
@@ -848,7 +855,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         } catch (e) {
-            console.error("Chart initialization failed for element:", canvas, e);
+            console.error("Chart init failed:", e);
         }
     });
 });
