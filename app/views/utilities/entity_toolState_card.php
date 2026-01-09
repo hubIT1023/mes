@@ -202,7 +202,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 									WIP
 							</div>
                             
-                            <div class="row g-2 mb-3 text-center py-2 ">
+                            <div class="row g-2 mb-1 text-center py-2 ">
 							
 							 <div class="col-6">
                                     <div class="p-2 border rounded-3 bg-body-tertiary">
