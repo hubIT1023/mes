@@ -32,22 +32,30 @@ class ToolStateController {
             $stopCause = trim($_POST['ts_customInput'] ?? '');
         }
 
-        // Sanitize input
+        // Build data array
         $data = [
             'org_id' => $_SESSION['tenant_id'],
             'group_code' => (int)($_POST['group_code'] ?? 0),
             'location_code' => (int)($_POST['location_code'] ?? 0),
-            'col_1' => trim($_POST['col_1'] ?? ''), // asset_id
+            'col_1' => trim($_POST['col_1'] ?? ''), // asset_id (PRIMARY KEY)
             'col_2' => trim($_POST['col_2'] ?? ''), // entity name
-            'col_3' => $stopCause,
-            'col_4' => trim($_POST['col_4'] ?? ''),
-            'col_5' => trim($_POST['col_5'] ?? ''),
-            'col_8' => trim($_POST['col_8'] ?? ''),
+            'col_3' => $stopCause,                  // stop cause
+            'col_4' => trim($_POST['col_4'] ?? ''), // issue
+            'col_5' => trim($_POST['col_5'] ?? ''), // action
+            'col_8' => trim($_POST['col_8'] ?? ''), // person_reported
+            'col_9' => trim($_POST['col_9'] ?? ''), // person_completed (for PROD)
         ];
 
-        // Validate required fields
+        // Validation
         if (empty($data['col_1']) || empty($data['col_2']) || empty($data['col_8'])) {
             $_SESSION['error'] = "Required fields missing.";
+            header("Location: /dashboard_admin");
+            exit;
+        }
+
+        // If PROD, require col_9
+        if ($data['col_3'] === 'PROD' && empty($data['col_9'])) {
+            $_SESSION['error'] = "Completed By is required for PROD mode.";
             header("Location: /dashboard_admin");
             exit;
         }

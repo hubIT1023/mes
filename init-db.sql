@@ -376,6 +376,12 @@ CREATE TABLE tool_state (
     col_17 VARCHAR(100), -- si_timestamp_end
     col_18 VARCHAR(100), -- si_person_posted
     col_19 VARCHAR(100)  -- si_pesron_ended
+	----------------------------------------------
+    col_20 VARCHAR(100), -- set_dateTime_1 --- WOF
+    col_21 VARCHAR(100), -- set _dateTime  --- cal
+    col_22 VARCHAR(100), -- output_recv
+    col_23 VARCHAR(100), -- opt_total
+
 
     CONSTRAINT UQ_tool_state_org_asset UNIQUE (org_id, col_1)
 );
@@ -430,8 +436,14 @@ CREATE TABLE machine_log (
     col_16 VARCHAR(100), -- si_timestamp_start
     col_17 VARCHAR(100), -- si_timestamp_end
     col_18 VARCHAR(100), -- si_person_posted
-    col_19 VARCHAR(100), -- si_person_ended  -- corrected typo
-
+    col_19 VARCHAR(100), -- si_person_ended  
+	----------------------------------------------
+    col_20 VARCHAR(100), -- WOF
+    col_21 VARCHAR(100), -- cal
+    col_22 VARCHAR(100), -- output_recv
+    col_23 VARCHAR(100), -- opt_total
+	col_24 VARCHAR(100), -- tech_time
+	
     CONSTRAINT uq_machine_log_org_asset UNIQUE (org_id, col_1)
 );
 
@@ -498,28 +510,46 @@ CREATE TABLE tbpm_schedule_config (
     CONSTRAINT FK_tbpm_tenant FOREIGN KEY (tenant_id) REFERENCES organizations(org_id)
 );
 
-CREATE TABLE registered_device (
+CREATE TABLE registered_devices (
     id SERIAL PRIMARY KEY,
-    org_id UUID NOT NULL
-        CONSTRAINT fk_registered_device_organization
-        REFERENCES organizations(org_id)
-        ON DELETE CASCADE,
-
-    device_key        VARCHAR(255) NOT NULL,
-    device_name       VARCHAR(255),
-    parameter_name    VARCHAR(100),
-    parameter_value   VARCHAR(100),
-    action            VARCHAR(100),
-    hi_limit          NUMERIC(12,4),
-    lo_limit          NUMERIC(12,4),
+    org_id UUID NOT NULL,
+    device_key TEXT NOT NULL UNIQUE,
+    device_name VARCHAR(255) NOT NULL,
+    parameter_name VARCHAR(100),
+    parameter_value VARCHAR(100),
+    action VARCHAR(100),
+    hi_limit NUMERIC,
+    lo_limit NUMERIC,
     trigger_condition VARCHAR(100),
-    description       VARCHAR(100),  -- New column
-    location_level_1  VARCHAR(100),
-    location_level_2  VARCHAR(100),
-    location_level_3  VARCHAR(100),
-
-    CONSTRAINT uq_registered_device_org_key UNIQUE (org_id, device_key)
+    description TEXT,
+    location_level_1 VARCHAR(100),
+    location_level_2 VARCHAR(100),
+    location_level_3 VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE device_data (
+    id BIGSERIAL PRIMARY KEY,
+    device_key TEXT NOT NULL,
+    parameter_name VARCHAR(100) NOT NULL,
+    parameter_value NUMERIC NOT NULL,
+    recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    org_id UUID NOT NULL,
+    unit VARCHAR(20),
+    
+    -- Enforce referential integrity
+    CONSTRAINT fk_device_key 
+        FOREIGN KEY (device_key) 
+        REFERENCES registered_devices(device_key) 
+        ON DELETE CASCADE,
+    
+    -- Optional: if you have a tenants table
+    -- CONSTRAINT fk_org_id 
+    --     FOREIGN KEY (org_id) 
+    --     REFERENCES tenants(org_id)
+);
 
-
+-- Critical indexes for performance
+CREATE INDEX idx_device_data_device_key ON device_data(device_key);
+CREATE INDEX idx_device_data_org_id_time ON device_data(org_id, recorded_at DESC);
+CREATE INDEX idx_device_data_recorded_at ON device_data(recorded_at DESC);
