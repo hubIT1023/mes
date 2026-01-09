@@ -316,6 +316,67 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- SHARED MODALS -->
 <!-- =============================== -->
 
+
+<!-- Dropdown - Alerts -->
+				<div class="dropdown no-arrow">
+					<div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+						<h6 class="dropdown-header text-light" style='font-size: 20.0px;'>
+						  Breakdown Details
+						</h6>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item d-flex align-items-center" href="#">
+						  <div class="mr-3">
+							<div class="icon-circle bg-danger">
+							  <i class="fas fa-fw fa-wrench text-white"></i>
+							</div>
+						  </div>
+						  
+						  <div>
+							<div class="font-weight-bold">Breakdown Issue(s)</div>
+							<?php
+								
+								//brkdwn_info($entity);	
+							?>
+						  </div>
+						</a>
+						
+						<a class="dropdown-item d-flex align-items-center" href="#">
+						  <div class="mr-3">
+							<div class="icon-circle bg-danger">
+							  <i class="far fa-clock "  style='font-size:24px;color:white'"></i>
+							</div>
+						  </div>
+						  
+						  <div>
+							<div class="font-weight-bold">Downtime</div>
+							<?php
+								
+								//downtime($entity);	
+							?>
+						  </div>
+						</a>
+						
+						<div class="dropdown-divider"></div>
+						
+						<a class="dropdown-item d-flex align-items-center" href="#">
+						  <div class="mr-3">
+							<div class="icon-circle bg-warning">
+							  <i class="fas fa-fw fa-wrench text-white"></i>
+									   
+							</div>
+						  </div>
+						  <div>
+							<div class="font-weight-bold">Standing Issue(s)</div>
+							<?php
+								
+								//standing_issue($entity);											 
+							?>
+						  </div>
+						</a>
+					</div>
+				</div>
+				  <!--end_Dropdown - Alerts -->
+
 <!-- associateAcc-PartsModal -->
 <div class="modal fade" id="associateAcc-PartsModal" tabindex="-1" aria-labelledby="associateAccPartsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
