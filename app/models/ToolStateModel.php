@@ -117,4 +117,21 @@ class ToolStateModel {
             return ['success' => false, 'error' => 'Database operation failed'];
         }
     }
+	
+		// select mode_key this is equivalent stopcause
+	public function getModeColorChoices(string $orgId): array {
+		try {
+			$stmt = $this->conn->prepare("
+				SELECT mode_key,label
+				FROM mode_color
+				WHERE org_id = ?
+				ORDER BY label
+			");
+			$stmt->execute([$orgId]);
+			return $stmt->fetchAll(PDO::FETCH_KEY_PAIR); // [mode_key => label]
+		} catch (PDOException $e) {
+			error_log("Failed to fetch mode_color choices: " . $e->getMessage());
+			return [];
+		}
+	}
 }
