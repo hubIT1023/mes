@@ -135,10 +135,10 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 ?>
 
 <!-- Tool State Cards Grid -->
-<div class="row row-cols-2 bg-info row-cols-sm-3 row-cols-md-5 row-cols-lg-5 g-4">
+<div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 row-cols-lg-5 g-4">
     <?php for ($row = 1; $row <= $maxRow; $row++): ?>
         <?php for ($col = 1; $col <= 5; $col++): ?>
-            <div class="col">
+            <div class="col bg-info ">
                 <?php if (isset($grid[$row][$col])): ?>
                     <?php
                         $entity = $grid[$row][$col];
