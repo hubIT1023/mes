@@ -817,7 +817,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 // Subtract a few pixels so tooltip doesn't touch the bar
                                 return {
                                     x: bar.x,
-                                    y: bar.y - 10 // 10px above the top of the bar
+                                    y: bar.y - 1 // 10px above the top of the bar
                                 };
                             },
 
