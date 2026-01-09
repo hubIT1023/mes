@@ -717,7 +717,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         </div>
                     </div>
 
-                    <!-- 🔴 CRITICAL FIX: Removed name="col_3" from input -->
+                    <!-- 🔴 FIXED: Removed name="col_3" from input -->
                     <div class="mb-3" id="customInputContainer" style="display:none;">
                         <label class="form-label">Custom Stop Cause</label>
                         <input type="text" id="ts_customInput" class="form-control" />
@@ -931,24 +931,23 @@ actionModals.forEach(modalId => {
 });
 
 
+
 function handleStopCauseChange(value) {
-    const customContainer = document.getElementById('customInputContainer');
+    const container = document.getElementById('customInputContainer');
     const select = document.getElementById('ts_modal_stopcause');
     const customInput = document.getElementById('ts_customInput');
 
     if (value === 'CUSTOM') {
-        // Show custom input
-        customContainer.style.display = 'block';
-        // Transfer 'name' from select to custom input
+        container.style.display = 'block';
+        // Transfer 'name' to custom input
         select.removeAttribute('name');
         customInput.setAttribute('name', 'col_3');
     } else {
-        // Hide custom input
-        customContainer.style.display = 'none';
+        container.style.display = 'none';
         // Restore 'name' to select
         select.setAttribute('name', 'col_3');
         customInput.removeAttribute('name');
     }
 }
-</script>
+
 </script>
