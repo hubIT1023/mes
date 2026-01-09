@@ -194,7 +194,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                                 </div>
                             </div>
 							
-								<div class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle d-flex align-items-center gap-2 px-2 py-1" 
+							<div class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle d-flex align-items-center gap-2 px-2 py-1" 
 									 style="font-size: 0.7rem; cursor: pointer;"
 									 data-bs-toggle="modal" data-bs-target="#LoadWorkModal"
 									 <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
@@ -202,7 +202,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 									WIP
 							</div>
                             
-                            <div class="row g-2 mb-3 text-center">
+                            <div class="row g-2 mb-3 text-center py-2 ">
 							
 							 <div class="col-6">
                                     <div class="p-2 border rounded-3 bg-body-tertiary">
