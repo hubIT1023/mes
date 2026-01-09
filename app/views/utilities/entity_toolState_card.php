@@ -220,7 +220,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                                 <?= htmlspecialchars($badge['label']) ?>
                             </button>
                             
-                                <div class="border-top pt-2">
+                            <div class="border-top pt-2">
+                                
 									<div class="d-flex justify-content-between align-items-center mb-1">
 										<span class="fw-bold" style="font-size: 10px;">5-DAY DOWNTIME</span>
 										<span class="text-muted" style="font-size: 10px;">4.2h</span>
@@ -231,7 +232,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 												data-chart-colors='["#d1e7dd", "#f8d7da", "#d1e7dd", "#f8d7da", "#fff3cd"]'
 												data-chart-borders='["#198754", "#dc3545", "#198754", "#dc3545", "#ffc107"]'>
 										</canvas>
-									</div>
+								
 								</div>
                             </div>
                         </div>
