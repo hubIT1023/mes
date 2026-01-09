@@ -930,7 +930,7 @@ actionModals.forEach(modalId => {
     });
 });
 
-<script>
+
 function handleStopCauseChange(value) {
     const customContainer = document.getElementById('customInputContainer');
     const select = document.getElementById('ts_modal_stopcause');
