@@ -790,26 +790,31 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     plugins: {
                         legend: { display: false },
-                        tooltip: {
+						tooltip: {
 							enabled: true,
-							backgroundColor: 'rgba(0, 0, 0, 0.9)', // Darker for better contrast
+							// 1. Force the tooltip to stay above the bar
+							yAlign: 'bottom', 
+							
+							// 2. Center the tooltip horizontally relative to the bar
+							xAlign: 'center', 
+
+							backgroundColor: 'rgba(0, 0, 0, 0.9)',
 							titleFont: { size: 13, weight: 'bold' },
 							bodyFont: { size: 13 },
-							padding: 12,           // Increased padding to prevent broken/cramped content
-							cornerRadius: 8,
-							displayColors: false,  // Removes the small color box to save space
-							yAlign: 'bottom',      // This forces the tooltip to sit ABOVE the bar
-							margin: -10,            // Distance from the bar
+							padding: 12,
+							displayColors: false,
+							
+							// 3. Add space between the bar top and the tooltip box
+							caretPadding: 10, 
+
 							callbacks: {
 								title: function(context) {
-									return '📅 ' + context[0].label;
+									return context[0].label;
 								},
 								label: function(context) {
 									const index = context.dataIndex;
 									const value = context.parsed.y;
-									const reason = notes[index] || 'No reason specified';
-									
-									// Return as array - Chart.js renders each item on a new line
+									const reason = notes[index] || 'No reason';
 									return [
 										'Downtime: ' + value + 'h',
 										'Reason: ' + reason
