@@ -17,18 +17,18 @@ public function saveToolState(array $data): array {
 
     $dateTimeNow = date('Y-m-d H:i:s');
     $orgId = $data['org_id'];
-    $assetId = $data['col_1'];
+    $assetId = $data['col_1']; // ← PRIMARY KEY
 
     try {
         $this->conn->beginTransaction();
 
-        // --- STEP 1: Check if row exists ---
-        $check = $this->conn->prepare("SELECT 1 FROM tool_state WHERE org_id = ? AND col_1 = ?");
+        // --- STEP 1: Ensure row exists using col_1 (asset_id) ---
+        $check = $this->conn->prepare("SELECT col_3 FROM tool_state WHERE org_id = ? AND col_1 = ?");
         $check->execute([$orgId, $assetId]);
-        $exists = $check->fetch();
+        $existingRow = $check->fetch(PDO::FETCH_ASSOC);
 
-        if (!$exists) {
-            // INSERT new row WITH current col_3 value
+        if (!$existingRow) {
+            // INSERT new row — include col_3 from input!
             $insert = $this->conn->prepare("
                 INSERT INTO tool_state (
                     org_id, group_code, location_code, col_1, col_2,
@@ -36,7 +36,7 @@ public function saveToolState(array $data): array {
                     col_10, col_11
                 ) VALUES (
                     ?, ?, ?, ?, ?,
-                    ?, '', '', ?, ?, '', '',
+                    ?, ?, ?, ?, ?, ?, ?,
                     '', ''
                 )
             ");
@@ -46,55 +46,62 @@ public function saveToolState(array $data): array {
                 $data['location_code'] ?? 0,
                 $assetId,
                 $data['col_2'] ?? '',
-                $data['col_3'] ?? '',   // ← CRITICAL: set col_3 here!
-                $dateTimeNow,
-                $dateTimeNow
+                $data['col_3'] ?? 'IDLE', // ← SET col_3 HERE!
+                $data['col_4'] ?? '',
+                $data['col_5'] ?? '',
+                $dateTimeNow, // col_6
+                $dateTimeNow, // col_7
+                $data['col_8'] ?? '',
+                $data['col_9'] ?? ''
             ]);
+            $finalCol3 = $data['col_3'] ?? 'IDLE';
+        } else {
+            $finalCol3 = $existingRow['col_3'];
         }
 
-        // --- STEP 2: Update row with full data ---
-        if ($data['col_3'] !== 'PROD') {
-            // Non-PROD: update start time and save previous mode
+        // --- STEP 2: Update row based on NEW col_3 value ---
+        $newCol3 = $data['col_3'];
+
+        if ($newCol3 !== 'PROD') {
+            // NON-PROD: reset start time, save previous mode
             $stmt = $this->conn->prepare("
-                UPDATE tool_state 
-                SET 
+                UPDATE tool_state SET
                     group_code = ?, location_code = ?, col_2 = ?,
                     col_3 = ?, col_4 = ?, col_5 = ?,
-                    col_6 = ?, col_10 = col_3, col_8 = ?
+                    col_6 = ?, col_10 = ?, col_8 = ?
                 WHERE org_id = ? AND col_1 = ?
             ");
             $stmt->execute([
                 $data['group_code'],
                 $data['location_code'],
                 $data['col_2'],
-                $data['col_3'],
+                $newCol3,
                 $data['col_4'],
                 $data['col_5'],
-                $dateTimeNow,
+                $dateTimeNow,      // new start time
+                $finalCol3,        // previous col_3
                 $data['col_8'],
                 $orgId,
                 $assetId
             ]);
 
-        } else {
-            // PROD: update end time and person completed
+        } elseif ($newCol3 === 'PROD') {
+            // PROD: set end time and person completed
             $stmt = $this->conn->prepare("
-                UPDATE tool_state 
-                SET 
+                UPDATE tool_state SET
                     group_code = ?, location_code = ?, col_2 = ?,
                     col_3 = ?, col_4 = ?, col_5 = ?,
-                    col_6 = ?, col_7 = ?, col_8 = ?, col_9 = ?
+                    col_7 = ?, col_8 = ?, col_9 = ?
                 WHERE org_id = ? AND col_1 = ?
             ");
             $stmt->execute([
                 $data['group_code'],
                 $data['location_code'],
                 $data['col_2'],
-                $data['col_3'],
+                $newCol3,
                 $data['col_4'],
                 $data['col_5'],
-                $data['col_6'] ?? $dateTimeNow,
-                $dateTimeNow,
+                $dateTimeNow,      // col_7 = end time
                 $data['col_8'],
                 $data['col_9'],
                 $orgId,
@@ -117,11 +124,7 @@ public function saveToolState(array $data): array {
                 FROM tool_state
                 WHERE org_id = ? AND col_1 = ?
             ");
-            $logged = $logStmt->execute([$dateTimeNow, $orgId, $assetId]);
-
-            if (!$logged) {
-                throw new Exception("Failed to insert into machine_log");
-            }
+            $logStmt->execute([$dateTimeNow, $orgId, $assetId]);
         }
 
         $this->conn->commit();
