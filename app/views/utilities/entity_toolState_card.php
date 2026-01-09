@@ -790,38 +790,52 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     plugins: {
                         legend: { display: false },
-						tooltip: {
-							enabled: true,
-							// 1. Force the tooltip to stay above the bar
-							yAlign: 'top', // Changed from 'bottom' to 'top'
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            padding: 12,
+                            displayColors: false,
+                            caretPadding: 8, // Optional: small padding for visual balance
 
-							// 2. Center the tooltip horizontally relative to the bar
-							xAlign: 'center',
+                            // ✅ CRITICAL: Custom positioning to place tooltip ABOVE the bar
+                            position: function(context) {
+                                const tooltip = context.tooltip;
+                                const activeElements = tooltip.getActiveElements();
+                                
+                                if (activeElements.length === 0) {
+                                    return { x: 0, y: 0 };
+                                }
 
-							backgroundColor: 'rgba(0, 0, 0, 0.9)',
-							titleFont: { size: 13, weight: 'bold' },
-							bodyFont: { size: 13 },
-							padding: 12,
-							displayColors: false,
+                                const active = activeElements[0];
+                                const chart = context.chart;
+                                const meta = chart.getDatasetMeta(active.datasetIndex);
+                                const bar = meta.data[active.index];
 
-							// 3. Add space between the bar top and the tooltip box
-							caretPadding: 10, // Adjust as needed
+                                // Position at the top-center of the bar
+                                // Subtract a few pixels so tooltip doesn't touch the bar
+                                return {
+                                    x: bar.x,
+                                    y: bar.y - 10 // 10px above the top of the bar
+                                };
+                            },
 
-							callbacks: {
-								title: function(context) {
-									return context[0].label;
-								},
-								label: function(context) {
-									const index = context.dataIndex;
-									const value = context.parsed.y;
-									const reason = notes[index] || 'No reason';
-									return [
-										'Downtime: ' + value + 'h',
-										'Reason: ' + reason
-									];
-								}
-							}
-						}
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const value = context.parsed.y;
+                                    const reason = notes[index] || 'No reason';
+                                    return [
+                                        'Downtime: ' + value + 'h',
+                                        'Reason: ' + reason
+                                    ];
+                                }
+                            }
+                        }
                     },
                     scales: {
                         x: { display: false },
