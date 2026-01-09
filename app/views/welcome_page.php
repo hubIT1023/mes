@@ -72,6 +72,11 @@
                HubIT.online brings maintenance, asset management, and 
 			   IoT monitoring together in one real-time platform—built for factories, utilities, and modern facilities.
             </p>
+			<p class="text-xl text-slate-200 max-w-3xl mx-auto mb-10">
+			  <em>For demonstration purposes only:</em><br>
+			  Use <span class="font-mono">factory@online.com</span> / <span class="font-mono">12345678</span> to explore the dashboard.<br>
+			  <span class="text-sm text-slate-400">Do not use real credentials in public demos.</span>
+			</p>
             <div class="flex flex-col md:flex-row justify-center items-center gap-4">
                 <!--a href="#demo" class="w-full md:w-auto bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-700">Let's Go!</a>
                 <a href="#pricing" class="w-full md:w-auto bg-transparent border border-slate-500 
