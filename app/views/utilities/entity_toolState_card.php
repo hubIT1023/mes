@@ -225,13 +225,19 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                                     <span class="fw-bold" style="font-size: 10px;">5-DAY DOWNTIME</span>
                                     <span class="text-muted" style="font-size: 10px;">4.2h</span>
                                 </div>
-                                <div class="d-flex align-items-end gap-1" style="height: 30px;">
-                                    <div class="bg-success-subtle flex-grow-1 border-bottom border-success border-2 rounded-top" style="height: 40%;"></div>
-                                    <div class="bg-danger-subtle flex-grow-1 border-bottom border-danger border-2 rounded-top" style="height: 70%;"></div>
-                                    <div class="bg-success-subtle flex-grow-1 border-bottom border-success border-2 rounded-top" style="height: 30%;"></div>
-                                    <div class="bg-danger-subtle flex-grow-1 border-bottom border-danger border-2 rounded-top" style="height: 90%;"></div>
-                                    <div class="bg-warning-subtle flex-grow-1 border-bottom border-warning border-2 rounded-top" style="height: 50%;"></div>
-                                </div>
+                                <div class="border-top pt-2">
+									<div class="d-flex justify-content-between align-items-center mb-1">
+										<span class="fw-bold" style="font-size: 10px;">5-DAY DOWNTIME</span>
+										<span class="text-muted" style="font-size: 10px;">4.2h</span>
+									</div>
+									<div style="height: 40px; width: 100%;">
+										<canvas class="downtime-chart" 
+												data-chart-values="[40, 70, 30, 90, 50]" 
+												data-chart-colors='["#d1e7dd", "#f8d7da", "#d1e7dd", "#f8d7da", "#fff3cd"]'
+												data-chart-borders='["#198754", "#dc3545", "#198754", "#dc3545", "#ffc107"]'>
+										</canvas>
+									</div>
+								</div>
                             </div>
                         </div>
                     </div>
@@ -647,6 +653,54 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div>
 
 <!-- JavaScript: Unified data flow for ALL modals -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const charts = document.querySelectorAll('.downtime-chart');
+    
+    charts.forEach(canvas => {
+        // Parse data from HTML attributes
+        const values = JSON.parse(canvas.dataset.chartValues);
+        const colors = JSON.parse(canvas.dataset.chartColors);
+        const borders = JSON.parse(canvas.dataset.chartBorders);
+
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'],
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors,
+                    borderColor: borders,
+                    borderWidth: { top: 2, right: 0, bottom: 0, left: 0 }, // Top-only border
+                    borderRadius: 3,
+                    barPercentage: 0.8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false } // Keep it clean for sparklines
+                },
+                scales: {
+                    x: { display: false }, // Hide X axis
+                    y: { 
+                        display: false,
+                        beginAtZero: true,
+                        max: 100 // Ensures all charts share the same scale
+                    }
+                }
+            }
+        });
+    });
+});
+</script>
+
+
+
 <script>
 let currentEntityContext = null;
 
