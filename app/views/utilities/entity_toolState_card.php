@@ -317,6 +317,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 									<div style="height: 40px; width: 100%;">
 										<canvas class="downtime-chart" 
 												data-chart-values="[40, 70, 30, 90, 50]" 
+												data-chart-labels='["Mon", "Tue", "Wed", "Thu", "Fri"]'
+												data-chart-notes='["Scheduled Maintenance", "Motor Failure", "Sensor Calibration", "Line Jam", "Cleaning"]'
 												data-chart-colors='["#d1e7dd", "#f8d7da", "#d1e7dd", "#f8d7da", "#fff3cd"]'
 												data-chart-borders='["#198754", "#dc3545", "#198754", "#dc3545", "#ffc107"]'>
 										</canvas>
@@ -754,22 +756,24 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 <!-- JavaScript: Unified data flow for ALL modals -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const charts = document.querySelectorAll('.downtime-chart');
     
     charts.forEach(canvas => {
-        // Parse data from HTML attributes
         try {
-            const values = JSON.parse(canvas.dataset.chartValues);
-            const colors = JSON.parse(canvas.dataset.chartColors);
-            const borders = JSON.parse(canvas.dataset.chartBorders);
+            // 1. Parse all data attributes at once
+            const values = JSON.parse(canvas.dataset.chartValues || '[]');
+            const labels = JSON.parse(canvas.dataset.chartLabels || '[]');
+            const notes  = JSON.parse(canvas.dataset.chartNotes  || '[]');
+            const colors = JSON.parse(canvas.dataset.chartColors || '[]');
+            const borders = JSON.parse(canvas.dataset.chartBorders || '[]');
 
+            // 2. Initialize the Chart
             new Chart(canvas, {
                 type: 'bar',
                 data: {
-                    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'],
+                    labels: labels, 
                     datasets: [{
                         data: values,
                         backgroundColor: colors,
@@ -782,36 +786,46 @@ document.addEventListener('DOMContentLoaded', function () {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    // Interaction settings: Makes hover work much better
                     interaction: {
                         mode: 'index',
                         intersect: false
                     },
                     plugins: {
                         legend: { display: false },
-                        tooltip: { 
-                            enabled: true, // Re-enabled for your requirement
-                            displayColors: false,
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 10,
                             callbacks: {
-                                // This adds the "h" unit to your value in the popup
+                                title: function(context) {
+                                    return context[0].label;
+                                },
                                 label: function(context) {
-                                    return 'Downtime: ' + context.parsed.y + 'h';
+                                    const index = context.dataIndex;
+                                    const value = context.parsed.y;
+                                    const reason = notes[index] || 'No reason specified';
+                                    
+                                    // Returns an array for multi-line display
+                                    return [
+                                        'Downtime: ' + value + 'h',
+                                        'Reason: ' + reason
+                                    ];
                                 }
                             }
                         }
                     },
                     scales: {
-                        x: { display: false }, 
+                        x: { display: false },
                         y: { 
-                            display: false,
+                            display: false, 
                             beginAtZero: true,
-                            suggestedMax: Math.max(...values) + 10 // Dynamic height instead of fixed 100
+                            suggestedMax: Math.max(...values, 10) 
                         }
                     }
                 }
             });
         } catch (e) {
-            console.error("Chart data parsing failed:", e);
+            console.error("Chart initialization failed for element:", canvas, e);
         }
     });
 });
