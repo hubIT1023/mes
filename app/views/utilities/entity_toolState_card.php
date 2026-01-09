@@ -135,200 +135,140 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 ?>
 
 <!-- Tool State Cards Grid -->
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-4">
+<div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 row-cols-lg-5 g-4">
     <?php for ($row = 1; $row <= $maxRow; $row++): ?>
         <?php for ($col = 1; $col <= 5; $col++): ?>
-            <?php if (isset($grid[$row][$col])): ?>
-                <?php
-					$entity = $grid[$row][$col];
-					$assetId = $entity['asset_id'];
-					$entityName = $entity['entity'];
-					$currentDateTime = date('Y-m-d H:i:s');
-					$stopCause = $states[$entityName] ?? 'IDLE';
-					$badge = getStateBadge($stopCause, $conn, $org_id);
-                ?>
+            <div class="col">
+                <?php if (isset($grid[$row][$col])): ?>
+                    <?php
+                        $entity = $grid[$row][$col];
+                        $assetId = $entity['asset_id'];
+                        $entityName = $entity['entity'];
+                        $currentDateTime = date('Y-m-d H:i:s');
+                        $stopCause = $states[$entityName] ?? 'IDLE';
+                        $badge = getStateBadge($stopCause, $conn, $org_id);
+                    ?>
 
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <!-- Header -->
-				 <div class="d-flex justify-content-between align-items-start p-2 border-bottom border-gray-100">
-					<!-- LEFT GROUP: Entity Name + WIP Badge -->
-					<div class="d-flex flex-column align-items-start gap-2">
-						<!-- Entity Name -->
-						<div>
-						<div class="d-flex align-items-center gap-2 mb-1">
-							<i class="fas fa-list text-secondary small"></i>
-							<button
-								class="text-start text-sm fw-semibold text-primary bg-transparent border-0 p-0"
-								style="font-size: 1.5rem;"
-								data-bs-toggle="modal"
-								data-bs-target="#associateAcc-PartsModal"
-								<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-								aria-label="View details for <?= htmlspecialchars($entityName) ?>"
-							>
-								<?= htmlspecialchars($entityName) ?>
-							</button>
-						</div>
-						</div>
+                    <div class="card h-100 shadow-sm border-0 rounded-3 transition-all hover-shadow">
+                        <div class="card-header bg-white border-bottom-0 p-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex flex-column align-items-start gap-1">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-microchip text-secondary small"></i>
+                                        <button class="btn btn-link p-0 fw-bold text-decoration-none text-dark fs-5 lh-1"
+                                            data-bs-toggle="modal" data-bs-target="#associateAcc-PartsModal"
+                                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
+                                            <?= htmlspecialchars($entityName) ?>
+                                        </button>
+                                    </div>
 
-						<!-- WIP Badge -->
-						<div class="badge rounded-pill bg-primary-subtle text-primary d-flex align-items-center gap-2 px-3 py-2" style="font-size: 0.75rem;"
-						    data-bs-toggle="modal"
-                            data-bs-target="#LoadWorkModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Load work"
-							>
-							<div class="pulse-dot bg-primary"></div>
-							WIP
-						</div>	
-					</div>
+                                    <div class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle d-flex align-items-center gap-2 px-2 py-1" 
+                                         style="font-size: 0.7rem; cursor: pointer;"
+                                         data-bs-toggle="modal" data-bs-target="#LoadWorkModal"
+                                         <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
+                                        <span class="spinner-grow spinner-grow-sm text-primary" role="status" style="width: 8px; height: 8px;"></span>
+                                        WIP
+                                    </div>	
+                                </div>
 
-					<!-- Pin Map (Right) -->
-					<button
-						class="btn btn-sm btn-light text-primary flex-shrink-0 p-1"
-						data-bs-toggle="modal"
-						data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>"
-						aria-label="Edit position"
-					>
-						<i class="fas fa-map-pin text-sm"></i> <!-- Note: fixed icon name -->
-					</button>
-				</div>
+                                <button class="btn btn-sm btn-light border p-1 rounded-2 text-primary"
+                                    data-bs-toggle="modal" data-bs-target="#editPositionModal_<?= (int)$entity['id'] ?>">
+                                    <i class="fas fa-map-pin"></i>
+                                </button>
+                            </div>
+                        </div>
 
-                    <!-- Body -->
-                    <div class="p-2 space-y-2">
-                        <!-- WOF Due -->
-						 <div>  
-							<div
-								< div class="d-flex justify-content-between small fw-bold text-primary mb-1" style="font-size: 11px;"
-									data-bs-toggle="modal"
-									data-bs-target="#CalDueModal"
-									<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-									aria-label="Calibration Due"
-								>
-									<span>WOF</span>
-									<span class="text-primary">Due: 14 Oct</span>
-							</div>
-							<div class="progress" style="height: 6px;">
-								<div class="progress-bar bg-success" style="width: 85%"></div>
-							</div>
-						</div>
-                        <!-- Cal Due -->
-                        <!--div
-                            class="text-left text-xs font-medium text-gray-700 py-1 px-2 bg-blue-50 rounded hover:bg-blue-100 cursor-pointer"
-                            data-bs-toggle="modal"
-                            data-bs-target="#CalDueModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Calibration Due"
-                        >
-                            Cal Due
-                        </div-->
-						<div>
-							<div
-								< div class="d-flex justify-content-between small fw-bold text-secondary mb-1" style="font-size: 11px;"
-									data-bs-toggle="modal"
-									data-bs-target="#CalDueModal"
-									<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-									aria-label="Calibration Due"
-								>
-									<span>CALIBRATION</span>
-									<span class="text-primary">Due: 14 Oct</span>
-								</div>
-							<div class="progress" style="height: 6px;">
-								<div class="progress-bar bg-warning" style="width: 65%"></div>
-							</div>
-						</div>
-						
-						<div class="row g-2 mb-4">
-							<div class="col-6">
-								<div class="p-2 border rounded-3 bg-white">
-									<div class="small text-muted fw-bold" style="font-size: 10px;">TEMP</div>
-									<div class="h5 fw-bold m-0">84<span class="small text-muted fw-normal">°C</span></div>
-								</div>
-							</div>
-							<div class="col-6">
-								<div class="p-2 border rounded-3 bg-white">
-									<div class="small text-muted fw-bold" style="font-size: 10px;">PRESSURE</div>
-									<div class="h5 fw-bold m-0">107<span class="small text-muted fw-normal">bar</span></div>
-								</div>
-							</div>
-						</div>
-										
+                        <div class="card-body p-3 pt-0">
+                            <div class="mb-3" data-bs-toggle="modal" data-bs-target="#CalDueModal" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between small fw-bold mb-1">
+                                    <span class="text-muted" style="font-size: 10px;">WOF</span>
+                                    <span class="text-primary" style="font-size: 10px;">Due: 14 Oct</span>
+                                </div>
+                                <div class="progress bg-light" style="height: 6px;">
+                                    <div class="progress-bar bg-success" style="width: 85%"></div>
+                                </div>
+                            </div>
 
-                        <!-- State Badge -->
-                        <button
-                            class="w-full py-2 text-white font-bold rounded transition-all hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 
-							<?= htmlspecialchars($badge['class']) ?>"
-                            data-bs-toggle="modal"
-                            data-bs-target="#setMaintModal"
-                            <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>
-                            aria-label="Current state: <?= htmlspecialchars($badge['label']) ?>"
-                        >
-                            <?= htmlspecialchars($badge['label']) ?>
-                        </button>
-						
-						
-						<div class="border-top pt-3">
-							<div class="d-flex justify-content-between align-items-center mb-2">
-								<span class="small fw-bold">5-Day Downtime</span>
-								<span class="small text-muted">Total: 4.2h</span>
-							</div>
-							<div class="d-flex align-items-end gap-1" style="height: 40px;">
-								<div class="bg-success flex-grow-1 rounded-top" style="height: 40%;"></div>
-								<div class="bg-danger flex-grow-1 rounded-top" style="height: 70%;"></div>
-								<div class="bg-success flex-grow-1 rounded-top" style="height: 30%;"></div>
-								<div class="bg-danger flex-grow-1 rounded-top" style="height: 90%;"></div>
-								<div class="bg-warning flex-grow-1 rounded-top" style="height: 50%;"></div>
-							</div>
-						</div>
-										
-						
+                            <div class="mb-3" data-bs-toggle="modal" data-bs-target="#CalDueModal" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between small fw-bold mb-1">
+                                    <span class="text-muted" style="font-size: 10px;">CALIBRATION</span>
+                                    <span class="text-primary" style="font-size: 10px;">Due: 14 Oct</span>
+                                </div>
+                                <div class="progress bg-light" style="height: 6px;">
+                                    <div class="progress-bar bg-warning" style="width: 65%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-2 mb-3 text-center">
+                                <div class="col-6">
+                                    <div class="p-2 border rounded-3 bg-body-tertiary">
+                                        <div class="text-muted fw-bold mb-1" style="font-size: 9px;">TEMP</div>
+                                        <div class="h6 fw-bold m-0">84<small class="fw-normal">°C</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-2 border rounded-3 bg-body-tertiary">
+                                        <div class="text-muted fw-bold mb-1" style="font-size: 9px;">PRESSURE</div>
+                                        <div class="h6 fw-bold m-0">107<small class="fw-normal text-muted">b</small></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="btn <?= htmlspecialchars($badge['class']) ?> w-100 fw-bold py-2 mb-3 shadow-sm"
+                                data-bs-toggle="modal" data-bs-target="#setMaintModal"
+                                <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
+                                <?= htmlspecialchars($badge['label']) ?>
+                            </button>
+                            
+                            <div class="border-top pt-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold" style="font-size: 10px;">5-DAY DOWNTIME</span>
+                                    <span class="text-muted" style="font-size: 10px;">4.2h</span>
+                                </div>
+                                <div class="d-flex align-items-end gap-1" style="height: 30px;">
+                                    <div class="bg-success-subtle flex-grow-1 border-bottom border-success border-2 rounded-top" style="height: 40%;"></div>
+                                    <div class="bg-danger-subtle flex-grow-1 border-bottom border-danger border-2 rounded-top" style="height: 70%;"></div>
+                                    <div class="bg-success-subtle flex-grow-1 border-bottom border-success border-2 rounded-top" style="height: 30%;"></div>
+                                    <div class="bg-danger-subtle flex-grow-1 border-bottom border-danger border-2 rounded-top" style="height: 90%;"></div>
+                                    <div class="bg-warning-subtle flex-grow-1 border-bottom border-warning border-2 rounded-top" style="height: 50%;"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-				
-				
-	<!-- =============================== -->
-	<!-- GRIRD --Edit Position Modal -->
-	<!-- =============================== -->			
 
-	
-	<div class="modal fade" id="editPositionModal_<?= (int)$entity['id'] ?>" tabindex="-1">
-		<div class="modal-dialog">
-			<form action="/mes/update-entity-position" method="POST">
-				<input type="hidden" name="entity_id" value="<?= (int)$entity['id'] ?>">
-				<input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Edit Position: <?= htmlspecialchars($entityName) ?></h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-					</div>
-					<div class="modal-body">
-						<div class="row">
-							<div class="col-6">
-								<label class="form-label">Row</label>
-								<input type="number" class="form-control" name="row_pos"
-									   value="<?= (int)$entity['row_pos'] ?>" min="1" required>
-							</div>
-							<div class="col-6">
-								<label class="form-label">Column</label>
-								<input type="number" class="form-control" name="col_pos"
-									   value="<?= (int)$entity['col_pos'] ?>" min="1" max="9" required>
-							</div>
-						</div>
-						<div class="mt-3">
-							<small class="text-muted">Columns 1–5 per row</small>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-						<button type="submit" class="btn btn-primary">Move</button>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
+                    <div class="modal fade" id="editPositionModal_<?= (int)$entity['id'] ?>" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <form action="/mes/update-entity-position" method="POST" class="modal-content border-0 shadow">
+                                <div class="modal-header border-bottom-0">
+                                    <h5 class="modal-title fw-bold">Move <?= htmlspecialchars($entityName) ?></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body py-4">
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <label class="form-label small fw-bold text-muted">Row Position</label>
+                                            <input type="number" class="form-control form-control-lg bg-light border-0" name="row_pos" value="<?= (int)$entity['row_pos'] ?>" min="1" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label small fw-bold text-muted">Column Position</label>
+                                            <input type="number" class="form-control form-control-lg bg-light border-0" name="col_pos" value="<?= (int)$entity['col_pos'] ?>" min="1" max="5" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-top-0">
+                                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary px-4 fw-bold">Update Position</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
-            <?php else: ?>
-                <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg h-24 flex items-center justify-center"></div>
-            <?php endif; ?>
+                <?php else: ?>
+                    <div class="d-flex align-items-center justify-content-center border border-2 border-dashed rounded-3 bg-light opacity-50" style="height: 280px;">
+                        <i class="fas fa-plus-circle text-muted opacity-25 fa-2x"></i>
+                    </div>
+                <?php endif; ?>
+            </div>
         <?php endfor; ?>
     <?php endfor; ?>
 </div>
