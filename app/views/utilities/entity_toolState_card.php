@@ -174,8 +174,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
                         <div class="card-body p-3 pt-0">
 					
-                            <div class="mb-0" data-bs-toggle="modal" data-bs-target="#CalDueModal" style="cursor: pointer;">
-                                <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <div class="mb-1" data-bs-toggle="modal" data-bs-target="#CalDueModal" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between small fw-bold mb-0">
                                     <span class="text-muted" style="font-size: 10px;">WOF</span>
                                     <span class="text-primary" style="font-size: 10px;">Due: 14 Oct</span>
                                 </div>
