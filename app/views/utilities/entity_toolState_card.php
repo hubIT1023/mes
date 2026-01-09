@@ -158,10 +158,72 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                                     <div class="d-flex align-items-center gap-2">
 									
                                         <!--i class="fas fa-microchip text-secondary small"></i-->
-										<a class="btn  btn-sm "  href="#" id="alertsDropdown" 
-											role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											<span><i class="fas fa-list fa-pull-left "></i></span>
-										</a>
+										<div class="dropdown">
+    <a class="btn btn-sm border-0" 
+       href="#" 
+       id="alertsDropdown" 
+       role="button" 
+       data-bs-toggle="dropdown" 
+       aria-expanded="false">
+        <i class="fas fa-list text-secondary"></i>
+    </a>
+
+    <div class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-0 overflow-hidden" 
+         aria-labelledby="alertsDropdown" 
+         style="min-width: 280px;">
+        
+        <h6 class="dropdown-header bg-danger text-white py-3" style="font-size: 1.1rem;">
+            <i class="fas fa-exclamation-triangle me-2"></i> Breakdown Details
+        </h6>
+
+        <a class="dropdown-item d-flex align-items-center py-3 border-bottom" href="#">
+            <div class="me-3">
+                <div class="bg-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="fas fa-wrench text-white"></i>
+                </div>
+            </div>
+            <div>
+                <div class="fw-bold text-danger small">Breakdown Issue(s)</div>
+                <div class="text-muted small">
+                    <?php // brkdwn_info($entity); ?>
+                    Motor Overheat Detected
+                </div>
+            </div>
+        </a>
+
+        <a class="dropdown-item d-flex align-items-center py-3 border-bottom" href="#">
+            <div class="me-3">
+                <div class="bg-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="far fa-clock text-white"></i>
+                </div>
+            </div>
+            <div>
+                <div class="fw-bold text-danger small">Downtime</div>
+                <div class="text-muted small">
+                    <?php // downtime($entity); ?>
+                    02h 45m
+                </div>
+            </div>
+        </a>
+
+        <a class="dropdown-item d-flex align-items-center py-3" href="#">
+            <div class="me-3">
+                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="fas fa-tools text-white"></i>
+                </div>
+            </div>
+            <div>
+                <div class="fw-bold text-warning small">Standing Issue(s)</div>
+                <div class="text-muted small">
+                    <?php // standing_issue($entity); ?>
+                    Pending Part Replacement
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+										
+										<!----->
 										
                                         <button class="btn btn-link p-0 fw-bold text-decoration-none text-dark fs-5 lh-1"
                                             data-bs-toggle="modal" data-bs-target="#associateAcc-PartsModal"
@@ -319,65 +381,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- =============================== -->
 
 
-<!-- Dropdown - Alerts -->
-				<div class="dropdown no-arrow">
-					<div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-						<h6 class="dropdown-header text-light" style='font-size: 20.0px;'>
-						  Breakdown Details
-						</h6>
-						<div class="dropdown-divider"></div>
-						<a class="dropdown-item d-flex align-items-center" href="#">
-						  <div class="mr-3">
-							<div class="icon-circle bg-danger">
-							  <i class="fas fa-fw fa-wrench text-white"></i>
-							</div>
-						  </div>
-						  
-						  <div>
-							<div class="font-weight-bold">Breakdown Issue(s)</div>
-							<?php
-								
-								//brkdwn_info($entity);	
-							?>
-						  </div>
-						</a>
-						
-						<a class="dropdown-item d-flex align-items-center" href="#">
-						  <div class="mr-3">
-							<div class="icon-circle bg-danger">
-							  <i class="far fa-clock "  style='font-size:24px;color:white'"></i>
-							</div>
-						  </div>
-						  
-						  <div>
-							<div class="font-weight-bold">Downtime</div>
-							<?php
-								
-								//downtime($entity);	
-							?>
-						  </div>
-						</a>
-						
-						<div class="dropdown-divider"></div>
-						
-						<a class="dropdown-item d-flex align-items-center" href="#">
-						  <div class="mr-3">
-							<div class="icon-circle bg-warning">
-							  <i class="fas fa-fw fa-wrench text-white"></i>
-									   
-							</div>
-						  </div>
-						  <div>
-							<div class="font-weight-bold">Standing Issue(s)</div>
-							<?php
-								
-								//standing_issue($entity);											 
-							?>
-						  </div>
-						</a>
-					</div>
-				</div>
-				  <!--end_Dropdown - Alerts -->
 
 <!-- associateAcc-PartsModal -->
 <div class="modal fade" id="associateAcc-PartsModal" tabindex="-1" aria-labelledby="associateAccPartsModalLabel" aria-hidden="true">
