@@ -663,6 +663,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div>
 
 <!-- CHANGE STATE MODAL -->
+<!-- CHANGE STATE MODAL -->
 <div class="modal fade" id="changeStateModal" tabindex="-1" aria-labelledby="changeStateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <form id="toolStateForm" method="POST" action="/mes/change-tool-state">
@@ -676,8 +677,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     <input type="hidden" name="group_code" id="ts_modal_group_code">
                     <input type="hidden" name="location_code" id="ts_modal_location_code">
                     <input type="hidden" name="col_1" id="ts_modal_asset_id">
-                    <input type="hidden" name="col_6" id="ts_modal_date_time">
-                    <input type="hidden" name="col_7" id="ts_modal_start_time">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
                     <div class="row mb-3">
@@ -718,9 +717,10 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         </div>
                     </div>
 
+                    <!-- 🔴 CRITICAL FIX: Removed name="col_3" from input -->
                     <div class="mb-3" id="customInputContainer" style="display:none;">
                         <label class="form-label">Custom Stop Cause</label>
-                        <input type="text" id="ts_customInput" class="form-control" name="col_3" />
+                        <input type="text" id="ts_customInput" class="form-control" />
                     </div>
 
                     <div class="row mb-3">
@@ -930,16 +930,25 @@ actionModals.forEach(modalId => {
     });
 });
 
+<script>
 function handleStopCauseChange(value) {
-    const container = document.getElementById('customInputContainer');
+    const customContainer = document.getElementById('customInputContainer');
+    const select = document.getElementById('ts_modal_stopcause');
+    const customInput = document.getElementById('ts_customInput');
+
     if (value === 'CUSTOM') {
-        container.style.display = 'block';
-        document.getElementById('ts_customInput').setAttribute('name', 'col_3');
-        document.querySelector('#ts_modal_stopcause').removeAttribute('name');
+        // Show custom input
+        customContainer.style.display = 'block';
+        // Transfer 'name' from select to custom input
+        select.removeAttribute('name');
+        customInput.setAttribute('name', 'col_3');
     } else {
-        container.style.display = 'none';
-        document.getElementById('ts_customInput').removeAttribute('name');
-        document.querySelector('#ts_modal_stopcause').setAttribute('name', 'col_3');
+        // Hide custom input
+        customContainer.style.display = 'none';
+        // Restore 'name' to select
+        select.setAttribute('name', 'col_3');
+        customInput.removeAttribute('name');
     }
 }
+</script>
 </script>
