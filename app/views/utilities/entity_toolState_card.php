@@ -321,6 +321,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 												data-chart-colors='["#d1e7dd", "#f8d7da", "#d1e7dd", "#f8d7da", "#fff3cd"]'
 												data-chart-borders='["#198754", "#dc3545", "#198754", "#dc3545", "#ffc107"]'>
 										</canvas>
+
 								</div>
                             </div>
                         </div>
@@ -760,18 +761,18 @@ document.addEventListener('DOMContentLoaded', function () {
     
     charts.forEach(canvas => {
         try {
-            // Parse data attributes
+            // 1. Parse all data attributes at once
             const values = JSON.parse(canvas.dataset.chartValues || '[]');
             const labels = JSON.parse(canvas.dataset.chartLabels || '[]');
             const notes  = JSON.parse(canvas.dataset.chartNotes  || '[]');
             const colors = JSON.parse(canvas.dataset.chartColors || '[]');
             const borders = JSON.parse(canvas.dataset.chartBorders || '[]');
 
-            // Initialize Chart
+            // 2. Initialize the Chart
             new Chart(canvas, {
                 type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: labels, 
                     datasets: [{
                         data: values,
                         backgroundColor: colors,
@@ -792,42 +793,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         legend: { display: false },
                         tooltip: {
                             enabled: true,
-                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                            titleFont: { size: 13, weight: 'bold' },
-                            bodyFont: { size: 13 },
-                            padding: 12,
-                            displayColors: false,
-                            caretPadding: 8,
-
-                            // ✅ Safe position function with error handling
-                            position: (function(notesRef) {
-                                return function(context) {
-                                    try {
-                                        const tooltip = context.tooltip;
-                                        const activeElements = tooltip.getActiveElements();
-                                        
-                                        if (!activeElements || activeElements.length === 0) {
-                                            return { x: 0, y: 0 };
-                                        }
-
-                                        const active = activeElements[0];
-                                        const chart = context.chart;
-                                        const meta = chart.getDatasetMeta(active.datasetIndex);
-                                        const bar = meta.data[active.index];
-
-                                        if (!bar) return { x: 0, y: 0 };
-
-                                        return {
-                                            x: bar.x,
-                                            y: bar.y - 10
-                                        };
-                                    } catch (e) {
-                                        console.error("Tooltip position failed:", e);
-                                        return { x: 0, y: 0 };
-                                    }
-                                };
-                            })(notes),
-
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 10,
                             callbacks: {
                                 title: function(context) {
                                     return context[0].label;
@@ -835,7 +802,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                 label: function(context) {
                                     const index = context.dataIndex;
                                     const value = context.parsed.y;
-                                    const reason = notes[index] || 'No reason';
+                                    const reason = notes[index] || 'No reason specified';
+                                    
+                                    // Returns an array for multi-line display
                                     return [
                                         'Downtime: ' + value + 'h',
                                         'Reason: ' + reason
@@ -855,7 +824,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         } catch (e) {
-            console.error("Chart init failed:", e);
+            console.error("Chart initialization failed for element:", canvas, e);
         }
     });
 });
