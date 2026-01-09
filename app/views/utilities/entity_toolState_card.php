@@ -138,7 +138,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 row-cols-lg-5 g-4">
     <?php for ($row = 1; $row <= $maxRow; $row++): ?>
         <?php for ($col = 1; $col <= 5; $col++): ?>
-            <div class="col bg-info ">
+            <div class="col">
                 <?php if (isset($grid[$row][$col])): ?>
                     <?php
                         $entity = $grid[$row][$col];
@@ -150,7 +150,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     ?>
 
                     <div class="card h-100 shadow-sm border-0 rounded-3 transition-all hover-shadow">
-                        <div class="card-header bg-white border-bottom-0 p-3">
+                        <div class="card-header bg-info border-bottom-0 p-3">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="d-flex flex-column align-items-start gap-1">
                                     <div class="d-flex align-items-center gap-2">
