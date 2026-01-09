@@ -154,7 +154,13 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="d-flex flex-column align-items-start gap-1">
                                     <div class="d-flex align-items-center gap-2">
-                                        <i class="fas fa-microchip text-secondary small"></i>
+									
+                                        <!--i class="fas fa-microchip text-secondary small"></i-->
+										<a class="btn  btn-sm "  href="#" id="alertsDropdown" 
+											role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											<span><i class="fas fa-list fa-pull-left "></i></span>
+										</a>
+										
                                         <button class="btn btn-link p-0 fw-bold text-decoration-none text-dark fs-5 lh-1"
                                             data-bs-toggle="modal" data-bs-target="#associateAcc-PartsModal"
                                             <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
