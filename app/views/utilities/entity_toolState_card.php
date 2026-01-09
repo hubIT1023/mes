@@ -793,19 +793,19 @@ document.addEventListener('DOMContentLoaded', function () {
 						tooltip: {
 							enabled: true,
 							// 1. Force the tooltip to stay above the bar
-							yAlign: 'bottom', 
-							
+							yAlign: 'top', // Changed from 'bottom' to 'top'
+
 							// 2. Center the tooltip horizontally relative to the bar
-							xAlign: 'center', 
+							xAlign: 'center',
 
 							backgroundColor: 'rgba(0, 0, 0, 0.9)',
 							titleFont: { size: 13, weight: 'bold' },
 							bodyFont: { size: 13 },
 							padding: 12,
 							displayColors: false,
-							
+
 							// 3. Add space between the bar top and the tooltip box
-							caretPadding: 10, 
+							caretPadding: 10, // Adjust as needed
 
 							callbacks: {
 								title: function(context) {
