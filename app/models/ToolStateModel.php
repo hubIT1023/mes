@@ -22,11 +22,13 @@ public function saveToolState(array $data): array {
     try {
         $this->conn->beginTransaction();
 
-        // --- STEP 1: Ensure row exists in tool_state ---
+        // --- STEP 1: Check if row exists ---
         $check = $this->conn->prepare("SELECT 1 FROM tool_state WHERE org_id = ? AND col_1 = ?");
         $check->execute([$orgId, $assetId]);
-        if (!$check->fetch()) {
-            // Insert minimal row
+        $exists = $check->fetch();
+
+        if (!$exists) {
+            // INSERT new row WITH current col_3 value
             $insert = $this->conn->prepare("
                 INSERT INTO tool_state (
                     org_id, group_code, location_code, col_1, col_2,
@@ -34,7 +36,7 @@ public function saveToolState(array $data): array {
                     col_10, col_11
                 ) VALUES (
                     ?, ?, ?, ?, ?,
-                    '', '', '', ?, ?, '', '',
+                    ?, '', '', ?, ?, '', '',
                     '', ''
                 )
             ");
@@ -44,49 +46,63 @@ public function saveToolState(array $data): array {
                 $data['location_code'] ?? 0,
                 $assetId,
                 $data['col_2'] ?? '',
+                $data['col_3'] ?? '',   // ← CRITICAL: set col_3 here!
                 $dateTimeNow,
                 $dateTimeNow
             ]);
         }
 
-        // --- STEP 2: Update row ---
+        // --- STEP 2: Update row with full data ---
         if ($data['col_3'] !== 'PROD') {
-            $sql = "
-                UPDATE tool_state SET
+            // Non-PROD: update start time and save previous mode
+            $stmt = $this->conn->prepare("
+                UPDATE tool_state 
+                SET 
                     group_code = ?, location_code = ?, col_2 = ?,
                     col_3 = ?, col_4 = ?, col_5 = ?,
                     col_6 = ?, col_10 = col_3, col_8 = ?
                 WHERE org_id = ? AND col_1 = ?
-            ";
-            $params = [
-                $data['group_code'], $data['location_code'], $data['col_2'],
-                $data['col_3'], $data['col_4'], $data['col_5'],
-                $dateTimeNow, $data['col_8'],
-                $orgId, $assetId
-            ];
+            ");
+            $stmt->execute([
+                $data['group_code'],
+                $data['location_code'],
+                $data['col_2'],
+                $data['col_3'],
+                $data['col_4'],
+                $data['col_5'],
+                $dateTimeNow,
+                $data['col_8'],
+                $orgId,
+                $assetId
+            ]);
+
         } else {
-            $sql = "
-                UPDATE tool_state SET
+            // PROD: update end time and person completed
+            $stmt = $this->conn->prepare("
+                UPDATE tool_state 
+                SET 
                     group_code = ?, location_code = ?, col_2 = ?,
                     col_3 = ?, col_4 = ?, col_5 = ?,
                     col_6 = ?, col_7 = ?, col_8 = ?, col_9 = ?
                 WHERE org_id = ? AND col_1 = ?
-            ";
-            $params = [
-                $data['group_code'], $data['location_code'], $data['col_2'],
-                $data['col_3'], $data['col_4'], $data['col_5'],
-                $data['col_6'] ?? $dateTimeNow, $dateTimeNow,
-                $data['col_8'], $data['col_9'],
-                $orgId, $assetId
-            ];
-        }
+            ");
+            $stmt->execute([
+                $data['group_code'],
+                $data['location_code'],
+                $data['col_2'],
+                $data['col_3'],
+                $data['col_4'],
+                $data['col_5'],
+                $data['col_6'] ?? $dateTimeNow,
+                $dateTimeNow,
+                $data['col_8'],
+                $data['col_9'],
+                $orgId,
+                $assetId
+            ]);
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute($params);
-
-        // --- STEP 3: Log to machine_log if PROD ---
-        if ($data['col_3'] === 'PROD') {
-            $insertLog = "
+            // --- STEP 3: Log to machine_log ---
+            $logStmt = $this->conn->prepare("
                 INSERT INTO machine_log (
                     org_id, group_code, location_code,
                     col_1, col_2, col_3, col_4, col_5,
@@ -100,9 +116,12 @@ public function saveToolState(array $data): array {
                     col_10, 'Completed', ?
                 FROM tool_state
                 WHERE org_id = ? AND col_1 = ?
-            ";
-            $logStmt = $this->conn->prepare($insertLog);
-            $logStmt->execute([$dateTimeNow, $orgId, $assetId]);
+            ");
+            $logged = $logStmt->execute([$dateTimeNow, $orgId, $assetId]);
+
+            if (!$logged) {
+                throw new Exception("Failed to insert into machine_log");
+            }
         }
 
         $this->conn->commit();
@@ -118,7 +137,6 @@ public function saveToolState(array $data): array {
         return ['success' => false, 'error' => 'Database operation failed'];
     }
 }
-
     public function getModeColorChoices(string $orgId): array {
         try {
             $stmt = $this->conn->prepare("
