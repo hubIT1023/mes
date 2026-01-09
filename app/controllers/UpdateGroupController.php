@@ -69,7 +69,7 @@ class UpdateGroupController {
             'seq_id' => $seqId
         ];
 
-        if ($this->model->updateGroup($data)) {
+        if ($this->model->updateGroup($_SESSION['tenant_id'], $data)) {
             $_SESSION['success'] = "Group updated successfully!";
         } else {
             $_SESSION['error'] = "Failed to update group.";
