@@ -309,12 +309,11 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             </button>
                             
                             <div class="border-top pt-2">
-                                
 									<div class="d-flex justify-content-between align-items-center mb-1">
 										<span class="fw-bold" style="font-size: 10px;">5-DAY DOWNTIME</span>
-										<span class="text-muted" style="font-size: 10px;">4.2h</span>
+										<span class="text-muted" style="font-size: 10px;">Total: 4.2h</span>
 									</div>
-									<div style="height: 40px; width: 100%;">
+									<div style="height: 80px; width: 100%; position: relative;">
 										<canvas class="downtime-chart" 
 												data-chart-values="[40, 70, 30, 90, 50]" 
 												data-chart-labels='["Mon", "Tue", "Wed", "Thu", "Fri"]'
@@ -322,7 +321,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 												data-chart-colors='["#d1e7dd", "#f8d7da", "#d1e7dd", "#f8d7da", "#fff3cd"]'
 												data-chart-borders='["#198754", "#dc3545", "#198754", "#dc3545", "#ffc107"]'>
 										</canvas>
-								
 								</div>
                             </div>
                         </div>
@@ -793,26 +791,32 @@ document.addEventListener('DOMContentLoaded', function () {
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            enabled: true,
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 10,
-                            callbacks: {
-                                title: function(context) {
-                                    return context[0].label;
-                                },
-                                label: function(context) {
-                                    const index = context.dataIndex;
-                                    const value = context.parsed.y;
-                                    const reason = notes[index] || 'No reason specified';
-                                    
-                                    // Returns an array for multi-line display
-                                    return [
-                                        'Downtime: ' + value + 'h',
-                                        'Reason: ' + reason
-                                    ];
-                                }
-                            }
-                        }
+							enabled: true,
+							backgroundColor: 'rgba(0, 0, 0, 0.9)', // Darker for better contrast
+							titleFont: { size: 13, weight: 'bold' },
+							bodyFont: { size: 13 },
+							padding: 12,           // Increased padding to prevent broken/cramped content
+							cornerRadius: 8,
+							displayColors: false,  // Removes the small color box to save space
+							yAlign: 'bottom',      // This forces the tooltip to sit ABOVE the bar
+							margin: 10,            // Distance from the bar
+							callbacks: {
+								title: function(context) {
+									return '📅 ' + context[0].label;
+								},
+								label: function(context) {
+									const index = context.dataIndex;
+									const value = context.parsed.y;
+									const reason = notes[index] || 'No reason specified';
+									
+									// Return as array - Chart.js renders each item on a new line
+									return [
+										'Downtime: ' + value + 'h',
+										'Reason: ' + reason
+									];
+								}
+							}
+						}
                     },
                     scales: {
                         x: { display: false },
