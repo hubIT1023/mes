@@ -186,7 +186,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
                             <div class="mb-3" data-bs-toggle="modal" data-bs-target="#CalDueModal" style="cursor: pointer;">
                                 <div class="d-flex justify-content-between small fw-bold mb-0">
-                                    <span class="text-muted" style="font-size: 10px;">CALIBRATION</span>
+                                    <span class="text-muted" style="font-size: 10px;">CAL</span>
                                     <span class="text-primary" style="font-size: 10px;">Due: 14 Oct</span>
                                 </div>
                                 <div class="progress bg-light" style="height: 6px;">
