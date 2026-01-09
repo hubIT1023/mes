@@ -31,7 +31,7 @@ try {
     $entities = [];
 }
 
-// === Fetch column entity and stopcause at table tool_tate ===
+// === Fetch tool states ===
 try {
     $stmt = $conn->prepare("
         SELECT col_2 AS entity, col_3 AS stop_cause
@@ -54,10 +54,7 @@ try {
 // === Fetch $modeChoices for state dropdown ===
 $modeChoices = [];
 try {
-    $stmt = $conn->prepare("SELECT mode_key, label 
-							FROM mode_color 
-							WHERE org_id = ? 
-							ORDER BY label");
+    $stmt = $conn->prepare("SELECT mode_key, label FROM mode_color WHERE org_id = ? ORDER BY label");
     $stmt->execute([$org_id]);
     $modeChoices = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 } catch (PDOException $e) {
@@ -80,12 +77,7 @@ if (!function_exists('getStateBadge')) {
         ];
 
         try {
-            $stmt = $conn->prepare(
-					"SELECT label, tailwind_class 
-					FROM mode_color 
-					WHERE org_id = ? 
-					AND mode_key = ?"
-					);
+            $stmt = $conn->prepare("SELECT label, tailwind_class FROM mode_color WHERE org_id = ? AND mode_key = ?");
             $stmt->execute([$org_id, strtoupper(trim($state))]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $result = $row ? ['label' => $row['label'], 'class' => $row['tailwind_class']] : $fallback;
@@ -684,7 +676,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     <input type="hidden" name="group_code" id="ts_modal_group_code">
                     <input type="hidden" name="location_code" id="ts_modal_location_code">
                     <input type="hidden" name="col_1" id="ts_modal_asset_id">
-                    <!-- Note: col_6 and col_7 are NOT submitted — set by model -->
+                    <input type="hidden" name="col_6" id="ts_modal_date_time">
+                    <input type="hidden" name="col_7" id="ts_modal_start_time">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
                     <div class="row mb-3">
@@ -727,7 +720,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
                     <div class="mb-3" id="customInputContainer" style="display:none;">
                         <label class="form-label">Custom Stop Cause</label>
-                        <input type="text" id="ts_customInput" class="form-control" name="ts_customInput" />
+                        <input type="text" id="ts_customInput" class="form-control" name="col_3" />
                     </div>
 
                     <div class="row mb-3">
@@ -747,12 +740,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         <label class="form-label">Posted By</label>
                         <input type="text" name="col_8" id="ts_posted_by" class="form-control" placeholder="Type Your Name" required>
                     </div>
-
-                    <!-- ONLY SHOW WHEN "PROD" IS SELECTED -->
-                    <div class="mb-3" id="personCompletedContainer" style="display:none;">
-                        <label class="form-label">Completed By</label>
-                        <input type="text" name="col_9" id="ts_person_completed" class="form-control" placeholder="Enter name" required>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -765,19 +752,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
         </form>
     </div>
 </div>
-
-<script>
-function handleStopCauseChange(value) {
-    const customContainer = document.getElementById('customInputContainer');
-    const personCompletedContainer = document.getElementById('personCompletedContainer');
-    
-    // Toggle custom input
-    customContainer.style.display = (value === 'CUSTOM') ? 'block' : 'none';
-    
-    // Toggle "Completed By" only for PROD
-    personCompletedContainer.style.display = (value === 'PROD') ? 'block' : 'none';
-}
-</script>
 
 <!-- JavaScript: Unified data flow for ALL modals -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
