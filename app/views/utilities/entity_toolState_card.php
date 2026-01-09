@@ -162,13 +162,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                                         </button>
                                     </div>
 
-                                    <div class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle d-flex align-items-center gap-2 px-2 py-1" 
-                                         style="font-size: 0.7rem; cursor: pointer;"
-                                         data-bs-toggle="modal" data-bs-target="#LoadWorkModal"
-                                         <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
-                                        <span class="spinner-grow spinner-grow-sm text-primary" role="status" style="width: 8px; height: 8px;"></span>
-                                        WIP
-                                    </div>	
+                                
                                 </div>
 
                                 <button class="btn btn-sm btn-light border p-1 rounded-2 text-primary"
@@ -179,6 +173,14 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                         </div>
 
                         <div class="card-body p-3 pt-0">
+							<div class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle d-flex align-items-center gap-2 px-2 py-1" 
+									 style="font-size: 0.7rem; cursor: pointer;"
+									 data-bs-toggle="modal" data-bs-target="#LoadWorkModal"
+									 <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
+									<span class="spinner-grow spinner-grow-sm text-primary" role="status" style="width: 8px; height: 8px;"></span>
+									WIP
+							</div>	
+					
                             <div class="mb-3" data-bs-toggle="modal" data-bs-target="#CalDueModal" style="cursor: pointer;">
                                 <div class="d-flex justify-content-between small fw-bold mb-1">
                                     <span class="text-muted" style="font-size: 10px;">WOF</span>
