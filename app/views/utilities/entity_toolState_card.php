@@ -150,7 +150,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     ?>
 
                     <div class="card h-100 shadow-sm border-0 rounded-3 transition-all hover-shadow">
-                        <div class="card-header bg-info border-bottom-0 p-3">
+                        <div class="card-header bg-light border-bottom-0 p-3">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="d-flex flex-column align-items-start gap-1">
                                     <div class="d-flex align-items-center gap-2">
