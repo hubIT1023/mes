@@ -133,7 +133,9 @@ foreach ($entities as $entity) {
 // === CSRF Token Safety ===
 $csrfToken = $_SESSION['csrf_token'] ?? '';
 ?>
-
+<style>
+    .downtime-chart { cursor: pointer; }
+</style>
 <!-- Tool State Cards Grid -->
 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 row-cols-lg-5 g-4">
     <?php for ($row = 1; $row <= $maxRow; $row++): ?>
@@ -755,40 +757,58 @@ document.addEventListener('DOMContentLoaded', function () {
     
     charts.forEach(canvas => {
         // Parse data from HTML attributes
-        const values = JSON.parse(canvas.dataset.chartValues);
-        const colors = JSON.parse(canvas.dataset.chartColors);
-        const borders = JSON.parse(canvas.dataset.chartBorders);
+        try {
+            const values = JSON.parse(canvas.dataset.chartValues);
+            const colors = JSON.parse(canvas.dataset.chartColors);
+            const borders = JSON.parse(canvas.dataset.chartBorders);
 
-        new Chart(canvas, {
-            type: 'bar',
-            data: {
-                labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'],
-                datasets: [{
-                    data: values,
-                    backgroundColor: colors,
-                    borderColor: borders,
-                    borderWidth: { top: 2, right: 0, bottom: 0, left: 0 }, // Top-only border
-                    borderRadius: 3,
-                    barPercentage: 0.8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: false } // Keep it clean for sparklines
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'],
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: borders,
+                        borderWidth: { top: 2, right: 0, bottom: 0, left: 0 },
+                        borderRadius: 3,
+                        barPercentage: 0.8
+                    }]
                 },
-                scales: {
-                    x: { display: false }, // Hide X axis
-                    y: { 
-                        display: false,
-                        beginAtZero: true,
-                        max: 100 // Ensures all charts share the same scale
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    // Interaction settings: Makes hover work much better
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { 
+                            enabled: true, // Re-enabled for your requirement
+                            displayColors: false,
+                            callbacks: {
+                                // This adds the "h" unit to your value in the popup
+                                label: function(context) {
+                                    return 'Downtime: ' + context.parsed.y + 'h';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { display: false }, 
+                        y: { 
+                            display: false,
+                            beginAtZero: true,
+                            suggestedMax: Math.max(...values) + 10 // Dynamic height instead of fixed 100
+                        }
                     }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            console.error("Chart data parsing failed:", e);
+        }
     });
 });
 </script>
