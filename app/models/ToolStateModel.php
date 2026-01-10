@@ -12,7 +12,18 @@ class ToolStateModel
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    // Step 1: Update main state (all fields except col_7, col_9, col_10)
+    // Get current col_8 (person_reported) before PROD update
+    public function getCurrentPersonReported(int $orgId, string $assetId): ?string
+    {
+        $stmt = $this->conn->prepare("
+            SELECT col_8 FROM tool_state 
+            WHERE org_id = ? AND col_1 = ?
+        ");
+        $stmt->execute([$orgId, $assetId]);
+        return $stmt->fetchColumn() ?: null;
+    }
+
+    // For NON-PROD: full update including col_8 = reporter
     public function updateToolState(array $data): void
     {
         $stmt = $this->conn->prepare("
@@ -24,7 +35,7 @@ class ToolStateModel
                 col_3         = :col_3,
                 col_4         = :col_4,
                 col_5         = :col_5,
-                col_6         = :col_6,  -- start of current state
+                col_6         = :col_6,
                 col_8         = :col_8
             WHERE org_id = :org_id
               AND col_1  = :col_1
@@ -32,34 +43,41 @@ class ToolStateModel
         $stmt->execute($data);
     }
 
-    // Step 2a: When entering NON-PROD
+    // For PROD: update col_8 (resolver) and col_9 (original reporter)
+    public function updateToolStateForPROD(array $data): void
+    {
+        $stmt = $this->conn->prepare("
+            UPDATE tool_state
+            SET
+                group_code    = :group_code,
+                location_code = :location_code,
+                col_2         = :col_2,
+                col_3         = :col_3,
+                col_4         = :col_4,
+                col_5         = :col_5,
+                col_6         = :col_6,
+                col_8         = :col_8,      -- new resolver
+                col_9         = :col_8_old   -- original reporter
+            WHERE org_id = :org_id
+              AND col_1  = :col_1
+        ");
+        $stmt->execute($data);
+    }
+
     public function setDowntimeStart(array $data): void
     {
         $stmt = $this->conn->prepare("
             UPDATE tool_state
             SET
-                col_10 = :col_3,  -- preserve original stop cause
-                col_7  = NULL      -- not completed yet
+                col_10 = :col_3,
+                col_7  = NULL
             WHERE org_id = :org_id
               AND col_1  = :col_1
         ");
         $stmt->execute($data);
     }
 
-    // Step 2b: When entering PROD
-    public function setProductionCompleted(array $data): void
-    {
-        $stmt = $this->conn->prepare("
-            UPDATE tool_state
-            SET
-                col_9 = :col_8  -- person_completed = person_reported
-            WHERE org_id = :org_id
-              AND col_1  = :col_1
-        ");
-        $stmt->execute($data);
-    }
-
-    // ✅ LAST STEP: Only called on PROD — logs COMPLETED downtime
+    // Log completed downtime (called only on PROD)
     public function saveHistoryToMachineLog(array $data): void
     {
         $stmt = $this->conn->prepare("
@@ -74,19 +92,24 @@ class ToolStateModel
                 location_code,
                 col_1,
                 col_2,
-                col_3,        -- will be 'PROD' (but we want original stop cause!)
+                col_10,       -- original stop cause
                 col_4,
                 col_5,
-                col_6,        -- downtime start ✅
-                NOW(),        -- downtime end ✅
-                col_8,        -- person reported
-                col_8,        -- person completed (use col_8 since col_9 may not be set yet)
-                col_10        -- original stop cause ✅
+                col_6,        -- downtime start
+                NOW(),        -- downtime end
+                :col_8_new,   -- resolver (person who ended it)
+                :col_8_old,   -- original reporter
+                col_10
             FROM tool_state
             WHERE org_id = :org_id
               AND col_1  = :col_1
         ");
-        $stmt->execute($data);
+        // Pass extra params for the SELECT list
+        $stmt->bindValue(':col_8_new', $data['col_8_new']);
+        $stmt->bindValue(':col_8_old', $data['col_8_old'] ?? null);
+        $stmt->bindValue(':org_id', $data['org_id']);
+        $stmt->bindValue(':col_1', $data['col_1']);
+        $stmt->execute();
     }
 
     public function getModeColorChoices(string $orgId): array

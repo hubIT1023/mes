@@ -19,7 +19,7 @@ class ToolStateController
             exit('Method not allowed');
         }
 
-        //session_start();
+        session_start();
 
         if (!isset($_SESSION['tenant_id'])) {
             header("Location: /mes/signin?error=Unauthorized");
@@ -32,39 +32,38 @@ class ToolStateController
             exit;
         }
 
-        // Build data
+        // Build base data
         $data = [
             'org_id'        => (int)$_SESSION['tenant_id'],
             'group_code'    => (int)($_POST['group_code'] ?? 0),
             'location_code' => (int)($_POST['location_code'] ?? 0),
-            'col_1'         => trim($_POST['col_1']), // asset_id
+            'col_1'         => trim($_POST['col_1']),
             'col_2'         => trim($_POST['col_2'] ?? ''),
-            'col_3'         => trim($_POST['col_3']), // stopcause
-            'col_4'         => trim($_POST['col_4']), // issue
-            'col_5'         => trim($_POST['col_5']), // action
-            'col_6'         => trim($_POST['col_6']), // timestamp started (from modal)
-            'col_8'         => trim($_POST['col_8']), // person_reported
-            'col_9'         => null, // will be set only on PROD
+            'col_3'         => trim($_POST['col_3']),
+            'col_4'         => trim($_POST['col_4']),
+            'col_5'         => trim($_POST['col_5']),
+            'col_6'         => trim($_POST['col_6']),
+            'col_8_new'     => trim($_POST['col_8']), // person from form
         ];
 
-        // Validate required
-        if (empty($data['col_1']) || empty($data['col_3']) || empty($data['col_8'])) {
+        if (empty($data['col_1']) || empty($data['col_3']) || empty($data['col_8_new'])) {
             $_SESSION['error'] = "Required fields missing.";
             header("Location: /dashboard_admin");
             exit;
         }
 
-        // Step 1: Update main state
-        $this->model->updateToolState($data);
-
-        // Step 2: Mode-specific logic
         if ($data['col_3'] !== 'PROD') {
-            // Entering downtime: save stop cause & start time
+            // NON-PROD: col_8 = reporter
+            $data['col_8'] = $data['col_8_new'];
+            $this->model->updateToolState($data);
             $this->model->setDowntimeStart($data);
         } else {
-            // Returning to PROD: mark as completed and log
-            $this->model->setProductionCompleted($data); // sets col_9
-            // ✅ THIS IS THE LAST STEP FOR PROD: log completed downtime
+            // PROD: need to fetch current col_8 (reporter) first
+            $currentReporter = $this->model->getCurrentPersonReported($data['org_id'], $data['col_1']);
+            $data['col_8_old'] = $currentReporter;      // will go to col_9
+            $data['col_8']     = $data['col_8_new'];   // new resolver in col_8
+
+            $this->model->updateToolStateForPROD($data);
             $this->model->saveHistoryToMachineLog($data);
         }
 
