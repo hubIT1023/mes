@@ -10,32 +10,30 @@ class ToolStateModel {
         $this->conn = Database::getInstance()->getConnection();
     }
 
-	//Receive input from user	
-	public function updateToolState(array $data): void
-{
-    $stmt = $this->conn->prepare("
-        UPDATE tool_state
-        SET
-            group_code    = :group_code,
-            location_code = :location_code,
-            col_2         = :col_2,
-            col_3         = :col_3,
-            col_4         = :col_4,
-            col_5         = :col_5,
-            col_6         = :col_6,
-            col_8         = :col_8,
-            col_9         = :col_9
-        WHERE org_id = :org_id
-          AND col_1  = :col_1
-    ");
+    // Receive input from user — ONLY update fields sent by form
+    public function updateToolState(array $data): void
+    {
+        $stmt = $this->conn->prepare("
+            UPDATE tool_state
+            SET
+                group_code    = :group_code,
+                location_code = :location_code,
+                col_2         = :col_2,
+                col_3         = :col_3,
+                col_4         = :col_4,
+                col_5         = :col_5,
+                col_6         = :col_6,
+                col_8         = :col_8
+                
+            WHERE org_id = :org_id
+              AND col_1  = :col_1
+        ");
 
-    $stmt->execute($data);
-}
-			 
+        $stmt->execute($data);
+    }
 
-    
-	// custom stopcause (IDELE,PROD,MAINT...)
-	public function getModeColorChoices(string $orgId): array {
+    // Keep this — it's fine
+    public function getModeColorChoices(string $orgId): array {
         try {
             $stmt = $this->conn->prepare("
                 SELECT mode_key, label
@@ -50,5 +48,4 @@ class ToolStateModel {
             return [];
         }
     }
-	
 }
