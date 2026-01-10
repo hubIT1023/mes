@@ -93,20 +93,8 @@ class ToolStateModel
                         col_8,
                         col_9,
                         col_10,
-                        col_11,
-                        col_12,
-                        col_13,
-                        col_14,
-                        col_15,
-                        col_16,
-                        col_17,
-                        col_18,
-                        col_19,
-                        col_20,
-                        col_21,
-                        col_22,
-                        col_23,
-                        col_24
+                        col_11
+                       
                     )
                     SELECT
                         org_id,
@@ -122,20 +110,8 @@ class ToolStateModel
                         col_8,
                         col_9,
                         col_10,
-                        col_11,
-                        col_12,
-                        col_13,
-                        col_14,
-                        col_15,
-                        col_16,
-                        col_17,
-                        col_18,
-                        col_19,
-                        col_20,
-                        col_21,
-                        col_22,
-                        col_23,
-                        col_24
+                        col_11
+                     
                     FROM tool_state
                     WHERE org_id = :org_id
                       AND col_1  = :col_1
@@ -152,20 +128,8 @@ class ToolStateModel
                         col_8         = EXCLUDED.col_8,
                         col_9         = EXCLUDED.col_9,
                         col_10        = EXCLUDED.col_10,
-                        col_11        = EXCLUDED.col_11,
-                        col_12        = EXCLUDED.col_12,
-                        col_13        = EXCLUDED.col_13,
-                        col_14        = EXCLUDED.col_14,
-                        col_15        = EXCLUDED.col_15,
-                        col_16        = EXCLUDED.col_16,
-                        col_17        = EXCLUDED.col_17,
-                        col_18        = EXCLUDED.col_18,
-                        col_19        = EXCLUDED.col_19,
-                        col_20        = EXCLUDED.col_20,
-                        col_21        = EXCLUDED.col_21,
-                        col_22        = EXCLUDED.col_22,
-                        col_23        = EXCLUDED.col_23,
-                        col_24        = EXCLUDED.col_24
+                        col_11        = EXCLUDED.col_11
+                    
                 ";
 
                 $histStmt = $this->conn->prepare($historySql);
