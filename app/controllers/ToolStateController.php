@@ -19,7 +19,7 @@ class ToolStateController
             exit('Method not allowed');
         }
 
-        session_start();
+        //session_start();
 
         if (!isset($_SESSION['tenant_id'])) {
             header("Location: /mes/signin?error=Unauthorized");

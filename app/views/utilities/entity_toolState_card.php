@@ -663,7 +663,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div>
 
 <!-- CHANGE STATE MODAL -->
-
+<!-- CHANGE STATE MODAL -->
 <div class="modal fade" id="changeStateModal" tabindex="-1" aria-labelledby="changeStateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <form id="toolStateForm" method="POST" action="/mes/change-tool-state">
@@ -688,7 +688,11 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <label class="form-label">Group</label>
                             <input type="text" id="ts_modal_group" class="form-control" readonly />
                         </div>
-                        <!-- ⚠️ REMOVED col_6 input (client timestamp) -->
+                        <div class="col">
+                            <label class="form-label">Date / Time</label>
+                            <input type="text" class="form-control" id="ts_dateTime_now" name="col_6" 
+							value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>" readonly />
+                        </div>
                     </div>
 
                     <div class="row mb-3">
@@ -704,16 +708,24 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
                     <div class="row mb-3">
                         <div class="col">
-                            <select id="ts_modal_stopcause" name="col_3" class="form-control" required onchange="handleStopCauseChange(this.value)">
+                            <select id="ts_modal_stopcause" name="col_3" class="form-control" 
+							          required onchange="handleStopCauseChange(this.value)">
                                 <option value="">Select stop cause</option>
                                 <?php foreach ($modeChoices as $mode_key => $label): ?>
                                     <option value="<?= htmlspecialchars($mode_key) ?>">
-                                        <?= htmlspecialchars($label) ?>
-                                    </option>
+											<?= htmlspecialchars($label) ?>
+									</option>
                                 <?php endforeach; ?>
+                                <!--option value="CUSTOM">Other (specify)</option-->
                             </select>
                         </div>
                     </div>
+
+                    <!-- 🔴 FIXED: Removed name="col_3" from input -->
+                    <!--div class="mb-3" id="customInputContainer" style="display:none;">
+                        <label class="form-label">Custom Stop Cause</label>
+                        <input type="text" id="ts_customInput" class="form-control" />
+                    </div-->
 
                     <div class="row mb-3">
                         <div class="col">
