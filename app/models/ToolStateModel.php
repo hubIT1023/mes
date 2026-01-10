@@ -13,17 +13,16 @@ class ToolStateModel
     }
 
     /**
-     * Update tool_state and handle PROD / NON-PROD
-     * Historical logging up to col_11
+     * Update tool_state and handle PROD / NON-PROD transitions
      */
     public function updateToolState(array $data): void
     {
         try {
-            // Start transaction for atomicity
+            // Ensure atomic updates
             $this->conn->beginTransaction();
 
             // =====================================================
-            // 1️⃣ MAIN STATE UPDATE
+            // 1️⃣ MAIN STATE UPDATE (always)
             // =====================================================
             $sql = "
                 UPDATE tool_state
@@ -42,20 +41,20 @@ class ToolStateModel
 
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
-                'org_id'        => $data['org_id'],
-                'group_code'    => $data['group_code'],
-                'location_code' => $data['location_code'],
-                'col_1'         => $data['col_1'],
-                'col_2'         => $data['col_2'],
-                'col_3'         => $data['col_3'],
-                'col_4'         => $data['col_4'],
-                'col_5'         => $data['col_5'],
-                'col_6'         => $data['col_6'],
-                'col_8'         => $data['col_8'],
+                'org_id'        => $data['org_id'],        // UUID
+                'group_code'    => $data['group_code'],    // VARCHAR
+                'location_code' => $data['location_code'], // VARCHAR
+                'col_1'         => $data['col_1'],         // asset_id
+                'col_2'         => $data['col_2'],         // entity
+                'col_3'         => $data['col_3'],         // stopcause
+                'col_4'         => $data['col_4'],         // reason
+                'col_5'         => $data['col_5'],         // action
+                'col_6'         => $data['col_6'],         // datetime
+                'col_8'         => $data['col_8'],         // person_reported
             ]);
 
             // =====================================================
-            // 2️⃣ NON-PROD → update start metadata
+            // 2️⃣ NON-PROD → capture start metadata
             // =====================================================
             if ($data['col_3'] !== 'PROD') {
                 $nprodSql = "
@@ -67,6 +66,7 @@ class ToolStateModel
                     WHERE org_id = :org_id
                       AND col_1  = :col_1
                 ";
+
                 $npStmt = $this->conn->prepare($nprodSql);
                 $npStmt->execute([
                     'org_id' => $data['org_id'],
@@ -75,7 +75,7 @@ class ToolStateModel
             }
 
             // =====================================================
-            // 3️⃣ PROD → insert into machine_log (historical)
+            // 3️⃣ PROD → UPSERT into machine_log
             // =====================================================
             if ($data['col_3'] === 'PROD') {
                 $historySql = "
@@ -94,6 +94,7 @@ class ToolStateModel
                         col_9,
                         col_10,
                         col_11
+                       
                     )
                     SELECT
                         org_id,
@@ -110,9 +111,13 @@ class ToolStateModel
                         col_9,
                         col_10,
                         col_11
+                     
                     FROM tool_state
                     WHERE org_id = :org_id
                       AND col_1  = :col_1
+                    ON CONFLICT (org_id, col_1)
+                  
+                    
                 ";
 
                 $histStmt = $this->conn->prepare($historySql);
@@ -122,7 +127,6 @@ class ToolStateModel
                 ]);
             }
 
-            // Commit all changes
             $this->conn->commit();
 
         } catch (PDOException $e) {
@@ -151,5 +155,4 @@ class ToolStateModel
         }
     }
 }
-
 
