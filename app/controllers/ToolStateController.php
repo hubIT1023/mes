@@ -21,45 +21,43 @@ class ToolStateController
 
         //session_start();
 
-        // Authentication
         if (!isset($_SESSION['tenant_id'])) {
             header("Location: /mes/signin?error=Unauthorized");
             exit;
         }
 
-        // CSRF Protection
         if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
             $_SESSION['error'] = "Security validation failed.";
             header("Location: /dashboard_admin");
             exit;
         }
 
-        // Build data from POST (only fields sent by form)
+        // Build data
         $data = [
-            'org_id'        => (int)$_SESSION['tenant_id'], // enforce tenant isolation
+            'org_id'        => (int)$_SESSION['tenant_id'],
             'group_code'    => (int)($_POST['group_code'] ?? 0),
             'location_code' => (int)($_POST['location_code'] ?? 0),
-            'col_1'         => trim($_POST['col_1'] ?? ''),
+            'col_1'         => trim($_POST['col_1']), // asset_id
             'col_2'         => trim($_POST['col_2'] ?? ''),
-            'col_3'         => trim($_POST['col_3'] ?? ''),
-            'col_4'         => trim($_POST['col_4'] ?? ''),
-            'col_5'         => trim($_POST['col_5'] ?? ''),
-            'col_6'         => trim($_POST['col_6'] ?? ''),
-            'col_8'         => trim($_POST['col_8'] ?? ''),
+            'col_3'         => trim($_POST['col_3']), // stopcause
+            'col_4'         => trim($_POST['col_4']), // issue
+            'col_5'         => trim($_POST['col_5']), // action
+            'col_6'         => trim($_POST['col_6']), // timestamp started (from modal)
+            'col_8'         => trim($_POST['col_8']), // person_reported
+            'col_9'         => null, // will be set only on PROD
         ];
 
-        // Validate required fields (as per your form)
-        $required = ['col_1', 'col_3', 'col_4', 'col_5', 'col_8'];
-        foreach ($required as $field) {
-            if (empty($data[$field])) {
-                $_SESSION['error'] = "Required field missing: " . htmlspecialchars($field);
-                header("Location: /dashboard_admin");
-                exit;
-            }
+        // Validate required
+        if (empty($data['col_1']) || empty($data['col_3']) || empty($data['col_8'])) {
+            $_SESSION['error'] = "Required fields missing.";
+            header("Location: /dashboard_admin");
+            exit;
         }
 
-        // ✅ ONLY ACTION: Update the tool_state table
+        // Step 1: Update main state
         $this->model->updateToolState($data);
+
+     
 
         $_SESSION['success'] = "✅ Tool state updated successfully.";
         header("Location: /dashboard_admin");
