@@ -97,8 +97,8 @@ class ToolStateModel
                 col_5,
                 col_6,        -- downtime start
                 NOW(),        -- downtime end
-                :col_8_new,   -- resolver (person who ended it)
-                :col_8_old,   -- original reporter
+                :col_8,   -- resolver (person who ended it)
+                :col_8,   -- original reporter
                 col_10
             FROM tool_state
             WHERE org_id = :org_id
