@@ -33,27 +33,34 @@ class ToolStateController
         }
 
         $data = [
-            'org_id'        => (int) $_SESSION['tenant_id'],
-            'group_code'    => (int) ($_POST['group_code'] ?? 0),
-            'location_code' => (int) ($_POST['location_code'] ?? 0),
-            'col_1'         => trim($_POST['col_1'] ?? ''), // asset_id
-            'col_2'         => trim($_POST['col_2'] ?? ''), // entity
-            'col_3'         => trim($_POST['col_3'] ?? ''), // stop cause
-            'col_4'         => trim($_POST['col_4'] ?? ''), // issue
-            'col_5'         => trim($_POST['col_5'] ?? ''), // action
-            'col_6'         => trim($_POST['col_6'] ?? ''), // timestamp
-            'col_8'         => trim($_POST['col_8'] ?? ''), // posted by
-        ];
+			// UUID — NEVER cast
+			'org_id'        => trim($_SESSION['tenant_id']),
+
+			// VARCHAR — NEVER cast to int
+			'group_code'    => trim($_POST['group_code'] ?? ''),
+			'location_code' => trim($_POST['location_code'] ?? ''),
+
+			// VARCHAR asset_id
+			'col_1' => trim($_POST['col_1'] ?? ''),
+
+			'col_2' => trim($_POST['col_2'] ?? ''), // entity
+			'col_3' => trim($_POST['col_3'] ?? ''), // stopcause
+			'col_4' => trim($_POST['col_4'] ?? ''), // reason
+			'col_5' => trim($_POST['col_5'] ?? ''), // action
+			'col_6' => trim($_POST['col_6'] ?? ''), // timestamp started
+			'col_8' => trim($_POST['col_8'] ?? ''), // person_reported
+		];
 
         if (
-            empty($data['col_1']) ||
-            empty($data['col_3']) ||
-            empty($data['col_8'])
-        ) {
-            $_SESSION['error'] = "Required fields missing.";
-            header("Location: /dashboard_admin");
-            exit;
-        }
+			empty($data['org_id']) ||
+			empty($data['col_1']) ||
+			empty($data['col_3']) ||
+			empty($data['col_8'])
+		) {
+			$_SESSION['error'] = "Required fields missing.";
+			header("Location: /dashboard_admin");
+			exit;
+		}
 
         $this->model->updateToolState($data);
 
