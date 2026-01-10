@@ -12,13 +12,18 @@ class ToolStateModel
         $this->conn = Database::getInstance()->getConnection();
     }
 
+    /**
+     * Update tool_state and handle PROD / NON-PROD transitions
+     */
     public function updateToolState(array $data): void
     {
         try {
-            // 🔒 Recommended: make updates atomic
+            // Ensure atomic updates
             $this->conn->beginTransaction();
 
-            // === Step 1: Main update ===
+            // =====================================================
+            // 1️⃣ MAIN STATE UPDATE (always)
+            // =====================================================
             $sql = "
                 UPDATE tool_state
                 SET
@@ -36,27 +41,28 @@ class ToolStateModel
 
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
-                'org_id'        => $data['org_id'],
-                'group_code'    => $data['group_code'],
-                'location_code' => $data['location_code'],
-                'col_1'         => $data['col_1'],
-                'col_2'         => $data['col_2'],
-                'col_3'         => $data['col_3'],
-                'col_4'         => $data['col_4'],
-                'col_5'         => $data['col_5'],
-                'col_6'         => $data['col_6'],
-                'col_8'         => $data['col_8'],
+                'org_id'        => $data['org_id'],        // UUID
+                'group_code'    => $data['group_code'],    // VARCHAR
+                'location_code' => $data['location_code'], // VARCHAR
+                'col_1'         => $data['col_1'],         // asset_id
+                'col_2'         => $data['col_2'],         // entity
+                'col_3'         => $data['col_3'],         // stopcause
+                'col_4'         => $data['col_4'],         // reason
+                'col_5'         => $data['col_5'],         // action
+                'col_6'         => $data['col_6'],         // datetime
+                'col_8'         => $data['col_8'],         // person_reported
             ]);
 
-            // === Step 2: Mode-specific processing ===
+            // =====================================================
+            // 2️⃣ NON-PROD → capture start metadata
+            // =====================================================
             if ($data['col_3'] !== 'PROD') {
-                // Non-PROD: set start metadata
                 $nprodSql = "
-                    UPDATE tool_state 
-                    SET 
-                        col_7  = col_6,
-                        col_10 = col_3,
-                        col_9  = col_8
+                    UPDATE tool_state
+                    SET
+                        col_7  = col_6,  -- timestamp started
+                        col_9  = col_8,  -- person_start
+                        col_10 = col_3   -- stopcause_start
                     WHERE org_id = :org_id
                       AND col_1  = :col_1
                 ";
@@ -64,10 +70,14 @@ class ToolStateModel
                 $npStmt = $this->conn->prepare($nprodSql);
                 $npStmt->execute([
                     'org_id' => $data['org_id'],
-                    'col_1'  => $data['col_1']
+                    'col_1'  => $data['col_1'],
                 ]);
-            } else {
-                // PROD: log to history
+            }
+
+            // =====================================================
+            // 3️⃣ PROD → UPSERT into machine_log
+            // =====================================================
+            if ($data['col_3'] === 'PROD') {
                 $historySql = "
                     INSERT INTO machine_log (
                         org_id,
@@ -83,7 +93,20 @@ class ToolStateModel
                         col_8,
                         col_9,
                         col_10,
-                        col_11
+                        col_11,
+                        col_12,
+                        col_13,
+                        col_14,
+                        col_15,
+                        col_16,
+                        col_17,
+                        col_18,
+                        col_19,
+                        col_20,
+                        col_21,
+                        col_22,
+                        col_23,
+                        col_24
                     )
                     SELECT
                         org_id,
@@ -99,16 +122,56 @@ class ToolStateModel
                         col_8,
                         col_9,
                         col_10,
-                        col_11
+                        col_11,
+                        col_12,
+                        col_13,
+                        col_14,
+                        col_15,
+                        col_16,
+                        col_17,
+                        col_18,
+                        col_19,
+                        col_20,
+                        col_21,
+                        col_22,
+                        col_23,
+                        col_24
                     FROM tool_state
                     WHERE org_id = :org_id
                       AND col_1  = :col_1
+                    ON CONFLICT (org_id, col_1)
+                    DO UPDATE SET
+                        group_code    = EXCLUDED.group_code,
+                        location_code = EXCLUDED.location_code,
+                        col_2         = EXCLUDED.col_2,
+                        col_3         = EXCLUDED.col_3,
+                        col_4         = EXCLUDED.col_4,
+                        col_5         = EXCLUDED.col_5,
+                        col_6         = EXCLUDED.col_6,
+                        col_7         = EXCLUDED.col_7,
+                        col_8         = EXCLUDED.col_8,
+                        col_9         = EXCLUDED.col_9,
+                        col_10        = EXCLUDED.col_10,
+                        col_11        = EXCLUDED.col_11,
+                        col_12        = EXCLUDED.col_12,
+                        col_13        = EXCLUDED.col_13,
+                        col_14        = EXCLUDED.col_14,
+                        col_15        = EXCLUDED.col_15,
+                        col_16        = EXCLUDED.col_16,
+                        col_17        = EXCLUDED.col_17,
+                        col_18        = EXCLUDED.col_18,
+                        col_19        = EXCLUDED.col_19,
+                        col_20        = EXCLUDED.col_20,
+                        col_21        = EXCLUDED.col_21,
+                        col_22        = EXCLUDED.col_22,
+                        col_23        = EXCLUDED.col_23,
+                        col_24        = EXCLUDED.col_24
                 ";
 
                 $histStmt = $this->conn->prepare($historySql);
                 $histStmt->execute([
                     'org_id' => $data['org_id'],
-                    'col_1'  => $data['col_1']
+                    'col_1'  => $data['col_1'],
                 ]);
             }
 
@@ -120,6 +183,9 @@ class ToolStateModel
         }
     }
 
+    /**
+     * Fetch stop-mode choices
+     */
     public function getModeColorChoices(string $orgId): array
     {
         try {
@@ -137,3 +203,4 @@ class ToolStateModel
         }
     }
 }
+
