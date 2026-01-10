@@ -19,7 +19,7 @@ class ToolStateController
             exit('Method not allowed');
         }
 
-        session_start();
+        //session_start();
 
         if (!isset($_SESSION['tenant_id'])) {
             header("Location: /mes/signin?error=Unauthorized");
@@ -43,7 +43,7 @@ class ToolStateController
             'col_4'         => trim($_POST['col_4']),
             'col_5'         => trim($_POST['col_5']),
             'col_6'         => trim($_POST['col_6']),
-            'col_8_new'     => trim($_POST['col_8']), // person from form
+            'col_8'     => trim($_POST['col_8']), // person from form
         ];
 
         if (empty($data['col_1']) || empty($data['col_3']) || empty($data['col_8_new'])) {
