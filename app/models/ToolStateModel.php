@@ -14,86 +14,109 @@ class ToolStateModel
 
     public function updateToolState(array $data): void
     {
-        // === Step 1: Main update ===
-        $sql = "
-            UPDATE tool_state
-            SET
-                group_code    = :group_code,
-                location_code = :location_code,
-                col_2         = :col_2,
-                col_3         = :col_3,
-                col_4         = :col_4,
-                col_5         = :col_5,
-                col_6         = :col_6,
-                col_8         = :col_8
-            WHERE org_id = :org_id
-              AND col_1  = :col_1
-        ";
+        try {
+            // 🔒 Recommended: make updates atomic
+            $this->conn->beginTransaction();
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute($data);
-
-        // === Step 2: Mode-specific processing ===
-        if ($data['col_3'] !== 'PROD') {
-            // Non-PROD: set start metadata
-            $nprodSql = "
-                UPDATE tool_state 
-                SET 
-                    col_7  = col_6,
-                    col_10 = col_3,
-                    col_9  = col_8
+            // === Step 1: Main update ===
+            $sql = "
+                UPDATE tool_state
+                SET
+                    group_code    = :group_code,
+                    location_code = :location_code,
+                    col_2         = :col_2,
+                    col_3         = :col_3,
+                    col_4         = :col_4,
+                    col_5         = :col_5,
+                    col_6         = :col_6,
+                    col_8         = :col_8
                 WHERE org_id = :org_id
                   AND col_1  = :col_1
             ";
-            $npStmt = $this->conn->prepare($nprodSql);
-            // Only need org_id and col_1, but passing full $data is safe
-            $npStmt->execute([
-                'org_id' => $data['org_id'],
-                'col_1'  => $data['col_1']
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                'org_id'        => $data['org_id'],
+                'group_code'    => $data['group_code'],
+                'location_code' => $data['location_code'],
+                'col_1'         => $data['col_1'],
+                'col_2'         => $data['col_2'],
+                'col_3'         => $data['col_3'],
+                'col_4'         => $data['col_4'],
+                'col_5'         => $data['col_5'],
+                'col_6'         => $data['col_6'],
+                'col_8'         => $data['col_8'],
             ]);
-        } else {
-            // PROD: log to history
-            $historySql = "
-                INSERT INTO machine_log (
-                    org_id,
-                    group_code,
-                    location_code,
-                    col_1,
-                    col_2,
-                    col_3,
-                    col_4,
-                    col_5,
-                    col_6,
-                    col_7,
-                    col_8,
-                    col_9,
-                    col_10,
-                    col_11
-                )
-                SELECT
-                    org_id,
-                    group_code,
-                    location_code,
-                    col_1,
-                    col_2,
-                    col_3,
-                    col_4,
-                    col_5,
-                    col_6,
-                    col_7,
-                    col_8,
-                    col_9,
-                    col_10,
-                    col_11
-                FROM tool_state
-                WHERE org_id = :org_id
-                  AND col_1  = :col_1
-            ";
-            $histStmt = $this->conn->prepare($historySql);
-            $histStmt->execute([
-                'org_id' => $data['org_id'],
-                'col_1'  => $data['col_1']
-            ]);
+
+            // === Step 2: Mode-specific processing ===
+            if ($data['col_3'] !== 'PROD') {
+                // Non-PROD: set start metadata
+                $nprodSql = "
+                    UPDATE tool_state 
+                    SET 
+                        col_7  = col_6,
+                        col_10 = col_3,
+                        col_9  = col_8
+                    WHERE org_id = :org_id
+                      AND col_1  = :col_1
+                ";
+
+                $npStmt = $this->conn->prepare($nprodSql);
+                $npStmt->execute([
+                    'org_id' => $data['org_id'],
+                    'col_1'  => $data['col_1']
+                ]);
+            } else {
+                // PROD: log to history
+                $historySql = "
+                    INSERT INTO machine_log (
+                        org_id,
+                        group_code,
+                        location_code,
+                        col_1,
+                        col_2,
+                        col_3,
+                        col_4,
+                        col_5,
+                        col_6,
+                        col_7,
+                        col_8,
+                        col_9,
+                        col_10,
+                        col_11
+                    )
+                    SELECT
+                        org_id,
+                        group_code,
+                        location_code,
+                        col_1,
+                        col_2,
+                        col_3,
+                        col_4,
+                        col_5,
+                        col_6,
+                        col_7,
+                        col_8,
+                        col_9,
+                        col_10,
+                        col_11
+                    FROM tool_state
+                    WHERE org_id = :org_id
+                      AND col_1  = :col_1
+                ";
+
+                $histStmt = $this->conn->prepare($historySql);
+                $histStmt->execute([
+                    'org_id' => $data['org_id'],
+                    'col_1'  => $data['col_1']
+                ]);
+            }
+
+            $this->conn->commit();
+
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            throw $e;
         }
     }
 
