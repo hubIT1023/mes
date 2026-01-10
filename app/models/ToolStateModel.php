@@ -33,12 +33,9 @@ class ToolStateModel
         $this->conn = Database::getInstance()->getConnection();
     }
 
-   public function updateToolState(array $data): void
-{
-    try {
-        $this->conn->beginTransaction();
-
-        // 1️⃣ Always update base state
+    public function updateToolState(array $data): void
+    {
+        // === Step 1: Main update ===
         $sql = "
             UPDATE tool_state
             SET
@@ -53,26 +50,30 @@ class ToolStateModel
             WHERE org_id = :org_id
               AND col_1  = :col_1
         ";
+
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($data);
 
-        // 2️⃣ NON-PROD: capture start info
+        // === Step 2: Mode-specific processing ===
         if ($data['col_3'] !== 'PROD') {
+            // Non-PROD: set start metadata
             $nprodSql = "
-                UPDATE tool_state
-                SET
-                    col_7  = col_6,  -- timestamp started
-                    col_10 = col_3,  -- stopcause_start
-                    col_9  = col_8   -- person_start
+                UPDATE tool_state 
+                SET 
+                    col_7  = col_6,
+                    col_10 = col_3,
+                    col_9  = col_8
                 WHERE org_id = :org_id
                   AND col_1  = :col_1
             ";
-            $stmt = $this->conn->prepare($nprodSql);
-            $stmt->execute($data);
-        }
-
-        // 3️⃣ PROD: archive to machine_log
-        if ($data['col_3'] === 'PROD') {
+            $npStmt = $this->conn->prepare($nprodSql);
+            // Only need org_id and col_1, but passing full $data is safe
+            $npStmt->execute([
+                'org_id' => $data['org_id'],
+                'col_1'  => $data['col_1']
+            ]);
+        } else {
+            // PROD: log to history
             $historySql = "
                 INSERT INTO machine_log (
                     org_id,
@@ -109,15 +110,29 @@ class ToolStateModel
                 WHERE org_id = :org_id
                   AND col_1  = :col_1
             ";
-            $stmt = $this->conn->prepare($historySql);
-            $stmt->execute($data);
+            $histStmt = $this->conn->prepare($historySql);
+            $histStmt->execute([
+                'org_id' => $data['org_id'],
+                'col_1'  => $data['col_1']
+            ]);
         }
+    }
 
-        $this->conn->commit();
-
-    } catch (PDOException $e) {
-        $this->conn->rollBack();
-        throw $e; // let controller handle error
+    public function getModeColorChoices(string $orgId): array
+    {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT mode_key, label
+                FROM mode_color
+                WHERE org_id = ?
+                ORDER BY label
+            ");
+            $stmt->execute([$orgId]);
+            return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        } catch (PDOException $e) {
+            error_log("Failed to fetch mode_color choices: " . $e->getMessage());
+            return [];
+        }
     }
 }
 
