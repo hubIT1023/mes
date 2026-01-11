@@ -22,178 +22,167 @@
         <?php endif; ?>
     </form>
 
-    <!-- MTBF Section -->
-    <h4>⏱ MTBF (Mean Time Between Failures)</h4>
-    <?php if (empty($mtbf)): ?>
-        <div class="alert alert-info">
-            No consecutive failure events found. MTBF requires at least two 'FAIL' records per asset.
-        </div>
-    <?php else: ?>
-        <div class="chart-container" style="height: 250px; margin-bottom: 20px;">
-            <canvas id="mtbfChart"></canvas>
-        </div>
-        <table class="table table-bordered">
-            <thead class="table-light">
-                <tr><th>Asset</th><th>MTBF (hrs)</th></tr>
-            </thead>
-            <tbody>
-                <?php foreach ($mtbf as $row): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['asset_id']) ?></td>
-                        <td><?= htmlspecialchars($row['mtbf_hours']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-
-    <!-- MTTR Section -->
-    <h4 class="mt-4">🛠 MTTR (Mean Time To Repair)</h4>
-    <?php if (empty($mttr)): ?>
-        <div class="alert alert-info">
-            No completed repairs detected. MTTR requires a 'PROD' event after each 'FAIL'.
-        </div>
-    <?php else: ?>
-        <div class="chart-container" style="height: 250px; margin-bottom: 20px;">
-            <canvas id="mttrChart"></canvas>
-        </div>
-        <table class="table table-bordered">
-            <thead class="table-light">
-                <tr><th>Asset</th><th>MTTR (hrs)</th></tr>
-            </thead>
-            <tbody>
-                <?php foreach ($mttr as $row): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['asset_id']) ?></td>
-                        <td><?= htmlspecialchars($row['mttr_hours']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-
-    <!-- Availability Section -->
-    <h4 class="mt-4">✅ System Availability (%)</h4>
     <?php if (empty($availability)): ?>
         <div class="alert alert-info">
-            Availability cannot be calculated. Requires both MTBF and MTTR data for the same asset(s).
+            No complete reliability data available. Requires both MTBF and MTTR for the same asset(s).
         </div>
     <?php else: ?>
-        <div class="chart-container" style="height: 250px; margin-bottom: 20px;">
-            <canvas id="availabilityChart"></canvas>
+        <!-- Unified Mixed Chart -->
+        <h4 class="mt-4">📈 Reliability Summary (MTBF, MTTR & Availability)</h4>
+        <div class="chart-container" style="height: 400px; margin-bottom: 30px;">
+            <canvas id="reliabilityChart"></canvas>
         </div>
-        <table class="table table-bordered">
-            <thead class="table-light">
-                <tr><th>Asset</th><th>Availability (%)</th></tr>
-            </thead>
-            <tbody>
-                <?php foreach ($availability as $row): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['asset_id']) ?></td>
-                        <td><?= htmlspecialchars($row['availability_pct']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
     <?php endif; ?>
+
+    <!-- Individual Metric Tables (for reference) -->
+    <div class="row">
+        <div class="col-md-4">
+            <h5>⏱ MTBF (hrs)</h5>
+            <?php if (empty($mtbf)): ?>
+                <p class="text-muted">No data</p>
+            <?php else: ?>
+                <table class="table table-sm">
+                    <thead><tr><th>Asset</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <?php foreach ($mtbf as $row): ?>
+                            <tr><td><?= htmlspecialchars($row['asset_id']) ?></td><td><?= $row['mtbf_hours'] ?></td></tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+
+        <div class="col-md-4">
+            <h5>🛠 MTTR (hrs)</h5>
+            <?php if (empty($mttr)): ?>
+                <p class="text-muted">No data</p>
+            <?php else: ?>
+                <table class="table table-sm">
+                    <thead><tr><th>Asset</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <?php foreach ($mttr as $row): ?>
+                            <tr><td><?= htmlspecialchars($row['asset_id']) ?></td><td><?= $row['mttr_hours'] ?></td></tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+
+        <div class="col-md-4">
+            <h5>✅ Availability (%)</h5>
+            <?php if (empty($availability)): ?>
+                <p class="text-muted">No data</p>
+            <?php else: ?>
+                <table class="table table-sm">
+                    <thead><tr><th>Asset</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <?php foreach ($availability as $row): ?>
+                            <tr><td><?= htmlspecialchars($row['asset_id']) ?></td><td><?= $row['availability_pct'] ?></td></tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-// Helper: safely convert PHP arrays to JS
-const mtbfLabels = <?= json_encode(array_column($mtbf, 'asset_id')) ?>;
-const mtbfValues = <?= json_encode(array_column($mtbf, 'mtbf_hours')) ?>;
+// Prepare data for mixed chart
+const labels = <?= json_encode(array_column($availability, 'asset_id')) ?>;
+const mtbfValues = [];
+const mttrValues = [];
+const availValues = [];
 
-const mttrLabels = <?= json_encode(array_column($mttr, 'asset_id')) ?>;
-const mttrValues = <?= json_encode(array_column($mttr, 'mttr_hours')) ?>;
+// Build aligned arrays
+const mtbfMap = {};
+const mttrMap = {};
+<?= json_encode($mtbf) ?>.forEach(row => mtbfMap[row.asset_id] = parseFloat(row.mtbf_hours));
+<?= json_encode($mttr) ?>.forEach(row => mttrMap[row.asset_id] = parseFloat(row.mttr_hours));
 
-const availLabels = <?= json_encode(array_column($availability, 'asset_id')) ?>;
-const availValues = <?= json_encode(array_column($availability, 'availability_pct')) ?>;
+labels.forEach(asset => {
+    mtbfValues.push(mtbfMap[asset] || 0);
+    mttrValues.push(mttrMap[asset] || 0);
+});
 
-// MTBF Chart
-if (mtbfLabels.length > 0) {
-    const mtbfCtx = document.getElementById('mtbfChart').getContext('2d');
-    new Chart(mtbfCtx, {
+availValues = <?= json_encode(array_column($availability, 'availability_pct')) ?>;
+
+// Create mixed chart
+if (labels.length > 0) {
+    const ctx = document.getElementById('reliabilityChart').getContext('2d');
+    new Chart(ctx, {
         type: 'bar',
-        data: {
-            labels: mtbfLabels,
-            datasets: [{
-                label: 'MTBF (Hours)',
-                data: mtbfValues,
-                backgroundColor: '#27ae60',
-                borderColor: '#219653',
-                borderWidth: 1
-            }]
+         {
+            labels: labels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'MTBF (Hours)',
+                     mtbfValues,
+                    backgroundColor: 'rgba(39, 174, 96, 0.7)',
+                    borderColor: '#27ae60',
+                    borderWidth: 1
+                },
+                {
+                    type: 'bar',
+                    label: 'MTTR (Hours)',
+                     mttrValues,
+                    backgroundColor: 'rgba(243, 156, 18, 0.7)',
+                    borderColor: '#f39c12',
+                    borderWidth: 1
+                },
+                {
+                    type: 'line',
+                    label: 'Availability (%)',
+                     availValues,
+                    backgroundColor: '#3498db',
+                    borderColor: '#2980b9',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#2980b9',
+                    pointRadius: 4,
+                    yAxisID: 'y1'
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                title: { display: true, text: 'MTBF by Asset' }
-            },
-            scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'Hours' } }
-            }
-        }
-    });
-}
-
-// MTTR Chart
-if (mttrLabels.length > 0) {
-    const mttrCtx = document.getElementById('mttrChart').getContext('2d');
-    new Chart(mttrCtx, {
-        type: 'bar',
-        data: {
-            labels: mttrLabels,
-            datasets: [{
-                label: 'MTTR (Hours)',
-                data: mttrValues,
-                backgroundColor: '#f39c12',
-                borderColor: '#d68910',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: true, text: 'MTTR by Asset' }
-            },
-            scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'Hours' } }
-            }
-        }
-    });
-}
-
-// Availability Chart
-if (availLabels.length > 0) {
-    const availCtx = document.getElementById('availabilityChart').getContext('2d');
-    new Chart(availCtx, {
-        type: 'bar',
-        data: {
-            labels: availLabels,
-            datasets: [{
-                label: 'Availability (%)',
-                data: availValues,
-                backgroundColor: '#3498db',
-                borderColor: '#2980b9',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: true, text: 'System Availability by Asset' }
+                title: {
+                    display: true,
+                    text: 'Reliability Metrics by Asset'
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
             },
             scales: {
                 y: {
-                    beginAtZero: true,
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Time (Hours)'
+                    },
+                    beginAtZero: true
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Availability (%)'
+                    },
+                    min: 0,
                     max: 100,
-                    title: { display: true, text: 'Percentage (%)' }
+                    grid: {
+                        drawOnChartArea: false // avoid overlapping grids
+                    }
                 }
             }
         }
