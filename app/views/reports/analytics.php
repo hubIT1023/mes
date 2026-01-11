@@ -7,47 +7,53 @@
     <a href="/mes/mms_admin" class="btn btn-outline-secondary btn-sm">Home</a>
 	</nav>
 
-    <!-- Filters -->
-    <form method="GET" class="row g-3 mb-4">
-        <div class="col-md-4">
-            <label class="form-label">Asset ID</label>
-            <input type="text"
-                   name="asset_id"
-                   value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>"
-                   class="form-control"
-                   placeholder="e.g. smt-10267">
-        </div>
-        <div class="col-md-2 align-self-end">
-            <button type="submit" class="btn btn-primary">Filter</button>
-        </div>
-        <?php if (!empty($_GET['asset_id'])): ?>
-            <div class="col-md-2 align-self-end">
-                <a href="?" class="btn btn-outline-secondary">Clear</a>
+<!-- Combined Row: Filters + Heading -->
+<div class="row mb-4 align-items-end">
+    <!-- Filter Form (Left) -->
+    <div class="col-md-8">
+        <form method="GET" class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Asset ID</label>
+                <input type="text"
+                       name="asset_id"
+                       value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>"
+                       class="form-control"
+                       placeholder="e.g. smt-10267">
             </div>
-        <?php endif; ?>
-    </form>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+            <?php if (!empty($_GET['asset_id'])): ?>
+                <div class="col-md-3">
+                    <a href="?" class="btn btn-outline-secondary w-100">Clear</a>
+                </div>
+            <?php endif; ?>
+        </form>
+    </div>
 
-    <!-- Time-Series Chart -->
-    <h4 class="mt-4">📈 Reliability Over Time</h4>
+    <!-- Heading (Right) -->
+    <div class="col-md-4 text-end">
+        <h4 class="mb-0">📈 Reliability Over Time</h4>
+    </div>
+</div>
 
-    <?php if (empty($reliabilityByDate)): ?>
-        <div class="alert alert-info">
-            No time-series reliability data available.
-        </div>
-    <?php else: ?>
+<!-- Chart (below the row) -->
+<?php if (empty($reliabilityByDate)): ?>
+    <div class="alert alert-info">
+        No time-series reliability data available.
+    </div>
+<?php else: ?>
+    <!-- Time range selector -->
+    <div class="btn-group mb-3" role="group">
+        <button class="btn btn-outline-primary active" data-range="1">1 Day</button>
+        <button class="btn btn-outline-primary" data-range="7">1 Week</button>
+        <button class="btn btn-outline-primary" data-range="30">1 Month</button>
+    </div>
 
-        <!-- Time range selector -->
-        <div class="btn-group mb-3" role="group">
-            <button class="btn btn-outline-primary active" data-range="1">1 Day</button>
-            <button class="btn btn-outline-primary" data-range="7">1 Week</button>
-            <button class="btn btn-outline-primary" data-range="30">1 Month</button>
-        </div>
-
-        <div style="height:400px; margin-bottom:30px;">
-            <canvas id="timeSeriesChart"></canvas>
-        </div>
-
-    <?php endif; ?>
+    <div style="height:400px; margin-bottom:30px;">
+        <canvas id="timeSeriesChart"></canvas>
+    </div>
+<?php endif; ?>
 
     <!-- Per-Asset Tables -->
     <div class="row">
