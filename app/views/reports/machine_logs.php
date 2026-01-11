@@ -15,17 +15,7 @@
                    value="<?= htmlspecialchars($_GET['entity'] ?? '') ?>">
         </div>
 
-        <!--div class="col-md-2">
-            <select name="stopcause" class="form-select">
-                <option value="">All States</option>
-                <?php// foreach (['FAIL','IDLE','PROD'] as $s): ?>
-                    <option value="<?//= $s ?>"
-                        <?//= ($_GET['stopcause'] ?? '') === $s ? 'selected' : '' ?>>
-                        <?//= $s ?>
-                    </option>
-                <?php //endforeach; ?>
-            </select>
-        </div-->
+     
 
         <div class="col-md-2">
             <input type="datetime-local" name="from" class="form-control"
@@ -62,8 +52,6 @@
         <?php foreach ($logs as $log): ?>
             <tr>
                 <td><?= htmlspecialchars($log['event_time']) ?></td>
-                <!--td><?//= htmlspecialchars($log['group_code']) ?></td>
-                <td><?//= htmlspecialchars($log['location_code']) ?></td-->
                 <td><?= htmlspecialchars($log['asset_id']) ?></td>
                 <td><?= htmlspecialchars($log['entity']) ?></td>
                 <td><?= htmlspecialchars($log['stopcause_start']) ?></td>
