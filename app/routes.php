@@ -128,7 +128,7 @@ $analyticsRoutes = [
 ];
 
 $reportRoutes = [
-    'GET /reports/machine-log' => ['MachineLogController', 'machine_logs'],
+    'GET /reports/machine-log' => ['MachineLogController', 'index'],
 ];
 
 // --- Merge all routes ---
