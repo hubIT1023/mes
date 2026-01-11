@@ -36,10 +36,15 @@ class MachineLogModel
             $sql .= " AND col_1 = :asset_id";
             $params['asset_id'] = $filters['asset_id'];
         }
+		
+		if (!empty($filters['asset_id'])) {
+            $sql .= " AND col_1 = :asset_id";
+            $params['entity'] = $filters['entity'];
+        }
 
-        if (!empty($filters['stopcause'])) {
-            $sql .= " AND col_3 = :stopcause";
-            $params['stopcause'] = $filters['stopcause'];
+        if (!empty($filters['stopcause_start'])) {
+            $sql .= " AND col_10 = :stopcause";
+            $params['stopcause_start'] = $filters['stopcause_start'];
         }
 
         if (!empty($filters['from'])) {
