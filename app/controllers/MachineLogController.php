@@ -1,4 +1,6 @@
 <?php
+// MachineLogController.php
+
 require_once __DIR__ . '/../models/MachineLogModel.php';
 
 class MachineLogController
