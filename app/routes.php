@@ -124,7 +124,7 @@ $deviceRoutes = [
 ];
 
 $analyticsRoutes = [
-    'GET /analytics' => ['AnalyticsController', 'analytics'], 
+    'GET /reports/analytics' => ['AnalyticsController', 'index'], 
 ];
 
 $reportRoutes = [
