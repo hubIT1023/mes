@@ -90,48 +90,48 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-// Prepare time-series data
-const timeData = <?= json_encode($reliabilityByDate) ?>;
+const timeData = <?= json_encode($reliabilityByDate, JSON_NUMERIC_CHECK) ?>;
 
-if (timeData.length > 0) {
-    const labels = timeData.map(row => row.date); // e.g., "2026-01-10"
-    const mtbfValues = timeData.map(row => parseFloat(row.mtbf_hours));
-    const mttrValues = timeData.map(row => parseFloat(row.mttr_hours));
-    const availValues = timeData.map(row => parseFloat(row.availability_pct));
+if (Array.isArray(timeData) && timeData.length > 0) {
+
+    const labels = timeData.map(row => row.date);
+    const mtbfValues = timeData.map(row => row.mtbf_hours);
+    const mttrValues = timeData.map(row => row.mttr_hours);
+    const availValues = timeData.map(row => row.availability_pct);
 
     const ctx = document.getElementById('timeSeriesChart');
+
     if (ctx) {
-        new Chart(ctx.getContext('2d'), {
-            type: 'bar',
-             {
+        new Chart(ctx, {
+            data: {
                 labels: labels,
                 datasets: [
                     {
                         type: 'bar',
                         label: 'MTBF (Hours)',
-                         mtbfValues,
-                        backgroundColor: 'rgba(255, 182, 193, 0.7)', // pink
+                        data: mtbfValues,
+                        backgroundColor: 'rgba(255,182,193,0.7)',
                         borderColor: '#ff99a8',
                         borderWidth: 1
                     },
                     {
                         type: 'bar',
                         label: 'MTTR (Hours)',
-                         mttrValues,
-                        backgroundColor: 'rgba(135, 206, 235, 0.7)', // light blue
+                        data: mttrValues,
+                        backgroundColor: 'rgba(135,206,235,0.7)',
                         borderColor: '#5fa8d3',
                         borderWidth: 1
                     },
                     {
                         type: 'line',
                         label: 'Availability (%)',
-                         availValues,
-                        backgroundColor: 'rgba(0, 191, 165, 0.7)', // teal
+                        data: availValues,
+                        yAxisID: 'y1',
                         borderColor: '#00bfa5',
+                        backgroundColor: 'rgba(0,191,165,0.2)',
                         borderWidth: 3,
-                        pointBackgroundColor: '#00bfa5',
                         pointRadius: 4,
-                        yAxisID: 'y1'
+                        tension: 0.3
                     }
                 ]
             },
@@ -146,19 +146,13 @@ if (timeData.length > 0) {
                     tooltip: {
                         mode: 'index',
                         intersect: false
-                    },
-                    legend: {
-                        position: 'top'
                     }
                 },
                 scales: {
                     x: {
                         type: 'time',
                         time: {
-                            unit: 'day',
-                            displayFormats: {
-                                day: 'MMM D'
-                            }
+                            unit: 'day'
                         },
                         title: {
                             display: true,
@@ -166,27 +160,22 @@ if (timeData.length > 0) {
                         }
                     },
                     y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
+                        beginAtZero: true,
                         title: {
                             display: true,
                             text: 'Time (Hours)'
-                        },
-                        beginAtZero: true
+                        }
                     },
                     y1: {
-                        type: 'linear',
-                        display: true,
                         position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Availability (%)'
-                        },
                         min: 0,
                         max: 100,
                         grid: {
                             drawOnChartArea: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Availability (%)'
                         }
                     }
                 }
@@ -195,5 +184,6 @@ if (timeData.length > 0) {
     }
 }
 </script>
+
 
 <?php require __DIR__ . '/../layouts/html/footer.php'; ?>
