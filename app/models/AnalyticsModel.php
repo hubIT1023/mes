@@ -29,7 +29,7 @@ class AnalyticsModel
                     LEAD(col_6::timestamp) OVER (PARTITION BY col_1 ORDER BY col_6) AS next_fail
                 FROM machine_log
                 WHERE org_id = :org_id
-                  AND col_3 = 'FAIL'
+                  AND col_10 = 'MAINT-COR'
         ";
 
         $params = ['org_id' => $orgId];
@@ -76,7 +76,7 @@ class AnalyticsModel
                     ) AS repair_time
                 FROM machine_log ml1
                 WHERE ml1.org_id = :org_id
-                  AND ml1.col_3 = 'FAIL'
+                  AND ml1.col_10 = 'MAINT-COR'
         ";
 
         $params = ['org_id' => $orgId];
