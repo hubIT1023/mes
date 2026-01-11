@@ -22,22 +22,19 @@
         <?php endif; ?>
     </form>
 
-    <?php if (empty($availability)): ?>
+    <!-- Time-Series Combo Chart -->
+    <h4 class="mt-4">📈 Time-Scale Reliability (Last 7 Days)</h4>
+    <?php if (empty($reliabilityByDate)): ?>
         <div class="alert alert-info">
-            No complete reliability data available. Ensure the asset has:
-            <ul>
-                <li>At least two <code>MAINT-COR</code> events (for MTBF)</li>
-                <li>Each followed by a <code>PROD</code> event (for MTTR)</li>
-            </ul>
+            No time-series reliability data available. Ensure there are MAINT-COR events in the last 7 days.
         </div>
     <?php else: ?>
-        <h4 class="mt-4">📈 Reliability Summary (MTBF, MTTR & Availability)</h4>
         <div class="chart-container" style="height: 400px; margin-bottom: 30px;">
-            <canvas id="reliabilityChart"></canvas>
+            <canvas id="timeSeriesChart"></canvas>
         </div>
     <?php endif; ?>
 
-    <!-- Data Tables (for reference) -->
+    <!-- Per-Asset Tables -->
     <div class="row">
         <div class="col-md-4">
             <h5>⏱ MTBF (hrs)</h5>
@@ -93,24 +90,16 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-// Prepare data safely
-const labels = <?= json_encode(array_column($availability, 'asset_id')) ?>;
-const mtbfRaw = <?= json_encode($mtbf) ?>;
-const mttrRaw = <?= json_encode($mttr) ?>;
-const availValues = <?= json_encode(array_column($availability, 'availability_pct')) ?>;
+// Prepare time-series data
+const timeData = <?= json_encode($reliabilityByDate) ?>;
 
-// Build aligned arrays
-const mtbfMap = {};
-const mttrMap = {};
-mtbfRaw.forEach(row => mtbfMap[row.asset_id] = parseFloat(row.mtbf_hours));
-mttrRaw.forEach(row => mttrMap[row.asset_id] = parseFloat(row.mttr_hours));
+if (timeData.length > 0) {
+    const labels = timeData.map(row => row.date); // e.g., "2026-01-10"
+    const mtbfValues = timeData.map(row => parseFloat(row.mtbf_hours));
+    const mttrValues = timeData.map(row => parseFloat(row.mttr_hours));
+    const availValues = timeData.map(row => parseFloat(row.availability_pct));
 
-const mtbfValues = labels.map(asset => mtbfMap[asset] || 0);
-const mttrValues = labels.map(asset => mttrMap[asset] || 0);
-
-// Render chart only if data exists
-if (labels.length > 0) {
-    const ctx = document.getElementById('reliabilityChart');
+    const ctx = document.getElementById('timeSeriesChart');
     if (ctx) {
         new Chart(ctx.getContext('2d'), {
             type: 'bar',
@@ -121,26 +110,26 @@ if (labels.length > 0) {
                         type: 'bar',
                         label: 'MTBF (Hours)',
                          mtbfValues,
-                        backgroundColor: 'rgba(39, 174, 96, 0.7)',
-                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(255, 182, 193, 0.7)', // pink
+                        borderColor: '#ff99a8',
                         borderWidth: 1
                     },
                     {
                         type: 'bar',
                         label: 'MTTR (Hours)',
                          mttrValues,
-                        backgroundColor: 'rgba(243, 156, 18, 0.7)',
-                        borderColor: '#f39c12',
+                        backgroundColor: 'rgba(135, 206, 235, 0.7)', // light blue
+                        borderColor: '#5fa8d3',
                         borderWidth: 1
                     },
                     {
                         type: 'line',
                         label: 'Availability (%)',
                          availValues,
-                        backgroundColor: '#3498db',
-                        borderColor: '#2980b9',
+                        backgroundColor: 'rgba(0, 191, 165, 0.7)', // teal
+                        borderColor: '#00bfa5',
                         borderWidth: 3,
-                        pointBackgroundColor: '#2980b9',
+                        pointBackgroundColor: '#00bfa5',
                         pointRadius: 4,
                         yAxisID: 'y1'
                     }
@@ -152,14 +141,30 @@ if (labels.length > 0) {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Reliability Metrics by Asset'
+                        text: 'Reliability Over Time (Last 7 Days)'
                     },
                     tooltip: {
                         mode: 'index',
                         intersect: false
+                    },
+                    legend: {
+                        position: 'top'
                     }
                 },
                 scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            displayFormats: {
+                                day: 'MMM D'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
                     y: {
                         type: 'linear',
                         display: true,

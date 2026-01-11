@@ -12,26 +12,24 @@ class AnalyticsController
         $this->model = new AnalyticsModel();
     }
 
-    public function index(): void
-    {
-        if (!isset($_SESSION['tenant_id'])) {
-            header("Location: /signin");
-            exit;
-        }
-
-        $orgId = $_SESSION['tenant_id'];
-
-        $filters = [
-        'asset_id' => trim($_GET['asset_id'] ?? '')
+    public function index()
+	{
+		$orgId = $_SESSION['org_id'];
+		$filters = [
+			'asset_id' => trim($_GET['asset_id'] ?? '')
 		];
 		if ($filters['asset_id'] === '') {
 			$filters['asset_id'] = null;
 		}
 
+		// For time-series chart
+		$reliabilityByDate = $this->model->getReliabilityByDate($orgId, $filters);
+
+		// Keep existing per-asset data for tables
 		$mtbf = $this->model->getMTBF($orgId, $filters);
 		$mttr = $this->model->getMTTR($orgId, $filters);
 		$availability = $this->model->getAvailability($mtbf, $mttr);
 
-        require __DIR__ . '/../views/reports/analytics.php';
-    }
+		require_once __DIR__ . '/../views/analytics/index.php';
+	}
 }
