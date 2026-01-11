@@ -139,7 +139,7 @@ $tenant = $_SESSION['tenant'];
         <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">
           Generate reports on downtime, cost, and performance.
         </p>
-        <a href="/mes/reports/machine-log" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block text-center">Maintenance Logs</a>
+        <a href="/mes/machine-log" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block text-center">Maintenance Logs</a>
       </div>
 
       <!-- Machine Parts -->
