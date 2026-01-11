@@ -14,25 +14,22 @@ class AnalyticsModel
 
     /**
      * MTBF — Mean Time Between Failures (in hours)
-     * Calculated as average time between consecutive FAIL events for each asset.
+     * Average time between consecutive FAIL events for each asset.
      */
     public function getMTBF(string $orgId, array $filters = []): array
     {
         $sql = "
             SELECT
-                col_1 AS asset_id,
-                ROUND(AVG(EXTRACT(EPOCH FROM (next_fail - fail)) / 3600), 2) AS mtbf_hours
+                t.asset_id,
+                ROUND(AVG(EXTRACT(EPOCH FROM (t.next_fail - t.fail)) / 3600), 2) AS mtbf_hours
             FROM (
                 SELECT
-                    col_1,
+                    col_1 AS asset_id,
                     col_6::timestamp AS fail,
-                    LEAD(col_6::timestamp)
-                        OVER (PARTITION BY col_1 ORDER BY col_6) AS next_fail
+                    LEAD(col_6::timestamp) OVER (PARTITION BY col_1 ORDER BY col_6) AS next_fail
                 FROM machine_log
                 WHERE org_id = :org_id
                   AND col_3 = 'FAIL'
-            ) t
-            WHERE next_fail IS NOT NULL
         ";
 
         $params = ['org_id' => $orgId];
@@ -42,7 +39,12 @@ class AnalyticsModel
             $params['asset_id'] = $filters['asset_id'];
         }
 
-        $sql .= " GROUP BY col_1 ORDER BY col_1";
+        $sql .= "
+            ) t
+            WHERE t.next_fail IS NOT NULL
+            GROUP BY t.asset_id
+            ORDER BY t.asset_id
+        ";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
@@ -52,20 +54,20 @@ class AnalyticsModel
 
     /**
      * MTTR — Mean Time To Repair (in hours)
-     * Calculated as average time between each FAIL event and the next PROD event.
+     * Average time from each FAIL event to the next PROD event for the same asset.
      */
     public function getMTTR(string $orgId, array $filters = []): array
     {
         $sql = "
             SELECT
-                asset_id,
-                ROUND(AVG(EXTRACT(EPOCH FROM (repair_time - failure_time)) / 3600), 2) AS mttr_hours
+                t.asset_id,
+                ROUND(AVG(EXTRACT(EPOCH FROM (t.repair_time - t.failure_time)) / 3600), 2) AS mttr_hours
             FROM (
                 SELECT
-                    col_1 AS asset_id,
-                    col_6::timestamp AS failure_time,
+                    ml1.col_1 AS asset_id,
+                    ml1.col_6::timestamp AS failure_time,
                     (
-                        SELECT MIN(col_6::timestamp)
+                        SELECT MIN(ml2.col_6::timestamp)
                         FROM machine_log ml2
                         WHERE ml2.org_id = ml1.org_id
                           AND ml2.col_1 = ml1.col_1
@@ -75,18 +77,21 @@ class AnalyticsModel
                 FROM machine_log ml1
                 WHERE ml1.org_id = :org_id
                   AND ml1.col_3 = 'FAIL'
-            ) t
-            WHERE repair_time IS NOT NULL
-            GROUP BY asset_id
-            ORDER BY asset_id
         ";
 
         $params = ['org_id' => $orgId];
 
         if (!empty($filters['asset_id'])) {
-            $sql .= " AND asset_id = :asset_id";
+            $sql .= " AND ml1.col_1 = :asset_id";
             $params['asset_id'] = $filters['asset_id'];
         }
+
+        $sql .= "
+            ) t
+            WHERE t.repair_time IS NOT NULL
+            GROUP BY t.asset_id
+            ORDER BY t.asset_id
+        ";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
