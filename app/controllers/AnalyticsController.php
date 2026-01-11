@@ -12,11 +12,17 @@ class AnalyticsController
         $this->model = new AnalyticsModel();
     }
 
-    public function index()
-	{
-		$orgId = $_SESSION['org_id'];
-		$filters = [
-			'asset_id' => trim($_GET['asset_id'] ?? '')
+    public function index(): void
+    {
+        if (!isset($_SESSION['tenant_id'])) {
+            header("Location: /signin");
+            exit;
+        }
+
+        $orgId = $_SESSION['tenant_id'];
+
+         $filters = [
+        'asset_id' => trim($_GET['asset_id'] ?? '')
 		];
 		if ($filters['asset_id'] === '') {
 			$filters['asset_id'] = null;
@@ -30,6 +36,6 @@ class AnalyticsController
 		$mttr = $this->model->getMTTR($orgId, $filters);
 		$availability = $this->model->getAvailability($mtbf, $mttr);
 
-		require_once __DIR__ . '/../views/analytics/index.php';
-	}
+			require __DIR__ . '/../views/reports/analytics.php';
+		}
 }
