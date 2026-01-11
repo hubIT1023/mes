@@ -9,12 +9,11 @@
 
 <!-- Combined Row: Filters + Heading -->
 <div class="row mb-4 align-items-end">
-<!-- One Row: Filters + Chart -->
-<div class="row mb-4">
-    <!-- Filter Form (Left - 4 columns) -->
-    <div class="col-md-4">
+<!--one row-->
+    <!-- Filter Form (right) -->
+    <div class="col-md-8">
         <form method="GET" class="row g-3">
-            <div class="col-12">
+            <div class="col-md-6">
                 <label class="form-label">Asset ID</label>
                 <input type="text"
                        name="asset_id"
@@ -22,40 +21,34 @@
                        class="form-control"
                        placeholder="e.g. smt-10267">
             </div>
-            <div class="col-6">
+            <div class="col-md-3">
                 <button type="submit" class="btn btn-primary w-100">Filter</button>
             </div>
             <?php if (!empty($_GET['asset_id'])): ?>
-                <div class="col-6">
+                <div class="col-md-3">
                     <a href="?" class="btn btn-outline-secondary w-100">Clear</a>
                 </div>
             <?php endif; ?>
         </form>
     </div>
 
-    <!-- Chart Section (Right - 8 columns) -->
-    <div class="col-md-8">
-        <h4 class="mb-3">📈 Reliability Over Time</h4>
-
-        <?php if (empty($reliabilityByDate)): ?>
-            <div class="alert alert-info">
-                No time-series reliability data available.
-            </div>
-        <?php else: ?>
-            <!-- Time range selector -->
-            <div class="btn-group mb-3" role="group">
-                <button class="btn btn-outline-primary active" data-range="1">1 Day</button>
-                <button class="btn btn-outline-primary" data-range="7">1 Week</button>
-                <button class="btn btn-outline-primary" data-range="30">1 Month</button>
-            </div>
-
-            <div style="height:400px; margin-bottom:30px;">
-                <canvas id="timeSeriesChart"></canvas>
-            </div>
-        <?php endif; ?>
-    </div>
+ 
 </div>
-<!-- End one row -->
+
+
+<?php else: ?>
+    <!-- Time range selector -->
+    <div class="btn-group mb-3" role="group">
+        <button class="btn btn-outline-primary active" data-range="1">1 Day</button>
+        <button class="btn btn-outline-primary" data-range="7">1 Week</button>
+        <button class="btn btn-outline-primary" data-range="30">1 Month</button>
+    </div>
+
+    <div style="height:400px; margin-bottom:30px;">
+        <canvas id="timeSeriesChart"></canvas>
+    </div>
+<?php endif; ?>
+<!--end _one row-->
 
 <!-- Chart (below the row) -->
    <!-- Heading (Left) -->
