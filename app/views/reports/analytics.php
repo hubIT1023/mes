@@ -24,24 +24,27 @@
 
     <?php if (empty($availability)): ?>
         <div class="alert alert-info">
-            No complete reliability data available. Requires both MTBF and MTTR for the same asset(s).
+            No complete reliability data available. Ensure the asset has:
+            <ul>
+                <li>At least two <code>MAINT-COR</code> events (for MTBF)</li>
+                <li>Each followed by a <code>PROD</code> event (for MTTR)</li>
+            </ul>
         </div>
     <?php else: ?>
-        <!-- Unified Mixed Chart -->
         <h4 class="mt-4">📈 Reliability Summary (MTBF, MTTR & Availability)</h4>
         <div class="chart-container" style="height: 400px; margin-bottom: 30px;">
             <canvas id="reliabilityChart"></canvas>
         </div>
     <?php endif; ?>
 
-    <!-- Individual Metric Tables (for reference) -->
+    <!-- Data Tables (for reference) -->
     <div class="row">
         <div class="col-md-4">
             <h5>⏱ MTBF (hrs)</h5>
             <?php if (empty($mtbf)): ?>
                 <p class="text-muted">No data</p>
             <?php else: ?>
-                <table class="table table-sm">
+                <table class="table table-sm table-bordered">
                     <thead><tr><th>Asset</th><th>Value</th></tr></thead>
                     <tbody>
                         <?php foreach ($mtbf as $row): ?>
@@ -57,7 +60,7 @@
             <?php if (empty($mttr)): ?>
                 <p class="text-muted">No data</p>
             <?php else: ?>
-                <table class="table table-sm">
+                <table class="table table-sm table-bordered">
                     <thead><tr><th>Asset</th><th>Value</th></tr></thead>
                     <tbody>
                         <?php foreach ($mttr as $row): ?>
@@ -73,7 +76,7 @@
             <?php if (empty($availability)): ?>
                 <p class="text-muted">No data</p>
             <?php else: ?>
-                <table class="table table-sm">
+                <table class="table table-sm table-bordered">
                     <thead><tr><th>Asset</th><th>Value</th></tr></thead>
                     <tbody>
                         <?php foreach ($availability as $row): ?>
@@ -86,107 +89,105 @@
     </div>
 </div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js v4 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-// Prepare data for mixed chart
+// Prepare data safely
 const labels = <?= json_encode(array_column($availability, 'asset_id')) ?>;
-const mtbfValues = [];
-const mttrValues = [];
-const availValues = [];
+const mtbfRaw = <?= json_encode($mtbf) ?>;
+const mttrRaw = <?= json_encode($mttr) ?>;
+const availValues = <?= json_encode(array_column($availability, 'availability_pct')) ?>;
 
 // Build aligned arrays
 const mtbfMap = {};
 const mttrMap = {};
-<?= json_encode($mtbf) ?>.forEach(row => mtbfMap[row.asset_id] = parseFloat(row.mtbf_hours));
-<?= json_encode($mttr) ?>.forEach(row => mttrMap[row.asset_id] = parseFloat(row.mttr_hours));
+mtbfRaw.forEach(row => mtbfMap[row.asset_id] = parseFloat(row.mtbf_hours));
+mttrRaw.forEach(row => mttrMap[row.asset_id] = parseFloat(row.mttr_hours));
 
-labels.forEach(asset => {
-    mtbfValues.push(mtbfMap[asset] || 0);
-    mttrValues.push(mttrMap[asset] || 0);
-});
+const mtbfValues = labels.map(asset => mtbfMap[asset] || 0);
+const mttrValues = labels.map(asset => mttrMap[asset] || 0);
 
-availValues = <?= json_encode(array_column($availability, 'availability_pct')) ?>;
-
-// Create mixed chart
+// Render chart only if data exists
 if (labels.length > 0) {
-    const ctx = document.getElementById('reliabilityChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-         {
-            labels: labels,
-            datasets: [
-                {
-                    type: 'bar',
-                    label: 'MTBF (Hours)',
-                     mtbfValues,
-                    backgroundColor: 'rgba(39, 174, 96, 0.7)',
-                    borderColor: '#27ae60',
-                    borderWidth: 1
-                },
-                {
-                    type: 'bar',
-                    label: 'MTTR (Hours)',
-                     mttrValues,
-                    backgroundColor: 'rgba(243, 156, 18, 0.7)',
-                    borderColor: '#f39c12',
-                    borderWidth: 1
-                },
-                {
-                    type: 'line',
-                    label: 'Availability (%)',
-                     availValues,
-                    backgroundColor: '#3498db',
-                    borderColor: '#2980b9',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#2980b9',
-                    pointRadius: 4,
-                    yAxisID: 'y1'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Reliability Metrics by Asset'
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false
-                }
+    const ctx = document.getElementById('reliabilityChart');
+    if (ctx) {
+        new Chart(ctx.getContext('2d'), {
+            type: 'bar',
+             {
+                labels: labels,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'MTBF (Hours)',
+                         mtbfValues,
+                        backgroundColor: 'rgba(39, 174, 96, 0.7)',
+                        borderColor: '#27ae60',
+                        borderWidth: 1
+                    },
+                    {
+                        type: 'bar',
+                        label: 'MTTR (Hours)',
+                         mttrValues,
+                        backgroundColor: 'rgba(243, 156, 18, 0.7)',
+                        borderColor: '#f39c12',
+                        borderWidth: 1
+                    },
+                    {
+                        type: 'line',
+                        label: 'Availability (%)',
+                         availValues,
+                        backgroundColor: '#3498db',
+                        borderColor: '#2980b9',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#2980b9',
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
             },
-            scales: {
-                y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
                     title: {
                         display: true,
-                        text: 'Time (Hours)'
+                        text: 'Reliability Metrics by Asset'
                     },
-                    beginAtZero: true
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
                 },
-                y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    title: {
+                scales: {
+                    y: {
+                        type: 'linear',
                         display: true,
-                        text: 'Availability (%)'
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Time (Hours)'
+                        },
+                        beginAtZero: true
                     },
-                    min: 0,
-                    max: 100,
-                    grid: {
-                        drawOnChartArea: false // avoid overlapping grids
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Availability (%)'
+                        },
+                        min: 0,
+                        max: 100,
+                        grid: {
+                            drawOnChartArea: false
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 }
 </script>
 

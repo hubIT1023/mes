@@ -12,10 +12,6 @@ class AnalyticsModel
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    /**
-     * MTBF — Mean Time Between Failures (in hours)
-     * Now based on consecutive 'MAINT-COR' events (col_10 = 'MAINT-COR')
-     */
     public function getMTBF(string $orgId, array $filters = []): array
     {
         $sql = "
@@ -52,11 +48,6 @@ class AnalyticsModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * MTTR — Mean Time To Repair (in hours)
-     * Treats each 'MAINT-COR' event as failure start,
-     * finds next 'PROD' event as repair completion.
-     */
     public function getMTTR(string $orgId, array $filters = []): array
     {
         $sql = "
@@ -100,10 +91,6 @@ class AnalyticsModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Availability % = MTBF / (MTBF + MTTR) * 100
-     * Only includes assets present in BOTH MTBF and MTTR results.
-     */
     public function getAvailability(array $mtbf, array $mttr): array
     {
         $mtbfMap = array_column($mtbf, 'mtbf_hours', 'asset_id');
