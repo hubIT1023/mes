@@ -23,7 +23,8 @@ class MachineLogController
 
         $filters = [
             'asset_id'  => $_GET['asset_id'] ?? null,
-            'stopcause' => $_GET['stopcause'] ?? null,
+			'entity'  => $_GET['entity'] ?? null,
+            'stopcause_start' => $_GET['stopcause_start'] ?? null,
             'from'      => $_GET['from'] ?? null,
             'to'        => $_GET['to'] ?? null,
         ];

@@ -9,18 +9,23 @@
             <input class="form-control" name="asset_id" placeholder="Asset ID"
                    value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>">
         </div>
+		
+		<div class="col-md-3">
+            <input class="form-control" name="asset_id" placeholder="Asset ID"
+                   value="<?= htmlspecialchars($_GET['entity'] ?? '') ?>">
+        </div>
 
-        <div class="col-md-2">
+        <!--div class="col-md-2">
             <select name="stopcause" class="form-select">
                 <option value="">All States</option>
-                <?php foreach (['FAIL','IDLE','PROD'] as $s): ?>
+                <?php// foreach (['FAIL','IDLE','PROD'] as $s): ?>
                     <option value="<?= $s ?>"
-                        <?= ($_GET['stopcause'] ?? '') === $s ? 'selected' : '' ?>>
-                        <?= $s ?>
+                        <?//= ($_GET['stopcause'] ?? '') === $s ? 'selected' : '' ?>>
+                        <?//= $s ?>
                     </option>
-                <?php endforeach; ?>
+                <?php //endforeach; ?>
             </select>
-        </div>
+        </div-->
 
         <div class="col-md-2">
             <input type="datetime-local" name="from" class="form-control"
@@ -42,15 +47,15 @@
         <thead class="table-dark">
         <tr>
             <th>Time</th>
-            <th>Group</th>
-            <th>Location</th>
+            <!--th>Group</th-->
+            <!--th>Location</th-->
             <th>Asset</th>
             <th>Entity</th>
             <th>State</th>
             <th>Reason</th>
             <th>Action</th>
             <th>Status</th>
-            <th>Reported By</th>
+            <th>Done By</th>
         </tr>
         </thead>
         <tbody>
@@ -61,7 +66,7 @@
                 <td><?= htmlspecialchars($log['location_code']) ?></td>
                 <td><?= htmlspecialchars($log['asset_id']) ?></td>
                 <td><?= htmlspecialchars($log['entity']) ?></td>
-                <td><?= htmlspecialchars($log['stopcause']) ?></td>
+                <td><?= htmlspecialchars($log['stopcause_start']) ?></td>
                 <td><?= htmlspecialchars($log['reason']) ?></td>
                 <td><?= htmlspecialchars($log['action']) ?></td>
                 <td><?= htmlspecialchars($log['status']) ?></td>
