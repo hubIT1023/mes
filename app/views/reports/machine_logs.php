@@ -4,7 +4,7 @@
 
     <nav class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0 text-primary">
-            <i class="bi bi-journal-text"></i> Machine Event Log
+            <i class="bi bi-journal-text"></i> 📘 Machine Event Log
         </h2>
         <div class="d-flex gap-2">
             <a href="?" class="btn btn-outline-secondary btn-sm">Reset Filters</a>
