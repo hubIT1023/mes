@@ -125,6 +125,7 @@ $deviceRoutes = [
 
 $analyticsRoutes = [
     'GET /analytics' => ['AnalyticsController', 'analytics'], 
+];
 
 $reportRoutes = [
     'GET /machine-log' => ['MachineLogController', 'machine_logs'],
