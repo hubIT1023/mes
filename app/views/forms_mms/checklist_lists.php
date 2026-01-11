@@ -13,11 +13,13 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 <body>
 
 <div class="container mt-5">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/mes/mms_admin">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Checklist List</li>
-        </ol>
+    <nav class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 text-primary">
+            <i class="bi bi-journal-text"></i> 📘 Checklists
+        </h2>
+        <div class="d-flex gap-2">
+            <a href="/mes/mms_admin" class="btn btn-secondary btn-sm">Home</a>
+        </div>
     </nav>
 
     <h3>Checklist Templates</h3>
