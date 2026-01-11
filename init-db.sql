@@ -366,7 +366,7 @@ CREATE TABLE tool_state (
     col_8 VARCHAR(100),  -- person_reported
 	col_9 VARCHAR(100),  -- person_completed
 	col_10 VARCHAR(100),  -- stopcause_start
-	col_11 VARCHAR(100),  -- tech_time
+	col_11 VARCHAR(100),  -- status
 	----------------------------------------------
     col_12 VARCHAR(100), -- standing_issue
     col_13 VARCHAR(100), -- status(active, completed)
@@ -415,6 +415,7 @@ CREATE TABLE machine_log (
         CONSTRAINT fk_machine_log_org 
         REFERENCES organizations(org_id) 
         ON DELETE CASCADE,
+
     group_code VARCHAR(100),
     location_code VARCHAR(100),
     col_1 VARCHAR(255),  -- asset_id
@@ -422,12 +423,12 @@ CREATE TABLE machine_log (
     col_3 VARCHAR(100),  -- stopcause (IDLE, PROD, etc.)
     col_4 VARCHAR(100),  -- reason
     col_5 VARCHAR(100),  -- action
-    col_6 VARCHAR(50),   -- timestamp started
-    col_7 VARCHAR(100),  -- timestamp completed
+    col_6 VARCHAR(50),   -- dateTime_now(from php)
+    col_7 VARCHAR(100),  -- timestamp started
     col_8 VARCHAR(100),  -- person_reported
     col_9 VARCHAR(100),  -- person_completed
     col_10 VARCHAR(100), -- stopcause_start
-    col_11 VARCHAR(100), -- tech_time
+    col_11 VARCHAR(100), -- status
     ----------------------------------------------
     col_12 VARCHAR(100), -- standing_issue
     col_13 VARCHAR(100), -- status (active, completed)
@@ -444,7 +445,7 @@ CREATE TABLE machine_log (
     col_23 VARCHAR(100), -- opt_total
 	col_24 VARCHAR(100), -- tech_time
 	
-    CONSTRAINT uq_machine_log_org_asset UNIQUE (org_id, col_1)
+    ADD CONSTRAINT uq_machine_log_org_asset_ts UNIQUE (org_id, col_1, col_6);
 );
 
 

@@ -123,6 +123,13 @@ $deviceRoutes = [
 	'GET /device/stream' => ['DeviceController', 'streamDeviceData'],
 ];
 
+$analyticsRoutes = [
+    'GET /analytics' => ['AnalyticsController', 'analytics'], 
+
+$reportRoutes = [
+    'GET /machine-log' => ['MachineLogController', 'machine_logs'],
+];
+
 // --- Merge all routes ---
 return array_merge(
     $authRoutes,
@@ -137,5 +144,7 @@ return array_merge(
     $machinePartsRoutes,
     $apiRoutes,
 	$schedulerRoutes,
-	$deviceRoutes
+	$deviceRoutes,
+	$analyticsRoutes,
+	$reportRoutes
 );
