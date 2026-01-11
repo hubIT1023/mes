@@ -92,98 +92,108 @@
 <script>
 const timeData = <?= json_encode($reliabilityByDate, JSON_NUMERIC_CHECK) ?>;
 
-if (Array.isArray(timeData) && timeData.length > 0) {
+if (!Array.isArray(timeData) || timeData.length === 0) {
+    console.warn('No reliability data for chart');
+    return;
+}
 
-    const labels = timeData.map(row => row.date);
-    const mtbfValues = timeData.map(row => row.mtbf_hours);
-    const mttrValues = timeData.map(row => row.mttr_hours);
-    const availValues = timeData.map(row => row.availability_pct);
+// Convert to ISO timestamps (important!)
+const parsed = timeData.map(r => ({
+    x: new Date(r.date + 'T00:00:00'),
+    mtbf: r.mtbf_hours,
+    mttr: r.mttr_hours,
+    avail: r.availability_pct
+}));
 
-    const ctx = document.getElementById('timeSeriesChart');
+const ctx = document.getElementById('timeSeriesChart');
 
-    if (ctx) {
-        new Chart(ctx, {
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        type: 'bar',
-                        label: 'MTBF (Hours)',
-                        data: mtbfValues,
-                        backgroundColor: 'rgba(255,182,193,0.7)',
-                        borderColor: '#ff99a8',
-                        borderWidth: 1
-                    },
-                    {
-                        type: 'bar',
-                        label: 'MTTR (Hours)',
-                        data: mttrValues,
-                        backgroundColor: 'rgba(135,206,235,0.7)',
-                        borderColor: '#5fa8d3',
-                        borderWidth: 1
-                    },
-                    {
-                        type: 'line',
-                        label: 'Availability (%)',
-                        data: availValues,
-                        yAxisID: 'y1',
-                        borderColor: '#00bfa5',
-                        backgroundColor: 'rgba(0,191,165,0.2)',
-                        borderWidth: 3,
-                        pointRadius: 4,
-                        tension: 0.3
-                    }
-                ]
+const chart = new Chart(ctx, {
+    data: {
+        datasets: [
+            {
+                type: 'bar',
+                label: 'MTBF (hrs)',
+                data: parsed.map(p => ({ x: p.x, y: p.mtbf })),
+                backgroundColor: 'rgba(255,182,193,0.7)'
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Reliability Over Time (Last 7 Days)'
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    }
+            {
+                type: 'bar',
+                label: 'MTTR (hrs)',
+                data: parsed.map(p => ({ x: p.x, y: p.mttr })),
+                backgroundColor: 'rgba(135,206,235,0.7)'
+            },
+            {
+                type: 'line',
+                label: 'Availability (%)',
+                data: parsed.map(p => ({ x: p.x, y: p.avail })),
+                yAxisID: 'y1',
+                borderWidth: 3,
+                tension: 0.3
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        parsing: false,
+        plugins: {
+            zoom: {
+                pan: {
+                    enabled: true,
+                    mode: 'x'
                 },
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Time (Hours)'
-                        }
-                    },
-                    y1: {
-                        position: 'right',
-                        min: 0,
-                        max: 100,
-                        grid: {
-                            drawOnChartArea: false
-                        },
-                        title: {
-                            display: true,
-                            text: 'Availability (%)'
+                zoom: {
+                    wheel: { enabled: true },
+                    pinch: { enabled: true },
+                    mode: 'x',
+                    limits: {
+                        x: {
+                            minRange: 24 * 60 * 60 * 1000 // 🔒 minimum 1 day
                         }
                     }
                 }
+            },
+            title: {
+                display: true,
+                text: 'Reliability Over Time'
             }
-        });
+        },
+        scales: {
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'day',
+                    tooltipFormat: 'yyyy-MM-dd'
+                },
+                title: {
+                    display: true,
+                    text: 'Date'
+                }
+            },
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Hours'
+                }
+            },
+            y1: {
+                position: 'right',
+                min: 0,
+                max: 100,
+                grid: {
+                    drawOnChartArea: false
+                },
+                title: {
+                    display: true,
+                    text: 'Availability (%)'
+                }
+            }
+        }
     }
-}
+});
 </script>
+
 
 
 <?php require __DIR__ . '/../layouts/html/footer.php'; ?>
