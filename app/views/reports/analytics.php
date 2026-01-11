@@ -1,4 +1,4 @@
-<?php require __DIR__ . '/../partials/header.php'; ?>
+<?php require __DIR__ . '/../layouts/html/header.php'; ?>
 
 <div class="container mt-4">
     <h2>📊 Reliability Analytics</h2>
@@ -55,4 +55,4 @@
     </table>
 </div>
 
-<?php require __DIR__ . '/../partials/footer.php'; ?>
+<?php require __DIR__ . '/../layouts/html/footer.php'; ?>
