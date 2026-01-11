@@ -19,7 +19,7 @@
             <select name="stopcause" class="form-select">
                 <option value="">All States</option>
                 <?php// foreach (['FAIL','IDLE','PROD'] as $s): ?>
-                    <option value="<?= $s ?>"
+                    <option value="<?//= $s ?>"
                         <?//= ($_GET['stopcause'] ?? '') === $s ? 'selected' : '' ?>>
                         <?//= $s ?>
                     </option>
@@ -62,8 +62,8 @@
         <?php foreach ($logs as $log): ?>
             <tr>
                 <td><?= htmlspecialchars($log['event_time']) ?></td>
-                <td><?= htmlspecialchars($log['group_code']) ?></td>
-                <td><?= htmlspecialchars($log['location_code']) ?></td>
+                <!--td><?//= htmlspecialchars($log['group_code']) ?></td>
+                <td><?//= htmlspecialchars($log['location_code']) ?></td-->
                 <td><?= htmlspecialchars($log['asset_id']) ?></td>
                 <td><?= htmlspecialchars($log['entity']) ?></td>
                 <td><?= htmlspecialchars($log['stopcause_start']) ?></td>
