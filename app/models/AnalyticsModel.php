@@ -14,7 +14,7 @@ class AnalyticsModel
 
     /**
      * MTBF — Mean Time Between Failures (in hours)
-     * Average time between consecutive FAIL events for each asset.
+     * Now based on consecutive 'MAINT-COR' events (col_10 = 'MAINT-COR')
      */
     public function getMTBF(string $orgId, array $filters = []): array
     {
@@ -54,7 +54,8 @@ class AnalyticsModel
 
     /**
      * MTTR — Mean Time To Repair (in hours)
-     * Average time from each FAIL event to the next PROD event for the same asset.
+     * Treats each 'MAINT-COR' event as failure start,
+     * finds next 'PROD' event as repair completion.
      */
     public function getMTTR(string $orgId, array $filters = []): array
     {
@@ -97,5 +98,33 @@ class AnalyticsModel
         $stmt->execute($params);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Availability % = MTBF / (MTBF + MTTR) * 100
+     * Only includes assets present in BOTH MTBF and MTTR results.
+     */
+    public function getAvailability(array $mtbf, array $mttr): array
+    {
+        $mtbfMap = array_column($mtbf, 'mtbf_hours', 'asset_id');
+        $mttrMap = array_column($mttr, 'mttr_hours', 'asset_id');
+        $availability = [];
+
+        foreach (array_keys($mtbfMap) as $assetId) {
+            if (isset($mttrMap[$assetId])) {
+                $mtbfVal = (float)$mtbfMap[$assetId];
+                $mttrVal = (float)$mttrMap[$assetId];
+                if ($mtbfVal + $mttrVal > 0) {
+                    $pct = ($mtbfVal / ($mtbfVal + $mttrVal)) * 100;
+                    $availability[] = [
+                        'asset_id' => $assetId,
+                        'availability_pct' => round($pct, 2)
+                    ];
+                }
+            }
+        }
+
+        usort($availability, fn($a, $b) => strcmp($a['asset_id'], $b['asset_id']));
+        return $availability;
     }
 }
