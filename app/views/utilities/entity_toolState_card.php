@@ -112,13 +112,7 @@ if (!function_exists('renderDataAttributes')) {
 }
 
 /**
- * Reusable modal context block for all entity-related forms.
- *
- * @param string $prefix       e.g., 'ap', 'ts', 'si', 'lw'
- * @param string $csrfToken
- * @param string $org_id
- * @param bool   $showGroup    Show "Group" field? Default true.
- * @param bool   $showDateTime Auto-fill date/time? Default true.
+ * Reusable modal context block.
  */
 function renderModalContextBlock(
     string $prefix,
@@ -129,22 +123,16 @@ function renderModalContextBlock(
 ): void {
     $now = date('Y-m-d H:i:s');
     ?>
-    <!-- Security & Org -->
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
     <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-
-    <!-- Generic col_N fields -->
     <input type="hidden" name="col_1" id="<?= $prefix ?>_modal_asset_id">
     <input type="hidden" name="col_2" id="<?= $prefix ?>_modal_entity">
     <?php if ($showDateTime): ?>
         <input type="hidden" name="col_6" value="<?= htmlspecialchars($now) ?>">
     <?php endif; ?>
-
-    <!-- Additional context -->
     <input type="hidden" name="group_code" id="<?= $prefix ?>_modal_group_code">
     <input type="hidden" name="location_code" id="<?= $prefix ?>_modal_location_code">
 
-    <!-- Display Row: Location / Group / DateTime -->
     <div class="row mb-3">
         <div class="col">
             <label class="form-label">Location</label>
@@ -164,7 +152,6 @@ function renderModalContextBlock(
         <?php endif; ?>
     </div>
 
-    <!-- Display Row: Asset ID + Entity -->
     <div class="row mb-3">
         <div class="col">
             <label class="form-label">Entity</label>
@@ -198,9 +185,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 <style>
 .downtime-chart { cursor: pointer; }
-.card-body .badge { font-size: 0.7rem; padding: 0.5rem 0.75rem; }
-.progress { height: 6px; }
-.progress-bar { border-radius: 3px; }
 </style>
 
 <!-- Tool State Cards Grid -->
@@ -326,7 +310,6 @@ WIP
 <div class="h6 fw-bold m-0">3000<small class="fw-normal text-muted">cnts</small></div>
 </div>
 </div>
-</div>
 <button class="btn <?= htmlspecialchars($badge['class']) ?> w-100 fw-bold py-2 mb-3 shadow-sm"
 data-bs-toggle="modal" data-bs-target="#setMaintModal"
 <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
@@ -400,13 +383,13 @@ value="<?= (int)$entity['col_pos'] ?>" min="1" max="9" required>
 <!-- SHARED MODALS -->
 <!-- =============================== -->
 
-<!-- Gateway Modal: Parts vs Accessories -->
-<div class="modal fade" id="associateAcc-PartsModal" tabindex="-1" aria-labelledby="associateAccPartsModalLabel" aria-hidden="true">
+<!-- Gateway: Parts vs Accessories -->
+<div class="modal fade" id="associateAcc-PartsModal" tabindex="-1" aria-hidden="true">
 <div class="modal-dialog modal-sm modal-dialog-centered">
 <div class="modal-content">
 <div class="modal-header bg-info text-white">
-<h6 class="modal-title" id="associateAccPartsModalLabel">ASSOCIATE PARTS/ACCESSORIES</h6>
-<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<h6 class="modal-title">ASSOCIATE PARTS/ACCESSORIES</h6>
+<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body p-0">
 <div class="list-group list-group-flush">
@@ -430,13 +413,13 @@ ASSOCIATE PARTS
 </div>
 </div>
 
-<!-- Gateway Modal: More Actions -->
-<div class="modal fade" id="setMaintModal" tabindex="-1" aria-labelledby="setMaintModalLabel" aria-hidden="true">
+<!-- Gateway: More Actions -->
+<div class="modal fade" id="setMaintModal" tabindex="-1" aria-hidden="true">
 <div class="modal-dialog modal-sm modal-dialog-centered">
 <div class="modal-content">
 <div class="modal-header">
-<h6 class="modal-title" id="setMaintModalLabel">More Actions</h6>
-<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<h6 class="modal-title">More Actions</h6>
+<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body p-0">
 <div class="list-group list-group-flush">
@@ -489,12 +472,12 @@ Maint Log
 </div>
 
 <!-- STANDING ISSUE MODAL -->
-<div class="modal fade" id="standingIssueModal" tabindex="-1" aria-labelledby="standingIssueLabel" aria-hidden="true">
+<div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
 <div class="modal-dialog modal-md">
 <form method="POST" action="/mes/post-standing-issue">
 <div class="modal-content">
 <div class="modal-header bg-info text-white">
-<h5 class="modal-title" id="standingIssueLabel">Post Standing Issue</h5>
+<h5 class="modal-title">Post Standing Issue</h5>
 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">
@@ -518,12 +501,12 @@ Maint Log
 </div>
 
 <!-- ASSOCIATE PARTS MODAL -->
-<div class="modal fade" id="associatePartsModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
+<div class="modal fade" id="associatePartsModal" tabindex="-1" aria-hidden="true">
 <div class="modal-dialog modal-md">
 <form method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
 <div class="modal-content">
 <div class="modal-header bg-info text-white">
-<h5 class="modal-title" id="associatePartsModalLabel">Associate Machine Parts</h5>
+<h5 class="modal-title">Associate Machine Parts</h5>
 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">
@@ -594,12 +577,12 @@ Maint Log
 </div>
 
 <!-- CHANGE STATE MODAL -->
-<div class="modal fade" id="changeStateModal" tabindex="-1" aria-labelledby="changeStateModalLabel" aria-hidden="true">
+<div class="modal fade" id="changeStateModal" tabindex="-1" aria-hidden="true">
 <div class="modal-dialog modal-md">
 <form method="POST" action="/mes/change-tool-state">
 <div class="modal-content">
 <div class="modal-header bg-info text-white">
-<h5 class="modal-title" id="changeStateModalLabel">Change Entity Mode</h5>
+<h5 class="modal-title">Change Entity Mode</h5>
 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">
@@ -693,7 +676,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Unified modal context handling
     let currentEntityContext = null;
 
     function captureContext(btn) {
