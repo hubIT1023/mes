@@ -255,7 +255,7 @@
                     <h5 class="mb-1 fw-bold">Add Machine Groups</h5>
                     <p class="mb-0 text-muted small">Group machines by process type (e.g., SMT, SPUTTER, TEST_and_PACK).</p>
                 </div>
-                <a href="/mes/create-group" class="btn btn-sm btn-primary">Go <i class="fas fa-arrow-right"></i></a>
+                <a href="/mes/dashboard_admin" class="btn btn-sm btn-primary">Go To Dashboard<i class="fas fa-arrow-right"></i></a>
             </div>
 
             <div class="step-card p-3 d-flex align-items-center">
@@ -264,7 +264,7 @@
                     <h5 class="mb-1 fw-bold">Map Entities to Groups</h5>
                     <p class="mb-0 text-muted small">Assign registered assets to their respective groups to populate the cards.</p>
                 </div>
-                <a href="/mes/add-entity" class="btn btn-sm btn-primary">Go <i class="fas fa-arrow-right"></i></a>
+                <a href="/mes/dashboard_admin" class="btn btn-sm btn-primary">Go To Dashboard<i class="fas fa-arrow-right"></i></a>
             </div>
 
             <div class="step-card p-3 d-flex align-items-center">
