@@ -11,6 +11,12 @@ $authRoutes = [
     'GET /hub_portal' => ['SigninController', 'hubPortal'],
 ];
 
+ // --- Documentation Routes ---
+    'GET /setup-guide'        => ['DocsController', 'setupGuide'],
+    'GET /docs/user-manual'   => ['DocsController', 'userManual'],
+    'GET /docs/api-reference' => ['DocsController', 'apiReference'],
+
+
 // --- Static Pages ---
 $staticPages = [
     'GET /'                 => ['PagesController', 'welcome'],
@@ -20,6 +26,7 @@ $staticPages = [
     'GET /mms_admin'        => ['PagesController', 'mms_Admin'],
 	//'GET /dashboard_admin' => ['AdminDashboardController', 'index'],//--Refractore
     'GET /dashboard_admin'  => ['PagesController', 'Dashboard_Admin'],
+	
 ];
 
 // --- Business Intelligence ---
