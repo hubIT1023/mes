@@ -246,7 +246,7 @@
                     <h5 class="mb-1 fw-bold">Create Dashboard Pages</h5>
                     <p class="mb-0 text-muted small">Create main views like "BUILDING_01" to organize high-level locations.</p>
                 </div>
-                <a href="/mes/dashboard_admin'" class="btn btn-sm btn-primary">Go To Dashboard<i class="fas fa-arrow-right"></i></a>
+                <a href="/mes/app/views/dashboard_admin'" class="btn btn-sm btn-primary">Go To Dashboard<i class="fas fa-arrow-right"></i></a>
             </div>
 
             <div class="step-card p-3 d-flex align-items-center">
