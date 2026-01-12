@@ -522,44 +522,44 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 <!-- STANDING ISSUE MODAL -->
 <div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-	 <form id="AddPartsForm" method="POST" action="" enctype="multipart/form-data">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Post Standing Issue</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form>
+    <div class="modal-dialog modal-md">
+        <form id="toolStateForm" method="POST" action="">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="standingIssueLabel">Standing Issue</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                     <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-                    <input type="hidden" name="asset_id" id="ap_modal_asset_id_hidden">
-                    <input type="hidden" name="entity" id="ap_modal_entity_hidden">
-                    <input type="hidden" name="group_code" id="ap_modal_group_code">
-                    <input type="hidden" name="location_code" id="ap_modal_location_code">
-                    <input type="hidden" name="col_1" id="ap_modal_asset_id">
-                    <input type="hidden" name="col_6" id="ap_modal_date_time">
-                    <input type="hidden" name="col_7" id="ap_modal_start_time">
+                    <input type="hidden" name="group_code" id="ts_modal_group_code">
+                    <input type="hidden" name="location_code" id="ts_modal_location_code">
+                    <input type="hidden" name="col_1" id="ts_modal_asset_id">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">Location</label>
-                            <input type="text" id="ap_modal_location" class="form-control" readonly />
+                            <input type="text" id="ts_modal_location" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Group</label>
+                            <input type="text" id="ts_modal_group" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Date / Time</label>
+                            <input type="text" class="form-control" id="ts_dateTime_now" name="col_6" 
+							value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>" readonly />
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col">
-                            <label class="form-label">Entity</label>
-                            <input type="text" id="ap_ipt_entity" name="col_2" class="form-control" readonly />
-                        </div>
-                        <div class="col">
                             <label class="form-label">Asset ID</label>
-                            <input type="text" id="ap_modal_asset_id_display" class="form-control" readonly />
+                            <input type="text" id="ts_modal_asset_id_display" class="form-control" readonly />
                         </div>
                         <div class="col">
-                            <label class="form-label">Maker</label>
-                            <input type="text" name="mfg_code" class="form-control" placeholder="ex. Akim">
+                            <label class="form-label">Entity</label>
+                            <input type="text" id="ts_ipt_entity" name="col_2" class="form-control" readonly />
                         </div>
                     </div>
 
