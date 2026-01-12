@@ -13,7 +13,7 @@ $authRoutes = [
 
  // --- Documentation Routes ---
  $docsRoutes = [
-    'GET /docs/setup-guide'        => ['DocsController', 'setupGuide'],
+    'GET /docs/setup-guide'   => ['DocsController', 'setupGuide'],
     'GET /docs/user-manual'   => ['DocsController', 'userManual'],
     'GET /docs/api-reference' => ['DocsController', 'apiReference'],
 ];
@@ -142,6 +142,7 @@ $reportRoutes = [
 // --- Merge all routes ---
 return array_merge(
     $authRoutes,
+	$docsRoutes,   
     $staticPages,
     $biRoutes,
     $metaDatabaseRoutes,

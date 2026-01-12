@@ -91,8 +91,7 @@ $tenant = $_SESSION['tenant'];
           </a>
 		  
 		  
-		  <!-- Documentation -- User Manual here -->
-		  <!-- ✅ NEW: HubIT Docs -->
+		  <!-- @ hub_portal.php --Documentation -- User Manual here -->
 			<a href="/mes/setup-guide" class="block">
 			  <div class="system-card bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 w-80 text-center border-4 border-transparent hover:border-purple-600 dark:hover:border-purple-400">
 				<i class="fas fa-book-open text-6xl text-purple-600 dark:text-purple-400 mb-6"></i>
