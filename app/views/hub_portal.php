@@ -89,6 +89,20 @@ $tenant = $_SESSION['tenant'];
               </p>
             </div>
           </a>
+		  
+		  
+		  <!-- Documentation -- User Manual here -->
+		  <!-- ✅ NEW: HubIT Docs -->
+			<a href="/mes/setup-guide" class="block">
+			  <div class="system-card bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 w-80 text-center border-4 border-transparent hover:border-purple-600 dark:hover:border-purple-400">
+				<i class="fas fa-book-open text-6xl text-purple-600 dark:text-purple-400 mb-6"></i>
+				<h3 class="text-2xl font-bold mb-3 text-slate-800 dark:text-white">HubIT Docs</h3>
+				<p class="text-slate-600 dark:text-gray-300 text-sm">
+				  Access setup guides, user manuals, and configuration documentation.
+				</p>
+			  </div>
+			</a>
+					  
 
         </div>
       </div>
