@@ -12,10 +12,11 @@ $authRoutes = [
 ];
 
  // --- Documentation Routes ---
+ $docsRoutes = [
     'GET /setup-guide'        => ['DocsController', 'setupGuide'],
     'GET /docs/user-manual'   => ['DocsController', 'userManual'],
     'GET /docs/api-reference' => ['DocsController', 'apiReference'],
-
+];
 
 // --- Static Pages ---
 $staticPages = [
