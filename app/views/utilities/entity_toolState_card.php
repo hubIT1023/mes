@@ -198,6 +198,9 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 <style>
 .downtime-chart { cursor: pointer; }
+.card-body .badge { font-size: 0.7rem; padding: 0.5rem 0.75rem; }
+.progress { height: 6px; }
+.progress-bar { border-radius: 3px; }
 </style>
 
 <!-- Tool State Cards Grid -->
@@ -321,6 +324,7 @@ WIP
 <div class="p-2 border rounded-3 bg-body-tertiary">
 <div class="text-muted fw-bold mb-1" style="font-size: 9px;">Target OPT</div>
 <div class="h6 fw-bold m-0">3000<small class="fw-normal text-muted">cnts</small></div>
+</div>
 </div>
 </div>
 <button class="btn <?= htmlspecialchars($badge['class']) ?> w-100 fw-bold py-2 mb-3 shadow-sm"
@@ -648,10 +652,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const borders = JSON.parse(canvas.dataset.chartBorders || '[]');
             new Chart(canvas, {
                 type: 'bar',
-                data: {
+                 {
                     labels: labels,
                     datasets: [{
-                        data: values,
+                         values,
                         backgroundColor: colors,
                         borderColor: borders,
                         borderWidth: { top: 2, right: 0, bottom: 0, left: 0 },
