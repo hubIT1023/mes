@@ -10,7 +10,7 @@ class DocsController {
      * Renders the Step-by-Step Monitoring Dashboard Setup Guide
      */
     public function setupGuide() {
-        $this->renderView('setup-guide.php');
+        $this->renderView('setup_guide.php');
     }
 
     /**
