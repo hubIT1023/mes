@@ -522,56 +522,58 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 <!-- STANDING ISSUE MODAL -->
 <div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-	<form id="AddPartsForm" method="POST" action="#" enctype="multipart/form-data">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Post Standing Issue</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-                <div class="modal-body">
-					 <input type="hidden" name="csrf_token" 	value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="org_id" 		value="<?= htmlspecialchars($org_id) ?>">
-					<input type="hidden" name="asset_id" 		id="si_asset_id">
-                    <input type="hidden" name="asset_id" 		id="ap_modal_asset_id_hidden">
-                    <input type="hidden" name="entity" 			id="ap_modal_entity_hidden">
-                    <input type="hidden" name="group_code" 		id="ap_modal_group_code">
-                    <input type="hidden" name="location_code" 	id="ap_modal_location_code">
-                    <input type="hidden" name="col_1" 			id="ap_modal_asset_id">
-                    <input type="hidden" name="col_6" 			id="ap_modal_date_time">
-                    <input type="hidden" name="col_7" 			id="ap_modal_start_time">
-					
-					
-					<div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label">Location</label>
-                            <input type="text" id="ap_modal_location" class="form-control" readonly />
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label">Entity</label>
-                            <input type="text" id="ap_ipt_entity" name="col_2" class="form-control" readonly />
-                        </div>
-                        <div class="col">
-                            <label class="form-label">Asset ID</label>
-                            <input type="text" id="ap_modal_asset_id_display" class="form-control" readonly />
-                        </div>
-                   
-                    <div class="mb-3">
-                        <label class="form-label">Issue Description</label>
-                        <textarea class="form-control" rows="3" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Reported By</label>
-                        <input class="form-control" placeholder="Your name" required>
-                    </div>
-                    <button type="submit" class="btn btn-danger w-100">Post Issue</button>
-                </div>
-            </form>
+  <div class="modal-dialog modal-md">
+    <form id="standingIssueForm" method="POST" action="/mes/post-standing-issue">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">Post Standing Issue</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-    </div>
+        <div class="modal-body">
+          <!-- Hidden context fields -->
+          <input type="hidden" name="csrf_token" 	value="<?= htmlspecialchars($csrfToken) ?>">
+          <input type="hidden" name="org_id" 		value="<?= htmlspecialchars($org_id) ?>">
+          <input type="hidden" name="asset_id" 		id="si_asset_id_hidden">
+          <input type="hidden" name="entity" 		id="si_entity_hidden">
+          <input type="hidden" name="group_code" 	id="si_group_code">
+          <input type="hidden" name="location_code" id="si_location_code">
+          <input type="hidden" name="col_1" 		id="si_asset_id_display_hidden"> <!-- matches col_1 in DB -->
+          <input type="hidden" name="col_6" 		id="si_date_time">
+          <input type="hidden" name="col_7" 		id="si_start_time">
+
+          <!-- Display-only fields -->
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label">Location</label>
+              <input type="text" id="si_location_display" class="form-control" readonly />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label">Entity</label>
+              <input type="text" id="si_entity_display" name="col_2" class="form-control" readonly />
+            </div>
+            <div class="col">
+              <label class="form-label">Asset ID</label>
+              <input type="text" id="si_asset_id_display" class="form-control" readonly />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Issue Description</label>
+            <textarea name="col_4" class="form-control" rows="3" placeholder="Describe the standing issue..." required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Reported By</label>
+            <input name="col_8" class="form-control" placeholder="Your name" required>
+          </div>
+
+          <button type="submit" class="btn btn-danger w-100">Post Issue</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- ASSOCIATE PARTS MODAL (Full Form) -->
@@ -926,9 +928,23 @@ actionModals.forEach(modalId => {
                 document.getElementById('lw_group_code').value = ctx.groupCode;
                 document.getElementById('lw_location_code').value = ctx.locationCode;
             } else if (modalId === 'standingIssueModal') {
-                document.getElementById('si_asset_id').value = ctx.assetId;
-				
-            } else if (modalId === 'associateAccessoriesModal') {
+				const ctx = currentEntityContext;
+				document.getElementById('si_asset_id_hidden').value = ctx.assetId;
+				document.getElementById('si_entity_hidden').value = ctx.entity;
+				document.getElementById('si_group_code').value = ctx.groupCode;
+				document.getElementById('si_location_code').value = ctx.locationCode;
+				document.getElementById('si_date_time').value = ctx.dateTime;
+				document.getElementById('si_start_time').value = ctx.dateTime;
+				document.getElementById('si_asset_id_display_hidden').value = ctx.assetId;
+
+				// Display fields
+				document.getElementById('si_entity_display').value = ctx.entity;
+				document.getElementById('si_asset_id_display').value = ctx.assetId;
+				document.getElementById('si_location_display').value = ctx.locationName;
+
+				// Optional: Update modal title dynamically
+				document.querySelector('#standingIssueModal .modal-title').textContent = 'Post Standing Issue: ' + ctx.entity;
+			} else if (modalId === 'associateAccessoriesModal') {
                 document.getElementById('acc_asset_id').value = ctx.assetId;
                 document.getElementById('acc_entity').value = ctx.entity;
                 document.getElementById('acc_entity_display').value = ctx.entity;
