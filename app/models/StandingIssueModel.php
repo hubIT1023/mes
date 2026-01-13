@@ -17,36 +17,34 @@ class StandingIssueModel
      */
     public function insertStandingIssue(array $data): void
     {
-        // Explicitly list allowed columns to prevent injection via extra POST fields
-        $columns = [
-            'org_id',
-            'group_code',
-            'location_code',
-            'col_1',
-            'col_2',
-            'col_6',
-            'col_12',
-            'col_13',
-            'col_14',
-            'col_15',
-            'col_16',
-            'col_17',
-            'col_18',
-            'col_19'
+        $allowedColumns = [
+            'org_id', 'group_code', 'location_code',
+            'col_1', 'col_2', 'col_6', 'col_12', 'col_13',
+            'col_14', 'col_15', 'col_16', 'col_17', 'col_18', 'col_19'
         ];
 
-        // Build dynamic INSERT with only allowed keys
-        $insertData = array_intersect_key($data, array_flip($columns));
+        // Filter to allowed columns only
+        $insertData = array_intersect_key($data, array_flip($allowedColumns));
 
-        // Remove any null values (PostgreSQL handles NULL, but optional)
-        // Alternatively, keep them — your schema allows NULL
+        // Separate NULL and non-NULL values for PostgreSQL compatibility
+        $nonNullData = [];
+        $placeholders = [];
 
-        $placeholders = ':' . implode(', :', array_keys($insertData));
-        $cols = implode(', ', array_keys($insertData));
+        foreach ($insertData as $key => $value) {
+            if ($value === null) {
+                $placeholders[] = 'NULL';
+            } else {
+                $placeholders[] = ":{$key}";
+                $nonNullData[$key] = $value;
+            }
+        }
 
-        $sql = "INSERT INTO machine_log ({$cols}) VALUES ({$placeholders})";
+        $columns = implode(', ', array_keys($insertData));
+        $placeholderStr = implode(', ', $placeholders);
+
+        $sql = "INSERT INTO machine_log ({$columns}) VALUES ({$placeholderStr})";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute($insertData);
+        $stmt->execute($nonNullData);
     }
 }

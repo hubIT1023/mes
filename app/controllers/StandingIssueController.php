@@ -3,8 +3,6 @@
 
 require_once __DIR__ . '/../models/StandingIssueModel.php';
 
-use Exception; // 👈 ADD THIS
-
 class StandingIssueController
 {
     private StandingIssueModel $model;
@@ -67,7 +65,7 @@ class StandingIssueController
         try {
             $this->model->insertStandingIssue($data);
             $_SESSION['success'] = "✅ Standing issue posted successfully.";
-        } catch (Exception $e) { // Now works!
+        } catch (Exception $e) {
             error_log("StandingIssue insert error: " . $e->getMessage());
             $_SESSION['error'] = "Failed to post standing issue. Please try again.";
         }
