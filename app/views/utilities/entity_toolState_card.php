@@ -521,7 +521,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 
 <!-- STANDING ISSUE MODAL -->
-
+<div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
 <div class="modal fade" id="standingIssueModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
    <div class="modal-dialog modal-md">
         <form id="AddPartsForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
@@ -938,17 +938,7 @@ actionModals.forEach(modalId => {
                 document.getElementById('lw_group_code').value = ctx.groupCode;
                 document.getElementById('lw_location_code').value = ctx.locationCode;
             } else if (modalId === 'standingIssueModal') {
-                // ✅ FIXED: Populate the correct ap_* fields used in the standing issue form
-                document.getElementById('ap_ipt_entity').value = ctx.entity;
-                document.getElementById('ap_modal_asset_id').value = ctx.assetId;
-                document.getElementById('ap_modal_asset_id_display').value = ctx.assetId;
-                document.getElementById('ap_modal_group_code').value = ctx.groupCode;
-                document.ge…n').value = ctx.locationName;
-                document.getElementById('ap_modal_date_time').value = ctx.dateTime;
-                document.getElementById('ap_modal_start_time').value = ctx.dateTime;
-                document.getElementById('ap_modal_asset_id_hidden').value = ctx.assetId;
-                document.getElementById('ap_modal_entity_hidden').value = ctx.entity;
-                document.querySelector('#standingIssueModal .modal-title').textContent = 'Post Standing Issue: ' + ctx.entity;
+                document.getElementById('si_asset_id').value = ctx.assetId;
             } else if (modalId === 'associateAccessoriesModal') {
                 document.getElementById('acc_asset_id').value = ctx.assetId;
                 document.getElementById('acc_entity').value = ctx.entity;
