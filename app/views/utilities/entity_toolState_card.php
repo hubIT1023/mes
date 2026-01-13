@@ -525,7 +525,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
   <div class="modal-dialog modal-md">
     <form id="standingIssueForm" method="POST" action="/mes/post-standing-issue">
       <div class="modal-content">
-        <div class="modal-header bg-warning text-white">
+        <div class="modal-header bg-primary text-white">
           <h5 class="modal-title">Post Standing Issue</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
