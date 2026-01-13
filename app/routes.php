@@ -143,7 +143,7 @@ $reportRoutes = [
 
 // --- Standing Issue ---
 $standingIssueRoutes = [
-    'POST /post-standing-issue' => ['StandingIssueController', 'store'],
+    'POST /mes/post-standing-issue' => ['StandingIssueController', 'store'],
 ];
 
 // --- Merge all routes ---
