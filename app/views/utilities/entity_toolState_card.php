@@ -799,6 +799,83 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- JavaScript: Unified data flow for ALL modals -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const charts = document.querySelectorAll('.downtime-chart');
+    
+    charts.forEach(canvas => {
+        try {
+            // 1. Parse all data attributes at once
+            const values = JSON.parse(canvas.dataset.chartValues || '[]');
+            const labels = JSON.parse(canvas.dataset.chartLabels || '[]');
+            const notes  = JSON.parse(canvas.dataset.chartNotes  || '[]');
+            const colors = JSON.parse(canvas.dataset.chartColors || '[]');
+            const borders = JSON.parse(canvas.dataset.chartBorders || '[]');
+
+            // 2. Initialize the Chart
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: labels, 
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: borders,
+                        borderWidth: { top: 2, right: 0, bottom: 0, left: 0 },
+                        borderRadius: 3,
+                        barPercentage: 0.8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 10,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const value = context.parsed.y;
+                                    const reason = notes[index] || 'No reason specified';
+                                    
+                                    // Returns an array for multi-line display
+                                    return [
+                                        'Downtime: ' + value + 'h',
+                                        'Reason: ' + reason
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: { 
+                            display: false, 
+                            beginAtZero: true,
+                            suggestedMax: Math.max(...values, 10) 
+                        }
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("Chart initialization failed for element:", canvas, e);
+        }
+    });
+});
+</script>
+
+
+
+<script>
 let currentEntityContext = null;
 
 // Capture context from ANY button with data attributes
