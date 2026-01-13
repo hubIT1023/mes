@@ -540,6 +540,24 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     <input type="hidden" name="col_1" 			id="ap_modal_asset_id">
                     <input type="hidden" name="col_6" 			id="ap_modal_date_time">
                     <input type="hidden" name="col_7" 			id="ap_modal_start_time">
+					
+					
+					<div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="ap_modal_location" class="form-control" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Entity</label>
+                            <input type="text" id="ap_ipt_entity" name="col_2" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Asset ID</label>
+                            <input type="text" id="ap_modal_asset_id_display" class="form-control" readonly />
+                        </div>
                    
                     <div class="mb-3">
                         <label class="form-label">Issue Description</label>
