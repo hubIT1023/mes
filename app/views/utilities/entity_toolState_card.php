@@ -541,6 +541,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
           <input type="hidden" name="location_code" id="si_location_code">
 
           <!-- Standing Issue Specific Fields -->
+		  
           <input type="hidden" name="col_12" value="STANDING_ISSUE"> <!-- Flag -->
           <input type="hidden" name="col_16" id="si_timestamp_start"> <!-- Start time -->
 
@@ -565,16 +566,18 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
           <!-- Status -->
           <div class="mb-3">
-            <label class="form-label">Status</label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="col_13" id="status-active" value="ACTIVE" checked>
-              <label class="form-check-label" for="status-active">Active</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="col_13" id="status-done" value="DONE">
-              <label class="form-check-label" for="status-done">Action(s) Done</label>
-            </div>
-          </div>
+		  <label class="form-label">Status</label>
+		  <div>
+			<div class="form-check form-check-inline">
+			  <input class="form-check-input" type="radio" name="col_13" id="status-active" value="ACTIVE" checked>
+			  <label class="form-check-label" for="status-active">Active</label>
+			</div>
+			<div class="form-check form-check-inline">
+			  <input class="form-check-input" type="radio" name="col_13" id="status-done" value="DONE">
+			  <label class="form-check-label" for="status-done">Action(s) Done</label>
+			</div>
+		  </div>
+		</div>
 
           <!-- Issue Description -->
           <div class="mb-3">
