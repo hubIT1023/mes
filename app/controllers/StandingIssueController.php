@@ -1,4 +1,4 @@
-<<?php
+<?php
 // app/controllers/StandingIssueController.php
 
 require_once __DIR__ . '/../models/StandingIssueModel.php';
