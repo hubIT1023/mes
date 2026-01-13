@@ -382,7 +382,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- SHARED MODALS -->
 <!-- =============================== -->
 
-<?phpinclude __DIR__ . '/../modals/post_standing_issue.php'; ?>
+<?php include __DIR__ . '/../modals/post_standing_issue.php'; ?>
 
 
 <!-- associateAcc-PartsModal -->
