@@ -707,129 +707,93 @@ Maint Log
 <!-- JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const charts = document.querySelectorAll('.downtime-chart');
-    charts.forEach(canvas => {
-        try {
-            const values = JSON.parse(canvas.dataset.chartValues || '[]');
-            const labels = JSON.parse(canvas.dataset.chartLabels || '[]');
-            const notes  = JSON.parse(canvas.dataset.chartNotes  || '[]');
-            const colors = JSON.parse(canvas.dataset.chartColors || '[]');
-            const borders = JSON.parse(canvas.dataset.chartBorders || '[]');
-            new Chart(canvas, {
-                type: 'bar',
-                 {
-                    labels: labels,
-                    datasets: [{
-                         values,
-                        backgroundColor: colors,
-                        borderColor: borders,
-                        borderWidth: { top: 2, right: 0, bottom: 0, left: 0 },
-                        borderRadius: 3,
-                        barPercentage: 0.8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            enabled: true,
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 10,
-                            callbacks: {
-                                title: ctx => ctx[0].label,
-                                label: ctx => {
-                                    const reason = (JSON.parse(canvas.dataset.chartNotes || '[]')[ctx.dataIndex]) || 'No reason';
-                                    return [`Downtime: ${ctx.parsed.y}h`, `Reason: ${reason}`];
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { display: false },
-                        y: { display: false, beginAtZero: true, suggestedMax: Math.max(...values, 10) }
-                    }
-                }
-            });
-        } catch (e) {
-            console.error("Chart init failed:", e);
+let currentEntityContext = null;
+
+// Capture context from ANY button with data attributes
+function captureContext(btn) {
+    return {
+        assetId: btn.getAttribute('data-asset-id'),
+        entity: btn.getAttribute('data-header'),
+        groupCode: btn.getAttribute('data-group-code'),
+        locationCode: btn.getAttribute('data-location-code'),
+        locationName: btn.getAttribute('data-location-name'),
+        dateTime: btn.getAttribute('data-date')
+    };
+}
+
+// Handle both setMaintModal and associateAcc-PartsModal
+['setMaintModal', 'associateAcc-PartsModal'].forEach(modalId => {
+    const el = document.getElementById(modalId);
+    el?.addEventListener('show.bs.modal', e => {
+        const btn = e.relatedTarget;
+        if (btn?.hasAttribute('data-asset-id')) {
+            currentEntityContext = captureContext(btn);
         }
     });
+});
 
-    let currentEntityContext = null;
+// Handle all action modals
+const actionModals = [
+    'changeStateModal',
+    'standingIssueModal',
+    'associateAccessoriesModal',
+    'associatePartsModal',
+    'LoadWorkModal'
+];
 
-    function captureContext(btn) {
-        return {
-            assetId: btn.getAttribute('data-asset-id'),
-            entity: btn.getAttribute('data-header'),
-            groupCode: btn.getAttribute('data-group-code'),
-            locationCode: btn.getAttribute('data-location-code'),
-            locationName: btn.getAttribute('data-location-name'),
-            dateTime: btn.getAttribute('data-date')
-        };
-    }
+actionModals.forEach(modalId => {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
 
-    ['setMaintModal', 'associateAcc-PartsModal'].forEach(id => {
-        const el = document.getElementById(id);
-        el?.addEventListener('show.bs.modal', e => {
-            const btn = e.relatedTarget;
-            if (btn?.hasAttribute('data-asset-id')) {
-                currentEntityContext = captureContext(btn);
-            }
-        });
-    });
+    modal.addEventListener('show.bs.modal', e => {
+        const btn = e.relatedTarget;
 
-    const modalMap = {
-        'LoadWorkModal': 'lw',
-        'standingIssueModal': 'ts',   // ← Key fix: use 'ts' prefix for standingIssueModal
-        'associatePartsModal': 'ap',
-        'changeStateModal': 'ts'
-    };
+        // Direct trigger
+        if (btn.hasAttribute('data-asset-id')) {
+            currentEntityContext = captureContext(btn);
+        }
 
-    Object.keys(modalMap).forEach(modalId => {
-        const modal = document.getElementById(modalId);
-        if (!modal) return;
-        modal.addEventListener('show.bs.modal', e => {
-            const btn = e.relatedTarget;
-            const ctx = (btn?.hasAttribute('data-asset-id'))
-                ? captureContext(btn)
-                : (btn?.hasAttribute('data-use-stored-context') && currentEntityContext)
-                    ? currentEntityContext
-                    : null;
-            if (!ctx) return;
+        // From gateway modals
+        if (btn.hasAttribute('data-use-stored-context') && currentEntityContext) {
+            const ctx = currentEntityContext;
 
-            const p = modalMap[modalId];
+            // Helper to safely set value if element exists
+            const setIf = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.value = value;
+            };
+
             // Populate hidden fields
-            if (document.getElementById(`${p}_modal_asset_id`)) {
-                document.getElementById(`${p}_modal_asset_id`).value = ctx.assetId;
+            if (document.getElementById(`${modalId}_modal_asset_id`)) {
+                document.getElementById(`${modalId}_modal_asset_id`).value = ctx.assetId;
             }
-            if (document.getElementById(`${p}_modal_entity`)) {
-                document.getElementById(`${p}_modal_entity`).value = ctx.entity;
+            if (document.getElementById(`${modalId}_modal_entity`)) {
+                document.getElementById(`${modalId}_modal_entity`).value = ctx.entity;
             }
-            if (document.getElementById(`${p}_modal_group_code`)) {
-                document.getElementById(`${p}_modal_group_code`).value = ctx.groupCode;
+            if (document.getElementById(`${modalId}_modal_group_code`)) {
+                document.getElementById(`${modalId}_modal_group_code`).value = ctx.groupCode;
             }
-            if (document.getElementById(`${p}_modal_location_code`)) {
-                document.getElementById(`${p}_modal_location_code`).value = ctx.locationCode;
+            if (document.getElementById(`${modalId}_modal_location_code`)) {
+                document.getElementById(`${modalId}_modal_location_code`).value = ctx.locationCode;
+            }
+            if (document.getElementById(`${modalId}_modal_date_time`)) {
+                document.getElementById(`${modalId}_modal_date_time`).value = ctx.dateTime;
             }
 
-            // Populate display fields
-            if (document.getElementById(`${p}_modal_location`)) {
-                document.getElementById(`${p}_modal_location`).value = ctx.locationName;
+            // Populate display fields (readonly)
+            if (document.getElementById(`${modalId}_modal_location`)) {
+                document.getElementById(`${modalId}_modal_location`).value = ctx.locationName;
             }
-            if (document.getElementById(`${p}_modal_group`)) {
-                document.getElementById(`${p}_modal_group`).value = ctx.groupCode;
+            if (document.getElementById(`${modalId}_modal_group`)) {
+                document.getElementById(`${modalId}_modal_group`).value = ctx.groupCode;
             }
-            if (document.getElementById(`${p}_modal_asset_id_display`)) {
-                document.getElementById(`${p}_modal_asset_id_display`).value = ctx.assetId;
+            if (document.getElementById(`${modalId}_modal_asset_id_display`)) {
+                document.getElementById(`${modalId}_modal_asset_id_display`).value = ctx.assetId;
             }
-            if (document.getElementById(`${p}_ipt_entity`)) {
-                document.getElementById(`${p}_ipt_entity`).value = ctx.entity;
+            if (document.getElementById(`${modalId}_ipt_entity`)) {
+                document.getElementById(`${modalId}_ipt_entity`).value = ctx.entity;
             }
-        });
+        }
     });
 });
 </script>
