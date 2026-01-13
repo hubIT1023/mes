@@ -521,35 +521,9 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 
 <!-- STANDING ISSUE MODAL -->
-<!--div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Post Standing Issue</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form>
-                <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="asset_id" id="si_asset_id">
-                    <div class="mb-3">
-                        <label class="form-label">Issue Description</label>
-                        <textarea class="form-control" rows="3" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Reported By</label>
-                        <input class="form-control" placeholder="Your name" required>
-                    </div>
-                    <button type="submit" class="btn btn-danger w-100">Post Issue</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div-->
 
-<!-- ASSOCIATE PARTS MODAL (Full Form) -->
-<div class="modal fade" id="associatePartsModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
+<div class="modal fade" id="standingIssueModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-md">
         <form id="AddPartsForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
@@ -583,6 +557,72 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <label class="form-label">Asset ID</label>
                             <input type="text" id="ap_modal_asset_id_display" class="form-control" readonly />
                         </div>
+                        <div class="col">
+                            <label class="form-label">Maker</label>
+                            <input type="text" name="mfg_code" class="form-control" placeholder="ex. Akim">
+                        </div>
+                    </div>
+
+                    <hr class="divider my-0 mb-3">
+                    <div class="mb-3">
+                        <label class="form-label">Issue Description</label>
+                        <textarea class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reported By</label>
+                        <input class="form-control" placeholder="Your name" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Post Issue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ASSOCIATE PARTS MODAL (Full Form) -->
+<div class="modal fade" id="associatePartsModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-md">
+        <form id="AddPartsForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="associatePartsModalLabel">Associate Machine Parts</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="asset_id" id="ap_modal_asset_id_hidden">
+                    <input type="hidden" name="entity" id="ap_modal_entity_hidden">
+                    <input type="hidden" name="group_code" id="ap_modal_group_code">
+                    <input type="hidden" name="location_code" id="ap_modal_location_code">
+                    <input type="hidden" name="col_1" id="ap_modal_asset_id">
+                    <input type="hidden" name="col_6" id="ap_modal_date_time">
+                    <input type="hidden" name="col_7" id="ap_modal_start_time">
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="ap_modal_location" class="form-control" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Entity</label>
+                            <input type="text" id="ap_ipt_entity" name="col_2" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Asset ID</label>
+                            <input type="text" id="ap_modal_asset_id_display" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Maker</label>
+                            <input type="text" name="mfg_code" class="form-control" placeholder="ex. Akim">
+                        </div>
+                    </div>
+
+                    <hr class="divider my-0 mb-3">
+						
                         <div class="col">
                             <label class="form-label">Maker</label>
                             <input type="text" name="mfg_code" class="form-control" placeholder="ex. Akim">
@@ -759,83 +799,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- JavaScript: Unified data flow for ALL modals -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const charts = document.querySelectorAll('.downtime-chart');
-    
-    charts.forEach(canvas => {
-        try {
-            // 1. Parse all data attributes at once
-            const values = JSON.parse(canvas.dataset.chartValues || '[]');
-            const labels = JSON.parse(canvas.dataset.chartLabels || '[]');
-            const notes  = JSON.parse(canvas.dataset.chartNotes  || '[]');
-            const colors = JSON.parse(canvas.dataset.chartColors || '[]');
-            const borders = JSON.parse(canvas.dataset.chartBorders || '[]');
-
-            // 2. Initialize the Chart
-            new Chart(canvas, {
-                type: 'bar',
-                data: {
-                    labels: labels, 
-                    datasets: [{
-                        data: values,
-                        backgroundColor: colors,
-                        borderColor: borders,
-                        borderWidth: { top: 2, right: 0, bottom: 0, left: 0 },
-                        borderRadius: 3,
-                        barPercentage: 0.8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            enabled: true,
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 10,
-                            callbacks: {
-                                title: function(context) {
-                                    return context[0].label;
-                                },
-                                label: function(context) {
-                                    const index = context.dataIndex;
-                                    const value = context.parsed.y;
-                                    const reason = notes[index] || 'No reason specified';
-                                    
-                                    // Returns an array for multi-line display
-                                    return [
-                                        'Downtime: ' + value + 'h',
-                                        'Reason: ' + reason
-                                    ];
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { display: false },
-                        y: { 
-                            display: false, 
-                            beginAtZero: true,
-                            suggestedMax: Math.max(...values, 10) 
-                        }
-                    }
-                }
-            });
-        } catch (e) {
-            console.error("Chart initialization failed for element:", canvas, e);
-        }
-    });
-});
-</script>
-
-
-
-<script>
 let currentEntityContext = null;
 
 // Capture context from ANY button with data attributes
@@ -865,8 +828,11 @@ function captureContextFromButton(btn) {
 
 // Handle all action modals
 const actionModals = [
-    'changeStateModal', 'standingIssueModal', 'associateAccessoriesModal',
-    'associatePartsModal', 'LoadWorkModal'
+    'changeStateModal',
+    'standingIssueModal',
+    'associateAccessoriesModal',
+    'associatePartsModal',
+    'LoadWorkModal'
 ];
 
 actionModals.forEach(modalId => {
@@ -876,36 +842,41 @@ actionModals.forEach(modalId => {
     modal.addEventListener('show.bs.modal', function (event) {
         const btn = event.relatedTarget;
 
-        // Direct trigger
+        // Direct trigger: capture fresh context
         if (btn.hasAttribute('data-asset-id')) {
             currentEntityContext = captureContextFromButton(btn);
         }
 
-        // From gateway modals
+        // Triggered via gateway modal → use stored context
         if (btn.hasAttribute('data-use-stored-context') && currentEntityContext) {
             const ctx = currentEntityContext;
-            const prefixMap = {
-                'LoadWorkModal': 'lw',
-                'standingIssueModal': 'si',
-                'associateAccessoriesModal': 'acc',
-                'associatePartsModal': 'ap'
-            };
 
-            // Handle simple modals
             if (modalId === 'LoadWorkModal') {
                 document.getElementById('lw_asset_id').value = ctx.assetId;
                 document.getElementById('lw_entity').value = ctx.entity;
                 document.getElementById('lw_group_code').value = ctx.groupCode;
                 document.getElementById('lw_location_code').value = ctx.locationCode;
-            } else if (modalId === 'standingIssueModal') {
-                document.getElementById('si_asset_id').value = ctx.assetId;
+
             } else if (modalId === 'associateAccessoriesModal') {
                 document.getElementById('acc_asset_id').value = ctx.assetId;
                 document.getElementById('acc_entity').value = ctx.entity;
                 document.getElementById('acc_entity_display').value = ctx.entity;
-            }
-            // Handle full-form modals
-            else if (modalId === 'associatePartsModal') {
+
+            } else if (modalId === 'standingIssueModal') {
+                // ✅ FIXED: Populate the correct ap_* fields used in the standing issue form
+                document.getElementById('ap_ipt_entity').value = ctx.entity;
+                document.getElementById('ap_modal_asset_id').value = ctx.assetId;
+                document.getElementById('ap_modal_asset_id_display').value = ctx.assetId;
+                document.getElementById('ap_modal_group_code').value = ctx.groupCode;
+                document.getElementById('ap_modal_location_code').value = ctx.locationCode;
+                document.getElementById('ap_modal_location').value = ctx.locationName;
+                document.getElementById('ap_modal_date_time').value = ctx.dateTime;
+                document.getElementById('ap_modal_start_time').value = ctx.dateTime;
+                document.getElementById('ap_modal_asset_id_hidden').value = ctx.assetId;
+                document.getElementById('ap_modal_entity_hidden').value = ctx.entity;
+                document.querySelector('#standingIssueModal .modal-title').textContent = 'Post Standing Issue: ' + ctx.entity;
+
+            } else if (modalId === 'associatePartsModal') {
                 document.getElementById('ap_ipt_entity').value = ctx.entity;
                 document.getElementById('ap_modal_asset_id').value = ctx.assetId;
                 document.getElementById('ap_modal_asset_id_display').value = ctx.assetId;
@@ -917,6 +888,7 @@ actionModals.forEach(modalId => {
                 document.getElementById('ap_modal_asset_id_hidden').value = ctx.assetId;
                 document.getElementById('ap_modal_entity_hidden').value = ctx.entity;
                 document.getElementById('associatePartsModalLabel').textContent = 'Add Part to: ' + ctx.entity;
+
             } else if (modalId === 'changeStateModal') {
                 document.getElementById('ts_ipt_entity').value = ctx.entity;
                 document.getElementById('ts_modal_asset_id').value = ctx.assetId;
@@ -925,32 +897,25 @@ actionModals.forEach(modalId => {
                 document.getElementById('ts_modal_location_code').value = ctx.locationCode;
                 document.getElementById('ts_modal_location').value = ctx.locationName;
                 document.getElementById('ts_modal_group').value = ctx.groupCode;
-                document.getElementById('ts_modal_date_time').value = ctx.dateTime;
-                document.getElementById('ts_modal_start_time').value = ctx.dateTime;
+                // Note: ts_modal_date_time doesn't exist; using current time on backend is fine
                 document.getElementById('changeStateModalLabel').textContent = 'Change Mode: ' + ctx.entity;
             }
         }
     });
 });
 
-
-
 function handleStopCauseChange(value) {
     const container = document.getElementById('customInputContainer');
     const select = document.getElementById('ts_modal_stopcause');
     const customInput = document.getElementById('ts_customInput');
-
     if (value === 'CUSTOM') {
         container.style.display = 'block';
-        // Transfer 'name' to custom input
         select.removeAttribute('name');
         customInput.setAttribute('name', 'col_3');
     } else {
         container.style.display = 'none';
-        // Restore 'name' to select
         select.setAttribute('name', 'col_3');
         customInput.removeAttribute('name');
     }
 }
-
 </script>
