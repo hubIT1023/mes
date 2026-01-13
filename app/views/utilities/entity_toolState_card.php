@@ -468,7 +468,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div>
 
 <!-- ASSOCIATE ACCESSORIES (Simple version) -->
-<!--div class="modal fade" id="associateAccessoriesModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="associateAccessoriesModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
@@ -477,8 +477,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </div>
             <form>
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<? //= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="org_id" value="<? //= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="csrf_token" value="<? = htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" value="<? = htmlspecialchars($org_id) ?>">
                     <input type="hidden" name="asset_id" id="acc_asset_id">
                     <input type="hidden" name="entity" id="acc_entity">
                     <input class="form-control mb-2" type="text" name="entity_display" id="acc_entity_display" readonly>
@@ -490,7 +490,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </form>
         </div>
     </div>
-</div-->
+</div>
 
 <!-- LOAD WORK MODAL -->
 <div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-hidden="true">
