@@ -1,4 +1,9 @@
-<?php require __DIR__ . '/../layouts/html/header.php'; ?>
+<?php 
+// machine_logs.php
+
+require __DIR__ . '/../layouts/html/header.php'; 
+
+?>
 
 <div class="container-fluid mt-4 px-4">
 
@@ -70,19 +75,31 @@
                 <?php else: ?>
                     <?php foreach ($logs as $log): ?>
                         <tr>
+                            <!-- Use created_at for event time (add this column if missing) -->
                             <td class="text-nowrap small text-muted">
-                                <?= date('M d, Y H:i:s', strtotime($log['event_time'])) ?>
+                                <?= date('M d, Y H:i:s', strtotime($log['created_at'] ?? '')) ?>
                             </td>
-                            <td><span class="badge bg-light text-dark border"><?= htmlspecialchars($log['asset_id']) ?></span></td>
-                            <td><?= htmlspecialchars($log['entity']) ?></td>
                             <td>
-                                <span class="fw-semibold"><?= htmlspecialchars($log['stopcause_start']) ?></span>
+                                <span class="badge bg-light text-dark border">
+                                    <?= htmlspecialchars($log['col_1'] ?? '') ?> <!-- asset_id -->
+                                </span>
                             </td>
-                            <td class="text-wrap" style="max-width: 250px;"><?= htmlspecialchars($log['reason']) ?></td>
-                            <td class="text-wrap" style="max-width: 250px;"><?= htmlspecialchars($log['action']) ?></td>
+                            <td><?= htmlspecialchars($log['col_2'] ?? '') ?></td> <!-- entity -->
+                            <td>
+                                <span class="fw-semibold">
+                                    <?= htmlspecialchars($log['col_10'] ?? '') ?> <!-- stopcause_start -->
+                                </span>
+                            </td>
+                            <td class="text-wrap" style="max-width: 250px;">
+                                <?= htmlspecialchars($log['col_4'] ?? '') ?> <!-- reason -->
+                            </td>
+                            <td class="text-wrap" style="max-width: 250px;">
+                                <?= htmlspecialchars($log['col_5'] ?? '') ?> <!-- action -->
+                            </td>
                             <td>
                                 <?php 
-                                    $status = strtolower($log['status']);
+                                    // Status = col_11
+                                    $status = strtolower($log['col_11'] ?? '');
                                     $badgeClass = match($status) {
                                         'completed', 'closed' => 'bg-success',
                                         'open', 'pending' => 'bg-warning text-dark',
@@ -90,10 +107,13 @@
                                         default => 'bg-secondary'
                                     };
                                 ?>
-                                <span class="badge <?= $badgeClass ?> uppercase"><?= strtoupper($status) ?></span>
+                                <span class="badge <?= $badgeClass ?> uppercase">
+                                    <?= strtoupper($status ?: 'N/A') ?>
+                                </span>
                             </td>
                             <td class="small">
-                                <i class="bi bi-person text-muted"></i> <?= htmlspecialchars($log['reported_by']) ?>
+                                <i class="bi bi-person text-muted"></i> 
+                                <?= htmlspecialchars($log['col_8'] ?? '') ?> <!-- person_reported -->
                             </td>
                         </tr>
                     <?php endforeach; ?>
