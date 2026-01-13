@@ -174,7 +174,9 @@ style="min-width: 280px;">
 </div>
 <div>
 <div class="fw-bold text-danger small">Breakdown Issue(s)</div>
-<div class="text-muted small">Motor Overheat Detected</div>
+<div class="text-muted small">
+Motor Overheat Detected
+</div>
 </div>
 </a>
 <a class="dropdown-item d-flex align-items-center py-3 border-bottom" href="#">
@@ -185,7 +187,9 @@ style="min-width: 280px;">
 </div>
 <div>
 <div class="fw-bold text-danger small">Downtime</div>
-<div class="text-muted small">02h 45m</div>
+<div class="text-muted small">
+02h 45m
+</div>
 </div>
 </a>
 <a class="dropdown-item d-flex align-items-center py-3" href="#">
@@ -196,7 +200,9 @@ style="min-width: 280px;">
 </div>
 <div>
 <div class="fw-bold text-warning small">Standing Issue(s)</div>
-<div class="text-muted small">Pending Part Replacement</div>
+<div class="text-muted small">
+Pending Part Replacement
+</div>
 </div>
 </a>
 </div>
@@ -328,7 +334,7 @@ value="<?= (int)$entity['col_pos'] ?>" min="1" max="9" required>
 <!-- SHARED MODALS -->
 <!-- =============================== -->
 
-<!-- Gateway Modal: Parts vs Accessories -->
+<!-- associateAcc-PartsModal -->
 <div class="modal fade" id="associateAcc-PartsModal" tabindex="-1" aria-labelledby="associateAccPartsModalLabel" aria-hidden="true">
 <div class="modal-dialog modal-sm modal-dialog-centered">
 <div class="modal-content">
@@ -358,7 +364,7 @@ ASSOCIATE PARTS
 </div>
 </div>
 
-<!-- Gateway Modal: More Actions -->
+<!-- setMaintModal -->
 <div class="modal fade" id="setMaintModal" tabindex="-1" aria-labelledby="setMaintModalLabel" aria-hidden="true">
 <div class="modal-dialog modal-sm modal-dialog-centered">
 <div class="modal-content">
@@ -405,15 +411,13 @@ Maint Log
 </div>
 <form method="POST" action="/mes/load-work">
 <div class="modal-body">
-    <!-- Hidden Fields -->
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
     <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-    <input type="hidden" name="asset_id" id="lw_modal_asset_id">
-    <input type="hidden" name="entity" id="lw_modal_entity">
-    <input type="hidden" name="group_code" id="lw_modal_group_code">
-    <input type="hidden" name="location_code" id="lw_modal_location_code">
+    <input type="hidden" name="asset_id" id="lw_asset_id">
+    <input type="hidden" name="entity" id="lw_entity">
+    <input type="hidden" name="group_code" id="lw_group_code">
+    <input type="hidden" name="location_code" id="lw_location_code">
 
-    <!-- Display Fields -->
     <div class="row mb-3">
         <div class="col">
             <label class="form-label">Location</label>
@@ -438,7 +442,6 @@ Maint Log
 
     <hr class="divider my-0 mb-3">
 
-    <!-- Work Fields -->
     <input class="form-control mb-2" name="material_no" placeholder="Material No." required>
     <input class="form-control mb-2" name="quantity" type="number" min="1" placeholder="Quantity" required>
     <input class="form-control mb-2" name="operator" placeholder="Operator" required>
@@ -459,24 +462,22 @@ Maint Log
 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">
-    <!-- Hidden Fields -->
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
     <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-    <input type="hidden" name="col_1" id="si_modal_asset_id">
-    <input type="hidden" name="col_2" id="si_modal_entity">
-    <input type="hidden" name="col_6" id="si_modal_date_time" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>">
-    <input type="hidden" name="group_code" id="si_modal_group_code">
-    <input type="hidden" name="location_code" id="si_modal_location_code">
+    <input type="hidden" name="col_1" id="ts_modal_asset_id">
+    <input type="hidden" name="col_2" id="ts_modal_entity">
+    <input type="hidden" name="col_6" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>">
+    <input type="hidden" name="group_code" id="ts_modal_group_code">
+    <input type="hidden" name="location_code" id="ts_modal_location_code">
 
-    <!-- Display Fields -->
     <div class="row mb-3">
         <div class="col">
             <label class="form-label">Location</label>
-            <input type="text" id="si_modal_location" class="form-control" readonly />
+            <input type="text" id="ts_modal_location" class="form-control" readonly />
         </div>
         <div class="col">
             <label class="form-label">Group</label>
-            <input type="text" id="si_modal_group" class="form-control" readonly />
+            <input type="text" id="ts_modal_group" class="form-control" readonly />
         </div>
         <div class="col">
             <label class="form-label">Date / Time</label>
@@ -487,17 +488,16 @@ Maint Log
     <div class="row mb-3">
         <div class="col">
             <label class="form-label">Entity</label>
-            <input type="text" id="si_ipt_entity" name="col_2" class="form-control" readonly />
+            <input type="text" id="ts_ipt_entity" name="col_2" class="form-control" readonly />
         </div>
         <div class="col">
             <label class="form-label">Asset ID</label>
-            <input type="text" id="si_modal_asset_id_display" class="form-control" readonly />
+            <input type="text" id="ts_modal_asset_id_display" class="form-control" readonly />
         </div>
     </div>
 
     <hr class="divider my-0 mb-3">
 
-    <!-- Issue Fields -->
     <div class="mb-3">
         <label class="form-label">Issue Description *</label>
         <textarea name="col_4" class="form-control" rows="3" required></textarea>
@@ -526,16 +526,14 @@ Maint Log
 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">
-    <!-- Hidden Fields -->
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
     <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
     <input type="hidden" name="col_1" id="ap_modal_asset_id">
     <input type="hidden" name="col_2" id="ap_modal_entity">
-    <input type="hidden" name="col_6" id="ap_modal_date_time" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>">
+    <input type="hidden" name="col_6" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>">
     <input type="hidden" name="group_code" id="ap_modal_group_code">
     <input type="hidden" name="location_code" id="ap_modal_location_code">
 
-    <!-- Display Fields -->
     <div class="row mb-3">
         <div class="col">
             <label class="form-label">Location</label>
@@ -560,7 +558,6 @@ Maint Log
 
     <hr class="divider my-0 mb-3">
 
-    <!-- Part Fields -->
     <div class="row mb-3">
         <div class="col">
             <label class="form-label">Part ID *</label>
@@ -635,16 +632,14 @@ Maint Log
 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">
-    <!-- Hidden Fields -->
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
     <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
     <input type="hidden" name="col_1" id="ts_modal_asset_id">
     <input type="hidden" name="col_2" id="ts_modal_entity">
-    <input type="hidden" name="col_6" id="ts_modal_date_time" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>">
+    <input type="hidden" name="col_6" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>">
     <input type="hidden" name="group_code" id="ts_modal_group_code">
     <input type="hidden" name="location_code" id="ts_modal_location_code">
 
-    <!-- Display Fields -->
     <div class="row mb-3">
         <div class="col">
             <label class="form-label">Location</label>
@@ -673,7 +668,6 @@ Maint Log
 
     <hr class="divider my-0 mb-3">
 
-    <!-- State Fields -->
     <div class="row mb-3">
         <div class="col">
             <select name="col_3" class="form-control" required>
@@ -778,7 +772,6 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    // Handle gateway modals
     ['setMaintModal', 'associateAcc-PartsModal'].forEach(id => {
         const el = document.getElementById(id);
         el?.addEventListener('show.bs.modal', e => {
@@ -789,10 +782,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Handle action modals
     const modalMap = {
         'LoadWorkModal': 'lw',
-        'standingIssueModal': 'si',
+        'standingIssueModal': 'ts',   // ← Key fix: use 'ts' prefix for standingIssueModal
         'associatePartsModal': 'ap',
         'changeStateModal': 'ts'
     };
@@ -811,17 +803,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const p = modalMap[modalId];
             // Populate hidden fields
-            document.getElementById(`${p}_modal_asset_id`).value = ctx.assetId;
-            document.getElementById(`${p}_modal_entity`).value = ctx.entity;
-            document.getElementById(`${p}_modal_group_code`).value = ctx.groupCode;
-            document.getElementById(`${p}_modal_location_code`).value = ctx.locationCode;
-            document.getElementById(`${p}_modal_date_time`).value = ctx.dateTime;
+            if (document.getElementById(`${p}_modal_asset_id`)) {
+                document.getElementById(`${p}_modal_asset_id`).value = ctx.assetId;
+            }
+            if (document.getElementById(`${p}_modal_entity`)) {
+                document.getElementById(`${p}_modal_entity`).value = ctx.entity;
+            }
+            if (document.getElementById(`${p}_modal_group_code`)) {
+                document.getElementById(`${p}_modal_group_code`).value = ctx.groupCode;
+            }
+            if (document.getElementById(`${p}_modal_location_code`)) {
+                document.getElementById(`${p}_modal_location_code`).value = ctx.locationCode;
+            }
 
             // Populate display fields
-            document.getElementById(`${p}_modal_location`).value = ctx.locationName;
-            document.getElementById(`${p}_modal_group`).value = ctx.groupCode;
-            document.getElementById(`${p}_modal_asset_id_display`).value = ctx.assetId;
-            document.getElementById(`${p}_ipt_entity`).value = ctx.entity;
+            if (document.getElementById(`${p}_modal_location`)) {
+                document.getElementById(`${p}_modal_location`).value = ctx.locationName;
+            }
+            if (document.getElementById(`${p}_modal_group`)) {
+                document.getElementById(`${p}_modal_group`).value = ctx.groupCode;
+            }
+            if (document.getElementById(`${p}_modal_asset_id_display`)) {
+                document.getElementById(`${p}_modal_asset_id_display`).value = ctx.assetId;
+            }
+            if (document.getElementById(`${p}_ipt_entity`)) {
+                document.getElementById(`${p}_ipt_entity`).value = ctx.entity;
+            }
         });
     });
 });
