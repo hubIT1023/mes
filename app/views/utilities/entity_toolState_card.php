@@ -530,8 +530,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </div>
             <form>
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="asset_id" id="si_asset_id">
+                    <input type="hidden" name="csrf_token" 	value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="asset_id" 		id="si_asset_id">
                     <div class="mb-3">
                         <label class="form-label">Issue Description</label>
                         <textarea class="form-control" rows="3" required></textarea>
@@ -557,15 +557,15 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-                    <input type="hidden" name="asset_id" id="ap_modal_asset_id_hidden">
-                    <input type="hidden" name="entity" id="ap_modal_entity_hidden">
-                    <input type="hidden" name="group_code" id="ap_modal_group_code">
-                    <input type="hidden" name="location_code" id="ap_modal_location_code">
-                    <input type="hidden" name="col_1" id="ap_modal_asset_id">
-                    <input type="hidden" name="col_6" id="ap_modal_date_time">
-                    <input type="hidden" name="col_7" id="ap_modal_start_time">
+                    <input type="hidden" name="csrf_token" 	value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" 		value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="asset_id" 		id="ap_modal_asset_id_hidden">
+                    <input type="hidden" name="entity" 			id="ap_modal_entity_hidden">
+                    <input type="hidden" name="group_code" 		id="ap_modal_group_code">
+                    <input type="hidden" name="location_code" 	id="ap_modal_location_code">
+                    <input type="hidden" name="col_1" 			id="ap_modal_asset_id">
+                    <input type="hidden" name="col_6" 			id="ap_modal_date_time">
+                    <input type="hidden" name="col_7" 			id="ap_modal_start_time">
 
                     <div class="row mb-3">
                         <div class="col">
@@ -673,11 +673,11 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-                    <input type="hidden" name="group_code" id="ts_modal_group_code">
-                    <input type="hidden" name="location_code" id="ts_modal_location_code">
-                    <input type="hidden" name="col_1" id="ts_modal_asset_id">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" 		value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="group_code" 		id="ts_modal_group_code">
+                    <input type="hidden" name="location_code" 	id="ts_modal_location_code">
+                    <input type="hidden" name="col_1" 			id="ts_modal_asset_id">
+                    <input type="hidden" name="csrf_token" 	value="<?= htmlspecialchars($csrfToken) ?>">
 
                     <div class="row mb-3">
                         <div class="col">
