@@ -523,15 +523,24 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- STANDING ISSUE MODAL -->
 <div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
+	<form id="AddPartsForm" method="POST" action="#" enctype="multipart/form-data">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Post Standing Issue</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form>
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" 	value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="asset_id" 		id="si_asset_id">
+					 <input type="hidden" name="csrf_token" 	value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" 		value="<?= htmlspecialchars($org_id) ?>">
+					<input type="hidden" name="asset_id" 		id="si_asset_id">
+                    <input type="hidden" name="asset_id" 		id="ap_modal_asset_id_hidden">
+                    <input type="hidden" name="entity" 			id="ap_modal_entity_hidden">
+                    <input type="hidden" name="group_code" 		id="ap_modal_group_code">
+                    <input type="hidden" name="location_code" 	id="ap_modal_location_code">
+                    <input type="hidden" name="col_1" 			id="ap_modal_asset_id">
+                    <input type="hidden" name="col_6" 			id="ap_modal_date_time">
+                    <input type="hidden" name="col_7" 			id="ap_modal_start_time">
+                   
                     <div class="mb-3">
                         <label class="form-label">Issue Description</label>
                         <textarea class="form-control" rows="3" required></textarea>
@@ -900,6 +909,7 @@ actionModals.forEach(modalId => {
                 document.getElementById('lw_location_code').value = ctx.locationCode;
             } else if (modalId === 'standingIssueModal') {
                 document.getElementById('si_asset_id').value = ctx.assetId;
+				
             } else if (modalId === 'associateAccessoriesModal') {
                 document.getElementById('acc_asset_id').value = ctx.assetId;
                 document.getElementById('acc_entity').value = ctx.entity;
