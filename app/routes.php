@@ -163,6 +163,6 @@ return array_merge(
 	$schedulerRoutes,
 	$deviceRoutes,
 	$analyticsRoutes,
-	$reportRoutes
+	$reportRoutes,
 	$standingIssueRoutes
 );
