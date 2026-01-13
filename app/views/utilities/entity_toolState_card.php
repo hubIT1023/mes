@@ -527,62 +527,71 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
       <div class="modal-content">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title">Post Standing Issue</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <!-- Hidden context fields -->
-          <input type="hidden" name="csrf_token" 	value="<?= htmlspecialchars($csrfToken) ?>">
-          <input type="hidden" name="org_id" 		value="<?= htmlspecialchars($org_id) ?>">
-          <input type="hidden" name="asset_id" 		id="si_asset_id_hidden">
-          <input type="hidden" name="entity" 		id="si_entity_hidden">
-          <input type="hidden" name="group_code" 	id="si_group_code">
-          <input type="hidden" name="location_code" id="si_location_code">
-          <input type="hidden" name="col_1" 		id="si_asset_id_display_hidden"> <!-- matches col_1 in DB -->
-          <input type="hidden" name="col_6" 		id="si_date_time">
-          <input type="hidden" name="col_7" 		id="si_start_time">
+          <!-- Security & Org -->
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+          <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
 
-          <!-- Display-only fields -->
+          <!-- Context (mapped to asset/location) -->
+          <input type="hidden" name="col_1" id="si_asset_id">        <!-- asset_id -->
+          <input type="hidden" name="col_2" id="si_entity">          <!-- entity name -->
+          <input type="hidden" name="group_code" id="si_group_code">
+          <input type="hidden" name="location_code" id="si_location_code">
+
+          <!-- Standing Issue Specific Fields -->
+          <input type="hidden" name="col_12" value="STANDING_ISSUE"> <!-- Flag -->
+          <input type="hidden" name="col_16" id="si_timestamp_start"> <!-- Start time -->
+
+          <!-- Display-only info -->
           <div class="row mb-3">
             <div class="col">
               <label class="form-label">Location</label>
-              <input type="text" id="si_location_display" class="form-control" readonly />
+              <input type="text" id="si_location_display" class="form-control" readonly>
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col">
               <label class="form-label">Entity</label>
-              <input type="text" id="si_entity_display" name="col_2" class="form-control" readonly />
+              <input type="text" id="si_entity_display" class="form-control" readonly>
             </div>
             <div class="col">
               <label class="form-label">Asset ID</label>
-              <input type="text" id="si_asset_id_display" class="form-control" readonly />
+              <input type="text" id="si_asset_id_display" class="form-control" readonly>
             </div>
           </div>
-		  
-		  <div class="input-box">
-			  <input type="radio" name="status" id="dot-1"  value = "ACTIVE" checked>
-			  <input type="radio" name="status" id="dot-2"	onchange="showDiv(this)" value = "DONE">
-			  <span class="details">STATUS</span>
-			  <div class="category">
-				<label for="dot-1">
-				<span class="dot one"></span>
-				<span class="option">ACTIVE</span>
-				</label>
-				<label for="dot-2">
-				<span class="dot two"></span>
-				<span class="option">ACTION(S) DONE</span>
-				</label>
-			  </div>
-		</div>
 
+          <!-- Status -->
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="col_13" id="status-active" value="ACTIVE" checked>
+              <label class="form-check-label" for="status-active">Active</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="col_13" id="status-done" value="DONE">
+              <label class="form-check-label" for="status-done">Action(s) Done</label>
+            </div>
+          </div>
+
+          <!-- Issue Description -->
           <div class="mb-3">
             <label class="form-label">Issue Description</label>
-            <textarea name="col_4" class="form-control" rows="3" placeholder="Describe the standing issue..." required></textarea>
+            <textarea name="col_14" class="form-control" rows="3" placeholder="Describe the standing issue..." required></textarea>
           </div>
+
+          <!-- Optional: Action Taken (only if status = DONE) -->
+          <div class="mb-3" id="si_action_field" style="display:none;">
+            <label class="form-label">Resolution / Action Taken</label>
+            <textarea name="col_15" class="form-control" rows="2" placeholder="What was done to resolve it?"></textarea>
+          </div>
+
+          <!-- Reported By -->
           <div class="mb-3">
             <label class="form-label">Reported By</label>
-            <input name="col_8" class="form-control" placeholder="Your name" required>
+            <input name="col_18" class="form-control" placeholder="Your name" required>
           </div>
 
           <button type="submit" class="btn btn-danger w-100">Post Issue</button>
@@ -591,6 +600,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
     </form>
   </div>
 </div>
+
+
 
 <!-- ASSOCIATE PARTS MODAL (Full Form) -->
 <div class="modal fade" id="associatePartsModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
@@ -804,6 +815,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 <!-- JavaScript: Unified data flow for ALL modals -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const charts = document.querySelectorAll('.downtime-chart');
@@ -879,7 +891,15 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-
+<script>
+// Toggle resolution field based on status
+document.querySelectorAll('input[name="col_13"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const actionField = document.getElementById('si_action_field');
+    actionField.style.display = (this.value === 'DONE') ? 'block' : 'none';
+  });
+});
+</script>
 
 <script>
 let currentEntityContext = null;
@@ -943,24 +963,29 @@ actionModals.forEach(modalId => {
                 document.getElementById('lw_entity').value = ctx.entity;
                 document.getElementById('lw_group_code').value = ctx.groupCode;
                 document.getElementById('lw_location_code').value = ctx.locationCode;
-            } else if (modalId === 'standingIssueModal') {
+           } else if (modalId === 'standingIssueModal') {
 				const ctx = currentEntityContext;
-				document.getElementById('si_asset_id_hidden').value = ctx.assetId;
-				document.getElementById('si_entity_hidden').value = ctx.entity;
+				// Asset & context
+				document.getElementById('si_asset_id').value = ctx.assetId;
+				document.getElementById('si_entity').value = ctx.entity;
 				document.getElementById('si_group_code').value = ctx.groupCode;
 				document.getElementById('si_location_code').value = ctx.locationCode;
-				document.getElementById('si_date_time').value = ctx.dateTime;
-				document.getElementById('si_start_time').value = ctx.dateTime;
-				document.getElementById('si_asset_id_display_hidden').value = ctx.assetId;
 
-				// Display fields
-				document.getElementById('si_entity_display').value = ctx.entity;
+				// Display
 				document.getElementById('si_asset_id_display').value = ctx.assetId;
+				document.getElementById('si_entity_display').value = ctx.entity;
 				document.getElementById('si_location_display').value = ctx.locationName;
 
-				// Optional: Update modal title dynamically
+				// Timestamp (start time = now)
+				document.getElementById('si_timestamp_start').value = ctx.dateTime;
+
+				// Reset status & optional fields
+				document.getElementById('si_action_field').style.display = 'none';
+				document.querySelector('input[name="col_13"][value="ACTIVE"]').checked = true;
+
+				// Update title
 				document.querySelector('#standingIssueModal .modal-title').textContent = 'Post Standing Issue: ' + ctx.entity;
-			} else if (modalId === 'associateAccessoriesModal') {
+			}else if (modalId === 'associateAccessoriesModal') {
                 document.getElementById('acc_asset_id').value = ctx.assetId;
                 document.getElementById('acc_entity').value = ctx.entity;
                 document.getElementById('acc_entity_display').value = ctx.entity;

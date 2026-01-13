@@ -30,6 +30,8 @@ $staticPages = [
 	
 ];
 
+
+
 // --- Business Intelligence ---
 $biRoutes = [
     'POST /create-page'            => ['GroupPageController', 'store'],
@@ -139,6 +141,11 @@ $reportRoutes = [
     'GET /reports/machine-log' => ['MachineLogController', 'index'],
 ];
 
+// --- Standing Issue ---
+$standingIssueRoutes = [
+    'POST /post-standing-issue' => ['StandingIssueController', 'store'],
+];
+
 // --- Merge all routes ---
 return array_merge(
     $authRoutes,
@@ -157,4 +164,5 @@ return array_merge(
 	$deviceRoutes,
 	$analyticsRoutes,
 	$reportRoutes
+	$standingIssueRoutes
 );
