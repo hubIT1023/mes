@@ -468,7 +468,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div>
 
 <!-- ASSOCIATE ACCESSORIES (Simple version) -->
-<div class="modal fade" id="associateAccessoriesModal" tabindex="-1" aria-hidden="true">
+<!--div class="modal fade" id="associateAccessoriesModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
@@ -477,8 +477,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </div>
             <form>
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="csrf_token" value="<? //= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" value="<? //= htmlspecialchars($org_id) ?>">
                     <input type="hidden" name="asset_id" id="acc_asset_id">
                     <input type="hidden" name="entity" id="acc_entity">
                     <input class="form-control mb-2" type="text" name="entity_display" id="acc_entity_display" readonly>
@@ -490,7 +490,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </form>
         </div>
     </div>
-</div>
+</div-->
 
 <!-- LOAD WORK MODAL -->
 <div class="modal fade" id="LoadWorkModal" tabindex="-1" aria-hidden="true">
@@ -502,8 +502,8 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
             </div>
             <form>
                 <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="csrf_token" value="<?//= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" value="<?//= htmlspecialchars($org_id) ?>">
                     <input type="hidden" name="asset_id" id="lw_asset_id">
                     <input type="hidden" name="entity" id="lw_entity">
                     <input type="hidden" name="group_code" id="lw_group_code">
@@ -522,48 +522,16 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 <!-- STANDING ISSUE MODAL -->
 <div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
-<div class="modal fade" id="standingIssueModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
-   <div class="modal-dialog modal-md">
-        <form id="AddPartsForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="associatePartsModalLabel">Associate Machine Parts</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Post Standing Issue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form>
                 <div class="modal-body">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
-                    <input type="hidden" name="asset_id" id="ap_modal_asset_id_hidden">
-                    <input type="hidden" name="entity" id="ap_modal_entity_hidden">
-                    <input type="hidden" name="group_code" id="ap_modal_group_code">
-                    <input type="hidden" name="location_code" id="ap_modal_location_code">
-                    <input type="hidden" name="col_1" id="ap_modal_asset_id">
-                    <input type="hidden" name="col_6" id="ap_modal_date_time">
-                    <input type="hidden" name="col_7" id="ap_modal_start_time">
-
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label">Location</label>
-                            <input type="text" id="ap_modal_location" class="form-control" readonly />
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label">Entity</label>
-                            <input type="text" id="ap_ipt_entity" name="col_2" class="form-control" readonly />
-                        </div>
-                        <div class="col">
-                            <label class="form-label">Asset ID</label>
-                            <input type="text" id="ap_modal_asset_id_display" class="form-control" readonly />
-                        </div>
-                        <div class="col">
-                            <label class="form-label">Maker</label>
-                            <input type="text" name="mfg_code" class="form-control" placeholder="ex. Akim">
-                        </div>
-                    </div>
-
-                    <hr class="divider my-0 mb-3">
+                    <input type="hidden" name="asset_id" id="si_asset_id">
                     <div class="mb-3">
                         <label class="form-label">Issue Description</label>
                         <textarea class="form-control" rows="3" required></textarea>
@@ -581,7 +549,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
 <!-- ASSOCIATE PARTS MODAL (Full Form) -->
 <div class="modal fade" id="associatePartsModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
-   <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-md">
         <form id="AddPartsForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
@@ -615,14 +583,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
                             <label class="form-label">Asset ID</label>
                             <input type="text" id="ap_modal_asset_id_display" class="form-control" readonly />
                         </div>
-                        <div class="col">
-                            <label class="form-label">Maker</label>
-                            <input type="text" name="mfg_code" class="form-control" placeholder="ex. Akim">
-                        </div>
-                    </div>
-
-                    <hr class="divider my-0 mb-3">
-						
                         <div class="col">
                             <label class="form-label">Maker</label>
                             <input type="text" name="mfg_code" class="form-control" placeholder="ex. Akim">
@@ -703,6 +663,7 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 </div>
 
 <!-- CHANGE STATE MODAL -->
+
 <div class="modal fade" id="changeStateModal" tabindex="-1" aria-labelledby="changeStateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <form id="toolStateForm" method="POST" action="/mes/change-tool-state">
