@@ -1,6 +1,11 @@
 <?php
 // /app/views/utilities/tool_card/entity_toolState_card.php
 
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+
 if (!isset($group) || !isset($org_id) || !isset($conn)) {
     echo "<div class='alert alert-danger'>Error: Missing required context (group, org_id, or conn).</div>";
     return;
