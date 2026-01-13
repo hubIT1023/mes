@@ -559,6 +559,22 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
               <input type="text" id="si_asset_id_display" class="form-control" readonly />
             </div>
           </div>
+		  
+		  <div class="input-box">
+			  <input type="radio" name="status" id="dot-1"  value = "ACTIVE" checked>
+			  <input type="radio" name="status" id="dot-2"	onchange="showDiv(this)" value = "DONE">
+			  <span class="details">STATUS</span>
+			  <div class="category">
+				<label for="dot-1">
+				<span class="dot one"></span>
+				<span class="option">ACTIVE</span>
+				</label>
+				<label for="dot-2">
+				<span class="dot two"></span>
+				<span class="option">ACTION(S) DONE</span>
+				</label>
+			  </div>
+		</div>
 
           <div class="mb-3">
             <label class="form-label">Issue Description</label>
