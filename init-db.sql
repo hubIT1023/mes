@@ -446,6 +446,8 @@ CREATE TABLE machine_log (
 	col_24 VARCHAR(100), -- tech_time
 	
     ADD CONSTRAINT uq_machine_log_org_asset_ts UNIQUE (org_id, col_1, col_6);
+	
+	--ALTER TABLE machine_log DROP CONSTRAINT IF EXISTS uq_machine_log_org_asset;
 );
 
 
