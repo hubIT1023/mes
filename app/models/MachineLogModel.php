@@ -32,21 +32,25 @@ class MachineLogModel
 
         $params = ['org_id' => $orgId];
 
+        // Asset ID filter
         if (!empty($filters['asset_id'])) {
             $sql .= " AND col_1 = :asset_id";
             $params['asset_id'] = $filters['asset_id'];
         }
-		
-		if (!empty($filters['asset_id'])) {
-            $sql .= " AND col_1 = :asset_id";
+
+        // ✅ Entity filter (FIXED)
+        if (!empty($filters['entity'])) {
+            $sql .= " AND col_2 = :entity";
             $params['entity'] = $filters['entity'];
         }
 
+        // Stop cause start filter
         if (!empty($filters['stopcause_start'])) {
-            $sql .= " AND col_10 = :stopcause";
+            $sql .= " AND col_10 = :stopcause_start";
             $params['stopcause_start'] = $filters['stopcause_start'];
         }
 
+        // Date range filters
         if (!empty($filters['from'])) {
             $sql .= " AND col_6 >= :from";
             $params['from'] = $filters['from'];
