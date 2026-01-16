@@ -26,10 +26,20 @@ require __DIR__ . '/../layouts/html/header.php';
                            value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>">
                 </div>
                 
+                <!-- ✅ ENTITY DROPDOWN -->
                 <div class="col-md-2">
                     <label class="form-label small fw-bold">Entity Name</label>
-                    <input class="form-control form-control-sm" name="entity" placeholder="Module name"
-                           value="<?= htmlspecialchars($_GET['entity'] ?? '') ?>">
+                    <select class="form-select form-select-sm" name="entity">
+                        <option value="">All Entities</option>
+                        <?php if (!empty($entities)): ?>
+                            <?php foreach ($entities as $entity): ?>
+                                <option value="<?= htmlspecialchars($entity) ?>" 
+                                        <?= ($_GET['entity'] ?? '') === $entity ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($entity) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
                 </div>
 
                 <div class="col-md-3">
@@ -75,31 +85,29 @@ require __DIR__ . '/../layouts/html/header.php';
                 <?php else: ?>
                     <?php foreach ($logs as $log): ?>
                         <tr>
-                            <!-- Use created_at for event time (add this column if missing) -->
                             <td class="text-nowrap small text-muted">
-                                <?= date('M d, Y H:i:s', strtotime($log['created_at'] ?? '')) ?>
+                                <?= date('M d, Y H:i:s', strtotime($log['event_time'] ?? '')) ?>
                             </td>
                             <td>
                                 <span class="badge bg-light text-dark border">
-                                    <?= htmlspecialchars($log['col_1'] ?? '') ?> <!-- asset_id -->
+                                    <?= htmlspecialchars($log['asset_id'] ?? '') ?>
                                 </span>
                             </td>
-                            <td><?= htmlspecialchars($log['col_2'] ?? '') ?></td> <!-- entity -->
+                            <td><?= htmlspecialchars($log['entity'] ?? '') ?></td>
                             <td>
                                 <span class="fw-semibold">
-                                    <?= htmlspecialchars($log['col_10'] ?? '') ?> <!-- stopcause_start -->
+                                    <?= htmlspecialchars($log['stopcause_start'] ?? '') ?>
                                 </span>
                             </td>
                             <td class="text-wrap" style="max-width: 250px;">
-                                <?= htmlspecialchars($log['col_4'] ?? '') ?> <!-- reason -->
+                                <?= htmlspecialchars($log['reason'] ?? '') ?>
                             </td>
                             <td class="text-wrap" style="max-width: 250px;">
-                                <?= htmlspecialchars($log['col_5'] ?? '') ?> <!-- action -->
+                                <?= htmlspecialchars($log['action'] ?? '') ?>
                             </td>
                             <td>
                                 <?php 
-                                    // Status = col_11
-                                    $status = strtolower($log['col_11'] ?? '');
+                                    $status = strtolower($log['status'] ?? '');
                                     $badgeClass = match($status) {
                                         'completed', 'closed' => 'bg-success',
                                         'open', 'pending' => 'bg-warning text-dark',
@@ -113,7 +121,7 @@ require __DIR__ . '/../layouts/html/header.php';
                             </td>
                             <td class="small">
                                 <i class="bi bi-person text-muted"></i> 
-                                <?= htmlspecialchars($log['col_8'] ?? '') ?> <!-- person_reported -->
+                                <?= htmlspecialchars($log['reported_by'] ?? '') ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>

@@ -1,5 +1,5 @@
 <?php
-// MachineLogController.php
+// app/controllers/MachineLogController.php
 
 require_once __DIR__ . '/../models/MachineLogModel.php';
 
@@ -14,6 +14,10 @@ class MachineLogController
 
     public function index(): void
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if (!isset($_SESSION['tenant_id'])) {
             header("Location: /signin");
             exit;
@@ -21,16 +25,22 @@ class MachineLogController
 
         $orgId = $_SESSION['tenant_id'];
 
+        // Fetch unique entities for dropdown
+        $entities = $this->model->getUniqueEntities($orgId);
+
+        // Build filters from GET parameters
         $filters = [
-            'asset_id'  => $_GET['asset_id'] ?? null,
-			'entity'  => $_GET['entity'] ?? null,
+            'asset_id'        => $_GET['asset_id'] ?? null,
+            'entity'          => $_GET['entity'] ?? null,
             'stopcause_start' => $_GET['stopcause_start'] ?? null,
-            'from'      => $_GET['from'] ?? null,
-            'to'        => $_GET['to'] ?? null,
+            'from'            => $_GET['from'] ?? null,
+            'to'              => $_GET['to'] ?? null,
         ];
 
+        // Fetch logs
         $logs = $this->model->getLogs($orgId, $filters);
 
+        // Render view
         require __DIR__ . '/../views/reports/machine_logs.php';
     }
 }
