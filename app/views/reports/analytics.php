@@ -26,15 +26,17 @@ require __DIR__ . '/../layouts/html/header.php';
     <form method="GET" class="row g-3 mb-4">
         <div class="col-md-3">
             <label class="form-label fw-bold">Entity</label>
-            <select name="entity" class="form-select">
-                <option value="">All Entities</option>
-                <?php foreach ($entities as $e): ?>
-                    <option value="<?= htmlspecialchars($e) ?>"
-                        <?= ($_GET['entity'] ?? '') === $e ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($e) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <select class="form-select" name="entity">
+				<option value="">All Entities</option>
+				<?php if (!empty($entities)): ?>
+					<?php foreach ($entities as $entity): ?>
+						<option value="<?= htmlspecialchars($entity ?? '') ?>"
+							<?= (($_GET['entity'] ?? '') === $entity) ? 'selected' : '' ?>>
+							<?= htmlspecialchars($entity ?? '') ?>
+						</option>
+					<?php endforeach; ?>
+				<?php endif; ?>
+			</select>
         </div>
 
         <div class="col-md-3 d-flex align-items-end">
