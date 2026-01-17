@@ -136,80 +136,83 @@ class AnalyticsModel
        Reliability Time Series (Daily)
        ============================ */
     public function getReliabilityByDate(string $orgId, array $filters = []): array
-    {
-        $where = [
-            "org_id = :org_id",
-            "col_10 = 'MAINT-COR'"
-        ];
+	{
+		$where = [
+			"org_id = :org_id",
+			"col_10 = 'MAINT-COR'"
+		];
 
-        $params = ['org_id' => $orgId];
+		$params = ['org_id' => $orgId];
 
-        if (!empty($filters['asset_id'])) {
-            $where[] = "col_1 = :asset_id";
-            $params['asset_id'] = $filters['asset_id'];
-        }
+		if (!empty($filters['asset_id'])) {
+			$where[] = "col_1 = :asset_id";
+			$params['asset_id'] = $filters['asset_id'];
+		}
 
-        if (!empty($filters['entity'])) {
-            $where[] = "col_2 = :entity";
-            $params['entity'] = $filters['entity'];
-        }
+		if (!empty($filters['entity'])) {
+			$where[] = "col_2 = :entity";
+			$params['entity'] = $filters['entity'];
+		}
 
-        $sql = "
-            WITH failures AS (
-                SELECT
-                    col_1 AS asset_id,
-                    col_6::timestamp AS fail_time,
-                    LEAD(col_6::timestamp)
-                        OVER (PARTITION BY col_1 ORDER BY col_6) AS next_fail
-                FROM machine_log
-                WHERE " . implode(' AND ', $where) . "
-            ),
-            mtbf AS (
-                SELECT
-                    DATE(fail_time) AS date,
-                    AVG(EXTRACT(EPOCH FROM (next_fail - fail_time)) / 3600) AS mtbf_hours
-                FROM failures
-                WHERE next_fail IS NOT NULL
-                GROUP BY DATE(fail_time)
-            ),
-            mttr AS (
-                SELECT
-                    DATE(f.col_6) AS date,
-                    AVG(EXTRACT(EPOCH FROM (
-                        (
-                            SELECT MIN(m2.col_6)
-                            FROM machine_log m2
-                            WHERE m2.col_1 = f.col_1
-                              AND m2.col_6 > f.col_6
-                              AND m2.col_3 = 'PROD'
-                        ) - f.col_6
-                    )) / 3600) AS mttr_hours
-                FROM machine_log f
-                WHERE " . implode(' AND ', $where) . "
-                GROUP BY DATE(f.col_6)
-            )
-            SELECT
-                COALESCE(m.date, t.date) AS date,
-                ROUND(COALESCE(m.mtbf_hours, 0), 2) AS mtbf_hours,
-                ROUND(COALESCE(t.mttr_hours, 0), 2) AS mttr_hours,
-                ROUND(
-                    CASE
-                        WHEN COALESCE(m.mtbf_hours,0) + COALESCE(t.mttr_hours,0) > 0
-                        THEN (COALESCE(m.mtbf_hours,0) /
-                             (COALESCE(m.mtbf_hours,0) + COALESCE(t.mttr_hours,0))) * 100
-                        ELSE 0
-                    END, 2
-                ) AS availability_pct
-            FROM mtbf m
-            FULL OUTER JOIN mttr t ON m.date = t.date
-            ORDER BY date DESC
-            LIMIT 30
-        ";
+		$sql = "
+			WITH failures AS (
+				SELECT
+					col_1 AS asset_id,
+					col_6::timestamp AS fail_time,
+					LEAD(col_6::timestamp)
+						OVER (PARTITION BY col_1 ORDER BY col_6::timestamp) AS next_fail
+				FROM machine_log
+				WHERE " . implode(' AND ', $where) . "
+			),
+			mtbf AS (
+				SELECT
+					DATE(fail_time) AS date,
+					AVG(EXTRACT(EPOCH FROM (next_fail - fail_time)) / 3600) AS mtbf_hours
+				FROM failures
+				WHERE next_fail IS NOT NULL
+				GROUP BY DATE(fail_time)
+			),
+			mttr AS (
+				SELECT
+					DATE(f.col_6::timestamp) AS date,
+					AVG(
+						EXTRACT(EPOCH FROM (
+							(
+								SELECT MIN(m2.col_6::timestamp)
+								FROM machine_log m2
+								WHERE m2.col_1 = f.col_1
+								  AND m2.col_6::timestamp > f.col_6::timestamp
+								  AND m2.col_3 = 'PROD'
+							) - f.col_6::timestamp
+						)) / 3600
+					) AS mttr_hours
+				FROM machine_log f
+				WHERE " . implode(' AND ', $where) . "
+				GROUP BY DATE(f.col_6::timestamp)
+			)
+			SELECT
+				COALESCE(m.date, t.date) AS date,
+				ROUND(COALESCE(m.mtbf_hours, 0), 2) AS mtbf_hours,
+				ROUND(COALESCE(t.mttr_hours, 0), 2) AS mttr_hours,
+				ROUND(
+					CASE
+						WHEN COALESCE(m.mtbf_hours,0) + COALESCE(t.mttr_hours,0) > 0
+						THEN (COALESCE(m.mtbf_hours,0) /
+							 (COALESCE(m.mtbf_hours,0) + COALESCE(t.mttr_hours,0))) * 100
+						ELSE 0
+					END, 2
+				) AS availability_pct
+			FROM mtbf m
+			FULL OUTER JOIN mttr t ON m.date = t.date
+			ORDER BY date DESC
+			LIMIT 30
+		";
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+		$stmt = $this->conn->prepare($sql);
+		$stmt->execute($params);
+		return $stmt->fetchAll(PDO::FETCH_ASSOC);
+	}
+
 
     /* ============================
        Unique Entities
