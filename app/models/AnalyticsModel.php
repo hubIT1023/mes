@@ -222,11 +222,21 @@ class AnalyticsModel
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 	}
 	
-	 /**
+	   /**
      * Get unique entity names (col_2) from tool_state for current org
      */
     public function getUniqueEntities(string $orgId): array
-…        $stmt->execute(['org_id' => $orgId]);
+    {
+        $sql = "
+            SELECT DISTINCT col_2 
+            FROM tool_state 
+            WHERE org_id = :org_id 
+              AND col_2 IS NOT NULL 
+              AND TRIM(col_2) != ''
+            ORDER BY col_2
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['org_id' => $orgId]);
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
