@@ -21,21 +21,24 @@ class AnalyticsController
 
         $orgId = $_SESSION['tenant_id'];
 
-         $filters = [
-        'asset_id' => trim($_GET['asset_id'] ?? '')
-		];
-		if ($filters['asset_id'] === '') {
-			$filters['asset_id'] = null;
-		}
+        $filters = [
+            'entity' => trim($_GET['entity'] ?? '')
+        ];
 
-		// For time-series chart
-		$reliabilityByDate = $this->model->getReliabilityByDate($orgId, $filters);
+        // Normalize empty string to null for consistent filtering
+        if ($filters['entity'] === '') {
+            $filters['entity'] = null;
+        }
 
-		// Keep existing per-asset data for tables
-		$mtbf = $this->model->getMTBF($orgId, $filters);
-		$mttr = $this->model->getMTTR($orgId, $filters);
-		$availability = $this->model->getAvailability($mtbf, $mttr);
+        // Fetch data
+        $mtbf = $this->model->getMTBF($orgId, $filters);
+        $mttr = $this->model->getMTTR($orgId, $filters);
+        $availability = $this->model->getAvailability($mtbf, $mttr);
+        $reliabilityByDate = $this->model->getReliabilityByDate($orgId, $filters);
 
-			require __DIR__ . '/../views/reports/analytics.php';
-		}
+        // Fetch entities for dropdown
+        $entities = $this->model->getUniqueEntities($orgId);
+
+        require __DIR__ . '/../views/reports/analytics.php';
+    }
 }

@@ -1,4 +1,8 @@
-<?php require __DIR__ . '/../layouts/html/header.php'; ?>
+<?php 
+// analytics.php
+
+require __DIR__ . '/../layouts/html/header.php'; 
+?>
 
 <style>
     .stat-card { border-left: 4px solid #0d6efd; transition: transform 0.2s; }
@@ -18,27 +22,33 @@
         </a>
     </nav>
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-3">
-            <form method="GET" class="row g-2 align-items-center">
-                <div class="col-md-4">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                        <input type="text" name="asset_id" 
-                               value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>" 
-                               class="form-control" placeholder="Search Asset ID (e.g. smt-10267)">
-                        <?php if (!empty($_GET['asset_id'])): ?>
-                            <a href="?" class="btn btn-outline-danger">Reset</a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary px-4">Apply Filters</button>
-                </div>
-            </form>
+    <!-- Filter Form -->
+    <form method="GET" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Entity</label>
+            <select name="entity" class="form-select">
+                <option value="">All Entities</option>
+                <?php foreach ($entities as $e): ?>
+                    <option value="<?= htmlspecialchars($e) ?>"
+                        <?= ($_GET['entity'] ?? '') === $e ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($e) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
-    </div>
 
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+
+        <?php if (!empty($_GET['entity'])): ?>
+            <div class="col-md-3 d-flex align-items-end">
+                <a href="?" class="btn btn-outline-secondary w-100">Clear</a>
+            </div>
+        <?php endif; ?>
+    </form>
+
+    <!-- Stats Cards -->
     <div class="row mb-4">
         <div class="col-md-4">
             <div class="card stat-card shadow-sm">
@@ -72,6 +82,7 @@
         </div>
     </div>
 
+    <!-- Trend Chart -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
             <h5 class="fw-bold mb-0">📈 Reliability Performance Trend</h5>
@@ -87,7 +98,7 @@
             <?php if (empty($reliabilityByDate)): ?>
                 <div class="text-center py-5">
                     <i class="bi bi-graph-up-arrow text-muted opacity-25" style="font-size: 3rem;"></i>
-                    <p class="text-muted mt-2">No historical data found for the selected asset.</p>
+                    <p class="text-muted mt-2">No historical data found for the selected entity.</p>
                 </div>
             <?php else: ?>
                 <div style="height:350px;">
@@ -97,6 +108,7 @@
         </div>
     </div>
 
+    <!-- Data Tables -->
     <div class="row">
         <?php 
         $tables = [
@@ -108,11 +120,11 @@
         foreach ($tables as $table): ?>
             <div class="col-lg-4 mb-4">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-white fw-bold"><?= $table['title'] ?></div>
+                    <div class="card-header bg-white fw-bold"><?= htmlspecialchars($table['title']) ?></div>
                     <div class="card-body p-0 overflow-auto" style="max-height: 400px;">
                         <table class="table table-hover table-v-align mb-0">
                             <thead class="table-light sticky-top">
-                                <tr><th class="small">Asset ID</th><th class="small text-end">Value</th></tr>
+                                <tr><th class="small">Entity</th><th class="small text-end">Value</th></tr>
                             </thead>
                             <tbody>
                                 <?php if (empty($table['data'])): ?>
@@ -120,7 +132,7 @@
                                 <?php else: ?>
                                     <?php foreach ($table['data'] as $row): ?>
                                         <tr>
-                                            <td><span class="badge bg-light text-dark font-monospace"><?= htmlspecialchars($row['asset_id']) ?></span></td>
+                                            <td><span class="badge bg-light text-dark font-monospace"><?= htmlspecialchars($row['entity']) ?></span></td>
                                             <td class="text-end fw-bold <?= $table['color'] ?>">
                                                 <?= number_format($row[$table['key']], 2) ?><?= $table['suffix'] ?>
                                             </td>
@@ -136,11 +148,12 @@
     </div>
 </div>
 
+<!-- Fixed CDN URLs (no trailing spaces) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
 
 <script>
-const rawData = <?= json_encode($reliabilityByDate ?? [], JSON_NUMERIC_CHECK) ?>;
+const rawData = <?= json_encode($reliabilityByDate ?? [], JSON_NUMERIC_CHECK | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
 if (Array.isArray(rawData) && rawData.length > 0) {
     const data = rawData.map(r => ({
@@ -150,10 +163,11 @@ if (Array.isArray(rawData) && rawData.length > 0) {
         avail: r.availability_pct
     }));
 
-    const maxDate = Math.max(...data.map(d => d.x));
+    const maxDate = Math.max(...data.map(d => d.x.getTime()));
     const ctx = document.getElementById('timeSeriesChart');
 
     const chart = new Chart(ctx, {
+        type: 'bar',
         data: {
             datasets: [
                 {
@@ -186,7 +200,12 @@ if (Array.isArray(rawData) && rawData.length > 0) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { type: 'time', time: { unit: 'day' } },
+                x: { 
+                    type: 'time', 
+                    time: { unit: 'day' },
+                    min: maxDate - (7 * 24 * 60 * 60 * 1000),
+                    max: maxDate
+                },
                 y: { beginAtZero: true, title: { display: true, text: 'Hours' } },
                 y1: { 
                     position: 'right', 
@@ -205,7 +224,8 @@ if (Array.isArray(rawData) && rawData.length > 0) {
             btn.classList.add('active');
 
             const days = parseInt(btn.dataset.range, 10);
-            chart.options.scales.x.min = maxDate - (days * 24 * 60 * 60 * 1000);
+            const newMin = maxDate - (days * 24 * 60 * 60 * 1000);
+            chart.options.scales.x.min = newMin;
             chart.options.scales.x.max = maxDate;
             chart.update();
         });

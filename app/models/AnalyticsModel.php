@@ -12,21 +12,17 @@ class AnalyticsModel
         $this->conn = Database::getInstance()->getConnection();
     }
 
-    /**
-     * MTBF — Mean Time Between Failures (in hours)
-     * Now based on consecutive 'MAINT-COR' events (col_10 = 'MAINT-COR')
-     */
     public function getMTBF(string $orgId, array $filters = []): array
     {
         $sql = "
             SELECT
-                t.asset_id,
+                t.entity,
                 ROUND(AVG(EXTRACT(EPOCH FROM (t.next_fail - t.fail)) / 3600), 2) AS mtbf_hours
             FROM (
                 SELECT
-                    col_1 AS asset_id,
+                    col_2 AS entity,
                     col_6::timestamp AS fail,
-                    LEAD(col_6::timestamp) OVER (PARTITION BY col_1 ORDER BY col_6) AS next_fail
+                    LEAD(col_6::timestamp) OVER (PARTITION BY col_2 ORDER BY col_6) AS next_fail
                 FROM machine_log
                 WHERE org_id = :org_id
                   AND col_10 = 'MAINT-COR'
@@ -34,44 +30,38 @@ class AnalyticsModel
 
         $params = ['org_id' => $orgId];
 
-        if (!empty($filters['asset_id'])) {
-            $sql .= " AND col_1 = :asset_id";
-            $params['asset_id'] = $filters['asset_id'];
+        if (!empty($filters['entity'])) {
+            $sql .= " AND col_2 = :entity";
+            $params['entity'] = $filters['entity'];
         }
 
         $sql .= "
             ) t
             WHERE t.next_fail IS NOT NULL
-            GROUP BY t.asset_id
-            ORDER BY t.asset_id
+            GROUP BY t.entity
+            ORDER BY t.entity
         ";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
-
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * MTTR — Mean Time To Repair (in hours)
-     * Treats each 'MAINT-COR' event as failure start,
-     * finds next 'PROD' event as repair completion.
-     */
     public function getMTTR(string $orgId, array $filters = []): array
     {
         $sql = "
             SELECT
-                t.asset_id,
+                t.entity,
                 ROUND(AVG(EXTRACT(EPOCH FROM (t.repair_time - t.failure_time)) / 3600), 2) AS mttr_hours
             FROM (
                 SELECT
-                    ml1.col_1 AS asset_id,
+                    ml1.col_2 AS entity,
                     ml1.col_6::timestamp AS failure_time,
                     (
                         SELECT MIN(ml2.col_6::timestamp)
                         FROM machine_log ml2
                         WHERE ml2.org_id = ml1.org_id
-                          AND ml2.col_1 = ml1.col_1
+                          AND ml2.col_2 = ml1.col_2
                           AND ml2.col_6 > ml1.col_6
                           AND ml2.col_3 = 'PROD'
                     ) AS repair_time
@@ -82,69 +72,65 @@ class AnalyticsModel
 
         $params = ['org_id' => $orgId];
 
-        if (!empty($filters['asset_id'])) {
-            $sql .= " AND ml1.col_1 = :asset_id";
-            $params['asset_id'] = $filters['asset_id'];
+        if (!empty($filters['entity'])) {
+            $sql .= " AND ml1.col_2 = :entity";
+            $params['entity'] = $filters['entity'];
         }
 
         $sql .= "
             ) t
             WHERE t.repair_time IS NOT NULL
-            GROUP BY t.asset_id
-            ORDER BY t.asset_id
+            GROUP BY t.entity
+            ORDER BY t.entity
         ";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
-
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Availability % = MTBF / (MTBF + MTTR) * 100
-     * Only includes assets present in BOTH MTBF and MTTR results.
-     */
     public function getAvailability(array $mtbf, array $mttr): array
     {
-        $mtbfMap = array_column($mtbf, 'mtbf_hours', 'asset_id');
-        $mttrMap = array_column($mttr, 'mttr_hours', 'asset_id');
+        $mtbfMap = array_column($mtbf, 'mtbf_hours', 'entity');
+        $mttrMap = array_column($mttr, 'mttr_hours', 'entity');
         $availability = [];
 
-        foreach (array_keys($mtbfMap) as $assetId) {
-            if (isset($mttrMap[$assetId])) {
-                $mtbfVal = (float)$mtbfMap[$assetId];
-                $mttrVal = (float)$mttrMap[$assetId];
+        foreach (array_keys($mtbfMap) as $entity) {
+            if (isset($mttrMap[$entity])) {
+                $mtbfVal = (float)$mtbfMap[$entity];
+                $mttrVal = (float)$mttrMap[$entity];
                 if ($mtbfVal + $mttrVal > 0) {
                     $pct = ($mtbfVal / ($mtbfVal + $mttrVal)) * 100;
                     $availability[] = [
-                        'asset_id' => $assetId,
+                        'entity' => $entity,
                         'availability_pct' => round($pct, 2)
                     ];
                 }
             }
         }
 
-        usort($availability, fn($a, $b) => strcmp($a['asset_id'], $b['asset_id']));
+        usort($availability, fn($a, $b) => strcmp($a['entity'], $b['entity']));
         return $availability;
     }
-	
 
-   
-
-    /**
-     * Get MTBF, MTTR, and Availability aggregated by day (for time-series chart)
-     */
     public function getReliabilityByDate(string $orgId, array $filters = []): array
     {
+        // Build filter condition safely
+        $entityCondition = '';
+        if (!empty($filters['entity'])) {
+            $entityCondition = "AND ml.col_2 = :entity";
+        }
+
         $sql = "
             WITH failures AS (
                 SELECT
-                    col_1 AS asset_id,
-                    col_6::timestamp AS fail_time,
-                    LEAD(col_6::timestamp) OVER (PARTITION BY col_1 ORDER BY col_6) AS next_fail
-                FROM machine_log
-                WHERE org_id = :org_id
-                  AND col_10 = 'MAINT-COR'
+                    ml.col_2 AS entity,
+                    ml.col_6::timestamp AS fail_time,
+                    LEAD(ml.col_6::timestamp) OVER (PARTITION BY ml.col_2 ORDER BY ml.col_6) AS next_fail
+                FROM machine_log ml
+                WHERE ml.org_id = :org_id
+                  AND ml.col_10 = 'MAINT-COR'
+                  $entityCondition
             ),
             mtbf_data AS (
                 SELECT
@@ -156,19 +142,20 @@ class AnalyticsModel
             ),
             repairs AS (
                 SELECT
-                    ml1.col_1 AS asset_id,
+                    ml1.col_2 AS entity,
                     ml1.col_6::timestamp AS failure_time,
                     (
                         SELECT MIN(ml2.col_6::timestamp)
                         FROM machine_log ml2
                         WHERE ml2.org_id = ml1.org_id
-                          AND ml2.col_1 = ml1.col_1
+                          AND ml2.col_2 = ml1.col_2
                           AND ml2.col_6 > ml1.col_6
                           AND ml2.col_3 = 'PROD'
                     ) AS repair_time
                 FROM machine_log ml1
                 WHERE ml1.org_id = :org_id
                   AND ml1.col_10 = 'MAINT-COR'
+                  $entityCondition
             ),
             mttr_data AS (
                 SELECT
@@ -192,24 +179,32 @@ class AnalyticsModel
             FROM mtbf_data m
             FULL OUTER JOIN mttr_data t ON m.date = t.date
             ORDER BY date DESC
-            LIMIT 7  -- last 7 days; adjust as needed
+            LIMIT 7
         ";
 
         $params = ['org_id' => $orgId];
-
-        if (!empty($filters['asset_id'])) {
-            $sql = str_replace(
-                "WHERE org_id = :org_id",
-                "WHERE org_id = :org_id AND col_1 = :asset_id",
-                $sql
-            );
-            $params['asset_id'] = $filters['asset_id'];
+        if (!empty($filters['entity'])) {
+            $params['entity'] = $filters['entity'];
         }
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
-
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getUniqueEntities(string $orgId): array
+    {
+        $sql = "
+            SELECT DISTINCT col_2
+            FROM tool_state
+            WHERE org_id = :org_id
+              AND col_2 IS NOT NULL
+              AND TRIM(col_2) <> ''
+            ORDER BY col_2
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['org_id' => $orgId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 }
