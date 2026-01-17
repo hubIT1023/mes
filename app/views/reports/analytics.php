@@ -1,10 +1,6 @@
 
 
-<?php 
-// analytics.php
-
-require __DIR__ . '/../layouts/html/header.php'; 
-?>
+<?php require __DIR__ . '/../layouts/html/header.php'; ?>
 
 
 <div class="container mt-4">
@@ -24,8 +20,6 @@ require __DIR__ . '/../layouts/html/header.php';
                            value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>" 
                            class="form-control" placeholder="e.g. smt-10267">
                 </div>
-				
-				
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary w-100">Filter</button>
                 </div>
