@@ -134,7 +134,11 @@ require __DIR__ . '/../layouts/html/header.php';
                                 <?php else: ?>
                                     <?php foreach ($table['data'] as $row): ?>
                                         <tr>
-                                            <td><span class="badge bg-light text-dark font-monospace"><?= htmlspecialchars($row['entity']) ?></span></td>
+                                            <td>
+												<span class="badge bg-light text-dark font-monospace">
+													<?= htmlspecialchars($row['asset_id'] ?? 'N/A') ?>
+												</span>
+											</td>
                                             <td class="text-end fw-bold <?= $table['color'] ?>">
                                                 <?= number_format($row[$table['key']], 2) ?><?= $table['suffix'] ?>
                                             </td>
