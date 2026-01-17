@@ -1,53 +1,96 @@
-
-
 <?php require __DIR__ . '/../layouts/html/header.php'; ?>
 
+<style>
+    .stat-card { border-left: 4px solid #0d6efd; transition: transform 0.2s; }
+    .stat-card:hover { transform: translateY(-3px); }
+    .table-v-align td { vertical-align: middle; }
+    .btn-group-xs > .btn { padding: .1rem .4rem; font-size: .75rem; }
+</style>
 
-<div class="container mt-4">
+<div class="container-fluid px-4 mt-4">
     <nav class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">📊 Reliability Analytics Dashboard</h2>
-        <a href="/mes/mms_admin" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-house"></i> Home
+        <div>
+            <h2 class="fw-bold text-dark mb-1">📊 Reliability Analytics</h2>
+            <p class="text-muted small mb-0">Asset Performance and Maintenance Metrics</p>
+        </div>
+        <a href="/mes/mms_admin" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Home
         </a>
     </nav>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form method="GET" class="row g-3 align-items-end">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Asset ID</label>
-                    <input type="text" name="asset_id" 
-                           value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>" 
-                           class="form-control" placeholder="e.g. smt-10267">
-                </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
-                </div>
-                <?php if (!empty($_GET['asset_id'])): ?>
-                    <div class="col-md-3">
-                        <a href="?" class="btn btn-outline-secondary w-100">Clear</a>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="GET" class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" name="asset_id" 
+                               value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>" 
+                               class="form-control" placeholder="Search Asset ID (e.g. smt-10267)">
+                        <?php if (!empty($_GET['asset_id'])): ?>
+                            <a href="?" class="btn btn-outline-danger">Reset</a>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary px-4">Apply Filters</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">📈 Reliability Over Time</h4>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small fw-bold">Avg MTBF</h6>
+                    <h3 class="mb-0 text-primary fw-bold">
+                        <?= !empty($mtbf) ? number_format(array_sum(array_column($mtbf, 'mtbf_hours')) / count($mtbf), 1) : '0' ?> <small class="h6">hrs</small>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm border-danger">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small fw-bold">Avg MTTR</h6>
+                    <h3 class="mb-0 text-danger fw-bold">
+                        <?= !empty($mttr) ? number_format(array_sum(array_column($mttr, 'mttr_hours')) / count($mttr), 1) : '0' ?> <small class="h6">hrs</small>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm border-success">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small fw-bold">System Availability</h6>
+                    <h3 class="mb-0 text-success fw-bold">
+                        <?= !empty($availability) ? number_format(array_sum(array_column($availability, 'availability_pct')) / count($availability), 1) : '0' ?>%
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0">📈 Reliability Performance Trend</h5>
             <?php if (!empty($reliabilityByDate)): ?>
-                <div class="btn-group btn-group-sm" role="group">
-                    <button class="btn btn-outline-primary active" data-range="1">1D</button>
-                    <button class="btn btn-outline-primary" data-range="7">1W</button>
-                    <button class="btn btn-outline-primary" data-range="30">1M</button>
+                <div class="btn-group shadow-sm" role="group">
+                    <button type="button" class="btn btn-outline-primary btn-sm active" data-range="7">1W</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-range="30">1M</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-range="90">3M</button>
                 </div>
             <?php endif; ?>
         </div>
         <div class="card-body">
             <?php if (empty($reliabilityByDate)): ?>
-                <div class="alert alert-info mb-0">No time-series reliability data available.</div>
+                <div class="text-center py-5">
+                    <i class="bi bi-graph-up-arrow text-muted opacity-25" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2">No historical data found for the selected asset.</p>
+                </div>
             <?php else: ?>
-                <div style="height:400px;">
+                <div style="height:350px;">
                     <canvas id="timeSeriesChart"></canvas>
                 </div>
             <?php endif; ?>
@@ -55,74 +98,41 @@
     </div>
 
     <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header bg-light"><h5 class="mb-0">⏱ MTBF (hrs)</h5></div>
-                <div class="card-body p-0">
-                    <?php if (empty($mtbf)): ?>
-                        <p class="p-3 text-muted">No data</p>
-                    <?php else: ?>
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light"><tr><th>Asset</th><th>Value</th></tr></thead>
-                            <tbody>
-                                <?php foreach ($mtbf as $row): ?>
-                                    <tr>
-                                        <td><code><?= htmlspecialchars($row['asset_id']) ?></code></td>
-                                        <td class="fw-bold"><?= number_format($row['mtbf_hours'], 2) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
+        <?php 
+        $tables = [
+            ['title' => '⏱ MTBF', 'data' => $mtbf, 'key' => 'mtbf_hours', 'suffix' => ' hrs', 'color' => 'text-primary'],
+            ['title' => '🛠 MTTR', 'data' => $mttr, 'key' => 'mttr_hours', 'suffix' => ' hrs', 'color' => 'text-danger'],
+            ['title' => '✅ Availability', 'data' => $availability, 'key' => 'availability_pct', 'suffix' => '%', 'color' => 'text-success']
+        ];
 
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header bg-light"><h5 class="mb-0">🛠 MTTR (hrs)</h5></div>
-                <div class="card-body p-0">
-                    <?php if (empty($mttr)): ?>
-                        <p class="p-3 text-muted">No data</p>
-                    <?php else: ?>
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light"><tr><th>Asset</th><th>Value</th></tr></thead>
+        foreach ($tables as $table): ?>
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold"><?= $table['title'] ?></div>
+                    <div class="card-body p-0 overflow-auto" style="max-height: 400px;">
+                        <table class="table table-hover table-v-align mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr><th class="small">Asset ID</th><th class="small text-end">Value</th></tr>
+                            </thead>
                             <tbody>
-                                <?php foreach ($mttr as $row): ?>
-                                    <tr>
-                                        <td><code><?= htmlspecialchars($row['asset_id']) ?></code></td>
-                                        <td class="fw-bold text-danger"><?= number_format($row['mttr_hours'], 2) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
+                                <?php if (empty($table['data'])): ?>
+                                    <tr><td colspan="2" class="text-center text-muted py-3">No data</td></tr>
+                                <?php else: ?>
+                                    <?php foreach ($table['data'] as $row): ?>
+                                        <tr>
+                                            <td><span class="badge bg-light text-dark font-monospace"><?= htmlspecialchars($row['asset_id']) ?></span></td>
+                                            <td class="text-end fw-bold <?= $table['color'] ?>">
+                                                <?= number_format($row[$table['key']], 2) ?><?= $table['suffix'] ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
-                    <?php endif; ?>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header bg-light"><h5 class="mb-0">✅ Availability (%)</h5></div>
-                <div class="card-body p-0">
-                    <?php if (empty($availability)): ?>
-                        <p class="p-3 text-muted">No data</p>
-                    <?php else: ?>
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light"><tr><th>Asset</th><th>Value</th></tr></thead>
-                            <tbody>
-                                <?php foreach ($availability as $row): ?>
-                                    <tr>
-                                        <td><code><?= htmlspecialchars($row['asset_id']) ?></code></td>
-                                        <td class="fw-bold text-success"><?= number_format($row['availability_pct'], 1) ?>%</td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
+        <?php endforeach; ?>
     </div>
 </div>
 
@@ -130,77 +140,84 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
 
 <script>
-const rawData = <?= json_encode($reliabilityByDate ?? [], JSON_NUMERIC_CHECK) ?>;
-
-if (Array.isArray(rawData) && rawData.length > 0) {
-    const data = rawData.map(r => ({
-        x: new Date(r.date + 'T00:00:00'),
-        mtbf: r.mtbf_hours,
-        mttr: r.mttr_hours,
-        avail: r.availability_pct
-    }));
-
-    const maxDate = Math.max(...data.map(d => d.x));
+document.addEventListener('DOMContentLoaded', function() {
+    const rawData = <?= json_encode($reliabilityByDate ?? [], JSON_NUMERIC_CHECK) ?>;
     const ctx = document.getElementById('timeSeriesChart');
 
-    const chart = new Chart(ctx, {
-        data: {
-            datasets: [
-                {
-                    type: 'bar',
-                    label: 'MTBF (hrs)',
-                    data: data.map(d => ({ x: d.x, y: d.mtbf })),
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    yAxisID: 'y'
+    if (ctx && Array.isArray(rawData) && rawData.length > 0) {
+        const data = rawData.map(r => ({
+            x: new Date(r.date + 'T00:00:00'),
+            mtbf: r.mtbf_hours,
+            mttr: r.mttr_hours,
+            avail: r.availability_pct
+        }));
+
+        const maxDate = Math.max(...data.map(d => d.x));
+
+        const chart = new Chart(ctx, {
+            data: {
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'MTBF (hrs)',
+                        data: data.map(d => ({ x: d.x, y: d.mtbf })),
+                        backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                        borderColor: '#0d6efd',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: 'Availability (%)',
+                        data: data.map(d => ({ x: d.x, y: d.avail })),
+                        borderColor: '#198754',
+                        backgroundColor: '#198754',
+                        borderWidth: 3,
+                        pointRadius: 3,
+                        tension: 0.2,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true } }
                 },
-                {
-                    type: 'bar',
-                    label: 'MTTR (hrs)',
-                    data: data.map(d => ({ x: d.x, y: d.mttr })),
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    yAxisID: 'y'
-                },
-                {
-                    type: 'line',
-                    label: 'Availability (%)',
-                    data: data.map(d => ({ x: d.x, y: d.avail })),
-                    borderColor: '#20c997',
-                    borderWidth: 3,
-                    pointRadius: 4,
-                    tension: 0.3,
-                    yAxisID: 'y1'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { type: 'time', time: { unit: 'day' } },
-                y: { beginAtZero: true, title: { display: true, text: 'Hours' } },
-                y1: { 
-                    position: 'right', 
-                    min: 0, max: 100, 
-                    title: { display: true, text: 'Availability %' },
-                    grid: { drawOnChartArea: false }
+                scales: {
+                    x: { 
+                        type: 'time', 
+                        time: { unit: 'day' },
+                        grid: { display: false }
+                    },
+                    y: { 
+                        beginAtZero: true, 
+                        title: { display: true, text: 'Time (Hours)' } 
+                    },
+                    y1: { 
+                        position: 'right', 
+                        min: 0, max: 100, 
+                        title: { display: true, text: 'Availability %' },
+                        grid: { drawOnChartArea: false }
+                    }
                 }
             }
-        }
-    });
-
-    // Time-range selector logic
-    document.querySelectorAll('[data-range]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            const days = parseInt(btn.dataset.range, 10);
-            chart.options.scales.x.min = maxDate - (days * 24 * 60 * 60 * 1000);
-            chart.options.scales.x.max = maxDate;
-            chart.update();
         });
-    });
-}
+
+        // Interactive Range Logic
+        document.querySelectorAll('[data-range]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const days = parseInt(btn.dataset.range, 10);
+                chart.options.scales.x.min = maxDate - (days * 24 * 60 * 60 * 1000);
+                chart.update();
+            });
+        });
+    }
+});
 </script>
 
 <?php require __DIR__ . '/../layouts/html/footer.php'; ?>
