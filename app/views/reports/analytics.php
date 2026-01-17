@@ -15,45 +15,26 @@ require __DIR__ . '/../layouts/html/header.php';
         </a>
     </nav>
 
-   <div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <form method="GET" class="row g-3 align-items-end">
-            <!-- Asset ID -->
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Asset ID</label>
-                <input type="text" name="asset_id" 
-                       value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>" 
-                       class="form-control" placeholder="e.g. smt-10267">
-            </div>
-            
-            <!-- ✅ ENTITY DROPDOWN -->
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Entity Name</label>
-                <select class="form-select" name="entity">
-                    <option value="">All Entities</option>
-                    <?php if (!empty($entities)): ?>
-                        <?php foreach ($entities as $entity): ?>
-                            <option value="<?= htmlspecialchars($entity) ?>" 
-                                    <?= ($_GET['entity'] ?? '') === $entity ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($entity) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-primary w-100">Filter</button>
-            </div>
-            
-            <?php if (!empty($_GET['asset_id']) || !empty($_GET['entity'])): ?>
-                <div class="col-md-3">
-                    <a href="?" class="btn btn-outline-secondary w-100">Clear</a>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Asset ID</label>
+                    <input type="text" name="asset_id" 
+                           value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>" 
+                           class="form-control" placeholder="e.g. smt-10267">
                 </div>
-            <?php endif; ?>
-        </form>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+                <?php if (!empty($_GET['asset_id'])): ?>
+                    <div class="col-md-3">
+                        <a href="?" class="btn btn-outline-secondary w-100">Clear</a>
+                    </div>
+                <?php endif; ?>
+            </form>
+        </div>
     </div>
-</div>
 
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
