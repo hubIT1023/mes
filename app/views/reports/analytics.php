@@ -30,7 +30,7 @@ require __DIR__ . '/../layouts/html/header.php';
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary w-100">Filter</button>
                 </div>
-                <?php if (!empty($_GET['asset_id'])): ?>
+                <?php if (!empty($_GET['entity'])): ?>
                     <div class="col-md-3">
                         <a href="?" class="btn btn-outline-secondary w-100">Clear</a>
                     </div>
