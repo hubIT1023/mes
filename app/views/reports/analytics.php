@@ -21,16 +21,15 @@ require __DIR__ . '/../layouts/html/header.php';
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Asset ID</label>
                     <input type="text" name="asset_id" 
-                           value="<?= htmlspecialchars($_GET['entity'] ?? '') ?>" 
+                           value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>" 
                            class="form-control" placeholder="e.g. smt-10267">
                 </div>
-				
 				
 				
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary w-100">Filter</button>
                 </div>
-                <?php if (!empty($_GET['entity'])): ?>
+                <?php if (!empty($_GET['asset_id'])): ?>
                     <div class="col-md-3">
                         <a href="?" class="btn btn-outline-secondary w-100">Clear</a>
                     </div>
