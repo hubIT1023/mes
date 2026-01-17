@@ -221,5 +221,13 @@ class AnalyticsModel
 		$stmt->execute($params);
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 	}
+	
+	 /**
+     * Get unique entity names (col_2) from tool_state for current org
+     */
+    public function getUniqueEntities(string $orgId): array
+…        $stmt->execute(['org_id' => $orgId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 
 }
