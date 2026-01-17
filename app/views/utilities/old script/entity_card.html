@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Process Dashboard Simulation</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+:root {
+    --primary-blue: #2c5282;
+    --bg-light: #e2e8f0;
+}
+
+body {
+    background: var(--bg-light);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.entity-card {
+    background: white;
+    border-radius: 20px;
+    width: 170px;
+    padding: 2rem;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.entity-header {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.list-item {
+    padding: 12px 0;
+    font-weight: 600;
+    color: var(--primary-blue);
+    cursor: pointer;
+}
+
+.list-item:hover {
+    color: #4299e1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="entity-card text-center">
+
+<div class="bg-gray rounded-lg shadow-md overflow-hidden">
+    <div class="entity-header" data-bs-toggle="modal" data-bs-target="#associatePartsModal">
+        ENTITY
+    </div>
+
+    </div>
+	
+	<div class="card-body" >
+	 <!-- Card Body -->
+	
+    <div class="list-item" data-bs-toggle="modal" data-bs-target="#associatePartsModal">
+        Blue Label
+    </div>
+
+	 <!-- HORIZONTAL DIVIDER -->
+    <hr class="my-0">
+	
+    <div class="list-item">
+        White Label
+    </div>
+
+	 <!-- HORIZONTAL DIVIDER -->
+    <hr class="my-0">
+	
+    <div class="list-item" data-bs-toggle="modal" data-bs-target="#associatePartsModal">
+        WIP
+    </div>
+
+    <!-- HORIZONTAL DIVIDER -->
+    <hr class="my-0">
+
+    <div class="entity-header" data-bs-toggle="modal" data-bs-target="#setStateModal">
+        MODE
+    </div>
+	 </div>
+</div>
+
+<!-- SET MORE STATE MODAL -->
+<div class="modal fade" id="setStateModal" tabindex="-1">
+<div class="modal-dialog modal-sm modal-dialog-centered">
+<div class="modal-content">
+
+    <div class="modal-header">
+        <h6 class="modal-title">Set More State</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <div class="modal-body p-0">
+        <div class="list-group list-group-flush">
+
+            <button
+                class="list-group-item list-group-item-action"
+                data-bs-dismiss="modal"
+                data-bs-toggle="modal"
+                data-bs-target="#standingIssueModal">
+                Post Standing Issue
+            </button>
+
+            <button
+                class="list-group-item list-group-item-action"
+                data-bs-dismiss="modal"
+                data-bs-toggle="modal"
+                data-bs-target="#associatePartsModal">
+                Maint Log
+            </button>
+
+        </div>
+    </div>
+
+</div>
+</div>
+</div>
+
+<!-- ASSOCIATE PARTS MODAL -->
+<div class="modal fade" id="associatePartsModal" tabindex="-1">
+<div class="modal-dialog modal-sm modal-dialog-centered">
+<div class="modal-content">
+
+    <div class="modal-header bg-info">
+        <h6 class="modal-title">Associate Parts</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <div class="modal-body">
+        <input class="form-control mb-2" placeholder="Cart's Meaning">
+        <input class="form-control mb-2" placeholder="Feature Accessories">
+        <input class="form-control mb-3" placeholder="Portals">
+        <button class="btn btn-primary w-100" data-bs-dismiss="modal">OK</button>
+    </div>
+
+</div>
+</div>
+</div>
+
+<!-- POST STANDING ISSUE MODAL -->
+<div class="modal fade" id="standingIssueModal" tabindex="-1">
+<div class="modal-dialog modal-sm modal-dialog-centered">
+<div class="modal-content">
+
+    <div class="modal-header">
+        <h6 class="modal-title">Post Standing Issue</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <div class="modal-body">
+        <input class="form-control mb-2" placeholder="Issue Title">
+        <input class="form-control mb-2" placeholder="Severity">
+        <input class="form-control mb-3" placeholder="Remarks">
+        <button class="btn btn-primary w-100" data-bs-dismiss="modal">Submit</button>
+    </div>
+
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

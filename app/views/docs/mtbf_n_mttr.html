@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reliability Metrics: MTBF, MTTR & Availability</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #3498db;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 20px;
+        }
+        .formula {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            font-family: monospace;
+            font-size: 1.1em;
+            margin: 15px 0;
+        }
+        .example {
+            background-color: #e8f4fc;
+            border-left: 4px solid #2980b9;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .metric {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .metric-item {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .mtbf-bg { background-color: #e8f5e9; border-left: 4px solid #27ae60; }
+        .mttr-bg { background-color: #fef9e7; border-left: 4px solid #f39c12; }
+        .avail-bg { background-color: #e3f2fd; border-left: 4px solid #2196f3; }
+        .ideal {
+            font-weight: bold;
+            color: #27ae60;
+        }
+        .warning {
+            color: #e74c3c;
+            font-style: italic;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .highlight {
+            background-color: #fffacd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .note {
+            background-color: #fff8e1;
+            padding: 12px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>📊 Reliability Metrics: MTBF, MTTR & Availability</h1>
+
+<div class="card">
+    <p>
+        In this system, reliability metrics are calculated using maintenance log data where:
+    </p>
+    <ul>
+        <li><code>col_10 = 'MAINT-COR'</code> marks a <strong>corrective maintenance event</strong> (used as failure occurrence)</li>
+        <li><code>col_3 = 'PROD'</code> indicates the system has returned to <strong>production</strong> (repair completion)</li>
+    </ul>
+    <p>All timestamps come from <code>col_6</code>.</p>
+</div>
+
+<!-- MTBF Section -->
+<div class="card mtbf-bg">
+    <h2>⏱ MTBF – Mean Time Between Failures</h2>
+    
+    <p><strong>Definition:</strong> Average operational time between consecutive corrective maintenance events.</p>
+    
+    <p><strong>Purpose:</strong> Measures <span class="highlight">reliability</span>. Higher MTBF = more reliable asset.</p>
+    
+    <div class="formula">
+        MTBF = Total Time Between Consecutive MAINT-COR Events ÷ Number of Intervals
+    </div>
+
+    <h3>How It's Calculated</h3>
+    <ol>
+        <li>Select all rows where <code>col_10 = 'MAINT-COR'</code></li>
+        <li>For each asset, sort events by timestamp (<code>col_6</code>)</li>
+        <li>Use <code>LEAD()</code> to get the next <code>MAINT-COR</code> timestamp</li>
+        <li>Compute time difference in hours</li>
+        <li>Average all intervals per asset</li>
+    </ol>
+
+    <div class="example">
+        <p><strong>Example:</strong> Asset logs three <code>MAINT-COR</code> events:</p>
+        <table>
+            <thead><tr><th>Timestamp</th></tr></thead>
+            <tbody>
+                <tr><td>2026-01-10 08:00</td></tr>
+                <tr><td>2026-01-10 12:00</td></tr>
+                <tr><td>2026-01-11 10:00</td></tr>
+            </tbody>
+        </table>
+        <p>Intervals: 4 hrs + 22 hrs = 26 hrs → MTBF = 26 ÷ 2 = <strong>13 hours</strong></p>
+    </div>
+
+    <p class="warning">⚠️ Requires at least <strong>two MAINT-COR events</strong> to calculate one interval.</p>
+</div>
+
+<!-- MTTR Section -->
+<div class="card mttr-bg">
+    <h2>🛠 MTTR – Mean Time To Repair</h2>
+    
+    <p><strong>Definition:</strong> Average time from a corrective maintenance event to system restoration.</p>
+    
+    <p><strong>Purpose:</strong> Measures <span class="highlight">maintainability</span>. Lower MTTR = faster recovery.</p>
+    
+    <div class="formula">
+        MTTR = Total Downtime Across All Repairs ÷ Number of Repairs
+    </div>
+
+    <h3>How It's Calculated</h3>
+    <ol>
+        <li>For each <code>MAINT-COR</code> event, treat its timestamp as <strong>failure start</strong></li>
+        <li>Find the <strong>earliest subsequent</strong> <code>col_3 = 'PROD'</code> event for the same asset</li>
+        <li>Compute time difference in hours</li>
+        <li>Average all valid repair durations per asset</li>
+    </ol>
+
+    <div class="example">
+        <p><strong>Example:</strong></p>
+        <table>
+            <thead><tr><th>Type</th><th>Timestamp</th></tr></thead>
+            <tbody>
+                <tr><td>MAINT-COR</td><td>2026-01-10 08:00</td></tr>
+                <tr><td>PROD</td><td>2026-01-10 09:30</td></tr>
+                <tr><td>MAINT-COR</td><td>2026-01-10 12:00</td></tr>
+                <tr><td>PROD</td><td>2026-01-10 13:15</td></tr>
+            </tbody>
+        </table>
+        <p>Repairs: 1.5 hrs + 1.25 hrs = 2.75 hrs → MTTR = 2.75 ÷ 2 = <strong>1.38 hours</strong></p>
+    </div>
+
+    <p class="warning">⚠️ Only <code>MAINT-COR</code> events followed by a <code>PROD</code> are included.</p>
+</div>
+
+<!-- Availability Section -->
+<div class="card avail-bg">
+    <h2>✅ System Availability (%)</h2>
+    
+    <p><strong>Definition:</strong> Percentage of time a system is operational and available for use.</p>
+    
+    <p><strong>Purpose:</strong> Holistic view of reliability + maintainability.</p>
+    
+    <div class="formula">
+        Availability (%) = [ MTBF ÷ (MTBF + MTTR) ] × 100%
+    </div>
+
+    <h3>How It's Calculated</h3>
+    <ol>
+        <li>Compute MTBF and MTTR for the same asset(s)</li>
+        <li>Apply the formula above</li>
+        <li>Result is expressed as a percentage (0–100%)</li>
+    </ol>
+
+    <div class="example">
+        <p><strong>Example:</strong></p>
+        <ul>
+            <li>MTBF = 13 hours</li>
+            <li>MTTR = 1.38 hours</li>
+        </ul>
+        <p>Availability = (13 ÷ (13 + 1.38)) × 100% = (13 ÷ 14.38) × 100% ≈ <strong>90.4%</strong></p>
+    </div>
+
+    <div class="note">
+        <strong>Note:</strong> Availability is only calculated for assets that have <strong>both</strong> MTBF and MTTR data.
+        If either metric is missing, the asset is excluded from availability calculations.
+    </div>
+</div>
+
+<!-- Summary Table -->
+<div class="card">
+    <h2>🆚 Summary of Metrics</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Based On</th>
+                <th>Ideal Value</th>
+                <th>Data Requirement</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>MTBF</strong></td>
+                <td>Consecutive <code>MAINT-COR</code> events</td>
+                <td class="ideal">Higher is better</td>
+                <td>≥2 <code>MAINT-COR</code> per asset</td>
+            </tr>
+            <tr>
+                <td><strong>MTTR</strong></td>
+                <td><code>MAINT-COR</code> → next <code>PROD</code></td>
+                <td class="ideal">Lower is better</td>
+                <td>Each <code>MAINT-COR</code> must be followed by <code>PROD</code></td>
+            </tr>
+            <tr>
+                <td><strong>Availability</strong></td>
+                <td>MTBF and MTTR combined</td>
+                <td class="ideal">Closer to 100% is better</td>
+                <td>Asset must have both MTBF and MTTR</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <p><em>This documentation reflects the current implementation in your analytics system as of January 2026.</em></p>
+</div>
+
+</body>
+</html>

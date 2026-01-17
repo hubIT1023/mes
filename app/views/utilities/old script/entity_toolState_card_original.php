@@ -1,11 +1,6 @@
 <?php
 // /app/views/utilities/tool_card/entity_toolState_card.php
 
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-
 if (!isset($group) || !isset($org_id) || !isset($conn)) {
     echo "<div class='alert alert-danger'>Error: Missing required context (group, org_id, or conn).</div>";
     return;
@@ -387,12 +382,6 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- SHARED MODALS -->
 <!-- =============================== -->
 
-<?php 
-
-include __DIR__ . '/../modals/post_standing_issue.php';
-include __DIR__ . '/../modals/associate_parts.php'; 
-include __DIR__ . '/../modals/change_state.php';  
- ?>
 
 
 <!-- associateAcc-PartsModal -->
@@ -531,16 +520,241 @@ include __DIR__ . '/../modals/change_state.php';
 
 
 
+<!-- STANDING ISSUE MODAL -->
+<!--div class="modal fade" id="standingIssueModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Post Standing Issue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="asset_id" id="si_asset_id">
+                    <div class="mb-3">
+                        <label class="form-label">Issue Description</label>
+                        <textarea class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reported By</label>
+                        <input class="form-control" placeholder="Your name" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Post Issue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div-->
 
+<!-- ASSOCIATE PARTS MODAL (Full Form) -->
+<div class="modal fade" id="associatePartsModal" tabindex="-1" aria-labelledby="associatePartsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <form id="AddPartsForm" method="POST" action="/mes/machine-parts" enctype="multipart/form-data">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="associatePartsModalLabel">Associate Machine Parts</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="asset_id" id="ap_modal_asset_id_hidden">
+                    <input type="hidden" name="entity" id="ap_modal_entity_hidden">
+                    <input type="hidden" name="group_code" id="ap_modal_group_code">
+                    <input type="hidden" name="location_code" id="ap_modal_location_code">
+                    <input type="hidden" name="col_1" id="ap_modal_asset_id">
+                    <input type="hidden" name="col_6" id="ap_modal_date_time">
+                    <input type="hidden" name="col_7" id="ap_modal_start_time">
 
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="ap_modal_location" class="form-control" readonly />
+                        </div>
+                    </div>
 
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Entity</label>
+                            <input type="text" id="ap_ipt_entity" name="col_2" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Asset ID</label>
+                            <input type="text" id="ap_modal_asset_id_display" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Maker</label>
+                            <input type="text" name="mfg_code" class="form-control" placeholder="ex. Akim">
+                        </div>
+                    </div>
 
+                    <hr class="divider my-0 mb-3">
 
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Part ID *</label>
+                            <input type="text" name="part_id" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Part Name *</label>
+                            <input type="text" name="part_name" class="form-control" required>
+                        </div>
+                    </div>
 
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Serial No</label>
+                            <input type="text" name="serial_no" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Vendor ID</label>
+                            <input type="text" name="vendor_id" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">SAP Code</label>
+                            <input type="text" name="sap_code" class="form-control">
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="category">
+                                <option value="">-- Select Priority Level --</option>
+                                <option value="HIGH">HIGH</option>
+                                <option value="MEDIUM">MEDIUM</option>
+                                <option value="LOW">LOW</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Part Image (Optional)</label>
+                        <input type="file" name="part_image" class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Added By *</label>
+                            <input type="text" name="col_8" id="ap_posted_by" class="form-control" placeholder="Type Your Name" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Date / Time</label>
+                            <input type="text" class="form-control" id="ap_modal_datetime_display" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="ap_submitBtn">
+                        <span class="spinner-border spinner-border-sm d-none" id="ap_spinner" role="status" aria-hidden="true"></span>
+                        <span id="ap_submitText">ADD</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- CHANGE STATE MODAL -->
+<div class="modal fade" id="changeStateModal" tabindex="-1" aria-labelledby="changeStateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <form id="toolStateForm" method="POST" action="/mes/change-tool-state">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="changeStateModalLabel">Change Entity Mode</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="org_id" value="<?= htmlspecialchars($org_id) ?>">
+                    <input type="hidden" name="group_code" id="ts_modal_group_code">
+                    <input type="hidden" name="location_code" id="ts_modal_location_code">
+                    <input type="hidden" name="col_1" id="ts_modal_asset_id">
+                    <input type="hidden" name="col_6" id="ts_modal_date_time">
+                    <input type="hidden" name="col_7" id="ts_modal_start_time">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="ts_modal_location" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Group</label>
+                            <input type="text" id="ts_modal_group" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Date / Time</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars(date('Y-m-d H:i:s')) ?>" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Asset ID</label>
+                            <input type="text" id="ts_modal_asset_id_display" class="form-control" readonly />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Entity</label>
+                            <input type="text" id="ts_ipt_entity" name="col_2" class="form-control" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <select id="ts_modal_stopcause" name="col_3" class="form-control" required onchange="handleStopCauseChange(this.value)">
+                                <option value="">Select stop cause</option>
+                                <?php foreach ($modeChoices as $mode_key => $label): ?>
+                                    <option value="<?= htmlspecialchars($mode_key) ?>"><?= htmlspecialchars($label) ?></option>
+                                <?php endforeach; ?>
+                                <option value="CUSTOM">Other (specify)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="customInputContainer" style="display:none;">
+                        <label class="form-label">Custom Stop Cause</label>
+                        <input type="text" id="ts_customInput" class="form-control" name="col_3" />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Issue(s)</label>
+                            <input type="text" name="col_4" id="ts_modal_issue" list="issueOptions" class="form-control" required />
+                            <datalist id="issueOptions"></datalist>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Action(s)</label>
+                            <input type="text" name="col_5" id="ts_modal_action" list="actionOptions" class="form-control" required />
+                            <datalist id="actionOptions"></datalist>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Posted By</label>
+                        <input type="text" name="col_8" id="ts_posted_by" class="form-control" placeholder="Type Your Name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="ts_submitBtn">
+                        <span class="spinner-border spinner-border-sm d-none" id="ts_spinner" role="status"></span>
+                        <span id="ts_submitText">Submit</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- JavaScript: Unified data flow for ALL modals -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const charts = document.querySelectorAll('.downtime-chart');
@@ -616,15 +830,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<script>
-// Toggle resolution field based on status
-document.querySelectorAll('input[name="col_13"]').forEach(radio => {
-  radio.addEventListener('change', function() {
-    const actionField = document.getElementById('si_action_field');
-    actionField.style.display = (this.value === 'DONE') ? 'block' : 'none';
-  });
-});
-</script>
+
 
 <script>
 let currentEntityContext = null;
@@ -688,29 +894,9 @@ actionModals.forEach(modalId => {
                 document.getElementById('lw_entity').value = ctx.entity;
                 document.getElementById('lw_group_code').value = ctx.groupCode;
                 document.getElementById('lw_location_code').value = ctx.locationCode;
-           } else if (modalId === 'standingIssueModal') {
-				const ctx = currentEntityContext;
-				// Asset & context
-				document.getElementById('si_asset_id').value = ctx.assetId;
-				document.getElementById('si_entity').value = ctx.entity;
-				document.getElementById('si_group_code').value = ctx.groupCode;
-				document.getElementById('si_location_code').value = ctx.locationCode;
-
-				// Display
-				document.getElementById('si_asset_id_display').value = ctx.assetId;
-				document.getElementById('si_entity_display').value = ctx.entity;
-				document.getElementById('si_location_display').value = ctx.locationName;
-
-				// Timestamp (start time = now)
-				document.getElementById('si_timestamp_start').value = ctx.dateTime;
-
-				// Reset status & optional fields
-				document.getElementById('si_action_field').style.display = 'none';
-				document.querySelector('input[name="col_13"][value="ACTIVE"]').checked = true;
-
-				// Update title
-				document.querySelector('#standingIssueModal .modal-title').textContent = 'Post Standing Issue: ' + ctx.entity;
-			}else if (modalId === 'associateAccessoriesModal') {
+            } else if (modalId === 'standingIssueModal') {
+                document.getElementById('si_asset_id').value = ctx.assetId;
+            } else if (modalId === 'associateAccessoriesModal') {
                 document.getElementById('acc_asset_id').value = ctx.assetId;
                 document.getElementById('acc_entity').value = ctx.entity;
                 document.getElementById('acc_entity_display').value = ctx.entity;
@@ -744,24 +930,16 @@ actionModals.forEach(modalId => {
     });
 });
 
-
-
 function handleStopCauseChange(value) {
     const container = document.getElementById('customInputContainer');
-    const select = document.getElementById('ts_modal_stopcause');
-    const customInput = document.getElementById('ts_customInput');
-
     if (value === 'CUSTOM') {
         container.style.display = 'block';
-        // Transfer 'name' to custom input
-        select.removeAttribute('name');
-        customInput.setAttribute('name', 'col_3');
+        document.getElementById('ts_customInput').setAttribute('name', 'col_3');
+        document.querySelector('#ts_modal_stopcause').removeAttribute('name');
     } else {
         container.style.display = 'none';
-        // Restore 'name' to select
-        select.setAttribute('name', 'col_3');
-        customInput.removeAttribute('name');
+        document.getElementById('ts_customInput').removeAttribute('name');
+        document.querySelector('#ts_modal_stopcause').setAttribute('name', 'col_3');
     }
 }
-
 </script>
