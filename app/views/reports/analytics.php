@@ -140,84 +140,77 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const rawData = <?= json_encode($reliabilityByDate ?? [], JSON_NUMERIC_CHECK) ?>;
+const rawData = <?= json_encode($reliabilityByDate ?? [], JSON_NUMERIC_CHECK) ?>;
+
+if (Array.isArray(rawData) && rawData.length > 0) {
+    const data = rawData.map(r => ({
+        x: new Date(r.date + 'T00:00:00'),
+        mtbf: r.mtbf_hours,
+        mttr: r.mttr_hours,
+        avail: r.availability_pct
+    }));
+
+    const maxDate = Math.max(...data.map(d => d.x));
     const ctx = document.getElementById('timeSeriesChart');
 
-    if (ctx && Array.isArray(rawData) && rawData.length > 0) {
-        const data = rawData.map(r => ({
-            x: new Date(r.date + 'T00:00:00'),
-            mtbf: r.mtbf_hours,
-            mttr: r.mttr_hours,
-            avail: r.availability_pct
-        }));
-
-        const maxDate = Math.max(...data.map(d => d.x));
-
-        const chart = new Chart(ctx, {
-            data: {
-                datasets: [
-                    {
-                        type: 'bar',
-                        label: 'MTBF (hrs)',
-                        data: data.map(d => ({ x: d.x, y: d.mtbf })),
-                        backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                        borderColor: '#0d6efd',
-                        borderWidth: 1,
-                        yAxisID: 'y'
-                    },
-                    {
-                        type: 'line',
-                        label: 'Availability (%)',
-                        data: data.map(d => ({ x: d.x, y: d.avail })),
-                        borderColor: '#198754',
-                        backgroundColor: '#198754',
-                        borderWidth: 3,
-                        pointRadius: 3,
-                        tension: 0.2,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top', labels: { usePointStyle: true } }
+    const chart = new Chart(ctx, {
+        data: {
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'MTBF (hrs)',
+                    data: data.map(d => ({ x: d.x, y: d.mtbf })),
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    yAxisID: 'y'
                 },
-                scales: {
-                    x: { 
-                        type: 'time', 
-                        time: { unit: 'day' },
-                        grid: { display: false }
-                    },
-                    y: { 
-                        beginAtZero: true, 
-                        title: { display: true, text: 'Time (Hours)' } 
-                    },
-                    y1: { 
-                        position: 'right', 
-                        min: 0, max: 100, 
-                        title: { display: true, text: 'Availability %' },
-                        grid: { drawOnChartArea: false }
-                    }
+                {
+                    type: 'bar',
+                    label: 'MTTR (hrs)',
+                    data: data.map(d => ({ x: d.x, y: d.mttr })),
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    yAxisID: 'y'
+                },
+                {
+                    type: 'line',
+                    label: 'Availability (%)',
+                    data: data.map(d => ({ x: d.x, y: d.avail })),
+                    borderColor: '#20c997',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    tension: 0.3,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { type: 'time', time: { unit: 'day' } },
+                y: { beginAtZero: true, title: { display: true, text: 'Hours' } },
+                y1: { 
+                    position: 'right', 
+                    min: 0, max: 100, 
+                    title: { display: true, text: 'Availability %' },
+                    grid: { drawOnChartArea: false }
                 }
             }
-        });
+        }
+    });
 
-        // Interactive Range Logic
-        document.querySelectorAll('[data-range]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+    // Time-range selector logic
+    document.querySelectorAll('[data-range]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
 
-                const days = parseInt(btn.dataset.range, 10);
-                chart.options.scales.x.min = maxDate - (days * 24 * 60 * 60 * 1000);
-                chart.update();
-            });
+            const days = parseInt(btn.dataset.range, 10);
+            chart.options.scales.x.min = maxDate - (days * 24 * 60 * 60 * 1000);
+            chart.options.scales.x.max = maxDate;
+            chart.update();
         });
-    }
-});
+    });
+}
 </script>
 
 <?php require __DIR__ . '/../layouts/html/footer.php'; ?>
