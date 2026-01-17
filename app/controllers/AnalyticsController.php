@@ -14,6 +14,10 @@ class AnalyticsController
 
     public function index(): void
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if (!isset($_SESSION['tenant_id'])) {
             header("Location: /signin");
             exit;
@@ -21,23 +25,34 @@ class AnalyticsController
 
         $orgId = $_SESSION['tenant_id'];
 
+        // ----------------------------
+        // Filters
+        // ----------------------------
         $filters = [
-            'entity' => trim($_GET['entity'] ?? '')
+            'asset_id' => trim($_GET['asset_id'] ?? ''),
+            'entity'   => trim($_GET['entity'] ?? '')
         ];
 
-        // Normalize empty string to null for consistent filtering
+        if ($filters['asset_id'] === '') {
+            $filters['asset_id'] = null;
+        }
+
         if ($filters['entity'] === '') {
             $filters['entity'] = null;
         }
 
-        // Fetch data
+        // ----------------------------
+        // Entities dropdown list
+        // ----------------------------
+        $entities = $this->model->getUniqueEntities($orgId);
+
+        // ----------------------------
+        // Analytics data
+        // ----------------------------
         $mtbf = $this->model->getMTBF($orgId, $filters);
         $mttr = $this->model->getMTTR($orgId, $filters);
         $availability = $this->model->getAvailability($mtbf, $mttr);
         $reliabilityByDate = $this->model->getReliabilityByDate($orgId, $filters);
-
-        // Fetch entities for dropdown
-        $entities = $this->model->getUniqueEntities($orgId);
 
         require __DIR__ . '/../views/reports/analytics.php';
     }
