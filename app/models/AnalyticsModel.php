@@ -223,4 +223,20 @@ class AnalyticsModel
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+	
+	 public function getUniqueEntities(string $orgId): array
+    {
+        $sql = "
+            SELECT DISTINCT col_2
+            FROM tool_state
+            WHERE org_id = :org_id
+              AND col_2 IS NOT NULL
+              AND TRIM(col_2) <> ''
+            ORDER BY col_2
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['org_id' => $orgId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 }
