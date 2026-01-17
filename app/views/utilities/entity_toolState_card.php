@@ -387,8 +387,13 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 <!-- SHARED MODALS -->
 <!-- =============================== -->
 
-<?php include __DIR__ . '/../modals/post_standing_issue.php'; ?>
-<?php include __DIR__ . '/../modals/associate_parts.php'; ?>
+<?php 
+
+include __DIR__ . '/../modals/post_standing_issue.php';
+include __DIR__ . '/../modals/associate_parts.php'; 
+ 
+ ?>
+
 
 <!-- associateAcc-PartsModal -->
 <div class="modal fade" id="associateAcc-PartsModal" tabindex="-1" aria-labelledby="associateAccPartsModalLabel" aria-hidden="true">
