@@ -1,4 +1,5 @@
 <?php
+// app/controllers/AnalyticsController.php
 
 require_once __DIR__ . '/../models/AnalyticsModel.php';
 
@@ -13,30 +14,28 @@ class AnalyticsController
 
     public function index(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        if (empty($_SESSION['tenant_id'])) {
-            header('Location: /signin');
+        if (!isset($_SESSION['tenant_id'])) {
+            header("Location: /signin");
             exit;
         }
 
         $orgId = $_SESSION['tenant_id'];
 
-        $filters = [
-            'asset_id' => $_GET['asset_id'] ?? null,
-            'entity'   => $_GET['entity'] ?? null
-        ];
+         $filters = [
+        'asset_id' => trim($_GET['asset_id'] ?? '')
+		];
+		if ($filters['asset_id'] === '') {
+			$filters['asset_id'] = null;
+		}
 
-        $entities = $this->model->getUniqueEntities($orgId);
+		// For time-series chart
+		$reliabilityByDate = $this->model->getReliabilityByDate($orgId, $filters);
 
-        $mtbf = $this->model->getMTBF($orgId, $filters);
-        $mttr = $this->model->getMTTR($orgId, $filters);
-        $availability = $this->model->getAvailability($mtbf, $mttr);
-        $reliabilityByDate = $this->model->getReliabilityByDate($orgId, $filters);
+		// Keep existing per-asset data for tables
+		$mtbf = $this->model->getMTBF($orgId, $filters);
+		$mttr = $this->model->getMTTR($orgId, $filters);
+		$availability = $this->model->getAvailability($mtbf, $mttr);
 
-        require __DIR__ . '/../views/analytics.php';
-    }
+			require __DIR__ . '/../views/reports/analytics.php';
+		}
 }
-
