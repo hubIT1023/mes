@@ -18,25 +18,13 @@ require __DIR__ . '/../layouts/html/header.php';
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <form method="GET" class="row g-3 align-items-end">
-                <!--div class="col-md-6">
+                <div class="col-md-6">
                     <label class="form-label fw-bold">Asset ID</label>
                     <input type="text" name="asset_id" 
-                           value="<?= htmlspecialchars($_GET['asset_id'] ?? '') ?>" 
+                           value="<?= htmlspecialchars($_GET['entity'] ?? '') ?>" 
                            class="form-control" placeholder="e.g. smt-10267">
-                </div-->
-				 <!-- Entity -->
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Entity</label>
-                    <select name="entity" class="form-select">
-                        <option value="">All Entities</option>
-                        <?php foreach ($entities as $e): ?>
-                            <option value="<?= htmlspecialchars($e) ?>"
-                                <?= ($_GET['entity'] ?? '') === $e ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($e) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
                 </div>
+				
 				
 				
                 <div class="col-md-3">
