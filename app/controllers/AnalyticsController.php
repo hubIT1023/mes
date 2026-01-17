@@ -12,30 +12,38 @@ class AnalyticsController
         $this->model = new AnalyticsModel();
     }
 
-    public function index(): void
-    {
-        if (!isset($_SESSION['tenant_id'])) {
-            header("Location: /signin");
-            exit;
-        }
+   // app/controllers/AnalyticsController.php
+	public function index(): void
+	{
+		if (session_status() === PHP_SESSION_NONE) {
+			session_start();
+		}
 
-        $orgId = $_SESSION['tenant_id'];
+		if (!isset($_SESSION['tenant_id'])) {
+			header("Location: /signin");
+			exit;
+		}
 
-         $filters = [
-        'asset_id' => trim($_GET['asset_id'] ?? '')
+		$orgId = $_SESSION['tenant_id'];
+		$model = new AnalyticsModel();
+
+		// ✅ Fetch unique entities from tool_state
+		$toolStateModel = new ToolStateModel(); // or use existing model instance
+		$entities = $toolStateModel->getUniqueEntities($orgId);
+
+		// Build filters (now includes 'entity')
+		$filters = [
+			'asset_id' => $_GET['asset_id'] ?? null,
+			'entity'   => $_GET['entity']   ?? null,
 		];
-		if ($filters['asset_id'] === '') {
-			$filters['asset_id'] = null;
-		}
 
-		// For time-series chart
-		$reliabilityByDate = $this->model->getReliabilityByDate($orgId, $filters);
+		// Get analytics data
+		$mtbf = $model->getMTBF($orgId, $filters);
+		$mttr = $model->getMTTR($orgId, $filters);
+		$availability = $model->getAvailability($mtbf, $mttr);
+		$reliabilityByDate = $model->getReliabilityByDate($orgId, $filters);
 
-		// Keep existing per-asset data for tables
-		$mtbf = $this->model->getMTBF($orgId, $filters);
-		$mttr = $this->model->getMTTR($orgId, $filters);
-		$availability = $this->model->getAvailability($mtbf, $mttr);
-
-			require __DIR__ . '/../views/reports/analytics.php';
-		}
+		// Pass $entities to view
+		require __DIR__ . '/../views/analytics.php';
+	}
 }
