@@ -1,11 +1,11 @@
 <?php
 // /app/views/utilities/tool_card/entity_toolState_card.php
+include __DIR__ . '/entity_toolState_card_helper.php';
 
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-
+/*
 if (!isset($group) || !isset($org_id) || !isset($conn)) {
     echo "<div class='alert alert-danger'>Error: Missing required context (group, org_id, or conn).</div>";
     return;
@@ -137,6 +137,7 @@ foreach ($entities as $entity) {
 
 // === CSRF Token Safety ===
 $csrfToken = $_SESSION['csrf_token'] ?? '';
+*/
 ?>
 <style>
     .downtime-chart { cursor: pointer; }
@@ -250,70 +251,70 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 
                         <div class="card-body p-3 pt-0">
 					
-                            <div class="mb-1" data-bs-toggle="modal" data-bs-target="#CalDueModal" style="cursor: pointer;">
-                                <div class="d-flex justify-content-between small fw-bold mb-0">
-                                    <span class="text-muted" style="font-size: 10px;">WOF</span>
-                                    <span class="text-primary" style="font-size: 10px;">Due: 14 Oct</span>
-                                </div>
-                                <div class="progress bg-light" style="height: 6px;">
-                                    <div class="progress-bar bg-success" style="width: 85%"></div>
-                                </div>
-                            </div>
+								<div class="mb-1" data-bs-toggle="modal" data-bs-target="#CalDueModal" style="cursor: pointer;">
+									<div class="d-flex justify-content-between small fw-bold mb-0">
+										<span class="text-muted" style="font-size: 10px;">WOF</span>
+										<span class="text-primary" style="font-size: 10px;">Due: 14 Oct</span>
+									</div>
+									<div class="progress bg-light" style="height: 6px;">
+										<div class="progress-bar bg-success" style="width: 85%"></div>
+									</div>
+								</div>
 
-                            <div class="mb-3" data-bs-toggle="modal" data-bs-target="#CalDueModal" style="cursor: pointer;">
-                                <div class="d-flex justify-content-between small fw-bold mb-0">
-                                    <span class="text-muted" style="font-size: 10px;">CAL</span>
-                                    <span class="text-primary" style="font-size: 10px;">Due: 14 Oct</span>
-                                </div>
-                                <div class="progress bg-light" style="height: 6px;">
-                                    <div class="progress-bar bg-warning" style="width: 65%"></div>
-                                </div>
-                            </div>
-							
-							<div class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle d-flex align-items-center gap-2 px-2 py-1" 
-									 style="font-size: 0.7rem; cursor: pointer;"
-									 data-bs-toggle="modal" data-bs-target="#LoadWorkModal"
-									 <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
-									<span class="spinner-grow spinner-grow-sm text-primary" role="status" style="width: 8px; height: 8px;"></span>
-									WIP
-							</div>
-                            
-                            <div class="row g-2 mb-1 text-center py-2 ">
-							
-							 <div class="col-6">
-                                    <div class="p-2 border rounded-3 bg-body-tertiary">
-                                        <div class="text-muted fw-bold mb-1" style="font-size: 9px;"> Actual OPT</div>
-                                        <div class="h6 fw-bold m-0">1200<small class="fw-normal">cnts</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="p-2 border rounded-3 bg-body-tertiary">
-                                        <div class="text-muted fw-bold mb-1" style="font-size: 9px;">Target OPT</div>
-                                        <div class="h6 fw-bold m-0">3000<small class="fw-normal text-muted">cnts</small></div>
-                                    </div>
-                                </div>
-							
-                                <!--div class="col-6">
-                                    <div class="p-2 border rounded-3 bg-body-tertiary">
-                                        <div class="text-muted fw-bold mb-1" style="font-size: 9px;">TEMP</div>
-                                        <div class="h6 fw-bold m-0">84<small class="fw-normal">°C</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="p-2 border rounded-3 bg-body-tertiary">
-                                        <div class="text-muted fw-bold mb-1" style="font-size: 9px;">PRESSURE</div>
-                                        <div class="h6 fw-bold m-0">107<small class="fw-normal text-muted">b</small></div>
-                                    </div>
-                                </div-->
-                            </div>
+								<div class="mb-3" data-bs-toggle="modal" data-bs-target="#CalDueModal" style="cursor: pointer;">
+									<div class="d-flex justify-content-between small fw-bold mb-0">
+										<span class="text-muted" style="font-size: 10px;">CAL</span>
+										<span class="text-primary" style="font-size: 10px;">Due: 14 Oct</span>
+									</div>
+									<div class="progress bg-light" style="height: 6px;">
+										<div class="progress-bar bg-warning" style="width: 65%"></div>
+									</div>
+								</div>
+								
+								<div class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle d-flex align-items-center gap-2 px-2 py-1" 
+										 style="font-size: 0.7rem; cursor: pointer;"
+										 data-bs-toggle="modal" data-bs-target="#LoadWorkModal"
+										 <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
+										<span class="spinner-grow spinner-grow-sm text-primary" role="status" style="width: 8px; height: 8px;"></span>
+										WIP
+								</div>
+								
+								<div class="row g-2 mb-1 text-center py-2 ">
+								
+								 <div class="col-6">
+										<div class="p-2 border rounded-3 bg-body-tertiary">
+											<div class="text-muted fw-bold mb-1" style="font-size: 9px;"> Actual OPT</div>
+											<div class="h6 fw-bold m-0">1200<small class="fw-normal">cnts</small></div>
+										</div>
+									</div>
+									<div class="col-6">
+										<div class="p-2 border rounded-3 bg-body-tertiary">
+											<div class="text-muted fw-bold mb-1" style="font-size: 9px;">Target OPT</div>
+											<div class="h6 fw-bold m-0">3000<small class="fw-normal text-muted">cnts</small></div>
+										</div>
+									</div>
+								
+									<!--div class="col-6">
+										<div class="p-2 border rounded-3 bg-body-tertiary">
+											<div class="text-muted fw-bold mb-1" style="font-size: 9px;">TEMP</div>
+											<div class="h6 fw-bold m-0">84<small class="fw-normal">°C</small></div>
+										</div>
+									</div>
+									<div class="col-6">
+										<div class="p-2 border rounded-3 bg-body-tertiary">
+											<div class="text-muted fw-bold mb-1" style="font-size: 9px;">PRESSURE</div>
+											<div class="h6 fw-bold m-0">107<small class="fw-normal text-muted">b</small></div>
+										</div>
+									</div-->
+								</div>
 
-                            <button class="btn <?= htmlspecialchars($badge['class']) ?> w-100 fw-bold py-2 mb-3 shadow-sm"
-                                data-bs-toggle="modal" data-bs-target="#setMaintModal"
-                                <?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
-                                <?= htmlspecialchars($badge['label']) ?>
-                            </button>
-                            
-                            <div class="border-top pt-2">
+								<button class="btn <?= htmlspecialchars($badge['class']) ?> w-100 fw-bold py-2 mb-3 shadow-sm"
+									data-bs-toggle="modal" data-bs-target="#setMaintModal"
+									<?php renderDataAttributes($assetId, $entityName, $groupCode, $locationCode, $locationName, $currentDateTime); ?>>
+									<?= htmlspecialchars($badge['label']) ?>
+								</button>
+								
+								<div class="border-top pt-2">
 									<div class="d-flex justify-content-between align-items-center mb-1">
 										<span class="fw-bold" style="font-size: 10px;">5-DAY DOWNTIME</span>
 										<span class="text-muted" style="font-size: 10px;">Total: 4.2h</span>
@@ -326,10 +327,9 @@ $csrfToken = $_SESSION['csrf_token'] ?? '';
 												data-chart-colors='["#d1e7dd", "#f8d7da", "#d1e7dd", "#f8d7da", "#fff3cd"]'
 												data-chart-borders='["#198754", "#dc3545", "#198754", "#dc3545", "#ffc107"]'>
 										</canvas>
-
+									</div>
 								</div>
-                            </div>
-                        </div>
+							</div>
                     </div>
 
 <!-- =============================== -->
@@ -494,13 +494,6 @@ include __DIR__ . '/../modals/change_state.php';
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
 
 
 
