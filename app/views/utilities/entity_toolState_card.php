@@ -4,6 +4,7 @@
 include __DIR__ . '/entity_toolState_card_helper.php';
 
 ?>
+
 <style>
     .downtime-chart { cursor: pointer; }
 </style>
@@ -28,9 +29,11 @@ include __DIR__ . '/entity_toolState_card_helper.php';
                                 <div class="d-flex flex-column align-items-start gap-1">
                                     <div class="d-flex align-items-center gap-2">
 									
-									<!--------------DROPDOWN LIST ------------------------------------------------------------------->
-                                        <!--i class="fas fa-microchip text-secondary small"></i-->
-										<div class="dropdown">
+									<!--------------DROPDOWN MENU ------------------------------------------------------------------->
+                                        <? include __DIR__ . '/dropdown_menu.php'; ?>
+										
+										<!--i class="fas fa-microchip text-secondary small"></i-->
+										<!--div class="dropdown">
 											<a class="btn btn-sm border-0" 
 											   href="#" 
 											   id="alertsDropdown" 
@@ -93,7 +96,7 @@ include __DIR__ . '/entity_toolState_card_helper.php';
 													</div>
 												</a>
 											</div>
-										</div>
+										</div-->
 										
 										<!--------------------------------------------------------------------------------->
 										
