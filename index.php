@@ -1,7 +1,7 @@
 <?php
 // index.php -- Front Controller
 
-require_once __DIR__ . '/app/middleware/logger.php'; // optional logging helper
+//require_once __DIR__ . '/app/middleware/logger.php'; // optional logging helper
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
