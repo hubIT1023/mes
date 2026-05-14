@@ -1,199 +1,58 @@
-# docker-compose.yml — Production Hardened (Fixed)
-# Requires: Docker Compose V2.20+ | Docker Engine 24.0+
-# NOTE: 'version' key removed — obsolete in Compose V2
-
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        BUILDKIT_INLINE_CACHE: 1
+    build: .
     container_name: hubit-web
-    
-    # 🔐 Network: Localhost only — use reverse proxy for public access
     ports:
-      - "127.0.0.1:80:80"
-      - "127.0.0.1:443:443"
-    
-    # 🔐 Environment
+      - "80:80"
+      - "443:443"
     env_file:
-      - path: .env
-        required: true
-    environment:
-      DB_PASSWORD_FILE: /run/secrets/db_password
-      PGADMIN_PASSWORD_FILE: /run/secrets/pgadmin_password
-    
-    # 🔐 Volumes: NO CONFLICTS — logs use named volume ONLY
+      - .env
     volumes:
-      # Apache config (read-only)
+      # Apache vhost config (read-only)
       - ./apache/sites-available/hubit.conf:/etc/apache2/sites-available/hubit.conf:ro
-      
-      # Let's Encrypt certificates (read-only)
-      - ./letsencrypt:/etc/letsencrypt:ro
-      
-      # Application code (read-only)
-      - ./app:/var/www/html/app:ro
-      - ./index.php:/var/www/html/index.php:ro
-      - ./.htaccess:/var/www/html/.htaccess:ro
-      
-      # ✅ FIXED: Logs use NAMED VOLUME ONLY (no tmpfs conflict)
-      - app_logs:/var/www/html/app/logs
-    
-    # 🔐 Security Hardening
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
-    read_only: true
-    
-    # ✅ FIXED: tmpfs entries — REMOVED /app/logs to avoid conflict
-    tmpfs:
-      - /tmp:size=64m,mode=1777
-      - /var/run:size=16m,mode=755
-    
-    # 🔐 Resource Limits (Compose V2 syntax)
-    mem_limit: 512m
-    cpus: 1.0
-    mem_reservation: 128m
-    cpu_reservation: 0.25
-    
-    # 🔐 Health Check
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    
+
+      # Let's Encrypt certificates
+      - ./letsencrypt:/etc/letsencrypt
+
+      # Application code (web root)
+      - ./app:/var/www/html/app
+      - ./index.php:/var/www/html/index.php
+      - ./.htaccess:/var/www/html/.htaccess
+      # Add other top-level files as needed (e.g., .env is NOT web-accessible)
+
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
-    
+      - postgres
     networks:
       - hubit_net
-    dns:
-      - ${DNS_SERVER:-1.1.1.1}
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   postgres:
-    image: postgres:16-alpine
-    container_name: hubit-db
-    
-    expose:
-      - "5432"
-    
+    image: postgres:16
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-    
-    secrets:
-      - db_password
-    
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
-    
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - SETGID
-      - SETUID
-    read_only: true
-    tmpfs:
-      - /tmp:size=64m,mode=1777
-      - /var/run/postgresql:size=32m,mode=770
-  
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro  # Optional: auto-init schema
     restart: unless-stopped
     networks:
       - hubit_net
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: hubit-pgadmin
-    
-    ports:
-      - "127.0.0.1:5050:80"
-    
+    image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD_FILE: /run/secrets/pgadmin_password
-      PGADMIN_CONFIG_SERVER_MODE: "True"
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "True"
-      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
-      PGADMIN_CONFIG_LOGIN_BANNER: "'Authorized access only. All activity is logged.'"
-      PGADMIN_CONFIG_DISABLE_EXTERNAL_OPENID_AUTH: "True"
-    
-    secrets:
-      - pgadmin_password
-    
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    read_only: true
-    tmpfs:
-      - /tmp:size=64m,mode=1777
-      - /var/lib/pgadmin/storage:size=128m,mode=700
-    
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     networks:
       - hubit_net
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
-# 🔐 Volumes
 volumes:
   postgres_data:
-    driver: local
-  app_logs:
-    driver: local
-  pgadmin_data:
-    driver: local
 
-# 🔐 Secrets
-secrets:
-  db_password:
-    file: ./secrets/db_password.txt
-  pgadmin_password:
-    file: ./secrets/pgadmin_password.txt
-
-# 🔐 Networks
 networks:
   hubit_net:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.28.0.0/16
