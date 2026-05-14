@@ -126,8 +126,8 @@ foreach ($routes as $routePattern => $routeHandler) {
 http_response_code(404);
 
 // Include the custom 404 page
-include __DIR__ . '/404/404.php';
-exit;
+//include __DIR__ . '/404/404.php';
+//exit;
 
 
 //echo "<p>The requested URL '$uri' was not found.</p>";
