@@ -1,58 +1,226 @@
+# docker-compose.yml — Production Hardened
+version: '3.8'
+
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Build-time security: disable unnecessary features
+        BUILDKIT_INLINE_CACHE: 1
     container_name: hubit-web
+    
+    # 🔐 Network: Only expose via reverse proxy in production
+    # For direct exposure, restrict to specific IPs or use firewall
     ports:
-      - "80:80"
-      - "443:443"
+      - "127.0.0.1:80:80"   # Bind to localhost only
+      - "127.0.0.1:443:443" # Bind to localhost only
+    
+    # 🔐 Environment: Load secrets securely
     env_file:
-      - .env
+      - path: .env
+        required: true
+    environment:
+      # Override sensitive vars with Docker secrets if available
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      PGADMIN_PASSWORD_FILE: /run/secrets/pgadmin_password
+    
+    # 🔐 Volumes: Minimal, explicit, with security flags
     volumes:
-      # Apache vhost config (read-only)
+      # Apache config (read-only)
       - ./apache/sites-available/hubit.conf:/etc/apache2/sites-available/hubit.conf:ro
-
-      # Let's Encrypt certificates
-      - ./letsencrypt:/etc/letsencrypt
-
-      # Application code (web root)
-      - ./app:/var/www/html/app
-      - ./index.php:/var/www/html/index.php
-      - ./.htaccess:/var/www/html/.htaccess
-      # Add other top-level files as needed (e.g., .env is NOT web-accessible)
-
+      
+      # Let's Encrypt certificates (read-only for web, write for certbot)
+      - ./letsencrypt:/etc/letsencrypt:ro
+      
+      # Application code (read-only in production; use CI/CD for deploys)
+      - ./app:/var/www/html/app:ro
+      - ./index.php:/var/www/html/index.php:ro
+      - ./.htaccess:/var/www/html/.htaccess:ro
+      
+      # Writable directories (tmpfs for ephemeral, named volume for logs)
+      - app_logs:/var/www/html/app/logs
+      - ./letsencrypt:/var/www/html/letsencrypt:ro  # If certbot runs in container
+    
+    # 🔐 Security Hardening
+    security_opt:
+      - no-new-privileges:true           # Prevent privilege escalation
+      - apparmor=docker-default          # Apply AppArmor profile (Linux)
+    cap_drop:
+      - ALL                              # Drop all Linux capabilities
+    cap_add:
+      - NET_BIND_SERVICE                 # Only add if binding to port <1024
+    read_only: true                      # Make root filesystem read-only
+    tmpfs:
+      - /tmp:size=64m,mode=1777          # Ephemeral temp storage
+      - /var/run:size=16m,mode=755       # Runtime sockets
+      - /var/www/html/app/logs:size=128m,mode=755  # If not using named volume
+    
+    # 🔐 Resource Limits (Prevent DoS/abuse)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    # 🔐 Health Check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
     restart: unless-stopped
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy  # Wait for DB to be ready
+    
     networks:
       - hubit_net
+    dns:
+      - 1.1.1.1  # Cloudflare DNS (or use your internal DNS)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   postgres:
-    image: postgres:16
+    image: postgres:16-alpine  # Use Alpine for smaller attack surface
+    container_name: hubit-db
+    
+    # 🔐 Database: Never expose port to host in production
+    # Use internal network only; access via app or pgadmin
+    expose:
+      - "5432"  # Internal only; NOT published to host
+    
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      # 🔐 Use secrets for password (see below)
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    
+    # 🔐 Secrets: Mount password from Docker secret (more secure than env var)
+    secrets:
+      - db_password
+    
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro  # Optional: auto-init schema
+      # 🔐 Init script: Ensure it's read-only and audited
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    
+    # 🔐 Security Hardening
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_READ_SEARCH  # Needed for PostgreSQL file access
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+      - /var/run/postgresql:size=32m,mode=770
+  
+    # 🔐 Health Check: Verify DB is accepting connections
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    
     restart: unless-stopped
     networks:
       - hubit_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
+    container_name: hubit-pgadmin
+    
+    # 🔐 CRITICAL: Never expose pgAdmin to the internet
+    # Access via SSH tunnel or restrict to internal network + auth
+    ports:
+      - "127.0.0.1:5050:80"  # Bind to localhost only
+    
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_DEFAULT_PASSWORD_FILE: /run/secrets/pgadmin_password
+      # 🔐 Additional pgAdmin security settings
+      PGADMIN_CONFIG_SERVER_MODE: "True"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "True"
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
+      PGADMIN_CONFIG_LOGIN_BANNER: "'Authorized access only. All activity is logged.'"
+    
+    secrets:
+      - pgadmin_password
+    
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      # 🔐 Optional: Load pre-configured servers (read-only)
+      # - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+    
+    # 🔐 Security Hardening
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+      - /var/lib/pgadmin/storage:size=128m,mode=700
+    
     restart: unless-stopped
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - hubit_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
+# 🔐 Volumes: Named volumes for persistent data
 volumes:
   postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /opt/docker/volumes/postgres_data  # Optional: bind to specific host path
+      o: bind
+  app_logs:
+    driver: local
+  pgadmin_data:
+    driver: local
 
+# 🔐 Secrets: Store sensitive values outside compose file
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt  # File containing only the password (no newline)
+  pgadmin_password:
+    file: ./secrets/pgadmin_password.txt
+
+# 🔐 Networks: Isolated bridge network
 networks:
   hubit_net:
     driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 'true'
+      com.docker.network.bridge.host_binding_ipv4: '127.0.0.1'  # Bind to localhost
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16  # Custom subnet for better isolation
