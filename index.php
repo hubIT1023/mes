@@ -1,21 +1,15 @@
 <?php
-// index.php -- Front Controller (UPDATED)
+// index.php -- Front Controller
 
-require_once __DIR__ . '/app/middleware/logger.php'; // optional logging helper
+//require_once __DIR__ . '/app/middleware/logger.php'; // optional logging helper
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$baseDir = __DIR__;  // project root
-
-// -------------------------------------------------
-// 🔧 DYNAMIC BASE URL DETECTION
-// Works at root (/) or any subdirectory (/mes, /app, etc.)
-// -------------------------------------------------
-$scriptName = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-$baseUrl = rtrim($scriptName, '/') ?: '/';
-
+$baseDir = __DIR__;      // project root
+//$baseUrl = '/mes';
+$baseUrl = '/';
 // -------------------------------------------------
 // SINGLE, ENHANCED AUTOLOADER
 // -------------------------------------------------
@@ -24,7 +18,7 @@ spl_autoload_register(function ($class) use ($baseDir) {
         "$baseDir/app/controllers/$class.php",
         "$baseDir/app/models/$class.php",
         "$baseDir/app/config/$class.php",
-        "$baseDir/app/middleware/$class.php",
+        "$baseDir/app/middleware/$class.php",  // use middleware instead of helpers
     ];
 
     foreach ($paths as $path) {
@@ -52,33 +46,20 @@ if (php_sapi_name() === 'cli') {
 $method = $_SERVER['REQUEST_METHOD'];
 $rawUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Normalize: ensure baseUrl ends with / for consistent matching
-$normalizedBase = $baseUrl === '/' ? '/' : rtrim($baseUrl, '/') . '/';
+if ($rawUri === $baseUrl) $rawUri .= '/';
 
-// If request is exactly the base URL, redirect to add trailing slash
-if ($rawUri === rtrim($baseUrl, '/')) {
-    header("Location: $normalizedBase");
-    exit;
-}
-
-// Validate base path (only if not root)
-if ($baseUrl !== '/' && strpos($rawUri, $normalizedBase) !== 0) {
+if (strpos($rawUri, $baseUrl) !== 0) {
     http_response_code(404);
-    exit('Invalid base path. Expected: ' . $normalizedBase);
+    exit('Invalid base path');
 }
 
-// Extract URI relative to base
-if ($baseUrl === '/') {
-    $uri = $rawUri;
-} else {
-    $uri = substr($rawUri, strlen(rtrim($baseUrl, '/')));
-}
+$uri = substr($rawUri, strlen($baseUrl));
 $uri = rtrim($uri, '/') ?: '/';
 
 // -------------------------------------------------
 // Load routes
 // -------------------------------------------------
-$routesPath = $baseDir . '/app/routes.php';
+$routesPath = $baseDir . '/app/routes.php';  // routes.php is inside app/
 if (!file_exists($routesPath)) {
     error_log("Routes file not found: $routesPath");
     http_response_code(500);
@@ -105,14 +86,14 @@ foreach ($routes as $routePattern => $routeHandler) {
     [$routeMethod, $routePath] = $parts;
     if ($routeMethod !== $method) continue;
 
-    // Convert route pattern to regex (support :num placeholder)
     $regex = preg_quote($routePath, '/');
     $regex = preg_replace('/\\\(:num)/', '(\d+)', $regex);
+	//$regex = preg_replace('/\\\(:id)/', '(\d+)', $regex);
     $regex = '/^' . $regex . '$/i';
 
     if (!preg_match($regex, $uri, $matches)) continue;
 
-    array_shift($matches); // Remove full match
+    array_shift($matches);
     $matched = true;
 
     $controllerName = $routeHandler[0] ?? null;
@@ -127,23 +108,15 @@ foreach ($routes as $routePattern => $routeHandler) {
     try {
         $controller = new $controllerName();
         if ($matches) {
-            // Convert numeric params to int, leave others as string
-            $params = array_map(function($val) {
-                return is_numeric($val) && ctype_digit($val) ? intval($val) : $val;
-            }, $matches);
-            call_user_func_array([$controller, $action], $params);
+            call_user_func_array([$controller, $action], array_map('intval', $matches));
         } else {
             $controller->$action();
         }
         exit;
     } catch (Exception $e) {
-        error_log("Controller error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+        error_log("Controller error: " . $e->getMessage());
         http_response_code(500);
         exit('Internal error in controller');
-    } catch (Error $e) {
-        error_log("Fatal error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
-        http_response_code(500);
-        exit('Fatal error in controller');
     }
 }
 
@@ -152,15 +125,16 @@ foreach ($routes as $routePattern => $routeHandler) {
 // -------------------------------------------------
 http_response_code(404);
 
-// Load custom 404 page if exists
-$notFoundPage = __DIR__ . '/404/404.php';
-if (file_exists($notFoundPage)) {
-    include $notFoundPage;
-} else {
-    echo "<!DOCTYPE html><html><head><title>404 Not Found</title></head><body>";
-    echo "<h1>404 - Page Not Found</h1>";
-    echo "<p>The requested URL <code>" . htmlspecialchars($_SERVER['REQUEST_URI']) . "</code> was not found.</p>";
-    echo "<p><a href='" . htmlspecialchars($baseUrl) . "'>Return to Home</a></p>";
-    echo "</body></html>";
-}
+// Include the custom 404 page
+include __DIR__ . '/404/404.php';
 exit;
+
+
+//echo "<p>The requested URL '$uri' was not found.</p>";
+/*
+echo "<p>Available routes:</p><ul>";
+foreach (array_keys($routes) as $route) {
+    echo "<li>" . htmlspecialchars($route) . "</li>";
+}
+echo "</ul>";
+*/
