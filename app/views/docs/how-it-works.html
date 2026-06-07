@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HubIT MMS | How It Works</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS for modern structure (since the project uses it for landing pages) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#F0F5FA',
+                            100: '#E1EBF5',
+                            500: '#0056B3',
+                            600: '#004494',
+                            700: '#1A365D',
+                            800: '#0A2540',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .gradient-card {
+            background: linear-gradient(135deg, #1A365D 0%, #0A2540 100%);
+        }
+        .glow-hover:hover {
+            box-shadow: 0 10px 30px -10px rgba(0, 86, 179, 0.3);
+            transform: translateY(-2px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .step-pill {
+            background: linear-gradient(135deg, #0056B3 0%, #004494 100%);
+        }
+    </style>
+</head>
+<body class="font-sans bg-slate-50 text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Sticky Navigation Header -->
+    <header class="sticky top-0 z-50 glass-header">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="/mes/hub_portal">
+                    <img src="/app/Assets/img/hubIT_logo-v5.png" alt="HubIT Logo" class="h-10 w-auto">
+                </a>
+                <span class="text-xs px-2.5 py-1 bg-brand-100 text-brand-700 rounded-full font-semibold font-outfit uppercase tracking-wider">MMS DOCS</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/mes/hub_portal" class="text-sm font-semibold text-slate-600 hover:text-brand-500 transition-colors">Portal Dashboard</a>
+                <a href="/mes/signin" class="bg-brand-800 hover:bg-brand-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md shadow-brand-800/10">Sign In</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Hero Banner -->
+    <main class="max-w-7xl mx-auto px-6 py-12">
+        <section class="gradient-card rounded-3xl p-8 md:p-12 text-white mb-16 shadow-2xl relative overflow-hidden">
+            <div class="absolute right-0 bottom-0 top-0 w-1/3 opacity-10 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-blue-300 via-blue-600 to-brand-800 hidden md:block"></div>
+            <div class="relative z-10 max-w-3xl">
+                <h1 class="text-4xl md:text-5xl font-extrabold font-outfit tracking-tight mb-4 leading-tight">How the Maintenance System Works</h1>
+                <p class="text-lg text-slate-300 mb-8 leading-relaxed">
+                    Welcome to the HubIT Maintenance Management System technical guidelines. 
+                    This reference manual clarifies the architectural flows, background automation schedulers, and secure SSL processes running under the hood.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#architecture" class="bg-brand-500 hover:bg-brand-600 text-white font-bold px-6 py-3 rounded-xl transition shadow-lg shadow-brand-500/20 text-sm">System Architecture</a>
+                    <a href="#workflows" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-6 py-3 rounded-xl transition text-sm">Operation Workflows</a>
+                    <a href="/HubIT_MMS_Technical_Documentation.pdf" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl transition text-sm flex items-center gap-2"><i class="fas fa-file-pdf"></i> Download PDF Manual</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- GRID Section 1: Architecture -->
+        <section id="architecture" class="mb-20 scroll-mt-24">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold font-outfit text-brand-800">1. System Architecture Layout</h2>
+                    <p class="text-slate-500 mt-1">Structured using clean, highly readable PHP MVC blueprints.</p>
+                </div>
+                <div class="h-1 w-20 bg-brand-500 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- MVC Card -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm glow-hover">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-brand-500 mb-5 text-xl"><i class="fas fa-layer-group"></i></div>
+                    <h3 class="text-xl font-bold text-brand-800 mb-3 font-outfit">MVC Architecture</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        Separates visual displays (Views), business rules (Models), and processing logic (Controllers) to guarantee maintainability:
+                    </p>
+                    <ul class="space-y-2.5 text-xs text-slate-600">
+                        <li class="flex gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i> <span><b>Controllers:</b> Bind requests, validate parameters, and render views.</span></li>
+                        <li class="flex gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i> <span><b>Models:</b> Safely interface database connections using parameterized statements.</span></li>
+                        <li class="flex gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i> <span><b>Views:</b> Pure PHP layouts injected with dynamically escaped data keys.</span></li>
+                    </ul>
+                </div>
+
+                <!-- Dynamic Router Card -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm glow-hover">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-500 mb-5 text-xl"><i class="fas fa-route"></i></div>
+                    <h3 class="text-xl font-bold text-brand-800 mb-3 font-outfit">Dynamic Routing Engine</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        The front controller (<code>index.php</code>) handles incoming URLs dynamically:
+                    </p>
+                    <ul class="space-y-2.5 text-xs text-slate-600">
+                        <li class="flex gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i> <span><b>Base Path Detection:</b> Auto-detects whether the URL is served from root (<code>/</code>) or sub-folder (<code>/mes/</code>).</span></li>
+                        <li class="flex gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i> <span><b>Safe Redirects:</b> Ensures references do not break when porting between local environments and cloud servers.</span></li>
+                    </ul>
+                </div>
+
+                <!-- Security Scope Card -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm glow-hover">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-500 mb-5 text-xl"><i class="fas fa-shield-halved"></i></div>
+                    <h3 class="text-xl font-bold text-brand-800 mb-3 font-outfit">Multi-Tenant Isolation</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        Keeps client organization records strictly confidential:
+                    </p>
+                    <ul class="space-y-2.5 text-xs text-slate-600">
+                        <li class="flex gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i> <span><b>Session Scoping:</b> Reads <code>tenant_id</code> straight from validated server sessions.</span></li>
+                        <li class="flex gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i> <span><b>Where Scopes:</b> Parameterizes every database SELECT/UPDATE statement with the current organization UUID context.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- GRID Section 2: Workflows -->
+        <section id="workflows" class="mb-20 scroll-mt-24">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold font-outfit text-brand-800">2. Core Operational Workflows</h2>
+                    <p class="text-slate-500 mt-1">Step-by-step processes managing daily asset tasks.</p>
+                </div>
+                <div class="h-1 w-20 bg-brand-500 rounded-full"></div>
+            </div>
+
+            <!-- Flow A: Auto Scheduler -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm mb-12">
+                <div class="bg-brand-50 px-6 py-4 border-b border-slate-200 flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-brand-500 text-white flex items-center justify-center text-sm font-bold"><i class="fas fa-clock"></i></span>
+                    <h3 class="text-lg font-bold text-brand-800 font-outfit">Flow A: Time-Based Preventive Maintenance (TBPM) Schedulers</h3>
+                </div>
+                <div class="p-6 md:p-8">
+                    <div class="relative pl-8 border-l border-slate-200 space-y-8">
+                        <!-- Step 1 -->
+                        <div class="relative">
+                            <span class="absolute -left-[45px] top-0 w-8 h-8 step-pill text-white flex items-center justify-center rounded-full text-xs font-bold shadow-md shadow-brand-500/20">01</span>
+                            <h4 class="font-bold text-brand-800 font-outfit">Cron Trigger Execution</h4>
+                            <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+                                The system's hosting environment schedules a background cron job triggering the CLI script <code>app/cron/tbpm_scheduler.php</code>.
+                            </p>
+                        </div>
+                        <!-- Step 2 -->
+                        <div class="relative">
+                            <span class="absolute -left-[45px] top-0 w-8 h-8 step-pill text-white flex items-center justify-center rounded-full text-xs font-bold shadow-md shadow-brand-500/20">02</span>
+                            <h4 class="font-bold text-brand-800 font-outfit">Due Maintenance Selection</h4>
+                            <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+                                The scheduler loops through all registered tenant orgs, mapping configs, and querying the database to find assets whose <code>next_maintenance_date</code> matches today's date.
+                            </p>
+                        </div>
+                        <!-- Step 3 -->
+                        <div class="relative">
+                            <span class="absolute -left-[45px] top-0 w-8 h-8 step-pill text-white flex items-center justify-center rounded-full text-xs font-bold shadow-md shadow-brand-500/20">03</span>
+                            <h4 class="font-bold text-brand-800 font-outfit">Work Order Generation</h4>
+                            <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+                                Creates an active entry in the <code>routine_Work_Orders</code> table matching the predefined checklist template, setting the initial status to "Pending".
+                            </p>
+                        </div>
+                        <!-- Step 4 -->
+                        <div class="relative">
+                            <span class="absolute -left-[45px] top-0 w-8 h-8 step-pill text-white flex items-center justify-center rounded-full text-xs font-bold shadow-md shadow-brand-500/20">04</span>
+                            <h4 class="font-bold text-brand-800 font-outfit">Interval Date Reprojection</h4>
+                            <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+                                Calculates the next maintenance date based on the config interval (e.g. adding 30 or 90 days), updating the record context automatically.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flow B: Checklist Execution -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="bg-brand-50 px-6 py-4 border-b border-slate-200 flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center text-sm font-bold"><i class="fas fa-list-check"></i></span>
+                    <h3 class="text-lg font-bold text-brand-800 font-outfit">Flow B: Technician Checklist Execution & Archival</h3>
+                </div>
+                <div class="p-6 md:p-8">
+                    <div class="relative pl-8 border-l border-slate-200 space-y-8">
+                        <!-- Step 1 -->
+                        <div class="relative">
+                            <span class="absolute -left-[45px] top-0 w-8 h-8 step-pill text-white flex items-center justify-center rounded-full text-xs font-bold shadow-md shadow-brand-500/20">01</span>
+                            <h4 class="font-bold text-brand-800 font-outfit">Begin Maintenance</h4>
+                            <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+                                Technicians log into their dashboard portal, see active pending schedules, and click "Associate Checklist". This updates the work order status to "On-Going".
+                            </p>
+                        </div>
+                        <!-- Step 2 -->
+                        <div class="relative">
+                            <span class="absolute -left-[45px] top-0 w-8 h-8 step-pill text-white flex items-center justify-center rounded-full text-xs font-bold shadow-md shadow-brand-500/20">02</span>
+                            <h4 class="font-bold text-brand-800 font-outfit">Real-Time Data Capture</h4>
+                            <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+                                The technician logs findings, notes, checkmarks, and custom measurement metrics directly on the checklist items.
+                            </p>
+                        </div>
+                        <!-- Step 3 -->
+                        <div class="relative">
+                            <span class="absolute -left-[45px] top-0 w-8 h-8 step-pill text-white flex items-center justify-center rounded-full text-xs font-bold shadow-md shadow-brand-500/20">03</span>
+                            <h4 class="font-bold text-brand-800 font-outfit">Atomic Database Save</h4>
+                            <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+                                When clicking 'Save Progress', the controller fires <code>updateChecklistWithTasks()</code>. This updates both the header and child task tables atomically inside a secure SQL transaction.
+                            </p>
+                        </div>
+                        <!-- Step 4 -->
+                        <div class="relative">
+                            <span class="absolute -left-[45px] top-0 w-8 h-8 step-pill text-white flex items-center justify-center rounded-full text-xs font-bold shadow-md shadow-brand-500/20">04</span>
+                            <h4 class="font-bold text-brand-800 font-outfit">Archival & Cleanup</h4>
+                            <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+                                Once finalized, the system creates a copy in the completed history records (retaining logs forever for auditing) and safely deletes the checklist instance from active tables to keep operations clean.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: SSL Updates -->
+        <section id="ssl" class="mb-20 scroll-mt-24">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold font-outfit text-brand-800">3. Automated Let's Encrypt Updates</h2>
+                    <p class="text-slate-500 mt-1">Resolving SSL boot issues with zero manual configuration.</p>
+                </div>
+                <div class="h-1 w-20 bg-brand-500 rounded-full"></div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-8 items-center">
+                <div class="w-full md:w-2/3">
+                    <h3 class="text-xl font-extrabold text-brand-800 mb-3 font-outfit">Solving the Chicken-and-Egg SSL Dilemma</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        Apache servers crash on boot if their virtual host SSL certificates are missing. But to request certificates from Let's Encrypt via Certbot, Apache must be active on port 80 to verify domain ownership.
+                    </p>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                        The system's new startup script, <b><code>docker-entrypoint.sh</code></b>, solves this loop automatically:
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <span class="text-xs font-bold text-brand-500 uppercase tracking-widest block mb-1">Boot Step 1</span>
+                            <h5 class="font-bold text-slate-800 text-sm">Valid Let's Encrypt Verification</h5>
+                            <p class="text-xs text-slate-500 mt-0.5">The container checks the issuer of local certs. If missing or self-signed, it generates dummy credentials so Apache starts safely.</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <span class="text-xs font-bold text-brand-500 uppercase tracking-widest block mb-1">Boot Step 2</span>
+                            <h5 class="font-bold text-slate-800 text-sm">Background Certbot Loop</h5>
+                            <p class="text-xs text-slate-500 mt-0.5">A background daemon waits for Apache, requests real certificates from Let's Encrypt using webroot, swaps them, and reloads Apache gracefully.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/3 bg-slate-900 rounded-2xl p-6 text-white self-stretch flex flex-col justify-between">
+                    <div>
+                        <span class="text-emerald-400 text-xs font-mono block mb-2">&bull; Daemon Active</span>
+                        <h4 class="font-bold text-base font-outfit mb-3">12-Hour Renewal Check</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            A recurring loop inside the container tests certificate expiration. Every 12 hours, it attempts to renew, triggering a reload only if updates succeed.
+                        </p>
+                    </div>
+                    <div class="border-t border-slate-800 pt-4 mt-6">
+                        <span class="text-[10px] text-slate-500 uppercase tracking-wider block">Trigger Command:</span>
+                        <code class="text-[11px] font-mono text-slate-300 block bg-slate-950 p-2 rounded mt-1 overflow-x-auto">certbot renew --webroot -w /var/www/html</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-800 text-white py-12 border-t border-brand-700">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <img src="/app/Assets/img/hubIT_logo-v5.png" alt="HubIT Logo" class="h-10 w-auto invert brightness-0">
+                <span class="text-slate-400 font-medium font-outfit">| Documentation Portal</span>
+            </div>
+            <p class="text-sm text-slate-400 text-center md:text-right">&copy; 2026 HubIT.online. Smarter Tech. Simpler Solutions. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

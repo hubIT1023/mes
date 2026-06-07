@@ -14,6 +14,13 @@ class DocsController {
     }
 
     /**
+     * Renders the 'How It Works' documentation page
+     */
+    public function howItWorks() {
+        $this->renderView('how-it-works.html');
+    }
+
+    /**
      * Renders the User Manual (example)
      */
     public function userManual() {

@@ -92,7 +92,7 @@ $tenant = $_SESSION['tenant'];
 		  
 		  
 		  <!-- @ hub_portal.php --Documentation -- User Manual here -->
-			<a href="/mes/setup-guide" class="block">
+			<a href="/mes/how-it-works" class="block">
 			  <div class="system-card bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 w-80 text-center border-4 border-transparent hover:border-purple-600 dark:hover:border-purple-400">
 				<i class="fas fa-book-open text-6xl text-purple-600 dark:text-purple-400 mb-6"></i>
 				<h3 class="text-2xl font-bold mb-3 text-slate-800 dark:text-white">HubIT Docs</h3>

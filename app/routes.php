@@ -13,9 +13,10 @@ $authRoutes = [
 
  // --- Documentation Routes ---
  $docsRoutes = [
-    'GET /setup-guide'   => ['DocsController', 'setupGuide'],
+    'GET /setup-guide'        => ['DocsController', 'setupGuide'],
     'GET /docs/user-manual'   => ['DocsController', 'userManual'],
     'GET /docs/api-reference' => ['DocsController', 'apiReference'],
+    'GET /how-it-works'       => ['DocsController', 'howItWorks'],
 ];
 
 // --- Static Pages ---
