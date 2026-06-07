@@ -11,7 +11,7 @@ services:
       # Apache vhost config (read-only)
       - ./apache/sites-available/hubit.conf:/etc/apache2/sites-available/hubit.conf:ro
 
-      # Let's Encrypt certificates
+      # Let's Encrypt certificates (managed automatically by docker-entrypoint.sh)
       - ./letsencrypt:/etc/letsencrypt
 
       # Application code (web root)

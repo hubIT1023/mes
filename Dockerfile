@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     certbot \
     python3-certbot-apache \
+    openssl \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
@@ -41,5 +43,12 @@ RUN a2ensite hubit.conf
 
 # Copy application code LAST
 COPY . /var/www/html/
+
+# Copy entrypoint script and make it executable, removing Windows CRLF if present
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 80 443
