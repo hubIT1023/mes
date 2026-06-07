@@ -8,8 +8,14 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $baseDir = __DIR__;      // project root
-//$baseUrl = '/mes';
-$baseUrl = '/';
+
+// Dynamically determine the base URL prefix based on the request URI (supports /mes and /)
+$rawUriTemp = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+if (strpos($rawUriTemp, '/mes/') === 0 || $rawUriTemp === '/mes') {
+    $baseUrl = '/mes';
+} else {
+    $baseUrl = '/';
+}
 // -------------------------------------------------
 // SINGLE, ENHANCED AUTOLOADER
 // -------------------------------------------------
