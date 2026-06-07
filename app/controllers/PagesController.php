@@ -7,8 +7,8 @@ require_once __DIR__ . '/Controller.php';
 class PagesController extends Controller {
     public function welcome() {
         $this->view('welcome_page', [
-            'title' => 'Welcome to hubIT.online',
-            'tagline' => 'Your reliable IT partner for digital solutions.'
+            'title' => 'HubIT Maintenance Management System',
+            'tagline' => 'Enterprise Asset Tracking & Automated Maintenance Management Platform'
         ]);
     }
 

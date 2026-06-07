@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HubIT.online</title>
+    <title><?= htmlspecialchars($title) ?></title>
 	<!--title>HubIT | Maintenance, Assets, and Machine Data Platform</title-->
 	<link rel="icon" href="../Assets/img/favicon.png" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -65,9 +65,8 @@
 
     <header class="gradient-bg text-white py-20">
         <div class="container mx-auto px-6 text-center">
-            <h1 class="text-4xl md:text-6xl font-extrabold mb-2 leading-tight">HubIT.online</h1> 
-			<br><h4 class="text-4xl  mb-6 leading-tight">Smarter Tech. Simpler Solutions. <br class="hidden md:block"> 
-            </h4>
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-2 leading-tight"><?= htmlspecialchars($title) ?></h1> 
+			<br><h5 class="text-2xl md:text-3xl font-semibold mb-6 text-slate-200 leading-tight"><?= htmlspecialchars($tagline) ?></h5>
             <p class="text-xl text-slate-300 max-w-3xl mx-auto mb-10">
                HubIT.online brings maintenance, asset management, and 
 			   IoT monitoring together in one real-time platform—built for factories, utilities, and modern facilities.
