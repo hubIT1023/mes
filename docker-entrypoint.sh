@@ -32,8 +32,18 @@ done
 
 CERT_DIR="/etc/letsencrypt/live/$MAIN_DOMAIN"
 
-# Check if certificates exist
-if [ ! -f "$CERT_DIR/fullchain.pem" ]; then
+# Check if certificates exist and if they are valid Let's Encrypt certificates
+if [ -f "$CERT_DIR/fullchain.pem" ]; then
+    # Check if issuer contains Let's Encrypt or ISRG
+    ISSUER=$(openssl x509 -noout -issuer -in "$CERT_DIR/fullchain.pem" 2>/dev/null || echo "")
+    if [[ "$ISSUER" == *"Let's Encrypt"* || "$ISSUER" == *"R3"* || "$ISSUER" == *"R1"* || "$ISSUER" == *"E1"* || "$ISSUER" == *"ISRG"* || "$ISSUER" == *"DST Root"* ]]; then
+        echo "Valid Let's Encrypt certificate found for $MAIN_DOMAIN."
+        DUMMY_CERT=false
+    else
+        echo "Found non-Let's Encrypt certificate (dummy or self-signed). Will attempt to request a real certificate."
+        DUMMY_CERT=true
+    fi
+else
     echo "No SSL certificate found for $MAIN_DOMAIN. Generating dummy certificate to allow Apache to start..."
     mkdir -p "$CERT_DIR"
     openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
@@ -41,9 +51,6 @@ if [ ! -f "$CERT_DIR/fullchain.pem" ]; then
       -out "$CERT_DIR/fullchain.pem" \
       -subj "/CN=$MAIN_DOMAIN"
     DUMMY_CERT=true
-else
-    echo "Existing SSL certificate found for $MAIN_DOMAIN."
-    DUMMY_CERT=false
 fi
 
 # Start background process for certbot setup and renewal
