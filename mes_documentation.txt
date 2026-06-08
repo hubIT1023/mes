@@ -1,0 +1,61 @@
+
+Registration & Authentication (SaaS Signup & Login)
+Provides organization onboarding and secure sessions with remember-me cookie capabilities.
+
+How the User Uses It:
+The user visits the homepage, clicks Register, and signs up their factory/organization.
+They then go to Sign In and log in with their email and password (checking "Remember Me" if desired).
+On successful login, they are routed to the main HubIT Enterprise Portal (hub_portal.php).
+
+[User Browser] 
+   │
+   ├──► Click 'Sign In' ──► GET /signin
+   │      ├──► PagesController::signin()
+   │      └──► Render view: app/views/signin.php
+   │
+   └──► Submit Credentials ──► POST /signin
+          ├──► SigninController::authenticate()
+          ├──► SigninModel::verifyCredentials($email, $password)
+          │      └──► Queries 'organizations' table, compares password_hash via password_verify()
+          ├──► If Valid: 
+          │      ├──► session_regenerate_id(true) (prevents session fixation)
+          │      ├──► Store tenant_id UUID in $_SESSION
+          │      └──► Set 'remember_token' cookie (secure token hashed in DB)
+          └──► Redirect to /mes/hub_portal (HubIT Portal Dashboard)
+		  
+		  
+		  
+Module 2: Asset Management
+Registers, tracks, and manages industrial machinery, tools, and spare parts.
+
+How the User Uses It:
+The user logs into the portal and clicks HubIT Maintain.
+They select Add Asset to register a new machine (e.g. CNC Machine A) with locations, serial number, cost center, and description.
+They submit the form, and the asset is added to the active inventory view.
+
+[User Browser]
+   │
+   ├──► Click 'Add Asset' ──► GET /form_mms/addAsset
+   │      ├──► AssetController::create()
+   │      │      └──► Validates $_SESSION['tenant_id'], generates CSRF token
+   │      └──► Render view: app/views/forms_mms/addAssets.php
+   │
+   └──► Submit Form ──► POST /form_mms/addAsset
+          ├──► AssetController::store()
+          │      ├──► Validates CSRF token & required input parameters
+          │      └──► AssetModel::assetIdExistsForTenant($asset_id, $tenant_id)
+          ├──► AssetModel::addAsset($data)
+          │      └──► Parameterized SQL INSERT into 'assets' table scoped with tenant_id
+          └──► Redirect to /mes/form_mms/addAsset with $_SESSION['success'] alert
+		  
+		  
+Module 3: Preventive Maintenance Scheduling (TBPM)
+Configures time-based maintenance intervals and triggers automated scheduled work orders.
+
+How the User Uses It:
+The administrator visits HubIT Docs & Configs and configures the intervals (e.g. 30 days) and assigned technicians for different maintenance types.
+A background automated task (cron daemon) triggers daily.
+When the interval expires, a new Pending work order is automatically generated for the technician.
+		  
+
+

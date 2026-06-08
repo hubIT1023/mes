@@ -39,8 +39,8 @@ RUN echo "<Directory /var/www/html>\n\
 # Copy Apache virtual host config
 COPY apache/sites-available/hubit.conf /etc/apache2/sites-available/hubit.conf
 
-# Enable the site
-RUN a2ensite hubit.conf
+# Enable the site and disable the default site
+RUN a2ensite hubit.conf && a2dissite 000-default.conf
 
 # Copy application code LAST
 COPY . /var/www/html/
