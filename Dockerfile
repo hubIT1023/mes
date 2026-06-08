@@ -31,6 +31,7 @@ RUN a2enmod rewrite proxy proxy_http ssl headers
 
 # Allow .htaccess and index.php
 RUN echo "<Directory /var/www/html>\n\
+    Options FollowSymLinks\n\
     AllowOverride All\n\
     DirectoryIndex index.php\n\
 </Directory>" >> /etc/apache2/sites-available/000-default.conf

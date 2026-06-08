@@ -1,4 +1,5 @@
 # --.htaccess--
+Options +FollowSymLinks
 
 RewriteEngine On
 #RewriteBase /mes/
