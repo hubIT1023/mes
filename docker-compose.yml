@@ -28,6 +28,8 @@ services:
 
   postgres:
     image: postgres:16
+    ports:
+      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
@@ -39,16 +41,16 @@ services:
     networks:
       - hubit_net
 
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-    restart: unless-stopped
-    depends_on:
-      - postgres
-    networks:
-      - hubit_net
+#  pgadmin:
+#    image: dpage/pgadmin4
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+#      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+#    restart: unless-stopped
+#    depends_on:
+#      - postgres
+#    networks:
+#      - hubit_net
 
 volumes:
   postgres_data:
