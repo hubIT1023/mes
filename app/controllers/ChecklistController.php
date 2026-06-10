@@ -25,10 +25,12 @@ class ChecklistController {
 
         $filters = [
             'maintenance_type' => $_GET['maintenance_type'] ?? '',
-            'checklist_id'     => $_GET['checklist_id'] ?? ''
+            'checklist_id'     => $_GET['checklist_id'] ?? '',
+            'search'           => $_GET['search'] ?? ''
         ];
 
         $checklists = $this->model->getAllChecklists($tenantId, $filters);
+        $maintenanceTypes = $this->model->getDistinctMaintenanceTypes($tenantId);
 
         $grouped = [];
         foreach ($checklists as $row) {

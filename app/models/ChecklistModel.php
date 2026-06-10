@@ -80,6 +80,17 @@ class ChecklistModel {
         }
     }
 
+    public function getDistinctMaintenanceTypes($tenantId) {
+        $stmt = $this->db->prepare("
+            SELECT DISTINCT maintenance_type 
+            FROM checklist_template 
+            WHERE tenant_id = ? AND maintenance_type IS NOT NULL AND maintenance_type != ''
+            ORDER BY maintenance_type ASC
+        ");
+        $stmt->execute([$tenantId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
     /**
      * Fetch full list + tasks (flat)
      */
@@ -105,13 +116,21 @@ class ChecklistModel {
 
         $params = [$tenantId];
 
+        // Specific maintenance type filter
         if (!empty($filters['maintenance_type'])) {
             $sql .= " AND t.maintenance_type = ?";
             $params[] = $filters['maintenance_type'];
         }
 
-        if (!empty($filters['checklist_id'])) {
-            $sql .= " AND t.checklist_id LIKE ?";
+        // Search in either checklist_id or maintenance_type
+        if (!empty($filters['search'])) {
+            $sql .= " AND (t.checklist_id ILIKE ? OR t.maintenance_type ILIKE ? OR t.description ILIKE ?)";
+            $params[] = "%" . $filters['search'] . "%";
+            $params[] = "%" . $filters['search'] . "%";
+            $params[] = "%" . $filters['search'] . "%";
+        } elseif (!empty($filters['checklist_id'])) {
+            // Backward compatibility
+            $sql .= " AND t.checklist_id ILIKE ?";
             $params[] = "%" . $filters['checklist_id'] . "%";
         }
 
