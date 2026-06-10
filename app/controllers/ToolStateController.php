@@ -56,6 +56,8 @@ class ToolStateController {
             exit;
         }
 
+        header('Content-Type: application/json');
+
         try {
             $model = new ToolStateModel();
 
@@ -64,17 +66,34 @@ class ToolStateController {
 
             // 🔥 STEP 2: If switching TO PROD or PRODUCTION, save completed event to history (Maintenance Logs)
             $stopCauseUpper = strtoupper(trim($data['col_3']));
-            if ($stopCauseUpper === 'PROD' || $stopCauseUpper === 'PRODUCTION') {
+            $isProdMode = ($stopCauseUpper === 'PROD' || $stopCauseUpper === 'PRODUCTION' || $stopCause === 'PROD' || $stopCause === 'PRODUCTION');
+            
+            $savedToLog = false;
+            if ($isProdMode) {
                 $model->saveToMachineLog($data);
+                $savedToLog = true;
             }
 
-            $_SESSION['success'] = "✅ State updated successfully!";
-        } catch (Exception $e) {
-            error_log("ToolState update error: " . $e->getMessage());
-            $_SESSION['error'] = "❌ Failed to update state. Please try again.";
-        }
+            echo json_encode([
+                'success' => true,
+                'message' => '✅ State updated successfully!',
+                'data' => $data,
+                'is_prod_mode' => $isProdMode,
+                'saved_to_log' => $savedToLog
+            ], JSON_PRETTY_PRINT);
+            exit;
 
-        header("Location: /mes/dashboard_admin");
-        exit;
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $data
+            ], JSON_PRETTY_PRINT);
+            exit;
+        }
     }
 }
