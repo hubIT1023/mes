@@ -154,6 +154,7 @@ $analyticsRoutes = [
 
 $reportRoutes = [
     'GET /reports/machine-log' => ['MachineLogController', 'index'],
+    'GET /tool-state-log'      => ['MachineLogController', 'index'],
 ];
 
 // --- Standing Issue ---

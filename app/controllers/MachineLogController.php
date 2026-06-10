@@ -19,7 +19,7 @@ class MachineLogController
         }
 
         if (!isset($_SESSION['tenant_id'])) {
-            header("Location: /signin");
+            header("Location: /mes/signin");
             exit;
         }
 
