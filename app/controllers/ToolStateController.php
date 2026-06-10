@@ -62,8 +62,9 @@ class ToolStateController {
             // 🔥 STEP 1: Always update current state (handles insert/update)
             $model->updateToolState($data);
 
-            // 🔥 STEP 2: If switching TO PROD, save completed event to history
-            if ($data['col_3'] === 'PROD') {
+            // 🔥 STEP 2: If switching TO PROD or PRODUCTION, save completed event to history (Maintenance Logs)
+            $stopCauseUpper = strtoupper(trim($data['col_3']));
+            if ($stopCauseUpper === 'PROD' || $stopCauseUpper === 'PRODUCTION') {
                 $model->saveToMachineLog($data);
             }
 
