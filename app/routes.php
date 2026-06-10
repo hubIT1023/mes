@@ -83,6 +83,7 @@ $demoRoutes = [
 $formMmsRoutes = [
     'GET /assets/list'                          => ['AssetController', 'index'],
     'GET /assets-list'                          => ['AssetController', 'index'],
+    'POST /assets/update'                       => ['AssetController', 'update'],
     'GET /form_mms/addAsset'              		=> ['AssetController', 'create'],
     'GET /add-assets'              		        => ['AssetController', 'create'], // ✅ Sidebar alias
     'GET /add_assets'              		        => ['AssetController', 'create'], // ✅ Sidebar alias

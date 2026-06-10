@@ -85,4 +85,39 @@ class AssetModel
         $stmt->execute([$tenantId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Update asset details scoping by asset_id and tenant_id
+     */
+    public function updateAsset(string $assetId, string $tenantId, array $data): bool
+    {
+        $sql = "
+            UPDATE assets 
+            SET asset_name = ?,
+                serial_no = ?,
+                cost_center = ?,
+                department = ?,
+                location_id_1 = ?,
+                location_id_2 = ?,
+                location_id_3 = ?,
+                status = ?,
+                equipment_description = ?
+            WHERE asset_id = ? AND tenant_id = ?
+        ";
+        
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            $data['asset_name'],
+            $data['serial_no'],
+            $data['cost_center'],
+            $data['department'],
+            $data['location_id_1'],
+            $data['location_id_2'],
+            $data['location_id_3'],
+            $data['status'],
+            $data['equipment_description'],
+            $assetId,
+            $tenantId
+        ]);
+    }
 }

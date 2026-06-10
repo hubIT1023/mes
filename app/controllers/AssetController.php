@@ -124,10 +124,91 @@ class AssetController
             exit;
         }
 
+        // Ensure CSRF token is initialized for AJAX requests in this view
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
         $tenantId = $_SESSION['tenant_id'];
         $tenant = $_SESSION['tenant'] ?? ['org_name' => 'Your Organization'];
         $assets = $this->model->getAssetsByTenant($tenantId);
 
         include __DIR__ . '/../views/forms_mms/assets_list.php';
+    }
+
+    /**
+     * UPDATE asset details scoped by tenant (POST AJAX request)
+     */
+    public function update()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            exit('Method not allowed');
+        }
+
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        header('Content-Type: application/json');
+
+        if (!isset($_SESSION['tenant_id'])) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'error' => 'Unauthorized. Please sign in again.']);
+            exit;
+        }
+
+        // Retrieve JSON input or POST form data
+        $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        
+        $csrfToken = $input['csrf_token'] ?? '';
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Security check failed. Please refresh.']);
+            exit;
+        }
+
+        $assetId = trim($input['asset_id'] ?? '');
+        $tenantId = $_SESSION['tenant_id'];
+
+        if (empty($assetId)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Asset ID is required.']);
+            exit;
+        }
+
+        // Validate required fields
+        $data = [
+            'asset_name'            => trim($input['asset_name'] ?? ''),
+            'serial_no'             => trim($input['serial_no'] ?? ''),
+            'cost_center'           => trim($input['cost_center'] ?? ''),
+            'department'            => trim($input['department'] ?? ''),
+            'location_id_1'         => trim($input['location_id_1'] ?? ''),
+            'location_id_2'         => trim($input['location_id_2'] ?? ''),
+            'location_id_3'         => trim($input['location_id_3'] ?? ''),
+            'status'                => trim($input['status'] ?? 'active'),
+            'equipment_description' => trim($input['equipment_description'] ?? ''),
+        ];
+
+        if (empty($data['asset_name'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Asset Name is required.']);
+            exit;
+        }
+
+        try {
+            if ($this->model->updateAsset($assetId, $tenantId, $data)) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => "Asset '{$assetId}' updated successfully!"
+                ]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Failed to save changes to the database.']);
+            }
+        } catch (Exception $e) {
+            error_log("Asset update exception: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'Server error: ' . $e->getMessage()]);
+        }
+        exit;
     }
 }
