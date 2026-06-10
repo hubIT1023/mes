@@ -70,12 +70,12 @@ function is_active($path, $current_page) {
     <div class="sidebar-heading">System Config</div>
 
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDatabase"
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-toggle="collapse" data-bs-target="#collapseDatabase" data-target="#collapseDatabase"
            aria-expanded="false" aria-controls="collapseDatabase">
             <i class="fas fa-fw fa-database"></i>
             <span>Database</span>
         </a>
-        <div id="collapseDatabase" class="collapse" data-bs-parent="#accordionSidebar">
+        <div id="collapseDatabase" class="collapse" data-bs-parent="#accordionSidebar" data-parent="#accordionSidebar">
             <div class="bg-light py-2 collapse-inner rounded mt-2">
                 <a class="collapse-item" href="/mes/meta-database">Configure DB</a>
                 <a class="collapse-item" href="/mes/tool-state-log">Tool Status Log</a>
