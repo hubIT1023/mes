@@ -70,8 +70,8 @@ function is_active($path, $current_page) {
     <div class="sidebar-heading">System Config</div>
 
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-toggle="collapse" data-bs-target="#collapseDatabase" data-target="#collapseDatabase"
-           aria-expanded="false" aria-controls="collapseDatabase">
+        <a class="nav-link collapsed" href="#" data-bs-target="#collapseDatabase" data-target="#collapseDatabase"
+           aria-expanded="false" aria-controls="collapseDatabase" id="dbCollapseBtn">
             <i class="fas fa-fw fa-database"></i>
             <span>Database</span>
         </a>
@@ -107,6 +107,29 @@ function is_active($path, $current_page) {
         </button>
     </div>
 </ul>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var dbCollapseBtn = document.getElementById('dbCollapseBtn');
+    var dbCollapseEl = document.getElementById('collapseDatabase');
+    if (dbCollapseBtn && dbCollapseEl) {
+        dbCollapseBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var isShown = dbCollapseEl.classList.contains('show');
+            if (isShown) {
+                dbCollapseEl.classList.remove('show');
+                dbCollapseBtn.classList.add('collapsed');
+                dbCollapseBtn.setAttribute('aria-expanded', 'false');
+            } else {
+                dbCollapseEl.classList.add('show');
+                dbCollapseBtn.classList.remove('collapsed');
+                dbCollapseBtn.setAttribute('aria-expanded', 'true');
+            }
+        });
+    }
+});
+</script>
 
 <style>
     /* Sidebar Base */
