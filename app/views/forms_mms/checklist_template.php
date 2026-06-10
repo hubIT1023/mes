@@ -124,7 +124,7 @@ $tasks = $template['task_text'] ?? [''];
             <hr class="my-4">
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <a href="/mes/checklist/manage" class="btn btn-light px-4">Cancel</a>
+                <a href="/mes/form_mms/checklists" class="btn btn-light px-4">Cancel</a>
                 <button type="submit" class="btn btn-success px-5 fw-bold">
                     <i class="fas fa-save me-2"></i><?= $action === 'edit' ? 'Update' : 'Save' ?> Template
                 </button>

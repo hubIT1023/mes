@@ -121,7 +121,7 @@ class ChecklistController {
 
             if ($success) {
                 $_SESSION['success'] = "✅ Checklist template created successfully!";
-                header("Location: /mes/checklist/manage");
+                header("Location: /mes/form_mms/checklists");
             } else {
                 throw new Exception("Creation failed.");
             }

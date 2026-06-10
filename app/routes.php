@@ -100,6 +100,7 @@ $formMmsRoutes = [
     'GET /form_mms/routine_maintenance'   		=> ['RoutineMaintenanceController', 'generateForm'],
     'POST /form_mms/routine_maintenance'  		=> ['RoutineMaintenanceController', 'generate'],
     'GET /form_mms/checklists'            		=> ['ChecklistController', 'index'],
+    'GET /checklist/manage'               		=> ['ChecklistController', 'index'], // ✅ Legacy alias
     'GET /form_mms/checklist_edit'        		=> ['ChecklistController', 'edit'],
     'POST /form_mms/checklist_update'     		=> ['ChecklistController', 'update'],
 ];
