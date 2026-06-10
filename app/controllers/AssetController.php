@@ -111,4 +111,23 @@ class AssetController
 
         exit;
     }
+
+    /**
+     * LIST all assets for the logged-in tenant (GET request)
+     */
+    public function index()
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        if (!isset($_SESSION['tenant_id'])) {
+            header("Location: /mes/signin?error=Please+log+in+first");
+            exit;
+        }
+
+        $tenantId = $_SESSION['tenant_id'];
+        $tenant = $_SESSION['tenant'] ?? ['org_name' => 'Your Organization'];
+        $assets = $this->model->getAssetsByTenant($tenantId);
+
+        include __DIR__ . '/../views/forms_mms/assets_list.php';
+    }
 }

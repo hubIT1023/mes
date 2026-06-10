@@ -69,4 +69,20 @@ class AssetModel
             $data['equipment_description'] ?? ''
         ]);
     }
+
+    /**
+     * Get all assets FOR A SPECIFIC TENANT
+     */
+    public function getAssetsByTenant(string $tenantId): array
+    {
+        $stmt = $this->conn->prepare("
+            SELECT asset_id, asset_name, serial_no, cost_center, department, 
+                   location_id_1, location_id_2, location_id_3, vendor_id, mfg_code, status, equipment_description, created_at
+            FROM assets 
+            WHERE tenant_id = ?
+            ORDER BY created_at DESC
+        ");
+        $stmt->execute([$tenantId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

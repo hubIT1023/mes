@@ -64,7 +64,12 @@ $modeColorRoutes = [
 // --- Maintenance Management --- ✅ FIXED
 $maintenanceRoutes = [
     'GET /dashboard_upcoming_maint'     => ['MaintenanceDashboardController', 'upcoming'], // ✅ Simple syntax
+    'GET /incoming-maintenance'         => ['MaintenanceDashboardController', 'upcoming'], // ✅ Sidebar alias
+    'GET /incoming_maintenance'         => ['MaintenanceDashboardController', 'upcoming'], // ✅ Sidebar alias
+    'GET /registered_assets'            => ['MaintenanceDashboardController', 'upcoming'], // ✅ Sidebar alias
+    'GET /registered-assets'            => ['MaintenanceDashboardController', 'upcoming'], // ✅ Sidebar alias
     'GET /completed_work_orders'        => ['CompletedWorkOrdersController', 'index'],
+    'GET /completed-work-orders'        => ['CompletedWorkOrdersController', 'index'], // ✅ Sidebar alias
     'GET /completed_work_order_details' => ['CompletedWorkOrdersController', 'view'],
 ];
 
@@ -76,12 +81,20 @@ $demoRoutes = [
 
 // --- MMS / Forms ---
 $formMmsRoutes = [
+    'GET /assets/list'                          => ['AssetController', 'index'],
+    'GET /assets-list'                          => ['AssetController', 'index'],
     'GET /form_mms/addAsset'              		=> ['AssetController', 'create'],
+    'GET /add-assets'              		        => ['AssetController', 'create'], // ✅ Sidebar alias
+    'GET /add_assets'              		        => ['AssetController', 'create'], // ✅ Sidebar alias
     'POST /form_mms/addAsset'             		=> ['AssetController', 'store'],
+    'POST /add-assets'                     		=> ['AssetController', 'store'], // ✅ Alias POST
     'GET /form_mms/addMaintenance'        		=> ['AssetMaintenanceController', 'create'],
     'POST /form_mms/addMaintenance'       		=> ['AssetMaintenanceController', 'store'],
     'GET /form_mms/checklist_template'    		=> ['ChecklistTemplateController', 'create'],
+    'GET /manage-checklist-templates'    		=> ['ChecklistTemplateController', 'create'], // ✅ Sidebar alias
+    'GET /manage_checklist_templates'    		=> ['ChecklistTemplateController', 'create'], // ✅ Sidebar alias
     'POST /form_mms/checklist_template'   		=> ['ChecklistTemplateController', 'store'],
+    'POST /manage-checklist-templates'   		=> ['ChecklistTemplateController', 'store'], // ✅ Alias POST
     'GET /form_mms/checklist_template/:id'		=> ['ChecklistTemplateController', 'edit'],
     'POST /form_mms/checklist_template/update'	=> ['ChecklistTemplateController', 'update'],
     'GET /form_mms/routine_maintenance'   		=> ['RoutineMaintenanceController', 'generateForm'],
