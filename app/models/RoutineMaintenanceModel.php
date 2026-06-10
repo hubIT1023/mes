@@ -23,9 +23,9 @@ class RoutineMaintenanceModel {
         $assets->execute(['tenant_id' => $tenantId]);
         $assetsList = $assets->fetchAll(PDO::FETCH_ASSOC);
 
-        // WORK ORDERS
+        // WORK ORDERS WITH DETAILS
         $woStmt = $pdo->prepare("
-            SELECT DISTINCT work_order 
+            SELECT DISTINCT work_order, checklist_id, maintenance_type, interval_days, description
             FROM checklist_template 
             WHERE tenant_id = :tenant_id 
               AND work_order IS NOT NULL 
@@ -33,7 +33,7 @@ class RoutineMaintenanceModel {
             ORDER BY work_order
         ");
         $woStmt->execute(['tenant_id' => $tenantId]);
-        $workOrderList = $woStmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+        $workOrderList = $woStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
         // TYPES
         $types = $pdo->prepare("

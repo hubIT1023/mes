@@ -51,13 +51,27 @@ if (session_status() === PHP_SESSION_NONE) session_start();
             <small class="text-muted">Hold CTRL (Windows) or CMD (Mac) to select multiple assets.</small>
         </div>
 
-        <!-- WORK ORDER -->
+        <!-- WORK ORDER / TEMPLATE SELECTOR -->
         <div class="mb-3">
-            <label class="form-label fw-semibold">Work Order</label>
+            <label class="form-label fw-semibold">Select Work Order Template</label>
             <select class="form-select" name="work_order" id="work_order" onchange="loadMaintenanceType()" required>
-                <option value="">-- Select Work Order --</option>
+                <option value="">-- Select Work Order / Checklist --</option>
                 <?php foreach ($filters['work_order'] as $wo): ?>
-                    <option value="<?= htmlspecialchars($wo) ?>"><?= htmlspecialchars($wo) ?></option>
+                    <?php 
+                        $label = htmlspecialchars($wo['work_order']) . ' (' 
+                               . 'ID: ' . htmlspecialchars($wo['checklist_id']) . ' | '
+                               . 'Type: ' . htmlspecialchars($wo['maintenance_type']) . ' | '
+                               . 'Interval: ' . htmlspecialchars($wo['interval_days']) . ' days'
+                               . (!empty($wo['description']) ? ' | ' . htmlspecialchars($wo['description']) : '')
+                               . ')';
+                    ?>
+                    <option value="<?= htmlspecialchars($wo['work_order']) ?>"
+                            data-type="<?= htmlspecialchars($wo['maintenance_type']) ?>"
+                            data-checklist-id="<?= htmlspecialchars($wo['checklist_id']) ?>"
+                            data-interval="<?= htmlspecialchars($wo['interval_days']) ?>"
+                            data-desc="<?= htmlspecialchars($wo['description'] ?? '') ?>">
+                        <?= $label ?>
+                    </option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -65,12 +79,30 @@ if (session_status() === PHP_SESSION_NONE) session_start();
         <!-- AUTO-FILLED MAINTENANCE TYPE -->
         <div class="mb-3">
             <label class="form-label fw-semibold">Maintenance Type</label>
-            <input type="text" class="form-control" name="maintenance_type" id="maintenance_type" readonly>
+            <input type="text" class="form-control bg-light" name="maintenance_type" id="maintenance_type" readonly>
+        </div>
+
+        <!-- AUTO-FILLED CHECKLIST ID -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Checklist ID</label>
+            <input type="text" class="form-control bg-light" id="checklist_id" readonly>
+        </div>
+
+        <!-- AUTO-FILLED INTERVAL -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Interval</label>
+            <input type="text" class="form-control bg-light" id="interval_days" readonly>
+        </div>
+
+        <!-- AUTO-FILLED CHECKLIST DESCRIPTION -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Checklist Description</label>
+            <textarea class="form-control bg-light" id="checklist_description" rows="2" readonly></textarea>
         </div>
 
         <!-- TECHNICIAN -->
         <div class="mb-3">
-            <label class="form-label fw-semibold">Technician</label>
+            <label class="form-label fw-semibold">Technician Override</label>
             <select class="form-select" name="technician">
                 <option value="">-- All Technicians --</option>
                 <?php foreach ($filters['technicians'] as $tech): ?>
@@ -79,32 +111,42 @@ if (session_status() === PHP_SESSION_NONE) session_start();
             </select>
         </div>
 
-        	<div class="mt-4 text-center">
-				<button type="submit" class="btn btn-success btn-lg">CREATE</button>
-				<a href="/mes/dashboard_upcoming_maint" class="btn btn-outline-primary">Back </a>
-			</div>
+        <div class="mt-4 text-center">
+            <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm">CREATE</button>
+            <a href="/mes/mms_admin" class="btn btn-outline-primary ms-2">Back to Dashboard</a>
+        </div>
       
     </form>
-
-    
 </div>
 
 <script>
 function loadMaintenanceType() {
-    let wo = document.getElementById("work_order").value;
-    let field = document.getElementById("maintenance_type");
+    let select = document.getElementById("work_order");
+    let selectedOption = select.options[select.selectedIndex];
+    
+    let typeField = document.getElementById("maintenance_type");
+    let checklistIdField = document.getElementById("checklist_id");
+    let intervalField = document.getElementById("interval_days");
+    let descField = document.getElementById("checklist_description");
 
-    if (wo === "") {
-        field.value = "";
+    if (select.value === "") {
+        if (typeField) typeField.value = "";
+        if (checklistIdField) checklistIdField.value = "";
+        if (intervalField) intervalField.value = "";
+        if (descField) descField.value = "";
         return;
     }
 
-    fetch("/mes/api/get_maintenance_type_by_work_order?work_order=" + encodeURIComponent(wo))
-        .then(response => response.json())
-        .then(data => {
-            field.value = data.maintenance_type || "";
-        })
-        .catch(err => console.error("Error loading maintenance type:", err));
+    // Read attributes directly from the selected option
+    let type = selectedOption.getAttribute("data-type") || "";
+    let checklistId = selectedOption.getAttribute("data-checklist-id") || "";
+    let interval = selectedOption.getAttribute("data-interval") || "";
+    let desc = selectedOption.getAttribute("data-desc") || "";
+
+    if (typeField) typeField.value = type;
+    if (checklistIdField) checklistIdField.value = checklistId;
+    if (intervalField) intervalField.value = interval ? interval + " days" : "";
+    if (descField) descField.value = desc;
 }
 </script>
 
