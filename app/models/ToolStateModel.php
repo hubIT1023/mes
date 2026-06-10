@@ -122,7 +122,7 @@ class ToolStateModel
                 col_21,
                 col_22,
                 col_23,
-                col_24
+                NULL AS col_24
             FROM tool_state
             WHERE org_id = :org_id
               AND col_1  = :col_1
