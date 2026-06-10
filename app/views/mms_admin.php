@@ -87,7 +87,7 @@ $tenant = $_SESSION['tenant'];
         <p class="text-gray-600 dark:text-gray-300 mb-4 flex-grow">
           Add and manage equipment, machines, and company assets.
         </p>
-        <a href="mes/form_mms/addAsset" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-center inline-block">Go</a>
+        <a href="/mes/form_mms/addAsset" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-center inline-block">Go</a>
       </div>
 
       <!-- Maintenance Checklist -->
