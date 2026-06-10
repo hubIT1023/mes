@@ -69,18 +69,18 @@ function is_active($path, $current_page) {
 
     <div class="sidebar-heading">System Config</div>
 
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-bs-target="#collapseDatabase" data-target="#collapseDatabase"
-           aria-expanded="false" aria-controls="collapseDatabase" id="dbCollapseBtn">
+    <li class="nav-item <?= is_active('/mes/meta-database', $current_page) ?>">
+        <a class="nav-link" href="/mes/meta-database">
             <i class="fas fa-fw fa-database"></i>
-            <span>Database</span>
+            <span>Configure DB</span>
         </a>
-        <div id="collapseDatabase" class="collapse" data-bs-parent="#accordionSidebar" data-parent="#accordionSidebar">
-            <div class="bg-light py-2 collapse-inner rounded mt-2">
-                <a class="collapse-item" href="/mes/meta-database">Configure DB</a>
-                <a class="collapse-item" href="/mes/tool-state-log">Tool Status Log</a>
-            </div>
-        </div>
+    </li>
+
+    <li class="nav-item <?= is_active('/mes/tool-state-log', $current_page) ?>">
+        <a class="nav-link" href="/mes/tool-state-log">
+            <i class="fas fa-fw fa-history"></i>
+            <span>Tool Status Log</span>
+        </a>
     </li>
 
     <li class="nav-item <?= is_active('/mes/mode-color', $current_page) ?>">
@@ -107,29 +107,6 @@ function is_active($path, $current_page) {
         </button>
     </div>
 </ul>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    var dbCollapseBtn = document.getElementById('dbCollapseBtn');
-    var dbCollapseEl = document.getElementById('collapseDatabase');
-    if (dbCollapseBtn && dbCollapseEl) {
-        dbCollapseBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            var isShown = dbCollapseEl.classList.contains('show');
-            if (isShown) {
-                dbCollapseEl.classList.remove('show');
-                dbCollapseBtn.classList.add('collapsed');
-                dbCollapseBtn.setAttribute('aria-expanded', 'false');
-            } else {
-                dbCollapseEl.classList.add('show');
-                dbCollapseBtn.classList.remove('collapsed');
-                dbCollapseBtn.setAttribute('aria-expanded', 'true');
-            }
-        });
-    }
-});
-</script>
 
 <style>
     /* Sidebar Base */
