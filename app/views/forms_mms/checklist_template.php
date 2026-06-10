@@ -47,7 +47,12 @@ $tasks = $template['task_text'] ?? [''];
 
 <div class="container mt-5" style="max-width: 750px;">
     <div class="form-card">
-        <h3 class="mb-4"><?= $action === 'edit' ? '<i class="fas fa-edit me-2"></i>Edit' : '<i class="fas fa-plus-circle me-2"></i>Create' ?> Checklist Template</h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0"><?= $action === 'edit' ? '<i class="fas fa-edit me-2"></i>Edit' : '<i class="fas fa-plus-circle me-2"></i>Create' ?> Checklist Template</h3>
+            <a href="/mes/mms_admin" class="btn btn-outline-secondary btn-sm px-3 shadow-sm">
+                <i class="fas fa-arrow-left me-1"></i> Back
+            </a>
+        </div>
 
         <?php foreach(['success' => 'alert-success', 'error' => 'alert-danger'] as $key => $class): ?>
             <?php if (!empty($_SESSION[$key])): ?>
