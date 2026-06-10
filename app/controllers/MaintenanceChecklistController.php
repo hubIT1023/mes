@@ -57,40 +57,49 @@ class MaintenanceChecklistController
             // ✅ Extract the ID from the array
             $maintenanceId = $result['maintenance_checklist_id'];
 
-            http_response_code(201);
-			/*
-            echo json_encode([
-                'success' => true,
-                'message' => 'Checklist associated successfully',
-                'maintenance_checklist_id' => $maintenanceId,
-                'inserted_tasks' => $result['inserted_tasks'] // Optional: include task count
-            ]);
-			*/
+            // ✅ Update the status in routine_work_orders to 'On-Going'
+            require_once __DIR__ . '/../models/AssociateChecklistModel.php';
+            $assocModel = new AssociateChecklistModel();
+            $assocModel->updateRoutineWorkOrderStatus($tenant_id, $asset_id, $checklist_id, $work_order_ref);
+
+            // ✅ Handle AJAX vs standard Form redirect
+            $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') 
+                   || (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false);
+
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Checklist associated successfully',
+                    'maintenance_checklist_id' => $maintenanceId,
+                    'inserted_tasks' => $result['inserted_tasks']
+                ]);
+                exit;
+            }
+
+            // Normal redirect
+            $_SESSION['flash_message'] = "Checklist associated successfully!";
+            header("Location: /mes/dashboard_upcoming_maint");
             exit;
 
         } catch (Exception $e) {
             log_error($e->getMessage(), 'maintenance_associate_controller');
 
-            if (strpos($e->getMessage(), 'already exists') !== false) {
-                http_response_code(409);
-                /*
-				echo json_encode([
-                    'error' => 'Duplicate',
-                    'message' => "Checklist already associated for this work order"
+            $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') 
+                   || (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false);
+
+            if ($isAjax) {
+                http_response_code(500);
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'error'   => 'Association failed',
+                    'message' => $e->getMessage()
                 ]);
-				*/
                 exit;
             }
 
-            http_response_code(500);
-            /*
-			echo json_encode([
-                'error'   => 'Association failed',
-                'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine()
-            ]);
-			*/
+            $_SESSION['flash_message'] = "Association failed: " . $e->getMessage();
+            header("Location: /mes/dashboard_upcoming_maint");
             exit;
         }
     }

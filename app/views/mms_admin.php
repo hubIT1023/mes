@@ -116,7 +116,7 @@ $tenant = $_SESSION['tenant'];
 		  <div class="flex flex-wrap gap-3">
 			<!-- ✅ FIXED: Added leading slash -->
 			<a href="/mes/form_mms/routine_maintenance" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block text-center">Create WO</a>
-			<a href="#" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block text-center">List of Work Order</a>
+			<a href="/mes/dashboard_upcoming_maint" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block text-center">List of Work Order</a>
 		  </div>
 		</div>
 
