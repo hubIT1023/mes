@@ -22,7 +22,7 @@ class ToolStateController {
         // CSRF protection
         if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
             $_SESSION['error'] = "Security validation failed.";
-            header("Location: /dashboard_admin");
+            header("Location: /mes/dashboard_admin");
             exit;
         }
 
@@ -52,11 +52,9 @@ class ToolStateController {
         // Validate required fields
         if (empty($data['col_1']) || empty($data['col_2']) || empty($data['col_8'])) {
             $_SESSION['error'] = "Required fields missing.";
-            header("Location: /dashboard_admin");
+            header("Location: /mes/dashboard_admin");
             exit;
         }
-
-        header('Content-Type: application/json');
 
         try {
             $model = new ToolStateModel();
@@ -68,31 +66,18 @@ class ToolStateController {
             $stopCauseUpper = strtoupper(trim($data['col_3']));
             $isProdMode = ($stopCauseUpper === 'PROD' || $stopCauseUpper === 'PRODUCTION' || $stopCause === 'PROD' || $stopCause === 'PRODUCTION');
             
-            $savedToLog = false;
             if ($isProdMode) {
                 $model->saveToMachineLog($data);
-                $savedToLog = true;
             }
 
-            echo json_encode([
-                'success' => true,
-                'message' => '✅ State updated successfully!',
-                'data' => $data,
-                'is_prod_mode' => $isProdMode,
-                'saved_to_log' => $savedToLog
-            ], JSON_PRETTY_PRINT);
+            $_SESSION['success'] = "State updated successfully!";
+            header("Location: /mes/dashboard_admin");
             exit;
 
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-                'data' => $data
-            ], JSON_PRETTY_PRINT);
+            error_log("ToolStateController error: " . $e->getMessage());
+            $_SESSION['error'] = "Failed to update state: " . $e->getMessage();
+            header("Location: /mes/dashboard_admin");
             exit;
         }
     }

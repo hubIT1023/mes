@@ -11,16 +11,32 @@ class MetaDatabaseController {
 
         $model = new MetaDatabaseModel();
         $tenant_id = $_SESSION['tenant_id'];
-        $metadata = $model->getMetadata($tenant_id);
-
-        // Build full array for col_1 to col_16
         $labels = [];
-        for ($i = 1; $i <= 16; $i++) {
-            $col = "col_$i";
-            $labels[$col] = [
-                'label' => $metadata[$col]['label'] ?? $col,
-                'description' => $metadata[$col]['description'] ?? ''
-            ];
+
+        try {
+            $model = new MetaDatabaseModel();
+            $metadata = $model->getMetadata($tenant_id);
+
+            // Build full array for col_1 to col_24
+            for ($i = 1; $i <= 24; $i++) {
+                $col = "col_$i";
+                $labels[$col] = [
+                    'label' => $metadata[$col]['label'] ?? $col,
+                    'description' => $metadata[$col]['description'] ?? ''
+                ];
+            }
+        } catch (Exception $e) {
+            error_log("MetaDatabaseController showForm error: " . $e->getMessage());
+            $_SESSION['error'] = "Database/schema error: " . $e->getMessage();
+            
+            // Fallback default labels
+            for ($i = 1; $i <= 24; $i++) {
+                $col = "col_$i";
+                $labels[$col] = [
+                    'label' => $col,
+                    'description' => ''
+                ];
+            }
         }
 
         require_once __DIR__ . '/../views/forms_bid/meta_database.php';
@@ -43,7 +59,7 @@ class MetaDatabaseController {
 
         // Prepare data
         $updates = [];
-        for ($i = 1; $i <= 16; $i++) {
+        for ($i = 1; $i <= 24; $i++) {
             $col = "col_$i";
             $label = trim($_POST["label_$i"] ?? $col);
             $desc = trim($_POST["desc_$i"] ?? '');

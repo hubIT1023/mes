@@ -402,7 +402,7 @@ CREATE TABLE tool_state_metadata (
     PRIMARY KEY (org_id, col_number),
 
     CONSTRAINT CHK_col_number 
-        CHECK (col_number ~ '^col_([1-9]|1[0-6])$')
+        CHECK (col_number ~ '^col_([1-9]|1[0-9]|2[0-4])$')
 );
 
 

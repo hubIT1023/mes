@@ -1,4 +1,4 @@
-﻿
+
 <?php
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
@@ -118,7 +118,7 @@ include __DIR__ . '/../layouts/html/header.php';
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php for ($i = 1; $i <= 16; $i++): 
+                                                 <?php for ($i = 1; $i <= 24; $i++): 
                                                     $col = "col_$i";
                                                     $label = $labels[$col]['label'] ?? $col;
                                                     $desc = $labels[$col]['description'] ?? '';
