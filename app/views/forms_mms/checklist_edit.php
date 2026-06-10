@@ -22,6 +22,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
     <h3>Edit Checklist: <?= htmlspecialchars($checklist['header']['checklist_id']) ?></h3>
 
     <form action="/mes/form_mms/checklist_update" method="POST">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
         <input type="hidden" name="checklist_id" value="<?= htmlspecialchars($checklist['header']['checklist_id']) ?>">
 
         <div class="mb-3">

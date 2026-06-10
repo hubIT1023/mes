@@ -21,6 +21,10 @@ class ChecklistController {
             exit;
         }
 
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
         $tenantId = $_SESSION['tenant']['org_id'];
 
         $filters = [
@@ -147,6 +151,10 @@ class ChecklistController {
             exit;
         }
 
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
         $tenantId = $_SESSION['tenant']['org_id'];
         $checklistId = $_GET['checklist_id'] ?? null;
 
@@ -173,44 +181,92 @@ class ChecklistController {
     public function update() {
         if (session_status() === PHP_SESSION_NONE) session_start();
 
+        $isJson = (strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false);
+        $input = $isJson ? json_decode(file_get_contents('php://input'), true) : $_POST;
+
+        if ($isJson) {
+            header('Content-Type: application/json');
+        }
+
         if (!isset($_SESSION['tenant'])) {
-            header("Location: /mes/signin?error=Please+log+in");
+            if ($isJson) {
+                http_response_code(401);
+                echo json_encode(['success' => false, 'error' => 'Please log in']);
+            } else {
+                header("Location: /mes/signin?error=Please+log+in");
+            }
             exit;
         }
 
         $tenantId = $_SESSION['tenant']['org_id'];
 
-        $checklistId     = $_POST['checklist_id'] ?? null;
-        $maintenanceType = $_POST['maintenance_type'] ?? null;
-        $intervalDays    = $_POST['interval_days'] ?? null;
+        // Validate CSRF
+        $csrfToken = $input['csrf_token'] ?? '';
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
+            if ($isJson) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Security check failed. Please refresh.']);
+            } else {
+                $_SESSION['error'] = "Security check failed. Please refresh.";
+                header("Location: /mes/form_mms/checklists");
+            }
+            exit;
+        }
 
-        $taskIds   = $_POST['task_id'] ?? [];
-        $taskTexts = $_POST['task_text'] ?? [];
-        $taskOrder = $_POST['task_order'] ?? [];
+        $checklistId     = $input['checklist_id'] ?? null;
+        $maintenanceType = $input['maintenance_type'] ?? null;
+        $workOrder       = $input['work_order'] ?? null;
+        $description     = $input['description'] ?? null;
+        $intervalDays    = $input['interval_days'] ?? null;
+
+        $taskIds   = $input['task_id'] ?? [];
+        $taskTexts = $input['task_text'] ?? [];
+        $taskOrder = $input['task_order'] ?? [];
 
         if (!$checklistId) {
-            $_SESSION['error'] = "Missing checklist ID.";
-            header("Location: /mes/form_mms/checklists");
+            if ($isJson) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Missing checklist ID.']);
+            } else {
+                $_SESSION['error'] = "Missing checklist ID.";
+                header("Location: /mes/form_mms/checklists");
+            }
             exit;
         }
 
         $updated = $this->model->updateChecklist($tenantId, $checklistId, [
             'maintenance_type' => $maintenanceType,
+            'work_order'       => $workOrder,
+            'description'      => $description,
             'interval_days'    => $intervalDays,
             'tasks'            => [
-                'task_id'   => $taskIds,
-                'task_text' => $taskTexts,
+                'task_id'    => $taskIds,
+                'task_text'  => $taskTexts,
                 'task_order' => $taskOrder
             ]
         ]);
 
-        if ($updated) {
-            $_SESSION['success'] = "Checklist successfully updated!";
+        if ($isJson) {
+            if ($updated) {
+                $fresh = $this->model->getChecklistById($tenantId, $checklistId);
+                echo json_encode([
+                    'success' => true,
+                    'message' => "Checklist successfully updated!",
+                    'tasks' => $fresh['tasks'] ?? []
+                ]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => "No changes were made or update failed."]);
+            }
+            exit;
         } else {
-            $_SESSION['error'] = "No changes were made or update failed.";
+            if ($updated) {
+                $_SESSION['success'] = "Checklist successfully updated!";
+            } else {
+                $_SESSION['error'] = "No changes were made or update failed.";
+            }
+            header("Location: /mes/form_mms/checklists");
+            exit;
         }
-
-        header("Location: /mes/form_mms/checklists");
-        exit;
     }
 }

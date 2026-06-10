@@ -152,6 +152,8 @@ class ChecklistModel {
                 UPDATE checklist_template
                 SET 
                     maintenance_type = :maintenance_type,
+                    work_order = :work_order,
+                    description = :description,
                     interval_days = :interval_days,
                     updated_at = NOW()
                 WHERE tenant_id = :tenant_id
@@ -161,6 +163,8 @@ class ChecklistModel {
             $stmt = $this->db->prepare($sqlTemplate);
             $stmt->execute([
                 'maintenance_type' => $data['maintenance_type'],
+                'work_order'       => $data['work_order'] ?? null,
+                'description'      => $data['description'] ?? null,
                 'interval_days'    => $data['interval_days'],
                 'tenant_id'        => $tenantId,
                 'checklist_id'     => $checklistId
